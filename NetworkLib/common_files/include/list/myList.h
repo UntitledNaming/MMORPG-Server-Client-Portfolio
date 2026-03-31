@@ -111,10 +111,10 @@ public:
 		prevNode->_Next = nextNode;
 		nextNode->_Prev = prevNode;
 
-		//³ëµå Áö¿ì±â
+		//ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
 		delete it._node;
 
-		//´ÙÀ½ ³ëµå °¡¸®Å°´Â iterator ¹ÝÈ¯
+		//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å°ï¿½ï¿½ iterator ï¿½ï¿½È¯
 		iterator ret = nextNode;
 		_size--;
 
@@ -122,13 +122,13 @@ public:
 	}
 	List()
 	{
-		//Dummy ³ëµå »ý¼º
+		//Dummy ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		_head = new Node;
 		_tail = new Node;
 		_head->_Prev = nullptr;
 		_tail->_Next = nullptr;
 
-		//Çìµå, Å×ÀÏ ³ëµå ¿¬°á
+		//ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		_head->_Next = _tail;
 		_tail->_Prev = _head;
 
@@ -138,12 +138,12 @@ public:
 	{
 		if (_size > 0)
 		{
-			//¸®½ºÆ®¿¡ ³²¾ÆÀÖ´Â ¿ø¼Ò »èÁ¦
+			//ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			clear();
 
 		}
 
-		//Çìµå, Å×ÀÏ ³ëµå »èÁ¦
+		//ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		delete _head;
 		delete _tail;
 	}
@@ -196,7 +196,7 @@ public:
 	{
 		for (iterator it = begin(); it != end();++it)
 		{
-			//iterator·Î ¸®½ºÆ® ¼øÈ¸ÇÏ¸é¼­ ÀÎÀÚ·Î ¹ÞÀº Data Ã£±â
+			//iteratorï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½È¸ï¿½Ï¸é¼­ ï¿½ï¿½ï¿½Ú·ï¿½ ï¿½ï¿½ï¿½ï¿½ Data Ã£ï¿½ï¿½
 			if (*it == Data)
 			{
 				erase(it);
@@ -210,7 +210,7 @@ public:
 	{
 		for (iterator it = begin(); it != end(); ++it)
 		{
-			//iterator·Î ¸®½ºÆ® ¼øÈ¸ÇÏ¸é¼­ ÀÎÀÚ·Î ¹ÞÀº Data Ã£±â
+			//iteratorï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½È¸ï¿½Ï¸é¼­ ï¿½ï¿½ï¿½Ú·ï¿½ ï¿½ï¿½ï¿½ï¿½ Data Ã£ï¿½ï¿½
 			if (*it == Data)
 			{
 				return it;

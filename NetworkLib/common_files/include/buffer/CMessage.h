@@ -25,8 +25,7 @@ public:
 	void             SetNetHeader(int type);                            // 네트워크 헤더를 먼저 버퍼에 넣기 위한 함수. 네트워크 헤더를 위한 공간 확보함.
 	void             SetEncodingFlag(int value);
 
-
-
+	int              GetRefCount();
 	int              GetEncodingFlag();
 	int              GetBufferSize();                                   // 반환값 : 버퍼 사이즈
 	int              GetDataSize();                                     // 반환값 : 현재 사용중인 데이터 크기(네트워크 헤더 제외)

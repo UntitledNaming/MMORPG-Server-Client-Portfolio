@@ -1,0 +1,74 @@
+#include <windows.h>
+#include <string>
+#include <unordered_map>
+#include "ContentsDefine.h"
+#include "ContentsProtocol.h"
+#include "CMessage.h"
+#include "MemoryPoolTLS.h"
+#include "IUser.h"
+#include "CUser.h"
+#include "CGroup.h"
+#include "AuthGroup.h"
+
+using namespace AuthConst;
+using namespace AuthProtocol;
+
+void AuthGroup::Init(CGameLibrary* p)
+{
+	m_pGameLib = p;
+	m_GroupFrameTime = NONUSER_TIMEOUT;
+	m_OldTime = timeGetTime();
+	m_Shared = false;
+	m_RecvTPS = 0;
+	m_SendTPS = 0;
+	m_FrameTPS = 0;
+	InitializeSRWLock(&m_GroupLock);
+}
+
+void AuthGroup::Destroy()
+{
+
+}
+
+void AuthGroup::OnClientJoin(UINT64 sessionID)
+{
+	m_nonuserTable.insert(std::pair<UINT64, DWORD>(sessionID, timeGetTime()));
+}
+
+void AuthGroup::OnClientLeave(UINT64 sessionID)
+{
+	m_nonuserTable.erase(sessionID);
+}
+
+void AuthGroup::OnRecv(UINT64 sessionID, CMessage* pMessage)
+{
+	WORD type;
+	*pMessage >> type;
+
+	switch (type)
+	{
+	case PACKET_CS_CHAT_LOGIN_REQ:
+		LoginRequestProc(sessionID, pMessage);
+		break;
+
+	}
+}
+
+void AuthGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
+{
+}
+
+void AuthGroup::OnUpdate()
+{
+	// NonUserTimeOut
+}
+
+void AuthGroup::LoginRequestProc(UINT64 sessionID, CMessage* pMessage)
+{
+	std::wstring field = L"Field";
+
+	CUser* pUser = CUser::Alloc();
+	pUser->Init(sessionID);
+
+	GroupMove(field, sessionID, (IUser*)pUser);
+}

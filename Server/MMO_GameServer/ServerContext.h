@@ -2,26 +2,33 @@
 #include <windows.h>
 #include <unordered_map>
 #include "LockFreeMemoryPoolLive.h"
-#include "CUser.h"
 
+using namespace std;
+
+class CUser;
 class IModule;
+class GameServer;
 
 struct ServerContext
 {
-	std::unordered_map<UINT64, CUser*>& m_userTable;
-	std::unordered_map<UINT64, DWORD>&  m_nonuserTable;
-	std::vector<IModule*>&              m_moduleTable;
+	unordered_map<UINT64, CUser*>& m_userTable;
+	unordered_map<UINT64, DWORD>&  m_nonuserTable;
+	vector<IModule*>&              m_moduleTable;
+	UINT&                               m_moduleIdx;
 	SRWLOCK&                            m_userTableLock;
 	SRWLOCK&                            m_nonuserTableLock;
 	CMemoryPool<CUser>&                 m_pUserpool;
+	GameServer&                         m_gameServer;
 
-	ServerContext(std::unordered_map<UINT64, CUser*>& u,
-		std::unordered_map<UINT64, DWORD>& nu,
+	ServerContext(unordered_map<UINT64, CUser*>& u,
+		unordered_map<UINT64, DWORD>& nu,
 		CMemoryPool<CUser>& pool,
 		SRWLOCK& ulk, 
 		SRWLOCK& nulk, 
-		std::vector<IModule*>& mt) : m_userTable(u), m_nonuserTable(nu),
-		m_pUserpool(pool), m_userTableLock(ulk), m_nonuserTableLock(nulk), m_moduleTable(mt)
+		vector<IModule*>& mt,
+		GameServer& gs,
+		UINT& midx) : m_userTable(u), m_nonuserTable(nu),
+		m_pUserpool(pool), m_userTableLock(ulk), m_nonuserTableLock(nulk), m_moduleTable(mt), m_gameServer(gs), m_moduleIdx(midx)
 	{
 	};
 };

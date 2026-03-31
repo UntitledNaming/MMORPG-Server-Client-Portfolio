@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)..\..\NetworkLib\common_files\include\util;$(SolutionDir)..\..\NetworkLib\common_files\include\memorypool;$(SolutionDir)..\..\NetworkLib\common_files\include\lockfree;$(SolutionDir)..\..\NetworkLib\common_files\include\list;$(SolutionDir)..\..\NetworkLib\common_files\include\dbtls;$(SolutionDir)..\..\NetworkLib\common_files\include\buffer;$(SolutionDir)..\..\NetworkLib\network_library\include;C:\Program Files\MySQL\MySQL Server 8.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\..\NetworkLib\common_files\include\util;$(ProjectDir);$(SolutionDir)..\..\NetworkLib\common_files\include\memorypool;$(SolutionDir)..\..\NetworkLib\common_files\include\lockfree;$(SolutionDir)..\..\NetworkLib\common_files\include\list;$(SolutionDir)..\..\NetworkLib\common_files\include\dbtls;$(SolutionDir)..\..\NetworkLib\common_files\include\buffer;$(SolutionDir)..\..\NetworkLib\network_library\include;C:\Program Files\MySQL\MySQL Server 8.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -141,7 +141,6 @@
     <ClCompile Include="..\..\NetworkLib\network_library\src\CSession.cpp" />
     <ClCompile Include="Auth.cpp" />
     <ClCompile Include="Chat.cpp" />
-    <ClCompile Include="CUser.cpp" />
     <ClCompile Include="Field.cpp" />
     <ClCompile Include="GameServer.cpp" />
     <ClCompile Include="MMO_GameServer.cpp" />
@@ -149,9 +148,9 @@
   <ItemGroup>
     <ClInclude Include="Auth.h" />
     <ClInclude Include="Chat.h" />
-    <ClInclude Include="CommonProtocol.h" />
     <ClInclude Include="CUser.h" />
     <ClInclude Include="Field.h" />
+    <ClInclude Include="GameDefine.h" />
     <ClInclude Include="GameServer.h" />
     <ClInclude Include="IModule.h" />
     <ClInclude Include="ServerContext.h" />

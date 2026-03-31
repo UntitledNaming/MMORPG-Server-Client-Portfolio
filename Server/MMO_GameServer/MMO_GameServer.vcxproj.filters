@@ -48,9 +48,6 @@
     <ClCompile Include="..\..\NetworkLib\network_library\src\CSession.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="CUser.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Field.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -71,9 +68,6 @@
     <ClInclude Include="IModule.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="CommonProtocol.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Field.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -84,6 +78,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ServerContext.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDefine.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

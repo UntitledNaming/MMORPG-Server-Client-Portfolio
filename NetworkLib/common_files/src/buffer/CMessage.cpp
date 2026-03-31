@@ -13,7 +13,7 @@ INT CMessage::m_iLanHeaderSize = 0;
 bool CMessage::m_netHderFlag = false;
 
 
-//Á÷·ÄÈ­ ¹öÆÛ »ý¼ºÀÚ¿¡¼­´Â refCnt = 0À¸·Î ÇÏ°í Alloc ÇÏ°í ClearÇÒ ¶§ refCnt = 1·Î ¸¸µë.
+//ï¿½ï¿½ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ï¿½ï¿½ refCnt = 0ï¿½ï¿½ï¿½ï¿½ ï¿½Ï°ï¿½ Alloc ï¿½Ï°ï¿½ Clearï¿½ï¿½ ï¿½ï¿½ refCnt = 1ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 
 CMessage::CMessage()
 {
@@ -106,6 +106,11 @@ void CMessage::Clear(int type)
 	{
 		SetNetHeader(type);
 	}
+}
+
+int CMessage::GetRefCount()
+{
+	return m_iRefCnt;
 }
 
 int CMessage::GetEncodingFlag()
@@ -233,17 +238,17 @@ bool CMessage::Resize()
 	if (m_iBufferSize * 2 >= eBuffer_Max)
 		return false;
 
-	// ÀÓ½Ã ¹öÆÛ »ý¼º
-	char* pTemp = (char*)malloc(m_iBufferSize * 2); //2¹è Å« Á÷·ÄÈ­ ¹öÆÛ »ý¼º
-	memcpy_s(pTemp, m_iBufferSize, m_iAllocPtr, m_iBufferSize); //±âÁ¸ Á÷·ÄÈ­ ¹öÆÛ º¹»ç
+	// ï¿½Ó½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	char* pTemp = (char*)malloc(m_iBufferSize * 2); //2ï¿½ï¿½ Å« ï¿½ï¿½ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	memcpy_s(pTemp, m_iBufferSize, m_iAllocPtr, m_iBufferSize); //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	
-	__int64 tempWpos = m_iWritePos - m_iAllocPtr; //offset ±¸ÇÏ±â
+	__int64 tempWpos = m_iWritePos - m_iAllocPtr; //offset ï¿½ï¿½ï¿½Ï±ï¿½
 	__int64 tempRpos = m_iReadPos - m_iAllocPtr;
 
-	//±âÁ¸ ¹öÆÛ ÇØÁ¦
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	free(m_iAllocPtr);
 
-	//ÀÓ½Ã ¹öÆÛ Æ÷ÀÎÅÍ¸¦ m_iBuffer °ªÀ¸·Î ¼³Á¤ ¹× ¹öÆÛ Å©±â Àç¼³Á¤
+	//ï¿½Ó½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ m_iBuffer ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½ ï¿½ç¼³ï¿½ï¿½
 	m_iAllocPtr = pTemp;
 	m_iBufferSize = m_iBufferSize * 2;
 	m_iWritePos = m_iAllocPtr+ tempWpos;
@@ -269,7 +274,8 @@ int CMessage::SubRef()
 	return InterlockedDecrement((volatile long*)&m_iRefCnt);
 }
 
-#pragma region ¿¬»êÀÚ ¿À¹ö·Îµù
+
+#pragma region ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Îµï¿½
 CMessage& CMessage::operator=(CMessage& clSrcMessage)
 {
 	m_iDataSize = clSrcMessage.GetDataSize();

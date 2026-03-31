@@ -5,7 +5,7 @@
 #include <Pdh.h>
 #include <codecvt>
 #include <mysql.h>
-#include "CommonProtocol.h"
+#include "GameDefine.h"
 #include "LibraryHeader.h"
 #include "CUser.h"
 #include "CPUUsage.h"
@@ -27,6 +27,8 @@
 #include "CLanServer.h"
 #include "GameServer.h"
 
+#pragma warning (disable:4996)
+
 GameServer::GameServer() : m_moduleTBLIdx(0), m_endflag(false)
 {
 
@@ -42,7 +44,7 @@ void GameServer::RunServer()
 	timeBeginPeriod(1);
 
 	Parser parser;
-	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+	wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 
 	if (!parser.LoadFile("Config.txt"))
 		return;
@@ -50,7 +52,7 @@ void GameServer::RunServer()
 	Parser::st_Msg bindip;
 	parser.GetValue("BIND_IP", &bindip);
 
-	std::wstring bindstr = converter.from_bytes(bindip.s_ptr);
+	wstring bindstr = converter.from_bytes(bindip.s_ptr);
 	
 	INT bindport;
 	parser.GetValue("BIND_PORT", &bindport);
@@ -102,7 +104,7 @@ void GameServer::StopServer()
 
 	Thread_Destroy();
 
-	// ¸ðµâ °´Ã¼ Á¾·á ÇÔ¼ö È£Ãâ
+	// ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ È£ï¿½ï¿½
 	for (int i = 0; i < m_moduleTBLIdx; i++)
 	{
 		m_moduleTable[i]->Destroy();
@@ -117,7 +119,7 @@ void GameServer::StopServer()
 
 bool GameServer::RegistModule(IModule* pModule)
 {
-	if (m_moduleTBLIdx >= df_MODULE_MAXCOUNT)
+	if (m_moduleTBLIdx >= MODULE_MAX_COUNT)
 		return false;
 
 	m_moduleTable[m_moduleTBLIdx] = pModule;
@@ -126,24 +128,24 @@ bool GameServer::RegistModule(IModule* pModule)
 	return true;
 }
 
+
 void GameServer::Mem_Init(INT usermax, CHAR* dbip, INT dbport)
 {
-	std::string schema = "world";
-
+	string schema = "world";
 	m_endflag = false;
 	m_pUserpool = new CMemoryPool<CUser>;
 	m_dbQue = new LFQueue<CMessage*>;
 	m_dbTLS = new DBTLS(dbip,dbport, schema);
-	m_moduleTable.resize(df_MODULE_MAXCOUNT);
+	m_moduleTable.resize(MODULE_MAX_COUNT);
 	m_dbEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	InitializeSRWLock(&m_nonuserTableLock);
 	InitializeSRWLock(&m_userTableLock);
 
 	Thread_Create();
 
-	m_ctx = new ServerContext(m_userTable, m_nonuserTable, *m_pUserpool, m_userTableLock, m_nonuserTableLock, m_moduleTable);
+	m_ctx = new ServerContext(m_userTable, m_nonuserTable, *m_pUserpool, m_userTableLock, m_nonuserTableLock, m_moduleTable, *this, m_moduleTBLIdx);
 
-	// ¸ðµâ °´Ã¼ ÃÊ±âÈ­ ÇÔ¼ö È£Ãâ
+	// ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½Ê±ï¿½È­ ï¿½Ô¼ï¿½ È£ï¿½ï¿½
 	for (int i = 0; i < m_moduleTBLIdx; i++)
 	{
 		m_moduleTable[i]->Init(m_ctx);
@@ -152,9 +154,9 @@ void GameServer::Mem_Init(INT usermax, CHAR* dbip, INT dbport)
 
 void GameServer::Thread_Create()
 {
-	m_update = std::thread(&GameServer::UpdateThread, this);
-	m_monitor = std::thread(&GameServer::UpdateThread, this);
-	m_db = std::thread(&GameServer::DBThread, this);
+	m_update = thread(&GameServer::UpdateThread, this);
+	m_monitor = thread(&GameServer::UpdateThread, this);
+	m_db = thread(&GameServer::DBThread, this);
 }
 
 void GameServer::Thread_Destroy()
@@ -191,22 +193,22 @@ void GameServer::OnClientJoin(UINT64 SessionID)
 
 void GameServer::OnClientLeave(UINT64 SessionID)
 {
-	std::unordered_map<UINT64, DWORD>::iterator itNon;
-	std::unordered_map<UINT64, CUser*>::iterator itOn;
+	unordered_map<UINT64, DWORD>::iterator itNon;
+	unordered_map<UINT64, CUser*>::iterator itOn;
 
-	//Non À¯Àú ÀÚ·á ±¸Á¶¿¡¼­ ¸ÕÀú Ã£±â
+	//Non ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½
 	AcquireSRWLockExclusive(&m_nonuserTableLock);
 	itNon = m_nonuserTable.find(SessionID);
 	if (itNon != m_nonuserTable.end())
 	{
-		//Ã£¾ÒÀ¸¸é Á¦°ÅÇÏ°í ³¡
+		//Ã£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½
 		m_nonuserTable.erase(itNon);
 		ReleaseSRWLockExclusive(&m_nonuserTableLock);
 		return;
 	}
 	ReleaseSRWLockExclusive(&m_nonuserTableLock);
 
-	// ³íÀ¯Àú¿¡ ¾øÀ¸¸é À¯Àú¿¡¼­ Ã£±â
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½
 	AcquireSRWLockExclusive(&m_userTableLock);
 	itOn = m_userTable.find(SessionID);
 	if (itOn == m_userTable.end())
@@ -215,38 +217,74 @@ void GameServer::OnClientLeave(UINT64 SessionID)
 	CUser* pUser = itOn->second;
 	m_userTable.erase(itOn);
 
+	ReleaseSRWLockExclusive(&m_userTableLock);
+
 	for (int i = 0; i < m_moduleTBLIdx; i++)
 	{
 		m_moduleTable[i]->OnUserDelete(pUser);
 	}
 
-	m_pUserpool->Free(pUser);
-	ReleaseSRWLockExclusive(&m_userTableLock);
+	// todo : Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ DB ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
 
+	m_pUserpool->Free(pUser);
 }
 
 void GameServer::OnRecv(UINT64 SessionID, CMessage* pMessage)
 {
-	WORD type;
-	*pMessage >> type;
+	m_moduleTable[(WORD) * (pMessage->GetReadPos()) / PROTOCAL_RANGE]->OnRecv(SessionID, pMessage);
 
-	if (pMessage->GetLastError())
-	{
-		Disconnect(SessionID);
-		LOG(L"GameServer", en_LOG_LEVEL::dfLOG_LEVEL_ERROR, L"UserRecvMsg::CMessage Flag Error...  / SessionID : %lld ", SessionID);
-		return;
-	}
-
-	m_moduleTable[type / df_PROTOCOL_RANGE]->OnRecv(SessionID, type, pMessage);
-
+	// todo : timeï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ nonuser, user ï¿½ï¿½ï¿½
 }
 
 void GameServer::MonitorThread()
 {
+	time_t start;
+	tm* local_time;
+
+	UINT64 loopCnt = 1;
+	UINT64 AcptTPSSum = 0;
+	UINT64 SendIOSum = 0;
+	UINT64 RecvIOSum = 0;
+
+	start = time(NULL);
+	local_time = localtime(&start);
+
 	while (!m_endflag)
 	{
 		Sleep(1000);
 
+		AcptTPSSum += m_AcceptTPS;
+
+		wprintf(L"Start Time : %04d / %02d / %02d, %02d:%02d:%02d\n",
+			local_time->tm_year + 1900,
+			local_time->tm_mon + 1,
+			local_time->tm_mday,
+			local_time->tm_hour,
+			local_time->tm_min,
+			local_time->tm_sec);
+		wprintf(L"======================= TPS ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ================================\n");
+		wprintf(L"Accept                                        TPS    : (Avg %lld , %d) \n", AcptTPSSum / loopCnt, m_AcceptTPS);
+		wprintf(L"SendIOComplete                                TPS    : (Avg %lld, %d) \n", SendIOSum / loopCnt, m_SendIOTPS);
+		wprintf(L"RecvIOComplete                                TPS    : (Avg %lld, %d) \n", RecvIOSum / loopCnt, m_RecvIOTPS);
+
+
+		wprintf(L"====================== Ä«ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ==============================\n");
+		wprintf(L"UserMap / NonUserMap                   Count   : %lld / %lld \n", m_userTable.size(), m_nonuserTable.size());
+		wprintf(L"SessionTable                           Count   : %d \n", m_CurSessionCnt);
+		wprintf(L"Accept  Total                          Count   : %lld \n", m_AcceptTotal);
+
+
+		wprintf(L"====================== ï¿½ï¿½ë·® ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ==============================\n");
+		wprintf(L" CMessagePool                 Count : %lld \n", CMessage::m_pMessagePool->GetUseCnt());
+		wprintf(L"     UserPool                 Count : %d \n", m_pUserpool->GetUseCnt());
+
+
+
+		//wprintf(L"[ CPU Usage : T[%f%] U[%f%] K[%f%]]\n", processtotalsum / loopCnt, processusersum / loopCnt, processkernelsum / loopCnt);
+		//wprintf(L"[ Available        Memory Usage : %lf MByte ] [ NonPagedMemory Usage : %lf MByte ]\n", m_pPDH->m_AvailableMemoryVal.doubleValue / (1024 * 1024), m_pPDH->m_NonPagedMemoryVal.doubleValue / (1024 * 1024));
+		//wprintf(L"[ Process User     Memory Usage : %lf MByte ]  [ Process NonPaged Memory Usage : %lf KByte ]\n", m_pPDH->m_processUserMemoryVal.doubleValue / (1024 * 1024), m_pPDH->m_processNonPagedMemoryVal.doubleValue / 1024);
+		//wprintf(L"[ TCP Retransmitted Avg   Count : %lf /sec  ]  [ TCP Segment Sent  Avg   Count : % lf / sec]\n", tcpretransmitsum / loopCnt, tcpsegmentsentsum / loopCnt);
+		loopCnt++;
 	}
 }
 
@@ -265,7 +303,7 @@ void GameServer::DBThread()
 
 	}
 
-	// todo : Å¥¿¡ ÀÖ´Â°Í ´Ù ÀúÀå ÈÄ ½º·¹µå ÆÄ±«
+	// todo : Å¥ï¿½ï¿½ ï¿½Ö´Â°ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ä±ï¿½
 	while (m_dbQue->Dequeue(pMessage))
 	{
 		CMessage::Free(pMessage);
@@ -281,22 +319,22 @@ void GameServer::UpdateThread()
 
 	while (!m_endflag)
 	{
-		// Å¸ÀÓ ¾Æ¿ô Ã³¸®
+		// Å¸ï¿½ï¿½ ï¿½Æ¿ï¿½ Ã³ï¿½ï¿½
 		curtick = timeGetTime();
 
-		if (curtick - oldUserTimeoutTick >= df_USER_TIMEOUT)
-		{
-			UserTimeOut();
-			oldUserTimeoutTick += df_USER_TIMEOUT;
-		}
+		//if (curtick - oldUserTimeoutTick >= df_USER_TIMEOUT)
+		//{
+		//	UserTimeOut();
+		//	oldUserTimeoutTick += df_USER_TIMEOUT;
+		//}
 
-		if (curtick - oldNonUserTimeoutTick >= df_NONUSER_TIMEOUT)
-		{
-			NonUserTimeOut();
-			oldNonUserTimeoutTick += df_NONUSER_TIMEOUT;
-		}
+		//if (curtick - oldNonUserTimeoutTick >= df_NONUSER_TIMEOUT)
+		//{
+		//	NonUserTimeOut();
+		//	oldNonUserTimeoutTick += df_NONUSER_TIMEOUT;
+		//}
 
-		// ¸ðµâ ÇÁ·¹ÀÓ ·ÎÁ÷ Ã³¸®
+		// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
 		ModuleFrame();
 	}
 }
@@ -307,11 +345,11 @@ void GameServer::ModuleFrame()
 
 	for (int i = 0; i < m_moduleTBLIdx; i++)
 	{
-		// ÇÁ·¹ÀÓ ¼³Á¤ÀÌ µû·Î ¾ÈµÇ¾î ÀÖÀ¸¸é pass
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ÈµÇ¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ pass
 		if (m_moduleTable[i]->GetFrame() == -1)
 			continue;
 
-		// todo : ÇÁ·¹ÀÓ ¹Ð¸± °æ¿ì ÃÖ´ë È½¼ö Á¤ÇØ¼­ OnUpdate È£ÃâÇÏ±â
+		// todo : ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ð¸ï¿½ ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ È½ï¿½ï¿½ ï¿½ï¿½ï¿½Ø¼ï¿½ OnUpdate È£ï¿½ï¿½ï¿½Ï±ï¿½
 		if (curTick - m_moduleTable[i]->GetOldTime() >= m_moduleTable[i]->GetFrame())
 		{
 			m_moduleTable[i]->OnUpdate();
@@ -325,17 +363,17 @@ void GameServer::UserTimeOut()
 {
 	DWORD curtick = timeGetTime();
 	CUser* pUser = nullptr;
-	std::unordered_map<UINT64, CUser*>::iterator it; 
+	unordered_map<UINT64, CUser*>::iterator it; 
 
 	AcquireSRWLockShared(&m_userTableLock);
 	for (it = m_userTable.begin(); it != m_userTable.end(); ++it)
 	{
 		pUser = it->second;
 		
-		if (curtick - pUser->GetRecvTime() < df_USER_TIMEOUT)
+		if (curtick - pUser->m_recvTime < USER_TIMEOUT)
 			continue;
 
-		Disconnect(pUser->GetSessionID());
+		Disconnect(pUser->m_sessionID);
 	}
 
 	ReleaseSRWLockShared(&m_userTableLock);
@@ -344,13 +382,13 @@ void GameServer::UserTimeOut()
 void GameServer::NonUserTimeOut()
 {
 	DWORD curtick = timeGetTime();
-	std::unordered_map<UINT64, DWORD>::iterator it;
+	unordered_map<UINT64, DWORD>::iterator it;
 
 	AcquireSRWLockShared(&m_nonuserTableLock);
 
 	for (it = m_nonuserTable.begin(); it != m_nonuserTable.end(); ++it)
 	{
-		if (curtick - it->second < df_NONUSER_TIMEOUT)
+		if (curtick - it->second < NONUSER_TIMEOUT)
 			continue;
 
 		Disconnect(it->first);

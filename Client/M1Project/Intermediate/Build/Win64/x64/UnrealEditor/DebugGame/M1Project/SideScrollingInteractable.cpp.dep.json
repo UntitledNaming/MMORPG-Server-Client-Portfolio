@@ -1,0 +1,15 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "c:\\users\\sdj53\\documents\\github\\mmo-server-portfolio\\client\\m1project\\source\\m1project\\variant_sidescrolling\\interfaces\\sidescrollinginteractable.cpp",
+        "ProvidedModule": "",
+        "PCH": "c:\\users\\sdj53\\documents\\github\\mmo-server-portfolio\\client\\m1project\\intermediate\\build\\win64\\x64\\m1projecteditor\\debuggame\\unrealed\\sharedpch.unrealed.project.nonoptimized.valapi.valexpapi.cpp20.h.pch",
+        "Includes": [
+            "c:\\users\\sdj53\\documents\\github\\mmo-server-portfolio\\client\\m1project\\intermediate\\build\\win64\\x64\\unrealeditor\\debuggame\\m1project\\definitions.m1project.h",
+            "c:\\users\\sdj53\\documents\\github\\mmo-server-portfolio\\client\\m1project\\source\\m1project\\variant_sidescrolling\\interfaces\\sidescrollinginteractable.h",
+            "c:\\users\\sdj53\\documents\\github\\mmo-server-portfolio\\client\\m1project\\intermediate\\build\\win64\\unrealeditor\\inc\\m1project\\uht\\sidescrollinginteractable.generated.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

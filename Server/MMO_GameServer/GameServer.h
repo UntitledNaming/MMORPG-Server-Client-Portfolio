@@ -1,11 +1,10 @@
 #pragma once
+#include "GameDefine.h"
 
-#define df_MODULE_MAXCOUNT  100
-#define df_PROTOCOL_RANGE   1000
-#define df_NONUSER_TIMEOUT  4000
-#define df_USER_TIMEOUT     40000
+using namespace GameServerConst;
+using namespace std;
 
-class GameServer : CLanServer
+class GameServer : public CLanServer
 {
 public:
 	GameServer();
@@ -48,16 +47,16 @@ private:
 	///////////////////////////////////
     // 게임 서버 스레드 관련 변수    //
     ///////////////////////////////////
-	std::thread                        m_monitor;
-	std::thread                        m_db;
-	std::thread                        m_update;
+	thread                             m_monitor;
+	thread                             m_db;
+	thread                             m_update;
 	BOOL                               m_endflag;
 
 	///////////////////////////////////
 	// 유저 관련 멤버변수            //
 	///////////////////////////////////
-	std::unordered_map<UINT64, CUser*> m_userTable;
-	std::unordered_map<UINT64,DWORD>   m_nonuserTable;
+	unordered_map<UINT64, CUser*>      m_userTable;
+	unordered_map<UINT64,DWORD>        m_nonuserTable;
 	SRWLOCK                            m_userTableLock;
 	SRWLOCK                            m_nonuserTableLock;
 	CMemoryPool<CUser>*                m_pUserpool;
@@ -65,7 +64,7 @@ private:
 	///////////////////////////////////
     // 모듈 관련 멤버변수            //
     ///////////////////////////////////
-	std::vector<IModule*>              m_moduleTable;
+	vector<IModule*>                   m_moduleTable;
 	UINT                               m_moduleTBLIdx;
 
 	///////////////////////////////////

@@ -1,0 +1,44 @@
+{
+    "version": "2.1.0",
+    "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+    "runs": [
+        {
+            "results": [
+                {
+                    "ruleId": "C5038",
+                    "message": {
+                        "text": "데이터 멤버 'CLanClient::m_pSession'은(는) 데이터 멤버 'CLanClient::m_serverport' 이후에 초기화됩니다."
+                    },
+                    "analysisTarget": {
+                        "uri": "file:///C:/Users/sdj53/Documents/GitHub/MMO-Server-Portfolio/Client/M1Project/Source/M1Project/Network/ClientCore/CLanGameClient.cpp"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "file:///C:/Users/sdj53/Documents/GitHub/MMO-Server-Portfolio/Client/M1Project/Source/M1Project/Network/ClientCore/CLanGameClient.cpp"
+                                },
+                                "region": {
+                                    "startLine": 12,
+                                    "startColumn": 58,
+                                    "snippet": {
+                                        "text": "CLanClient::CLanClient() : m_iocp(INVALID_HANDLE_VALUE), m_pSession(nullptr), m_serverport(-1)"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "tool": {
+                "driver": {
+                    "name": "MSVC",
+                    "shortDescription": {
+                        "text": "Microsoft Visual C++ Compiler Warnings/Errors"
+                    },
+                    "informationUri": "https://docs.microsoft.com/cpp/error-messages/compiler-errors-1/c-cpp-build-errors"
+                }
+            }
+        }
+    ]
+}

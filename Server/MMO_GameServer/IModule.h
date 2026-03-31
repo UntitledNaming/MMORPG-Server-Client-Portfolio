@@ -1,21 +1,22 @@
 #pragma once
 
 #include <windows.h>
-#include "CUser.h"
-#include "CMessage.h"
-#include "ServerContext.h"
+
+class CUser;
+class CMessage;
+class ServerContext;
 
 class IModule
 {
 public:
 	IModule() = default;
-	virtual ~IModule() = 0;
+	virtual ~IModule() = default;
 
 	virtual void Init(ServerContext* ctx) = 0;
 	virtual void Destroy() = 0;
 	virtual void OnUserCreate(CUser* pUser) = 0;
 	virtual void OnUserDelete(CUser* pUser) = 0;
-	virtual void OnRecv(UINT64 sessionID, WORD type, CMessage* pMessage) = 0;
+	virtual void OnRecv(UINT64 sessionID, CMessage* pMessage) = 0;
 	virtual void OnUpdate() = 0;
 
 	inline DWORD GetFrame()
