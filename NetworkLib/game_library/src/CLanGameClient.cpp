@@ -509,23 +509,23 @@ void CLanClient::RecvIOProc(DWORD cbTransferred)
 		pPacket->Clear();
 
 		//RecvQ에서 완성된 메세지 확인
-		LANHEADER header;
+		GAMELIB_LANHEADER header;
 
 
 
 		//수신 링버퍼에 len이 네트워크 헤더인데 이정도도 없으면 그냥 끝내기
 		unsigned long long usesize = m_pSession->s_RecvQ.GetUseSize();
-		if (usesize <= sizeof(LANHEADER))
+		if (usesize <= sizeof(GAMELIB_LANHEADER))
 		{
 			CMessage::Free(pPacket);
 			break;
 		}
 
-		retPeekHeader = m_pSession->s_RecvQ.Peek((char*)&header, sizeof(LANHEADER));
+		retPeekHeader = m_pSession->s_RecvQ.Peek((char*)&header, sizeof(GAMELIB_LANHEADER));
 
 
 		//수신 링버퍼에 남은게 네트워크 헤더 + payload 크기 보다 작으면 그냥 peek만 해서 네트워크 헤더 보고 나가는 것임.
-		if (usesize < header.s_len + sizeof(LANHEADER))
+		if (usesize < header.s_len + sizeof(GAMELIB_LANHEADER))
 		{
 			CMessage::Free(pPacket);
 			break;

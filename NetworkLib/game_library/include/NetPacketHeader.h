@@ -1,20 +1,20 @@
-#pragma once
+﻿#pragma once
 #include <windows.h>
 
 //////////////////////////////////////////////
-// routeType�� Ŭ�� -> �������� �ʿ��ϰ�
-// ���� -> Ŭ�󿡼��� �ʿ������ Ŭ��� ����
+// 
+// 
 //////////////////////////////////////////////
 #pragma pack(push,1)
 struct st_GAMELIB_LANHEADER
 {
 	WORD  s_len;
-	WORD  s_serviceID;   // routeType�� ������ ��� ��ȿ. �Ʒ� ServiceID ���ӽ����̽� ����
-	BYTE  s_routeType;   // 0 : �׷� , 1 : ����, 2 : ����
+	WORD  s_serviceID;   // 
+	BYTE  s_routeType;   // 
 }typedef GAMELIB_LANHEADER;
 #pragma pack(pop)
 
-enum class ERouteType : uint8
+enum class ERouteType : unsigned char
 {
 	GROUP = 0,
 	SERVICE,

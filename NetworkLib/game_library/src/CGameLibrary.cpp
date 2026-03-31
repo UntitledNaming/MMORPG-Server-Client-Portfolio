@@ -513,7 +513,7 @@ void CGameLibrary::SendThread()
 		starttime = timeGetTime();
 		for (int i = 0; i < m_MaxSessionCnt; i++)
 		{
-			if (m_SessionTable[i].m_SessionID == df_INVALID_SESSIONID)
+			if (m_SessionTable[i].m_SessionID == GAMESESSION_INVALID_ID)
 				continue;
 
 			if (!SessionInvalid(&m_SessionTable[i], m_SessionTable[i].m_SessionID))
@@ -579,8 +579,8 @@ void CGameLibrary::AcceptThread()
 			continue;
 		}
 
-		WCHAR szClientIP[df_GAMELIB_IP_LEN] = { 0 };
-		InetNtopW(AF_INET, &clientAddr.sin_addr, szClientIP, df_GAMELIB_IP_LEN);
+		WCHAR szClientIP[GAMELIB_IP_LEN] = { 0 };
+		InetNtopW(AF_INET, &clientAddr.sin_addr, szClientIP, GAMELIB_IP_LEN);
 
 
 		//Overlapped IO로 작동시키기 위해 소켓 송신 버퍼 0으로 설정
@@ -671,7 +671,7 @@ bool CGameLibrary::SendPacket(UINT64 SessionID, CMessage* pMessage)
 		GAMELIB_LANHEADER header;
 		//컨텐츠 메세지 길이 구해서 네트워크 헤더 만들기
 		header.s_len = pMessage->GetDataSize(); // 직렬화 버퍼에 담긴 컨텐츠 메세지 크기를 len으로 설정
-		header.s_routeType = ROUTE_TYPE::NONE;
+		header.s_routeType = ERouteType::NONE;
 		header.s_serviceID = ServiceID::NONE_SERVICE;
 
 
@@ -1104,7 +1104,7 @@ void CGameLibrary::RecvIOProc(CSession* pSession, DWORD cbTransferred)
 		pPacket->MoveWritePos(retPeekPayload);
 
 
-		if (header.s_routeType == ROUTE_TYPE::GROUP)
+		if (header.s_routeType == ERouteType::GROUP)
 		{
 			UINT16 id = pSession->m_GroupID;
 			if (m_GroupArray[id]->GetSharedFlag())
@@ -1121,7 +1121,7 @@ void CGameLibrary::RecvIOProc(CSession* pSession, DWORD cbTransferred)
 			}
 		}
 		
-		else if (header.s_routeType == ROUTE_TYPE::SERVICE)
+		else if (header.s_routeType == ERouteType::SERVICE)
 		{
 			if (m_serviceArray[header.s_serviceID]->GetSharedFlag())
 			{
