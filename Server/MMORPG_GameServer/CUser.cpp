@@ -10,7 +10,7 @@ CMPoolTLS<CUser> CUser::m_userPool;
 using namespace UserConst;
 
 
-void CUser::Init(UINT64 sessionID)
+void CUser::Init(uint64 sessionID)
 {
 	m_sessionID = sessionID;
 	m_xpos = 0;

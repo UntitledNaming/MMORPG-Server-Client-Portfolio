@@ -1,5 +1,6 @@
 #pragma once
 #include "ContentsDefine.h"
+#include "ContentsType.h"
 
 class CUser;
 
@@ -9,14 +10,14 @@ private:
 
 	struct st_Pos
 	{
-		WORD m_xpos;
-		WORD m_ypos;
+		uint16 m_xpos;
+		uint16 m_ypos;
 	}typedef Pos;
 
 	struct st_UserArray
 	{
 		std::vector<CUser*> m_userTable;
-		WORD                m_userCount;
+		uint16              m_userCount;
 	}typedef UserArray;
 
 	struct st_Sector
@@ -28,8 +29,8 @@ private:
 
 	struct st_SectorAround
 	{
-		WORD m_count;
-		Pos  m_Around[9];
+		uint16 m_count;
+		Pos    m_Around[9];
 	}typedef SectorAround;
 
 
@@ -52,20 +53,20 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	// 섹터 관련 함수
 	//////////////////////////////////////////////////////////////////////////////////
-	bool SectorRangeCheck(WORD xpos, WORD ypos);
-	void SectorFind(SectorAround& pAround, WORD xpos, WORD ypos);
-	void SendPacket_SectorOne(CMessage* pMessage, WORD xpos, WORD ypos, CUser* pUser);     // 해당 섹터에 있는 유저들에게 메세지 보내기
+	bool SectorRangeCheck(uint16 xpos, uint16 ypos);
+	void SectorFind(SectorAround& pAround, uint16 xpos, uint16 ypos);
+	void SendPacket_SectorOne(CMessage* pMessage, uint16 xpos, uint16 ypos, CUser* pUser);     // 해당 섹터에 있는 유저들에게 메세지 보내기
 	void SendPacket_SectorAround(CMessage* pMessage, CUser* pUser);                        // 해당 섹터에 있는 유저들에게 메세지 보내기
 
 	///////////////////////////////////
     // Input Offset 처리 함수        //
     ///////////////////////////////////
-	bool GetInputOffset(BYTE inputMask, FLOAT& outOffset);
+	bool GetInputOffset(uint8 inputMask, float& outOffset);
 
 	///////////////////////////////////
     // Degree 변환 함수              //
     ///////////////////////////////////
-	constexpr FLOAT DegreeToRadian(FLOAT degree)
+	constexpr float DegreeToRadian(float degree)
 	{
 		return degree * FieldConst::PI / 180.0f;
 	}
@@ -83,7 +84,7 @@ public:
 	///////////////////////////////////
     // 클라이언트 메세지 처리 핸들러 //
     ///////////////////////////////////
-	void HandleCharacterInputUpdate(UINT64 sessionID, CMessage* pMessage);
+	void HandleCharacterInputUpdate(uint64 sessionID, CMessage* pMessage);
 
 	///////////////////////////////////
     // 프레임 로직 처리 함수         //
@@ -92,7 +93,7 @@ public:
 
 
 private:
-	std::unordered_map<UINT64, CUser*> m_userLookUpTable;
+	std::unordered_map<uint64, CUser*> m_userLookUpTable;
 	Sector                             m_sectors[FieldConst::SECTOR_Y_MAX][FieldConst::SECTOR_X_MAX];
 };
 

@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)..\..\NetworkLib\common_files\include\util;$(ProjectDir);$(SolutionDir)..\..\NetworkLib\common_files\include\memorypool;C:\Program Files\MySQL\MySQL Server 8.0\include;$(SolutionDir)..\..\NetworkLib\common_files\include\lockfree;$(SolutionDir)..\..\NetworkLib\common_files\include\list;$(SolutionDir)..\..\NetworkLib\common_files\include\dbtls;$(SolutionDir)..\..\NetworkLib\common_files\include\buffer;$(SolutionDir)..\..\NetworkLib\game_library\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\..\NetworkLib\common_files\include\util;$(ProjectDir);$(SolutionDir)..\..\NetworkLib\common_files\include\memorypool;C:\Program Files\MySQL\MySQL Server 8.0\include;$(SolutionDir)..\..\NetworkLib\common_files\include\lockfree;$(SolutionDir)..\..\NetworkLib\common_files\include\list;$(SolutionDir)..\..\NetworkLib\common_files\include\dbtls;$(SolutionDir)..\..\NetworkLib\common_files\include\buffer;$(SolutionDir)..\..\NetworkLib\game_library\include;$(SolutionDir)..\..\Common\Contents;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -155,7 +155,6 @@
     <ClInclude Include="CDBManager.h" />
     <ClInclude Include="ChatService.h" />
     <ClInclude Include="ContentsDefine.h" />
-    <ClInclude Include="ContentsProtocol.h" />
     <ClInclude Include="CUser.h" />
     <ClInclude Include="CUserDirectory.h" />
     <ClInclude Include="FieldGroup.h" />

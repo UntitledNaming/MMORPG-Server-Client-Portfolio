@@ -1,10 +1,6 @@
 #pragma once
 
-// 언리얼과 서버 공용 자료형 정의
-typedef unsigned __int64   uint64;
-typedef unsigned short     uint16;
-typedef unsigned char      uint8;
-
+#include "ContentsType.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // 0    ~ 999  : Auth  Protocol
@@ -33,7 +29,7 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr WORD PACKET_SC_CREATE_OTHER_CHARACTER = 1001;
+    constexpr uint16 PACKET_SC_CREATE_OTHER_CHARACTER = 1001;
     //---------------------------------------------------------------
     // 	Other Character Create Msg			   Server -> Client
     //
@@ -50,7 +46,7 @@ namespace FieldProtocol
     //---------------------------------------------------------------
 
 
-    constexpr WORD PACKET_SC_DELETE_CHARACTER = 1002;
+    constexpr uint16 PACKET_SC_DELETE_CHARACTER = 1002;
     //---------------------------------------------------------------
     // Character Delete Msg 					Server -> Client
     //
@@ -60,7 +56,7 @@ namespace FieldProtocol
     //---------------------------------------------------------------
 
 
-    constexpr WORD PACKET_CS_CHARACTER_INPUT_UPDATE = 1003;
+    constexpr uint16 PACKET_CS_CHARACTER_INPUT_UPDATE = 1003;
     //---------------------------------------------------------------
     // Character Input Data Update Msg          Client -> Server
     //
@@ -74,42 +70,42 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr WORD PACKET_SC_CHARACTER_INPUT_UPDATE = 1004;
+    constexpr uint16 PACKET_SC_CHARACTER_INPUT_UPDATE = 1004;
     //---------------------------------------------------------------
     //  Character Input Data Update Msg         Server -> Client
     //
     // 
     //  8   -   CharacterID     (uint64)
-    //	4	-   Xpos		    (FLOAT)
-    //	4	-   Ypos		    (FLOAT)
-    //	4	-   CameraYawX    	(FLOAT)
-    //	4	-   CameraYawY    	(FLOAT)
-    //	1	-   InputMask	    (BYTE)
-    //	1	-   Action  	    (BYTE)
+    //	4	-   Xpos		    (float)
+    //	4	-   Ypos		    (float)
+    //	4	-   CameraYawX    	(float)
+    //	4	-   CameraYawY    	(float)
+    //	1	-   InputMask	    (uint8)
+    //	1	-   Action  	    (uint8)
     //
     //---------------------------------------------------------------
 
 
-    constexpr WORD PACKET_SC_MY_CHARACTER_POS_SYNC = 1005;
+    constexpr uint16 PACKET_SC_MY_CHARACTER_POS_SYNC = 1005;
     //---------------------------------------------------------------
     //  My Character Position Sync Msg         Server -> Client
     //
     // 
-    //	4	-   Xpos		    (FLOAT)
-    //	4	-   Ypos		    (FLOAT)
+    //	4	-   Xpos		    (float)
+    //	4	-   Ypos		    (float)
     //
     //---------------------------------------------------------------
 
 
-    constexpr WORD PACKET_SC_OTHER_CHARACTER_POS_SYNC = 1006;
+    constexpr uint16 PACKET_SC_OTHER_CHARACTER_POS_SYNC = 1006;
     //---------------------------------------------------------------
     //  Other Character Position Sync Msg      Server -> Client
     //
     //
     // 
-    //  8   -   CharacterID     (UINT64)
-    //	4	-   Xpos		    (FLOAT)
-    //	4	-   Ypos		    (FLOAT)
+    //  8   -   CharacterID     (uint64)
+    //	4	-   Xpos		    (float)
+    //	4	-   Ypos		    (float)
     //
     //---------------------------------------------------------------
 }

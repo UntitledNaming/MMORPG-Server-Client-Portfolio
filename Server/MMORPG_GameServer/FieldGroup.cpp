@@ -46,7 +46,9 @@ void FieldGroup::OnClientJoin(UINT64 sessionID)
 
 void FieldGroup::OnClientLeave(UINT64 sessionID)
 {
-	std::unordered_map<UINT64, CUser*>::iterator it;
+	
+
+	std::unordered_map<uint64, CUser*>::iterator it;
 	it = m_userLookUpTable.find(sessionID);
 	if (it == m_userLookUpTable.end())
 		__debugbreak();
@@ -73,7 +75,7 @@ void FieldGroup::OnClientLeave(UINT64 sessionID)
 
 void FieldGroup::OnRecv(UINT64 sessionID, CMessage* pMessage)
 {
-	WORD type;
+	uint16 type;
 	*pMessage >> type;
 
 	switch (type)
@@ -90,7 +92,7 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 	// 필드 자료구조에 유저 삽입
 	CUser* pOnUser = (CUser*)pUser;
 
-	m_userLookUpTable.insert(std::pair<UINT64, CUser*>(sessionID, pOnUser));
+	m_userLookUpTable.insert(std::pair<uint64, CUser*>(sessionID, pOnUser));
 
 	UserArray& userArray = m_sectors[pOnUser->m_sectorYpos][pOnUser->m_sectorXpos].m_userArray;
 	userArray.m_userTable[userArray.m_userCount] = pOnUser;
@@ -115,8 +117,8 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 	// 섹터 순회하면서 캐릭터 생성 메세지 보내기
 	for (int i = 0; i < sectAround.m_count; i++)
 	{
-		WORD curSecXpos = sectAround.m_Around[i].m_xpos;
-		WORD curSecYpos = sectAround.m_Around[i].m_ypos;
+		uint16 curSecXpos = sectAround.m_Around[i].m_xpos;
+		uint16 curSecYpos = sectAround.m_Around[i].m_ypos;
 
 		// 주변 섹터에 본인 캐릭터 생성 메세지 만들고 보내기
 		CMessage* pCreateMyChrToOtherMsg = CMessage::Alloc();
@@ -128,7 +130,7 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 		CMessage::Free(pCreateMyChrToOtherMsg);
 
 		// 해당 섹터의 유저 생성 메세지를 만들어 본인 캐릭터에게 전송
-		WORD curUserCount = m_sectors[curSecYpos][curSecXpos].m_userArray.m_userCount;
+		uint16 curUserCount = m_sectors[curSecYpos][curSecXpos].m_userArray.m_userCount;
 
 		// 섹터에 있는 유저 순회
 		for (int j = 0; j < curUserCount; j++)
@@ -155,7 +157,7 @@ void FieldGroup::OnUpdate()
 	MovementProc();
 }
 
-bool FieldGroup::SectorRangeCheck(WORD xpos, WORD ypos)
+bool FieldGroup::SectorRangeCheck(uint16 xpos, uint16 ypos)
 {
 	if (xpos < 0 || ypos < 0 || xpos >= SECTOR_X_MAX || ypos >= SECTOR_Y_MAX)
 		return false;
@@ -163,12 +165,12 @@ bool FieldGroup::SectorRangeCheck(WORD xpos, WORD ypos)
 	return true;
 }
 
-void FieldGroup::SectorFind(SectorAround& pAround, WORD xpos, WORD ypos)
+void FieldGroup::SectorFind(SectorAround& pAround, uint16 xpos, uint16 ypos)
 {
-	INT cnt = 0;
+	int cnt = 0;
 
-	WORD xarray[9] = { -1,0,1,-1,0,1,-1,0,1 };
-	WORD yarray[9] = { -1,-1,-1,0,0,0,1,1,1 };
+	uint16 xarray[9] = { -1,0,1,-1,0,1,-1,0,1 };
+	uint16 yarray[9] = { -1,-1,-1,0,0,0,1,1,1 };
 
 	for (int i = 0; i < 9; i++)
 	{
@@ -183,10 +185,10 @@ void FieldGroup::SectorFind(SectorAround& pAround, WORD xpos, WORD ypos)
 	pAround.m_count = cnt;
 }
 
-void FieldGroup::SendPacket_SectorOne(CMessage* pMessage, WORD xpos, WORD ypos, CUser* pUser)
+void FieldGroup::SendPacket_SectorOne(CMessage* pMessage, uint16 xpos, uint16 ypos, CUser* pUser)
 {
 	vector<CUser*>& userArray = m_sectors[ypos][xpos].m_userArray.m_userTable;
-	DWORD count = m_sectors[ypos][xpos].m_userArray.m_userCount;
+	uint32 count = m_sectors[ypos][xpos].m_userArray.m_userCount;
 
 	for (int i = 0; i < count; i++)
 	{
@@ -203,8 +205,8 @@ void FieldGroup::SendPacket_SectorOne(CMessage* pMessage, WORD xpos, WORD ypos, 
 
 void FieldGroup::SendPacket_SectorAround(CMessage* pMessage, CUser* pUser)
 {
-	DWORD secX = pUser->m_sectorXpos;
-	DWORD secY = pUser->m_sectorYpos;
+	uint32 secX = pUser->m_sectorXpos;
+	uint32 secY = pUser->m_sectorYpos;
 
 	SectorAround around;
 	SectorFind(around, secX, secY);
@@ -215,7 +217,7 @@ void FieldGroup::SendPacket_SectorAround(CMessage* pMessage, CUser* pUser)
 	}
 }
 
-bool FieldGroup::GetInputOffset(BYTE inputMask, FLOAT& outOffset)
+bool FieldGroup::GetInputOffset(uint8 inputMask, float& outOffset)
 {
 	outOffset = 0;
 
@@ -297,7 +299,7 @@ void FieldGroup::mpCreateOtherCharacter(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_ypos;
 	*pMessage << pUser->m_cameraYaw;
 	*pMessage << pUser->m_hp;
-	*pMessage << (BYTE)pUser->m_action;
+	*pMessage << (uint8)pUser->m_action;
 }
 
 void FieldGroup::mpDeleteCharacter(CUser* pUser, CMessage* pMessage)
@@ -314,7 +316,7 @@ void FieldGroup::mpCharacterInputUpdate(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_ypos;
 	*pMessage << pUser->m_cameraYaw;
 	*pMessage << pUser->m_inputMask;
-	*pMessage << (BYTE)pUser->m_action;
+	*pMessage << (uint8)pUser->m_action;
 }
 
 void FieldGroup::mpSyncMyCharacterPosition(CUser* pUser, CMessage* pMessage)
@@ -332,13 +334,13 @@ void FieldGroup::mpSyncOtherCharacterPosition(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_ypos;
 }
 
-void FieldGroup::HandleCharacterInputUpdate(UINT64 sessionID, CMessage* pMessage)
+void FieldGroup::HandleCharacterInputUpdate(uint64 sessionID, CMessage* pMessage)
 {
-	FLOAT xpos;
-	FLOAT ypos;
-	FLOAT camerayaw;
-	BYTE inputmask;
-	BYTE action;
+	float xpos;
+	float ypos;
+	float camerayaw;
+	uint8 inputmask;
+	uint8 action;
 
 	*pMessage >> xpos;
 	*pMessage >> ypos;
@@ -350,7 +352,7 @@ void FieldGroup::HandleCharacterInputUpdate(UINT64 sessionID, CMessage* pMessage
 
 	CUser* pUser = nullptr;
 
-	std::unordered_map<UINT64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
+	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
 	
 	if (it == m_userLookUpTable.end())
 		__debugbreak();
@@ -399,7 +401,7 @@ void FieldGroup::HandleCharacterInputUpdate(UINT64 sessionID, CMessage* pMessage
 
 void FieldGroup::MovementProc()
 {
-	std::unordered_map<UINT64, CUser*>::iterator it = m_userLookUpTable.begin();
+	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.begin();
 
 	for (; it != m_userLookUpTable.end(); ++it)
 	{
@@ -409,18 +411,18 @@ void FieldGroup::MovementProc()
 		if (pUser->m_action == CUser::USER_ACTION::STOP || pUser->m_inputMask == InputMask::None)
 			continue;
 
-		FLOAT offset = 0.0f;
+		float offset = 0.0f;
 
 		// 상쇄 키 입력 발생시 이동 안하고 다음 유저
 		if (!GetInputOffset(pUser->m_inputMask, offset))
 			continue;
 
-		FLOAT moveyaw = pUser->m_cameraYaw + offset;
+		float moveyaw = pUser->m_cameraYaw + offset;
 
 		// Degree -> Radian으로 변환
-		FLOAT rad = DegreeToRadian(moveyaw);
-		FLOAT dirX = cosf(rad);
-		FLOAT dirY = sinf(rad);
+		float rad = DegreeToRadian(moveyaw);
+		float dirX = cosf(rad);
+		float dirY = sinf(rad);
 
 		// 나중에 달리기도 구현시 action 타입에 따라서 xpos 변경
 		if (pUser->m_action == CUser::USER_ACTION::WALK)

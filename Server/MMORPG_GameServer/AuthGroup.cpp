@@ -32,7 +32,7 @@ void AuthGroup::Destroy()
 
 void AuthGroup::OnClientJoin(UINT64 sessionID)
 {
-	m_nonuserTable.insert(std::pair<UINT64, DWORD>(sessionID, timeGetTime()));
+	m_nonuserTable.insert(std::pair<uint64, DWORD>(sessionID, timeGetTime()));
 }
 
 void AuthGroup::OnClientLeave(UINT64 sessionID)
@@ -42,7 +42,7 @@ void AuthGroup::OnClientLeave(UINT64 sessionID)
 
 void AuthGroup::OnRecv(UINT64 sessionID, CMessage* pMessage)
 {
-	WORD type;
+	uint16 type;
 	*pMessage >> type;
 
 	switch (type)

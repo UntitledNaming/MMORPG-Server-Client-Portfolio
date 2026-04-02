@@ -89,9 +89,6 @@
     <ClInclude Include="FieldGroup.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ContentsProtocol.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="ContentsDefine.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>

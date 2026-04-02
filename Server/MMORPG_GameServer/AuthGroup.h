@@ -1,4 +1,5 @@
 #pragma once
+#include "ContentsType.h"
 
 class AuthGroup : public CGroup
 {
@@ -18,6 +19,6 @@ public:
 
 
 private:
-	std::unordered_map<UINT64, DWORD> m_nonuserTable;
+	std::unordered_map<uint64, DWORD> m_nonuserTable;
 };
 
