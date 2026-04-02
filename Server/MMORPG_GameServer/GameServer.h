@@ -1,17 +1,28 @@
 #pragma once
 
+class CGameLibrary;
+class CUserDirectory;
+class CDBManager;
+class AuthGroup;
+class FieldGroup;
+
 class GameServer
 {
 public:
 	GameServer();
 	~GameServer();
 
-private:
-	CGameLibrary   m_gameLib;
-	CUserDirectory m_userDirectory;
-	CDBManager     m_dbManager;
-	AuthGroup      m_authGroup;
-	FieldGroup     m_fieldGroup;
+	void Init();
+	void Monitoring();
 
+private:
+	CGameLibrary*   m_pGameLib;
+	CUserDirectory* m_pUserDirectory;
+	CDBManager*     m_pDBManager;
+	AuthGroup*      m_pAuthGroup;
+	FieldGroup*     m_pFieldGroup;
+
+	std::thread     m_monitorThread;
+	BOOL            m_endFlag;
 };
 

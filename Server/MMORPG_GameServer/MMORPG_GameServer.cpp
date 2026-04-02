@@ -4,15 +4,14 @@
 #include <vector>
 #include <unordered_map>
 #include "GameLibDefine.h"
-
 #include "CGroup.h"
 #include "CService.h"
+#include "CGameLibrary.h"
 #include "AuthGroup.h"
 #include "FieldGroup.h"
 #include "ChatService.h"
 #include "CDBManager.h"
 #include "CUserDirectory.h"
-#include "CGameLibrary.h"
 #include "GameServer.h"
 
 int main()

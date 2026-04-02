@@ -5,6 +5,8 @@
 #include "IUser.h"
 #include "CUser.h"
 
+CMPoolTLS<CUser> CUser::m_userPool;
+
 using namespace UserConst;
 
 
@@ -29,7 +31,7 @@ void CUser::Init(UINT64 sessionID)
 
 CUser* CUser::Alloc()
 {
-	m_userPool.Alloc();
+	return m_userPool.Alloc();
 }
 
 

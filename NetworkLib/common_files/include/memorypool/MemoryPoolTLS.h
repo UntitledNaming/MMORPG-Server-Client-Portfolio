@@ -13,9 +13,6 @@ template<typename U>
 class CMPoolTLS 
 {
 protected:
-
-	class CSubPool;
-
 	struct Node
 	{
 		U         s_data;
@@ -27,6 +24,131 @@ protected:
 	{
 		Node* s_Top;
 		UINT  s_Cnt;                                //버킷이 들고 있는 노드 갯수
+	};
+
+
+	class CSubPool
+	{
+		using Bucket = CMPoolTLS<U>::Bucket;
+		using Node = CMPoolTLS<U>::Node;
+
+	public:
+		Bucket* m_iAlloc;    //할당 버킷 포인터 변수
+		Bucket* m_iRet;      //반환용 버킷 포인터 변수
+		CMPoolTLS* m_parent;
+		INT        m_AllocCnt;
+		INT        m_FreeCnt;
+
+	public:
+		CSubPool(CMPoolTLS* parent) : m_parent(parent)
+		{
+			//버킷 할당 하기
+			if (!m_parent->g_pBucketPool->Pop(m_iAlloc))
+			{
+				// 공용 버킷 락프리 스택에 버킷* 원소가 없는 경우
+				// 버킷을 바로 생성해서 설정해버리기
+				m_iAlloc = m_parent->BucketAlloc();
+			}
+
+			//SubPool은 MemoryPoolTLS 생성자 호출 후에 생성되기 때문에 순서 걱정 안해도 됨.
+			m_iRet = m_parent->g_pCaseBucketPool->Alloc();
+			m_iRet->s_Cnt = 0;
+			m_iRet->s_Top = nullptr;
+			m_AllocCnt = 0;
+			m_FreeCnt = 0;
+		}
+		~CSubPool()
+		{
+
+		}
+
+		U* Alloc()
+		{
+			Node* temp;
+
+			if (m_iAlloc->s_Top == nullptr)
+			{
+
+				m_parent->g_pCaseBucketPool->Free(m_iAlloc);
+
+				//버킷에 있는 노드 다 꺼낸 경우 공용 버킷 락프리 스택에서 Pop해서 가져오기
+				if (!m_parent->g_pBucketPool->Pop(m_iAlloc))
+				{
+					m_iAlloc = m_parent->BucketAlloc();
+				}
+
+			}
+
+			m_iAlloc->s_Cnt--;
+
+			//현재 버킷의 top 임시 저장
+			temp = m_iAlloc->s_Top;
+
+			//top 변경
+			m_iAlloc->s_Top = temp->s_pNext;
+
+			m_AllocCnt++;
+
+			//placement == true면 생성자 호출
+			if (m_parent->m_bPlacementNew == true)
+				new(&temp->s_data) U;
+
+			return &(temp->s_data);
+		}
+
+		bool Free(U* pData)
+		{
+			//반환받은 객체 주소를 통해 실제 메모리 풀 노드 주소 구하기
+			Node* newNode = (Node*)pData;
+
+			//다른 메모리풀의 노드를 반환했을 때 그냥 false return하기
+			if (newNode->s_poolid != m_parent->m_iOriginID)
+				return false;
+
+			//bPlacementNew 체크해서 true 면 소멸자 호출해주기
+			if (m_parent->m_bPlacementNew == true)
+				pData->~U();
+
+
+			//기존 버킷에 넣고 제한량 넘었으면 반환용 버킷에 넣기
+
+			//기존 버킷 사용량 체크
+			if (m_iAlloc->s_Cnt == BUCKET_SIZE)
+			{
+				//버킷에 갯수 다 찼으면 반환 버킷에 넣기
+
+				//반환 버킷에 넣을 때 만약에 버킷 다 찼으면 락프리 스택에 버킷 포인터 넣어주기
+				if (m_iRet->s_Cnt == BUCKET_SIZE)
+				{
+					m_parent->g_pBucketPool->Push(m_iRet);
+
+					//새로운 버킷 껍데기 가져오기
+					m_iRet = m_parent->g_pCaseBucketPool->Alloc();
+					m_iRet->s_Cnt = 0;
+					m_iRet->s_Top = nullptr;
+				}
+
+				//기존 반환 버킷에 노드 넣고 끝
+				m_iRet->s_Cnt++;
+				newNode->s_pNext = m_iRet->s_Top;
+				m_iRet->s_Top = newNode;
+				m_FreeCnt++;
+
+				return true;
+			}
+
+
+
+			//기존 버킷 안 찼으면 head, cnt 갱신
+			newNode->s_pNext = m_iAlloc->s_Top;
+
+			m_iAlloc->s_Top = newNode;
+			m_iAlloc->s_Cnt++;
+
+			m_FreeCnt++;
+			return true;
+		}
+
 	};
 
 	struct SubPool
@@ -285,130 +407,6 @@ public:
 
 		return (ret->Free(pData));
 	}
-	
-	class CSubPool
-	{
-		using Bucket = CMPoolTLS<U>::Bucket;
-		using Node = CMPoolTLS<U>::Node;
-
-	public:
-		Bucket*    m_iAlloc;    //할당 버킷 포인터 변수
-		Bucket*    m_iRet;      //반환용 버킷 포인터 변수
-		CMPoolTLS* m_parent;
-		INT        m_AllocCnt;
-		INT        m_FreeCnt;
-
-	public:
-		CSubPool(CMPoolTLS* parent) : m_parent(parent)
-		{
-			//버킷 할당 하기
-			if (!m_parent->g_pBucketPool->Pop(m_iAlloc))
-			{
-				// 공용 버킷 락프리 스택에 버킷* 원소가 없는 경우
-				// 버킷을 바로 생성해서 설정해버리기
-				m_iAlloc = m_parent->BucketAlloc();
-			}
-
-			//SubPool은 MemoryPoolTLS 생성자 호출 후에 생성되기 때문에 순서 걱정 안해도 됨.
-			m_iRet = m_parent->g_pCaseBucketPool->Alloc();
-			m_iRet->s_Cnt = 0;
-			m_iRet->s_Top = nullptr;
-			m_AllocCnt = 0;
-			m_FreeCnt = 0;
-		}
-		~CSubPool()
-		{
-
-		}
-
-		U* Alloc()
-		{
-			Node* temp;
-
-			if (m_iAlloc->s_Top == nullptr)
-			{
-
-				m_parent->g_pCaseBucketPool->Free(m_iAlloc);
-
-				//버킷에 있는 노드 다 꺼낸 경우 공용 버킷 락프리 스택에서 Pop해서 가져오기
-				if (!m_parent->g_pBucketPool->Pop(m_iAlloc))
-				{
-					m_iAlloc = m_parent->BucketAlloc();
-				}
-
-			}
-
-			m_iAlloc->s_Cnt--;
-
-			//현재 버킷의 top 임시 저장
-			temp = m_iAlloc->s_Top;
-
-			//top 변경
-			m_iAlloc->s_Top = temp->s_pNext;
-
-			m_AllocCnt++;
-
-			//placement == true면 생성자 호출
-			if(m_parent->m_bPlacementNew == true)
-				new(&temp->s_data) U;
-
-			return &(temp->s_data);
-		}
-
-		bool Free(U* pData)
-		{
-			//반환받은 객체 주소를 통해 실제 메모리 풀 노드 주소 구하기
-			Node* newNode = (Node*)pData;
-
-			//다른 메모리풀의 노드를 반환했을 때 그냥 false return하기
-			if (newNode->s_poolid != m_parent->m_iOriginID)
-				return false;
-
-			//bPlacementNew 체크해서 true 면 소멸자 호출해주기
-			if (m_parent->m_bPlacementNew == true)
-				pData->~U();
-			
-
-			//기존 버킷에 넣고 제한량 넘었으면 반환용 버킷에 넣기
-
-			//기존 버킷 사용량 체크
-			if (m_iAlloc->s_Cnt == BUCKET_SIZE)
-			{
-				//버킷에 갯수 다 찼으면 반환 버킷에 넣기
-
-				//반환 버킷에 넣을 때 만약에 버킷 다 찼으면 락프리 스택에 버킷 포인터 넣어주기
-				if (m_iRet->s_Cnt == BUCKET_SIZE)
-				{
-					m_parent->g_pBucketPool->Push(m_iRet);
-
-					//새로운 버킷 껍데기 가져오기
-					m_iRet = m_parent->g_pCaseBucketPool->Alloc();
-					m_iRet->s_Cnt = 0;
-					m_iRet->s_Top = nullptr;
-				}
-
-				//기존 반환 버킷에 노드 넣고 끝
-				m_iRet->s_Cnt++;
-				newNode->s_pNext = m_iRet->s_Top;
-				m_iRet->s_Top = newNode;
-				m_FreeCnt++;
-
-				return true;
-			}
-
-
-
-			//기존 버킷 안 찼으면 head, cnt 갱신
-			newNode->s_pNext = m_iAlloc->s_Top;
-
-			m_iAlloc->s_Top = newNode;
-			m_iAlloc->s_Cnt++;
-
-			m_FreeCnt++;
-			return true;
-		}
-
-	};
 
 };
 

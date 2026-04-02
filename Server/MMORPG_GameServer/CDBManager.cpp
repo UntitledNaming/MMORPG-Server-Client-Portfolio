@@ -1,6 +1,9 @@
 #include <windows.h>
 #include <thread>
+#include <string>
+#include <mysql.h>
 #include "DBTLS.h"
+#include "MemoryPoolTLS.h"
 #include "LFQSingleLive.h"
 #include "CMessage.h"
 #include "CDBManager.h"

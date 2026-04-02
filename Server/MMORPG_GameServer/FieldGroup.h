@@ -1,7 +1,9 @@
 #pragma once
-#include <AuthGroup.cpp>
+#include "ContentsDefine.h"
 
-class FieldGroup : CGroup
+class CUser;
+
+class FieldGroup : public CGroup
 {
 private:
 
@@ -65,7 +67,7 @@ public:
     ///////////////////////////////////
 	constexpr FLOAT DegreeToRadian(FLOAT degree)
 	{
-		return degree * PI / 180.0f;
+		return degree * FieldConst::PI / 180.0f;
 	}
 
 	///////////////////////////////////

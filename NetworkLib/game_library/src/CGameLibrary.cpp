@@ -671,7 +671,7 @@ bool CGameLibrary::SendPacket(UINT64 SessionID, CMessage* pMessage)
 		GAMELIB_LANHEADER header;
 		//컨텐츠 메세지 길이 구해서 네트워크 헤더 만들기
 		header.s_len = pMessage->GetDataSize(); // 직렬화 버퍼에 담긴 컨텐츠 메세지 크기를 len으로 설정
-		header.s_routeType = ERouteType::NONE;
+		header.s_routeType = (BYTE)ERouteType::NONE;
 		header.s_serviceID = ServiceID::NONE_SERVICE;
 
 
@@ -786,46 +786,6 @@ bool CGameLibrary::GroupMove(std::wstring& ToContents, UINT64 sessionID, IUser* 
 	PostQueuedCompletionStatus(m_IOCP, NULL, (ULONG_PTR)pMessage, (LPOVERLAPPED)en_GROUPMOVE);
 	
 	return true;
-}
-
-LONG CGameLibrary::GetAcceptTPS()
-{
-	return m_AcceptTPS;
-}
-
-LONG CGameLibrary::GetRecvIOTPS()
-{
-	return m_RecvIOTPS;
-}
-
-LONG CGameLibrary::GetSendIOTPS()
-{
-	return m_SendIOTPS;
-}
-
-INT64 CGameLibrary::GetAcceptTotal()
-{
-	return m_AcceptTotal;
-}
-
-SHORT CGameLibrary::GetCurSessionCount()
-{
-	return m_CurSessionCnt;
-}
-
-void CGameLibrary::SetAcceptTPS(LONG value)
-{
-	m_AcceptTPS = value;
-}
-
-void CGameLibrary::SetRecvIOTPS(LONG value)
-{
-	m_RecvIOTPS = value;
-}
-
-void CGameLibrary::SetSendIOTPS(LONG value)
-{
-	m_SendIOTPS = value;
 }
 
 CGroup* CGameLibrary::GetGroupPtr(std::wstring& Contents)
@@ -1104,7 +1064,7 @@ void CGameLibrary::RecvIOProc(CSession* pSession, DWORD cbTransferred)
 		pPacket->MoveWritePos(retPeekPayload);
 
 
-		if (header.s_routeType == ERouteType::GROUP)
+		if (header.s_routeType == (BYTE)ERouteType::GROUP)
 		{
 			UINT16 id = pSession->m_GroupID;
 			if (m_GroupArray[id]->GetSharedFlag())
@@ -1121,7 +1081,7 @@ void CGameLibrary::RecvIOProc(CSession* pSession, DWORD cbTransferred)
 			}
 		}
 		
-		else if (header.s_routeType == ERouteType::SERVICE)
+		else if (header.s_routeType == (BYTE)ERouteType::SERVICE)
 		{
 			if (m_serviceArray[header.s_serviceID]->GetSharedFlag())
 			{

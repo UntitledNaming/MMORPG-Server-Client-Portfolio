@@ -2,6 +2,9 @@
 
 class DBTLS;
 
+template<typename T>
+class LFQueue;
+
 class CDBManager
 {
 public:

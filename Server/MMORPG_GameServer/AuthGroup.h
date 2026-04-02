@@ -1,6 +1,6 @@
 #pragma once
 
-class AuthGroup :CGroup
+class AuthGroup : public CGroup
 {
 public:
 	AuthGroup() = default;

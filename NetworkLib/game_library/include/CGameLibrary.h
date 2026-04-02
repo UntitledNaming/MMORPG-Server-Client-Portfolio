@@ -135,16 +135,6 @@ public:
 	bool          FindIP(UINT64 SessionID, std::wstring& OutIP);
 	bool          GroupMove(std::wstring& ToContents, UINT64 sessionID, IUser* pUser);
 
-	LONG          GetAcceptTPS();
-	LONG          GetRecvIOTPS();
-	LONG          GetSendIOTPS();
-	INT64         GetAcceptTotal();
-	SHORT         GetCurSessionCount();
-		          
-	void          SetAcceptTPS(LONG value);
-	void          SetRecvIOTPS(LONG value);
-	void          SetSendIOTPS(LONG value);
-			      
 	CGroup*       GetGroupPtr(std::wstring& Contents);
 
 private:

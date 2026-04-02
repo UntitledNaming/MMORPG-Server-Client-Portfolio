@@ -4,8 +4,8 @@
 #include <cmath>
 #include "ContentsDefine.h"
 #include "ContentsProtocol.h"
-#include "CMessage.h"
 #include "MemoryPoolTLS.h"
+#include "CMessage.h"
 #include "IUser.h"
 #include "CUser.h"
 #include "CGroup.h"

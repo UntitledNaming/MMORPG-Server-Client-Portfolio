@@ -16,7 +16,7 @@ public:
 	};
 
 public:
-	DBTLS();
+	DBTLS() = default;
 	DBTLS(const CHAR* DBip, INT DBPort, std::string& schema);
 	~DBTLS();
 	
