@@ -1,5 +1,9 @@
-# Visual Studio 2015 user specific files
+# 비주얼 스튜디오 관련
 .vs/
+*.sln
+*.vcxproj
+*.filters
+*.user
 
 # Compiled Object files
 *.slo
@@ -73,3 +77,10 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# 관련 임시 폴더 제외
+Binaries/
+Intermediate/
+DerivedDataCache/
+Saved/
+Build/
