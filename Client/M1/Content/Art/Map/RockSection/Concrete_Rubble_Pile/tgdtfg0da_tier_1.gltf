@@ -1,0 +1,202 @@
+{
+    "asset": {
+        "generator": "Khronos glTF Blender I/O v3.6.27",
+        "version": "2.0"
+    },
+    "scene": 0,
+    "scenes": [
+        {
+            "name": "Scene",
+            "nodes": [
+                0
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "mesh": 0,
+            "name": "tgdtfg0da_LOD0_TIER1_000",
+            "rotation": [
+                0.7071068286895752,
+                0,
+                0,
+                0.7071068286895752
+            ],
+            "scale": [
+                0.009999999776482582,
+                0.009999999776482582,
+                0.009999999776482582
+            ]
+        }
+    ],
+    "materials": [
+        {
+            "doubleSided": true,
+            "name": "MI_tgdtfg0da",
+            "normalTexture": {
+                "index": 0
+            },
+            "occlusionTexture": {
+                "index": 1
+            },
+            "pbrMetallicRoughness": {
+                "baseColorTexture": {
+                    "index": 2
+                },
+                "metallicRoughnessTexture": {
+                    "index": 1
+                }
+            }
+        }
+    ],
+    "meshes": [
+        {
+            "name": "S_tgdtfg0da_tier_1",
+            "primitives": [
+                {
+                    "attributes": {
+                        "POSITION": 0,
+                        "NORMAL": 1,
+                        "TEXCOORD_0": 2,
+                        "TANGENT": 3
+                    },
+                    "indices": 4,
+                    "material": 0
+                }
+            ]
+        }
+    ],
+    "textures": [
+        {
+            "sampler": 0,
+            "source": 0
+        },
+        {
+            "sampler": 0,
+            "source": 1
+        },
+        {
+            "sampler": 0,
+            "source": 2
+        },
+        {
+            "sampler": 0,
+            "source": 3
+        }
+    ],
+    "images": [
+        {
+            "mimeType": "image/png",
+            "name": "T_tgdtfg0da_4K_N",
+            "uri": "Textures/T_tgdtfg0da_4K_N.png"
+        },
+        {
+            "mimeType": "image/png",
+            "name": "T_tgdtfg0da_4K_ORM",
+            "uri": "Textures/T_tgdtfg0da_4K_ORM.png",
+            "extras": {
+                "compression": "mask"
+            }
+        },
+        {
+            "mimeType": "image/png",
+            "name": "T_tgdtfg0da_4K_B",
+            "uri": "Textures/T_tgdtfg0da_4K_B.png"
+        },
+        {
+            "mimeType": "image/png",
+            "name": "T_tgdtfg0da_4K_H",
+            "uri": "Textures/T_tgdtfg0da_4K_H.png",
+            "extras": {
+                "textureSlot": "HeightTexture",
+                "compression": "displacement"
+            }
+        }
+    ],
+    "accessors": [
+        {
+            "bufferView": 0,
+            "componentType": 5126,
+            "count": 10094,
+            "max": [
+                182.5,
+                204.4293212890625,
+                4.042862415313721
+            ],
+            "min": [
+                -182.5,
+                -202.97113037109375,
+                -97.6400375366211
+            ],
+            "type": "VEC3"
+        },
+        {
+            "bufferView": 1,
+            "componentType": 5126,
+            "count": 10094,
+            "type": "VEC3"
+        },
+        {
+            "bufferView": 2,
+            "componentType": 5126,
+            "count": 10094,
+            "type": "VEC2"
+        },
+        {
+            "bufferView": 3,
+            "componentType": 5126,
+            "count": 10094,
+            "type": "VEC4"
+        },
+        {
+            "bufferView": 4,
+            "componentType": 5123,
+            "count": 50607,
+            "type": "SCALAR"
+        }
+    ],
+    "bufferViews": [
+        {
+            "buffer": 0,
+            "byteLength": 121128,
+            "byteOffset": 0,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteLength": 121128,
+            "byteOffset": 121128,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteLength": 80752,
+            "byteOffset": 242256,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteLength": 161504,
+            "byteOffset": 323008,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteLength": 101214,
+            "byteOffset": 484512,
+            "target": 34963
+        }
+    ],
+    "samplers": [
+        {
+            "magFilter": 9729,
+            "minFilter": 9987
+        }
+    ],
+    "buffers": [
+        {
+            "byteLength": 585728,
+            "uri": "tgdtfg0da_tier_1.bin"
+        }
+    ]
+}

@@ -1,0 +1,202 @@
+{
+    "asset": {
+        "generator": "Khronos glTF Blender I/O v3.6.27",
+        "version": "2.0"
+    },
+    "scene": 0,
+    "scenes": [
+        {
+            "name": "Scene",
+            "nodes": [
+                0
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "mesh": 0,
+            "name": "udxlfezfa_LOD0_TIER1_000",
+            "rotation": [
+                0.7071068286895752,
+                0,
+                0,
+                0.7071068286895752
+            ],
+            "scale": [
+                0.009999999776482582,
+                0.009999999776482582,
+                0.009999999776482582
+            ]
+        }
+    ],
+    "materials": [
+        {
+            "doubleSided": true,
+            "name": "MI_udxlfezfa",
+            "normalTexture": {
+                "index": 0
+            },
+            "occlusionTexture": {
+                "index": 1
+            },
+            "pbrMetallicRoughness": {
+                "baseColorTexture": {
+                    "index": 2
+                },
+                "metallicRoughnessTexture": {
+                    "index": 1
+                }
+            }
+        }
+    ],
+    "meshes": [
+        {
+            "name": "S_udxlfezfa_tier_1",
+            "primitives": [
+                {
+                    "attributes": {
+                        "POSITION": 0,
+                        "NORMAL": 1,
+                        "TEXCOORD_0": 2,
+                        "TANGENT": 3
+                    },
+                    "indices": 4,
+                    "material": 0
+                }
+            ]
+        }
+    ],
+    "textures": [
+        {
+            "sampler": 0,
+            "source": 0
+        },
+        {
+            "sampler": 0,
+            "source": 1
+        },
+        {
+            "sampler": 0,
+            "source": 2
+        },
+        {
+            "sampler": 0,
+            "source": 3
+        }
+    ],
+    "images": [
+        {
+            "mimeType": "image/png",
+            "name": "T_udxlfezfa_4K_N",
+            "uri": "Textures/T_udxlfezfa_4K_N.png"
+        },
+        {
+            "mimeType": "image/png",
+            "name": "T_udxlfezfa_4K_ORM",
+            "uri": "Textures/T_udxlfezfa_4K_ORM.png",
+            "extras": {
+                "compression": "mask"
+            }
+        },
+        {
+            "mimeType": "image/png",
+            "name": "T_udxlfezfa_4K_B",
+            "uri": "Textures/T_udxlfezfa_4K_B.png"
+        },
+        {
+            "mimeType": "image/png",
+            "name": "T_udxlfezfa_4K_H",
+            "uri": "Textures/T_udxlfezfa_4K_H.png",
+            "extras": {
+                "textureSlot": "HeightTexture",
+                "compression": "displacement"
+            }
+        }
+    ],
+    "accessors": [
+        {
+            "bufferView": 0,
+            "componentType": 5126,
+            "count": 7635,
+            "max": [
+                60.758792877197266,
+                49.944549560546875,
+                0.6669349670410156
+            ],
+            "min": [
+                -60.94375991821289,
+                -49.944549560546875,
+                -23.792964935302734
+            ],
+            "type": "VEC3"
+        },
+        {
+            "bufferView": 1,
+            "componentType": 5126,
+            "count": 7635,
+            "type": "VEC3"
+        },
+        {
+            "bufferView": 2,
+            "componentType": 5126,
+            "count": 7635,
+            "type": "VEC2"
+        },
+        {
+            "bufferView": 3,
+            "componentType": 5126,
+            "count": 7635,
+            "type": "VEC4"
+        },
+        {
+            "bufferView": 4,
+            "componentType": 5123,
+            "count": 38658,
+            "type": "SCALAR"
+        }
+    ],
+    "bufferViews": [
+        {
+            "buffer": 0,
+            "byteLength": 91620,
+            "byteOffset": 0,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteLength": 91620,
+            "byteOffset": 91620,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteLength": 61080,
+            "byteOffset": 183240,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteLength": 122160,
+            "byteOffset": 244320,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteLength": 77316,
+            "byteOffset": 366480,
+            "target": 34963
+        }
+    ],
+    "samplers": [
+        {
+            "magFilter": 9729,
+            "minFilter": 9987
+        }
+    ],
+    "buffers": [
+        {
+            "byteLength": 443796,
+            "uri": "udxlfezfa_tier_1.bin"
+        }
+    ]
+}

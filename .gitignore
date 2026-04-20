@@ -84,3 +84,8 @@ Intermediate/
 DerivedDataCache/
 Saved/
 Build/
+
+# Unreal asset files
+*.uasset
+*.umap
+*.blend
