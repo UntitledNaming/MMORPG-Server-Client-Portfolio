@@ -1,6 +1,7 @@
 #include <string>
 #include <windows.h>
 #include "ContentsDefine.h"
+#include "ContentsEnum.h"
 #include "MemoryPoolTLS.h"
 #include "IUser.h"
 #include "CUser.h"
@@ -19,7 +20,7 @@ void CUser::Init(uint64 sessionID)
 	m_mp = 100;
 	m_sectorXpos = m_xpos / FieldConst::SECTOR_SIZE;
 	m_sectorYpos = m_ypos / FieldConst::SECTOR_SIZE;
-	m_action = CUser::USER_ACTION::STOP;
+	m_action = EM1ActionType::None;
 	m_inputMask = InputMask::None;
 	m_cameraYaw = 0;
 	m_walkSpeed = WALK_SPEED;
