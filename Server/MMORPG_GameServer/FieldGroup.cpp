@@ -255,8 +255,9 @@ void FieldGroup::mpCharacterMovementUpdate(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_sessionID;
 	*pMessage << pUser->m_xpos;
 	*pMessage << pUser->m_ypos;
+	*pMessage << pUser->m_zpos;
 	*pMessage << pUser->m_movementYaw;
-	*pMessage << (uint8)pUser->m_action;
+	*pMessage << pUser->m_moveSpeed;
 }
 
 void FieldGroup::mpSyncMyCharacterPosition(CUser* pUser, CMessage* pMessage)
@@ -278,17 +279,16 @@ void FieldGroup::mpSyncOtherCharacterPosition(CUser* pUser, CMessage* pMessage)
 
 void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMessage)
 {
-	float xpos;
-	float ypos;
-	float camerayaw;
-	uint8 inputmask;
-	uint8 action;
-
+	float xpos = 0.0f;
+	float ypos = 0.0f;
+	float zpos = 0.0f;
+	float movementyaw = 0.0f;
+	bool  moveflag = false;
 	*pMessage >> xpos;
 	*pMessage >> ypos;
-	*pMessage >> camerayaw;
-	*pMessage >> inputmask;
-	*pMessage >> action;
+	*pMessage >> zpos;
+	*pMessage >> movementyaw;
+	*pMessage >> moveflag;
 	
 	// todo : 추출한 데이터 검증(action, inputmask, yaw 범위 검증)
 

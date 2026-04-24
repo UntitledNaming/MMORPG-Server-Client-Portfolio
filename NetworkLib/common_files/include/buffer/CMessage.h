@@ -54,6 +54,7 @@ public:
 	CMessage& operator=(CMessage& clSrcMessage);
 
 	//연산자 오버로딩 << , 직렬화 버퍼에 데이터 넣기
+	CMessage& operator<<(bool bValue);
 	CMessage& operator<<(BYTE byValue);
 	CMessage& operator<<(char chValue);
 	CMessage& operator<<(short shValue);
@@ -67,6 +68,7 @@ public:
 
 
 	//연산자 오버로딩 >> , 직렬화 버퍼에서 데이터 빼기
+	CMessage& operator >> (bool& bValue);
 	CMessage& operator >> (BYTE& byValue);
 	CMessage& operator >> (char& chValue);
 	CMessage& operator >> (short& shValue);

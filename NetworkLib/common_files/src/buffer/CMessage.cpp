@@ -12,9 +12,6 @@ INT CMessage::m_iNetHeaderSize = 0;
 INT CMessage::m_iLanHeaderSize = 0;
 bool CMessage::m_netHderFlag = false;
 
-
-//����ȭ ���� �����ڿ����� refCnt = 0���� �ϰ� Alloc �ϰ� Clear�� �� refCnt = 1�� ����.
-
 CMessage::CMessage()
 {
 	m_iAllocPtr = (char*)malloc(eBuffer_Default);
@@ -285,6 +282,16 @@ CMessage& CMessage::operator=(CMessage& clSrcMessage)
 	return *this;
 }
 
+CMessage& CMessage::operator<<(bool bValue)
+{
+	*(bool*)m_iWritePos = bValue;
+	m_iWritePos += sizeof(bool);
+	m_iDataSize += sizeof(bool);
+
+
+	return *this;
+}
+
 CMessage& CMessage::operator<<(BYTE byValue)
 {
 	*(BYTE*)m_iWritePos = byValue;
@@ -375,6 +382,23 @@ CMessage& CMessage::operator<<(double iValue)
 
 	return *this;
 }
+
+CMessage& CMessage::operator>>(bool& bValue)
+{
+	if (m_iDataSize < sizeof(bool))
+	{
+		m_iError = true;
+		return *this;
+	}
+
+	bValue = *(bool*)m_iReadPos;
+
+	m_iReadPos += sizeof(bool);
+	m_iDataSize -= sizeof(bool);
+
+	return *this;
+}
+
 
 CMessage& CMessage::operator>>(BYTE& byValue)
 {
