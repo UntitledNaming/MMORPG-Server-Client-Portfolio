@@ -25,7 +25,6 @@ void M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER(CMessage* pMessage, UM1Netwo
 {
 	float xpos;
 	float ypos;
-	float zpos;
 	uint16 hp;
 	uint16 mp;
 	uint16 maxhp;
@@ -33,7 +32,6 @@ void M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER(CMessage* pMessage, UM1Netwo
 
 	*pMessage >> xpos;
 	*pMessage >> ypos;
-	*pMessage >> zpos;
 	*pMessage >> hp;
 	*pMessage >> maxhp;
 	*pMessage >> mp;
@@ -41,7 +39,7 @@ void M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER(CMessage* pMessage, UM1Netwo
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
 
-	FVector Location(xpos, ypos, zpos);
+	FVector Location(xpos, ypos, -38754.0f);
 	FRotator Rotation(0, 0, 0);
 
 	FM1SpawnData Data;
@@ -62,7 +60,6 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 	uint64 id;
 	float xpos;
 	float ypos;
-	float zpos;
 	float yaw;
 	uint32 speed;
 	uint16 hp;
@@ -73,7 +70,6 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 	*pMessage >> id;
 	*pMessage >> xpos;
 	*pMessage >> ypos;
-	*pMessage >> zpos;
 	*pMessage >> yaw;
 	*pMessage >> speed;
 	*pMessage >> hp;
@@ -84,7 +80,7 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
 
-	FVector Location(xpos, ypos, zpos);
+	FVector Location(xpos, ypos, -38754.0f);
 	FRotator Rotation(0, yaw, 0);
 
 	FM1SpawnData Data;

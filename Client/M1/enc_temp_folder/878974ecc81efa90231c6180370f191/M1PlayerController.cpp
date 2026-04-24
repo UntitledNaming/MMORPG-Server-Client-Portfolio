@@ -240,7 +240,6 @@ void AM1PlayerController::mpMovementInput(CMessage* pMessage, const FVector& Loc
     *pMessage << FieldProtocol::PACKET_CS_UPDATE_CHARACTER_MOVEMENT_INPUT;
     *pMessage << Location.X;
     *pMessage << Location.Y;
-    *pMessage << Location.Z;
     *pMessage << Yaw;
     *pMessage << MoveFlag;
 }
