@@ -10,15 +10,12 @@ namespace FieldConst
 {
 	constexpr uint32  UPDATE_FRAME              = 50;     // 50ms frame loop
 	constexpr uint32  USER_TIMEOUT              = 40000;
-	constexpr uint32  MAP_WORLD_OFFSET_X        = 201600; // (0,0) Sector Position X
-	constexpr uint32  MAP_WORLD_OFFSET_Y        = 201600; // (0,0) Sector Position Y
-	constexpr uint32  USER_TIMEOUT              = 40000;
-	constexpr uint16  SECTOR_SIZE               = 10000;  // Sector Size : 100m
+	constexpr uint16  SECTOR_SIZE               = 100;
 	constexpr uint16  SECTOR_USER_DEFAULT_COUNT = 100;
-	constexpr uint16  SECTOR_Y_MAX              = 40; 
-	constexpr uint16  SECTOR_X_MAX              = 40;
-	constexpr float   SYNC_X_RANGE = 1000;                // Sync Range : 10m
-	constexpr float   SYNC_Y_RANGE = 1000;
+	constexpr uint16  SECTOR_Y_MAX              = 50;
+	constexpr uint16  SECTOR_X_MAX              = 50;
+	constexpr float   SYNC_X_RANGE = 30;
+	constexpr float   SYNC_Y_RANGE = 30;
 	constexpr float   Pi = 3.1415926535f;
 }
 
@@ -34,9 +31,9 @@ namespace InputMask
 namespace UserConst
 {
 	constexpr uint16  NICK_MAX = 64;
-	constexpr float   WALK_SPEED = 600.0;
-	constexpr float   RUN_SPEED = 1200.0;
-	constexpr float   JUMP_ANIMATION_TIME = 0.0f;
+	constexpr float WALK_SPEED = 2.0;
+	constexpr float RUN_SPEED = 6.0;
+	constexpr float JUMP_ANIMATION_TIME = 0.0f;
 }
 
 namespace ClientMovement

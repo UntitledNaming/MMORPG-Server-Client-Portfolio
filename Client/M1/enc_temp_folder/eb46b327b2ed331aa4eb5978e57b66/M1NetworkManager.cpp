@@ -1,0 +1,127 @@
+#include "M1NetworkManager.h"
+#include "NetPacketHeader.h"
+#include "ClientCore/CLanGameClient.h"
+#include "ClientCore/M1Client.h"
+#include "ClientCore/MemoryPoolTLS.h"
+#include "ClientCore/CMessage.h"
+#include "System\M1SpawnManager.h"
+#include "M1PacketHandler.h"
+#include "EngineUtils.h"
+
+void UM1NetworkManager::Initialize(FSubsystemCollectionBase& Collection)
+{
+
+
+	Super::Initialize(Collection);
+
+	// 배열 초기화
+	InitFunctorArray();
+
+	CMessage::Init(sizeof(GAMELIB_LANHEADER),0);
+
+	ClientInstance = new M1Client;
+
+	if (ServerIP.IsEmpty())
+	{
+		UE_LOG(LogTemp, Error, TEXT("IP가 비어있습니다! DefaultGame.ini를 확인하세요."));
+		return;
+	}
+
+	if (!ClientInstance->Connect(*ServerIP, ServerPort))
+	{
+		UE_LOG(LogTemp, Error, TEXT("서버와 연결이 되지 않았습니다."));
+	    return;
+	}
+}
+
+void UM1NetworkManager::Deinitialize()
+{
+	Super::Deinitialize();
+	if (ClientInstance)
+	{
+		ClientInstance->Destroy();
+		delete ClientInstance;
+		ClientInstance = nullptr;
+	}
+
+	CMessage::PoolDestroy();
+}
+
+void UM1NetworkManager::Tick(float DeltaTime)
+{
+	if (ClientInstance == nullptr)
+		return;
+
+	if (SpawnManager == nullptr)
+		return;
+
+	CMessage* pMessage = nullptr;
+
+	while (ClientInstance->PacketQueue.Dequeue(pMessage))
+	{
+		PacketHandler(pMessage);
+		CMessage::Free(pMessage);
+	}
+
+	// todo : 연결 끊겼으면 재연결
+}
+
+AM1SpawnManager* UM1NetworkManager::GetSpawnManager()
+{
+	return SpawnManager;
+}
+
+void  UM1NetworkManager::SetSpawnManager(AM1SpawnManager* Manager)
+{
+	SpawnManager = Manager;
+}
+
+void UM1NetworkManager::SendPacket(CMessage* Packet, uint8 RouteType, uint16 ServiceID)
+{
+	ClientInstance->SendPacket(Packet, (ERouteType)RouteType, ServiceID);
+}
+
+bool  UM1NetworkManager::Disconnect()
+{
+	return ClientInstance->Disconnect();
+}
+
+bool  UM1NetworkManager::ReConnect()
+{
+	return ClientInstance->ReConnect();
+}
+
+bool  UM1NetworkManager::ConnectAlive()
+{
+	return ClientInstance->ConnectAlive();
+}
+
+void UM1NetworkManager::PacketHandler(CMessage* pMessage)
+{
+	uint16 type;
+	*pMessage >> type;
+
+	if (type < ContentsProtocol::MAX_PACKET_ID && M1FunctorArray[type] != nullptr)
+		M1FunctorArray[type](pMessage, this);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Unknown Packet ID: %d"), type);
+
+	CMessage::Free(pMessage);
+}
+
+void UM1NetworkManager::InitFunctorArray()
+{
+	for (int i = 0; i < ContentsProtocol::MAX_PACKET_ID; ++i)
+	{
+		M1FunctorArray[i] = nullptr;
+	}
+
+	// 구현된 함수 포인터 배열에 삽입
+	M1FunctorArray[FieldProtocol::PACKET_SC_CREATE_MY_CHARACTER] = &M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER;
+	M1FunctorArray[FieldProtocol::PACKET_SC_CREATE_OTHER_CHARACTER] = &M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER;
+	M1FunctorArray[FieldProtocol::PACKET_SC_DELETE_CHARACTER] = &M1PacketHandler::Handle_SC_DELETE_CHARACTER;
+	M1FunctorArray[FieldProtocol::PACKET_SC_UPDATE_CHARACTER_MOVEMENT_INPUT] = &M1PacketHandler::Handle_SC_UPDATE_CHARACTER_INPUT;
+	M1FunctorArray[FieldProtocol::PACKET_SC_SYNC_MY_CHARACTER_POS] = &M1PacketHandler::Handle_SC_SYNC_MY_CHARACTER_POS;
+	M1FunctorArray[FieldProtocol::PACKET_SC_SYNC_OTHER_CHARACTER_POS] = &M1PacketHandler::Handle_SC_SYNC_OTHER_CHARACTER_POS;
+}
+

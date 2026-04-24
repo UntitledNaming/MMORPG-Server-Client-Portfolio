@@ -57,4 +57,5 @@ void M1Client::mpCreateLoginRequest(CMessage* pMessage)
 
 	char temptoken[64] = "123456789";
 	pMessage->PutData(temptoken, 64);
+
 }
