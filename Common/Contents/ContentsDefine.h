@@ -11,13 +11,6 @@ namespace FieldConst
 	constexpr uint32  UPDATE_LOOP_TIME          = 25;                          // 25ms Update Thread loop
 	constexpr uint32  UPDATE_FRAME              = 1000 / UPDATE_LOOP_TIME;     // Frame Loop Count per sec
 	constexpr uint32  USER_TIMEOUT              = 40000;
-	constexpr uint32  MAP_WORLD_OFFSET_X        = 201600;                      // (0,0) Sector Position X
-	constexpr uint32  MAP_WORLD_OFFSET_Y        = 201600;                      // (0,0) Sector Position Y
-	constexpr uint16  SECTOR_SIZE               = 10000;                       // Sector Size : 100m
-	constexpr uint16  SECTOR_USER_DEFAULT_COUNT = 100;	                       
-	constexpr uint16  SECTOR_Y_MAX              = 40; 	                       
-	constexpr uint16  SECTOR_X_MAX              = 40;	                       
-	constexpr float   SYNC_X_RANGE = 1000;                                     // Sync Range : 10m
 	constexpr uint32  MAP_WORLD_OFFSET_X        = 201600; // (0,0) Sector Position X
 	constexpr uint32  MAP_WORLD_OFFSET_Y        = 201600; // (0,0) Sector Position Y
 	constexpr uint16  SECTOR_SIZE               = 10000;  // Sector Size : 100m
