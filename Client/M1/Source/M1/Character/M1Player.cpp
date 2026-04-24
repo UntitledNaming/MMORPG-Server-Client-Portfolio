@@ -24,9 +24,10 @@ AM1Player::AM1Player()
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
+
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	SpringArmComponent->SetupAttachment(RootComponent);
-	SpringArmComponent->TargetArmLength = 400.0f;
+	SpringArmComponent->TargetArmLength = 500.0f;
 	SpringArmComponent->bUsePawnControlRotation = true;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -35,15 +36,31 @@ AM1Player::AM1Player()
 
 }
 
+void AM1Player::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
+
+
 void AM1Player::ApplySpawnData(const FM1SpawnData& Data)
 {
 	Super::ApplySpawnData(Data);
 
-	MP = Data.MP;
+	if (bIsMyPlayer)
+	{
+		MP = Data.MP;
+		MaxMP = Data.MaxMP;
+	}
+
+	bIsSpawnInit = true;
 }
 
-void AM1Player::ApplyStateData(EM1ActionType NewAction, uint8 NewInputMask)
+
+void AM1Player::UpdateAutoAttack()
 {
-	Super::ApplyStateData(NewAction, NewInputMask);
+	if (!bAutoAttack)
+		return;
 
 }
+

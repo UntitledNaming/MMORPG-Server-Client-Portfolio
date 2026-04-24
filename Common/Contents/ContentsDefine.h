@@ -1,36 +1,43 @@
 #pragma once
+#include "ContentsType.h"
 
 namespace AuthConst
 {
-	constexpr DWORD NONUSER_TIMEOUT = 3500;
+	constexpr uint32 NONUSER_TIMEOUT = 3500;
 }
 
 namespace FieldConst
 {
-	constexpr DWORD UPDATE_FRAME              = 50; // 50ms 마다 프레임 로직 실행
-	constexpr DWORD USER_TIMEOUT              = 40000;
-	constexpr WORD  SECTOR_SIZE               = 100;
-	constexpr WORD  SECTOR_USER_DEFAULT_COUNT = 100;
-	constexpr WORD  SECTOR_Y_MAX              = 50;
-	constexpr WORD  SECTOR_X_MAX              = 50;
-	constexpr FLOAT SYNC_X_RANGE = 30;
-	constexpr FLOAT SYNC_Y_RANGE = 30;
-	constexpr FLOAT PI = 3.1415926535f;
+	constexpr uint32  UPDATE_FRAME              = 50;     // 50ms frame loop
+	constexpr uint32  USER_TIMEOUT              = 40000;
+	constexpr uint16  SECTOR_SIZE               = 100;
+	constexpr uint16  SECTOR_USER_DEFAULT_COUNT = 100;
+	constexpr uint16  SECTOR_Y_MAX              = 50;
+	constexpr uint16  SECTOR_X_MAX              = 50;
+	constexpr float   SYNC_X_RANGE = 30;
+	constexpr float   SYNC_Y_RANGE = 30;
+	constexpr float   Pi = 3.1415926535f;
 }
 
 namespace InputMask
 {
-	constexpr WORD None  = 1 << 0;
-	constexpr WORD North = 1 << 1;
-	constexpr WORD South = 1 << 2;
-	constexpr WORD East  = 1 << 3;
-	constexpr WORD West  = 1 << 4;
+	constexpr uint16 None  = 1 << 0;
+	constexpr uint16 North = 1 << 1;
+	constexpr uint16 South = 1 << 2;
+	constexpr uint16 East  = 1 << 3;
+	constexpr uint16 West  = 1 << 4;
 }
 
 namespace UserConst
 {
-	constexpr WORD  NICK_MAX = 64;
-	constexpr FLOAT WALK_SPEED = 2.0;
-	constexpr FLOAT RUN_SPEED = 6.0;
+	constexpr uint16  NICK_MAX = 64;
+	constexpr float WALK_SPEED = 2.0;
+	constexpr float RUN_SPEED = 6.0;
+	constexpr float JUMP_ANIMATION_TIME = 0.0f;
 }
 
+namespace ClientMovement
+{
+	constexpr float MOVEMENT_SEND_INTERNAL_SEC      = 0.1f;
+	constexpr float MOVEMENT_YAW_SEND_THRESHOLD_DEG = 10.0f;
+}

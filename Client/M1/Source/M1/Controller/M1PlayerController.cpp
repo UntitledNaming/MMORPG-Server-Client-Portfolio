@@ -1,4 +1,7 @@
 #include "M1PlayerController.h"
+#include "Network\M1NetworkManager.h"
+#include "Network\ClientCore\CMessage.h"
+#include "NetPacketHeader.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -6,6 +9,9 @@
 #include "System/M1AssetManager.h"
 #include "Data/M1InputDataAsset.h"
 #include "Data/M1PrimaryDataAsset.h"
+#include "Engine/GameInstance.h"
+#include "ContentsDefine.h"
+#include "ContentsProtocol.h"
 #include "M1GameplayTags.h"
 #include "InputActionValue.h"
 
@@ -18,6 +24,11 @@ AM1PlayerController::AM1PlayerController(const FObjectInitializer& ObjectInitial
 void AM1PlayerController::SetCachedPlayer(AM1Player* InPlayer)
 {
     M1Player = InPlayer;
+}
+
+void AM1PlayerController::SetLastYaw(float Yaw)
+{
+    LastSendYaw = Yaw;
 }
 
 void AM1PlayerController::BeginPlayingState()
@@ -37,14 +48,19 @@ void AM1PlayerController::BeginPlayingState()
                 auto LookAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_Look);
                 auto LeftAttackAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_LeftAttack);
 
-                EPI->InjectInputForAction(JumpAction, FInputActionValue(true));
-                EPI->InjectInputForAction(MoveAction, FInputActionValue(true));
-                EPI->InjectInputForAction(LookAction, FInputActionValue(true));
-                EPI->InjectInputForAction(LeftAttackAction, FInputActionValue(true));
             }
         }
     }
 
+
+
+    if (NetworkManager)
+    {
+        if (UGameInstance* GI = GetGameInstance())
+        {
+            NetworkManager = GI->GetSubsystem<UM1NetworkManager>();
+        }
+    }
 }
 
 void AM1PlayerController::SetupInputComponent()
@@ -76,6 +92,10 @@ void AM1PlayerController::SetupInputComponent()
 void AM1PlayerController::PlayerTick(float DeltaTime)
 {
     Super::PlayerTick(DeltaTime);
+
+    MovementSendTime += DeltaTime;
+
+    TrySendMovementPacket();
 }
 
 void AM1PlayerController::OnMove(const FInputActionValue& Value)
@@ -97,6 +117,7 @@ void AM1PlayerController::OnJumpStart()
     if (M1Player)
     {
         M1Player->Jump();
+        M1Player->SetJumpRequest(true);
     }
 }
 
@@ -105,17 +126,24 @@ void AM1PlayerController::OnJumpEnd()
     if (M1Player)
     {
         M1Player->StopJumping();
+        M1Player->SetJumpRequest(false);
     }
 }
 
 void AM1PlayerController::OnAttackStart()
 {
-    bLeftMousePressed = true;
+    if (M1Player)
+    {
+        M1Player->StartAutoLeftAttack();
+    }
 }
 
 void AM1PlayerController::OnAttackEnd()
 {
-    bLeftMousePressed = false;
+    if (M1Player)
+    {
+        M1Player->StopAutoLeftAttack();
+    }
 }
 
 void AM1PlayerController::DoMove(float Right, float Forward)
@@ -132,6 +160,20 @@ void AM1PlayerController::DoMove(float Right, float Forward)
         M1Player->AddMovementInput(ForwardDirection, Forward);
         M1Player->AddMovementInput(RightDirection, Right);
     }
+
+    // 이동 벡터 계산
+    FVector MoveDirection = ForwardDirection * Forward + RightDirection * Right;
+    MoveDirection.Z = 0.f;
+
+    // 이동 벡터 크기가 0에 가까우면 멈춤으로 판단해서 CurrentMoveFlag를 false로 변경
+    bCurrentMoveFlag = !MoveDirection.IsNearlyZero();
+
+    // 이동중 플래그가 켜질때 이동벡터 정규화하고 해당 벡터의 Yaw값이 실제 이동방향에 대한 Yaw값이니 이를 CurrentYaw에 저장.
+    if (bCurrentMoveFlag)
+    {
+        MoveDirection.Normalize();
+        CurrentYaw = MoveDirection.Rotation().Yaw;
+    }
 }
 
 void AM1PlayerController::DoLook(float Yaw, float Pitch)
@@ -143,3 +185,61 @@ void AM1PlayerController::DoLook(float Yaw, float Pitch)
     }
 }
 
+void AM1PlayerController::TrySendMovementPacket()
+{
+    if (M1Player == nullptr || NetworkManager == nullptr)
+        return;
+
+    bool bNeedSend = false;
+
+    // 1) 이동 시작, 이동 중 정지 할때 패킷 무조건 보내야 하니 bNeedSend 플래그 true 설정
+    if (bCurrentMoveFlag != bLastSendMoveFlag)
+    {
+        bNeedSend = true;
+    }
+
+    // 2) 그게 아니라면 계속 이동중인 상황에서 방향이 임계값 넘어가면 true 설정
+    else if (bCurrentMoveFlag)
+    {
+        float DeltaYaw = FMath::Abs(FMath::FindDeltaAngleDegrees(CurrentYaw, LastSendYaw));
+
+        if (DeltaYaw >= ClientMovement::MOVEMENT_YAW_SEND_THRESHOLD_DEG)
+        {
+            bNeedSend = true;
+        }
+    }
+
+    // 3) 아직 보낼 플래그는 안켜졌고 현재 이동 중이며 만약 시간이 0.1초 이상 지났다면 보낼 것임.
+    if (!bNeedSend && bCurrentMoveFlag && MovementSendTime >= ClientMovement::MOVEMENT_SEND_INTERNAL_SEC)
+    {
+        bNeedSend = true;
+    }
+
+    if (!bNeedSend)
+        return;
+
+    const FVector Pos = M1Player->GetActorLocation();
+
+    // 메세지 만들기
+    CMessage* pMessage = CMessage::Alloc();
+    pMessage->Clear(1);
+
+    mpMovementInput(pMessage, Pos, CurrentYaw, bCurrentMoveFlag);
+
+    NetworkManager->SendPacket(pMessage, static_cast<uint8>(ERouteType::GROUP), ServiceID::NONE_SERVICE);
+    CMessage::Free(pMessage);
+
+    bLastSendMoveFlag = bCurrentMoveFlag;
+    LastSendYaw = CurrentYaw;
+    MovementSendTime = 0.0f;
+
+}
+
+void AM1PlayerController::mpMovementInput(CMessage* pMessage, const FVector& Location, float Yaw, bool MoveFlag)
+{
+    *pMessage << FieldProtocol::PACKET_CS_UPDATE_CHARACTER_MOVEMENT_INPUT;
+    *pMessage << Location.X;
+    *pMessage << Location.Y;
+    *pMessage << Yaw;
+    *pMessage << MoveFlag;
+}

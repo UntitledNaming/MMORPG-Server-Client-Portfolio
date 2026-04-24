@@ -27,23 +27,28 @@ void M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER(CMessage* pMessage, UM1Netwo
 	float ypos;
 	uint16 hp;
 	uint16 mp;
+	uint16 maxhp;
+	uint16 maxmp;
 
 	*pMessage >> xpos;
 	*pMessage >> ypos;
 	*pMessage >> hp;
+	*pMessage >> maxhp;
 	*pMessage >> mp;
+	*pMessage >> maxmp;
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
 
-	FVector Location(405411.0f, 397352.0f, -38713.0f);
-	FRotator Rotation(0, -100.0f, 0);
+	FVector Location(xpos, ypos, -38754.0f);
+	FRotator Rotation(0, 0, 0);
 
 	FM1SpawnData Data;
+	Data.EntityID = -1;
 	Data.HP = hp;
 	Data.MP = mp;
-	Data.ActionType = EM1ActionType::Idle;
-	Data.InputMask = InputMask::None;
-	Data.MaxHP = 100;
+	Data.ActionType = EM1ActionStateType::None;
+	Data.MaxHP = maxhp;
+	Data.MaxMP = maxmp;
 	Data.Location = Location;
 	Data.Rotation = Rotation;
 
@@ -56,16 +61,37 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 	float xpos;
 	float ypos;
 	float yaw;
+	uint32 speed;
 	uint16 hp;
+	uint16 maxhp;
 	uint8 action;
+	uint8 movemode;
 
 	*pMessage >> id;
 	*pMessage >> xpos;
 	*pMessage >> ypos;
 	*pMessage >> yaw;
+	*pMessage >> speed;
 	*pMessage >> hp;
+	*pMessage >> maxhp;
 	*pMessage >> action;
+	*pMessage >> movemode;
 
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+
+	FVector Location(xpos, ypos, -38754.0f);
+	FRotator Rotation(0, yaw, 0);
+
+	FM1SpawnData Data;
+	Data.EntityID = id;
+	Data.HP = hp;
+	Data.MoveSpeed = speed;
+	Data.MaxHP = maxhp;
+	Data.ActionType = static_cast<EM1ActionStateType>(action);
+	Data.MoveMode = movemode;
+
+	SpawnManager->SpawnOtehrPlayer(Data);
 }
 
 void M1PacketHandler::Handle_SC_DELETE_CHARACTER(CMessage* pMessage, UM1NetworkManager* NetworkManager)
@@ -74,7 +100,9 @@ void M1PacketHandler::Handle_SC_DELETE_CHARACTER(CMessage* pMessage, UM1NetworkM
 
 	*pMessage >> id;
 
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
 
+	SpawnManager->DespawnPlayer(id);
 }
 
 void M1PacketHandler::Handle_SC_UPDATE_CHARACTER_INPUT(CMessage* pMessage, UM1NetworkManager* NetworkManager)

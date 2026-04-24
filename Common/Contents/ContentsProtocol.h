@@ -40,9 +40,10 @@ namespace FieldProtocol
     //
     //	4	-	Xpos			(float)
     //	4	-	Ypos			(float)
-    //  4   -   Zpos            (float)
     //  2   -   HP              (uint16)  
+    //  2   -   MaxHP           (uint16)  
     //  2   -   MP              (uint16)
+    //  2   -   MaxMP           (uint16)
     //
     //---------------------------------------------------------------
 
@@ -55,10 +56,12 @@ namespace FieldProtocol
     //	8	-	CharacterID		(uint64)
     //	4	-	Xpos			(float)
     //	4	-	Ypos			(float)
-    //	4	-	Zpos			(float)
-    //  4   -   CameraYaw       (float)  
+    //  4   -   MoveYaw         (float)  
+    //  4   -   MoveSpeed       (uint32)  
     //  2   -   HP              (uint16) 
+    //  2   -   MaxHP           (uint16) 
     //  1   -   Action          (uint8)  
+    //  1   -   MoveMode        (uint8)  
     //
     //---------------------------------------------------------------
 
@@ -73,31 +76,29 @@ namespace FieldProtocol
     //---------------------------------------------------------------
 
 
-    constexpr uint16 PACKET_CS_UPDATE_CHARACTER_INPUT = 1003;
+    constexpr uint16 PACKET_CS_UPDATE_CHARACTER_MOVEMENT_INPUT = 1003;
     //---------------------------------------------------------------
     // Character Input Data Update Msg          Client -> Server
     //
     // 
     //	4	-   Xpos		(float)
     //	4	-   Ypos		(float)
-    //	4	-   CameraYaw 	(float)
-    //	1	-   InputMask	(uint8)
-    //	1	-   Action  	(uint8)
+    //	4	-   MoveYaw     (float)
+    //	1	-   MoveFlag 	(bool)
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_UPDATE_CHARACTER_INPUT = 1004;
+    constexpr uint16 PACKET_SC_UPDATE_CHARACTER_MOVEMENT_INPUT = 1004;
     //---------------------------------------------------------------
-    //  Character Input Data Update Msg         Server -> Client
+    //  Character Movement Data Update Msg         Server -> Client
     //
     // 
     //  8   -   CharacterID     (uint64)
     //	4	-   Xpos		    (float)
     //	4	-   Ypos		    (float)
-    //	4	-   CameraYaw    	(float)
-    //	1	-   InputMask	    (uint8)
-    //	1	-   Action  	    (uint8)
-    //
+    //	4	-   CharacterYaw    (float)
+    //	4	-   MoveSpeed       (uint32)
+    //  
     //---------------------------------------------------------------
 
 
@@ -116,11 +117,30 @@ namespace FieldProtocol
     //---------------------------------------------------------------
     //  Other Character Position Sync Msg      Server -> Client
     //
-    //
     // 
     //  8   -   CharacterID     (uint64)
     //	4	-   Xpos		    (float)
     //	4	-   Ypos		    (float)
     //
     //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_CS_CHANGE_CHARACTER_MOVEMODE = 1007;
+    //---------------------------------------------------------------
+    //  Character MoveMode Change Msg         Client -> Server
+    //
+    //  1   -   MoveMode        (uint8)  
+    //
+    //---------------------------------------------------------------
+
+
+    constexpr uint16 PACKET_SC_CHANGE_CHARACTER_MOVEMODE = 1007;
+    //---------------------------------------------------------------
+    //  Character MoveMode Change Msg         Server -> Client
+    // 
+    //  8   -   CharacterID     (uint64)
+    //  1   -   MoveMode        (uint8)  
+    //
+    //---------------------------------------------------------------
+
+
 }

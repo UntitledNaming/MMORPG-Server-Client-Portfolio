@@ -15,6 +15,7 @@ public class M1 : ModuleRules
             "InputCore", 
             "EnhancedInput",
             "GameplayTags",
+            "AnimGraphRuntime",
             "UMG"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

@@ -9,7 +9,6 @@
 
 struct FInputActionValue;
 
-
 UCLASS()
 class M1_API AM1Character : public ACharacter
 {
@@ -23,6 +22,26 @@ protected:
 
 public:	
 	virtual void Tick(float DeltaTime) override;
+
+public:
+    FORCEINLINE bool IsDeadState()
+    {
+        if (HP == 0)
+            return true;
+
+       return false;
+    }
+
+    FORCEINLINE uint8 GetActionType() const
+    {
+        return ActionType;
+    }
+
+    FORCEINLINE bool GetIsSpawnInit() const
+    {
+        return bIsSpawnInit;
+    }
+
 private:
     void OnMove(const FInputActionValue& Value);
 
@@ -51,10 +70,10 @@ public:
     bool bIsMyPlayer = false;
 
     UPROPERTY(VisibleAnywhere)
-    EM1ActionType ActionType = EM1ActionType::Idle;
+    bool bIsSpawnInit = false;      // 하위 클래스에서 true로 변경 필요
 
     UPROPERTY(VisibleAnywhere)
-    uint16 InputMask = 0;
+    uint8 ActionType = 0;
 
     UPROPERTY(VisibleAnywhere)
     int32 HP = 0;
@@ -62,20 +81,10 @@ public:
     UPROPERTY(VisibleAnywhere)
     int32 MaxHP = 0;
 
-    UPROPERTY(EditDefaultsOnly)
-    TObjectPtr<class UInputMappingContext> TestIMC = nullptr;
-
-    UPROPERTY(EditDefaultsOnly)
-    TObjectPtr<class UInputAction> TestJumpAction = nullptr;
-
-    UPROPERTY(EditDefaultsOnly)
-    TObjectPtr<class UInputAction> TestMoveAction = nullptr;
-
-    UPROPERTY(EditDefaultsOnly)
-    TObjectPtr<class UInputAction> TestLookAction = nullptr;
+    UPROPERTY(VisibleAnywhere)
+    uint32 MoveSpeed = 0;
 
 public:
     virtual void Destroy();
     virtual void ApplySpawnData(const FM1SpawnData& Data);
-    virtual void ApplyStateData(EM1ActionType NewAction, uint8 NewInputMask);
 };

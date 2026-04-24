@@ -1,5 +1,6 @@
 #pragma once
 #include "MemoryPoolTLS.h"
+#include "ContentsType.h"
 
 class CMessage
 {
@@ -60,6 +61,7 @@ public:
 	CMessage& operator<<(WORD wValue);
 	CMessage& operator<<(int iValue);
 	CMessage& operator<<(DWORD lValue);
+	CMessage& operator<<(uint32 lValue);
 	CMessage& operator<<(float fValue);
 	CMessage& operator<<(__int64 iValue);
 	CMessage& operator<<(unsigned long long iValue);
@@ -73,6 +75,7 @@ public:
 	CMessage& operator >> (WORD& wValue);
 	CMessage& operator >> (int& iValue);
 	CMessage& operator >> (DWORD& dwValue);
+	CMessage& operator >> (uint32& dwValue);
 	CMessage& operator >> (float& fValue);
 	CMessage& operator >> (__int64& iValue);
 	CMessage& operator >> (unsigned long long& iValue);

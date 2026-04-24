@@ -1,23 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
-#include "M1Type.generated.h"
+#include "ContentsEnum.h"
 
+//////////////////////////////////////////
+// 0 : Stop  / 1 : Walk / 2 : Run
+/////////////////////////////////////////
 
-UENUM(BlueprintType)
-enum class EM1ActionType : uint8
-{
-    Idle,
-    Move,
-    Attack,
-    Skill,
-    Dead,
-    Chase,
-};
-
-namespace InputMask
+namespace Client_InputMask
 {
     constexpr uint16 None = 1 << 0;
     constexpr uint16 North = 1 << 1;
@@ -26,32 +16,25 @@ namespace InputMask
     constexpr uint16 West = 1 << 4;
 }
 
-USTRUCT(BlueprintType)
 struct FM1SpawnData
 {
-    GENERATED_BODY()
+    uint64   EntityID = 0; 
 
-    UPROPERTY()
-    uint64 EntityID = 0; 
+    FVector  Location = FVector::ZeroVector;
 
-    UPROPERTY()
-    FVector Location = FVector::ZeroVector;
-
-    UPROPERTY()
     FRotator Rotation = FRotator::ZeroRotator;
 
-    UPROPERTY()
-    EM1ActionType ActionType = EM1ActionType::Idle;
+    uint8    MoveMode = 0; 
 
-    UPROPERTY()
-    uint16 InputMask = 0;
+    uint32   MoveSpeed = 0;
 
-    UPROPERTY(BlueprintReadOnly)
-    int32 HP = 0;
+    int32    HP = 0;
 
-    UPROPERTY(BlueprintReadOnly)
-    int32 MaxHP = 0;
+    int32    MaxHP = 0;
 
-    UPROPERTY(BlueprintReadOnly)
-    int32 MP = 0;
+    int32    MP = 0;
+
+    int32    MaxMP = 0;
+
+    EM1ActionStateType ActionType = EM1ActionStateType::None;
 };

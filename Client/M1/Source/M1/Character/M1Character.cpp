@@ -30,14 +30,8 @@ void AM1Character::ApplySpawnData(const FM1SpawnData& Data)
 	EntityID = Data.EntityID;
 	SetActorLocation(Data.Location);
 	SetActorRotation(Data.Rotation);
-	ActionType = Data.ActionType;
-	InputMask = Data.InputMask;
+	ActionType = static_cast<uint8>(Data.ActionType);
 	HP = Data.HP;
 	MaxHP = Data.MaxHP;
 }
 
-void AM1Character::ApplyStateData(EM1ActionType NewAction, uint8 NewInputMask)
-{
-	ActionType = NewAction;
-	InputMask = NewInputMask;
-}

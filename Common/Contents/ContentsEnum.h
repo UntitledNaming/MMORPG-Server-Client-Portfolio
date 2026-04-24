@@ -1,15 +1,19 @@
 #pragma once
 #include "ContentsType.h"
 
-enum class ELocomotionType : uint8
+/////////////////////////////////////////
+//           <MoveMode>
+// 0 : Stop  / 1 : Walk / 2 : Run
+/////////////////////////////////////////
+enum class EM1MoveMode : uint8
 {
-	Idle = 0,
+	Stop = 0,
 	Walk,
-	Run,
-	Jump
+	Run
 };
 
-enum class EM1ActionType : uint8
+// 상태관련 타입
+enum class EM1ActionStateType : uint8
 {
 	None = 0,
 	Attack,
@@ -17,7 +21,6 @@ enum class EM1ActionType : uint8
 	Hit,
 	Dead
 };
-
 
 enum class EAIState : uint8
 {

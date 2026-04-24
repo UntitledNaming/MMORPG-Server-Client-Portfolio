@@ -340,6 +340,15 @@ CMessage& CMessage::operator<<(DWORD lValue)
 	return *this;
 }
 
+CMessage& CMessage::operator<<(uint32 lValue)
+{
+	*(uint32*)m_iWritePos = lValue;
+	m_iWritePos += sizeof(uint32);
+	m_iDataSize += sizeof(uint32);
+
+	return *this;
+}
+
 CMessage& CMessage::operator<<(float fValue)
 {
 	*(float*)m_iWritePos = fValue;
@@ -452,6 +461,22 @@ CMessage& CMessage::operator>>(int& iValue)
 
 	m_iReadPos += sizeof(int);
 	m_iDataSize -= sizeof(int);
+
+	return *this;
+}
+
+CMessage& CMessage::operator>>(uint32& dwValue)
+{
+	if (m_iDataSize < sizeof(uint32))
+	{
+		m_iError = true;
+		return *this;
+	}
+
+	dwValue = *(uint32*)m_iReadPos;
+
+	m_iReadPos += sizeof(uint32);
+	m_iDataSize -= sizeof(uint32);
 
 	return *this;
 }
