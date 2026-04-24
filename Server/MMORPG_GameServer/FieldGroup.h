@@ -72,7 +72,7 @@ public:
 	void mpCreateMyCharacter(CUser* pUser, CMessage* pMessage);
 	void mpCreateOtherCharacter(CUser* pUser, CMessage* pMessage);
 	void mpDeleteCharacter(CUser* pUser, CMessage* pMessage);
-	void mpCharacterInputUpdate(CUser* pUser, CMessage* pMessage);
+	void mpCharacterMovementUpdate(CUser* pUser, CMessage* pMessage);
 	void mpSyncMyCharacterPosition(CUser* pUser, CMessage* pMessage);
 	void mpSyncOtherCharacterPosition(CUser* pUser, CMessage* pMessage);
 

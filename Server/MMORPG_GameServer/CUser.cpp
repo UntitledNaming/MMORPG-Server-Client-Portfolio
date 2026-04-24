@@ -30,8 +30,7 @@ void CUser::Init(uint64 sessionID)
 	m_action = EM1ActionStateType::None;
 	m_moveMode = EM1MoveMode::None;
 	m_movementYaw = 0.0f;
-	m_walkSpeed = WALK_SPEED / FieldConst::UPDATE_FRAME;
-	m_runSpeed = RUN_SPEED / FieldConst::UPDATE_FRAME;
+	m_moveSpeed = 0;
 	m_recvTime = timeGetTime();
 
 	memcpy_s(m_nickName, NICK_MAX, L"MY", NICK_MAX);

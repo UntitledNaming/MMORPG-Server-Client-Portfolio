@@ -52,7 +52,6 @@ namespace FieldProtocol
     //---------------------------------------------------------------
     // 	Other Character Create Msg			   Server -> Client
     //
-    // 
     //
     //	8	-	CharacterID		(uint64)
     //	4	-	Xpos			(float)

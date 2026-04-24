@@ -224,7 +224,9 @@ void FieldGroup::mpCreateMyCharacter(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_ypos;
 	*pMessage << pUser->m_zpos;
 	*pMessage << pUser->m_hp;
+	*pMessage << pUser->m_maxHP;
 	*pMessage << pUser->m_mp;
+	*pMessage << pUser->m_maxMP;
 }
 
 void FieldGroup::mpCreateOtherCharacter(CUser* pUser, CMessage* pMessage)
@@ -234,8 +236,11 @@ void FieldGroup::mpCreateOtherCharacter(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_ypos;
 	*pMessage << pUser->m_zpos;
 	*pMessage << pUser->m_movementYaw;
+	*pMessage << pUser->m_moveSpeed;
 	*pMessage << pUser->m_hp;
+	*pMessage << pUser->m_maxHP;
 	*pMessage << (uint8)pUser->m_action;
+	*pMessage << (uint8)pUser->m_moveMode;
 }
 
 void FieldGroup::mpDeleteCharacter(CUser* pUser, CMessage* pMessage)
@@ -244,7 +249,7 @@ void FieldGroup::mpDeleteCharacter(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_sessionID;
 }
 
-void FieldGroup::mpCharacterInputUpdate(CUser* pUser, CMessage* pMessage)
+void FieldGroup::mpCharacterMovementUpdate(CUser* pUser, CMessage* pMessage)
 {
 	*pMessage << PACKET_SC_UPDATE_CHARACTER_MOVEMENT_INPUT;
 	*pMessage << pUser->m_sessionID;
@@ -259,6 +264,7 @@ void FieldGroup::mpSyncMyCharacterPosition(CUser* pUser, CMessage* pMessage)
 	*pMessage << PACKET_SC_SYNC_MY_CHARACTER_POS;
 	*pMessage << pUser->m_xpos;
 	*pMessage << pUser->m_ypos;
+	*pMessage << pUser->m_zpos;
 }
 
 void FieldGroup::mpSyncOtherCharacterPosition(CUser* pUser, CMessage* pMessage)
@@ -267,6 +273,7 @@ void FieldGroup::mpSyncOtherCharacterPosition(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_sessionID;
 	*pMessage << pUser->m_xpos;
 	*pMessage << pUser->m_ypos;
+	*pMessage << pUser->m_zpos;
 }
 
 void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMessage)
