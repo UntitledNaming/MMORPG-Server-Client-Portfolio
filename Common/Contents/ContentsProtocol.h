@@ -96,7 +96,7 @@ namespace FieldProtocol
     //  8   -   CharacterID     (uint64)
     //	4	-   Xpos		    (float)
     //	4	-   Ypos		    (float)
-    //	4	-   CharacterYaw    (float)
+    //	4	-   MoveYaw         (float)
     //	4	-   MoveSpeed       (uint32)
     //  
     //---------------------------------------------------------------
@@ -109,6 +109,7 @@ namespace FieldProtocol
     // 
     //	4	-   Xpos		    (float)
     //	4	-   Ypos		    (float)
+    //	4	-   Zpos		    (float)
     //
     //---------------------------------------------------------------
 
@@ -121,6 +122,7 @@ namespace FieldProtocol
     //  8   -   CharacterID     (uint64)
     //	4	-   Xpos		    (float)
     //	4	-   Ypos		    (float)
+    //	4	-   Zpos		    (float)
     //
     //---------------------------------------------------------------
 

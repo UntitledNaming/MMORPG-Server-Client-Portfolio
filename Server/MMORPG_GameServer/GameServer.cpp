@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include "GameLibDefine.h"
+#include "ContentsEnum.h"
 #include "CService.h"
 #include "CGroup.h"
 #include "ChatService.h"
@@ -19,9 +20,7 @@ GameServer::GameServer()
 	std::wstring auth = L"Auth";
 	std::wstring field = L"Field";
 
-
 	Init();
-
 
 	// 그룹, 서비스 Attach
 	m_pGameLib->AttachGroup((CGroup*)m_pAuthGroup, auth);

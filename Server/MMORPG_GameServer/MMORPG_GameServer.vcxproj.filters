@@ -77,9 +77,6 @@
     <ClInclude Include="GameServer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="LibraryHeader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="CUserDirectory.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -87,9 +84,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="FieldGroup.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ContentsDefine.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CUser.h">

@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <string>
 #include <unordered_map>
+#include "ContentsEnum.h"
 #include "ContentsDefine.h"
 #include "ContentsProtocol.h"
 #include "MemoryPoolTLS.h"
@@ -47,7 +48,7 @@ void AuthGroup::OnRecv(UINT64 sessionID, CMessage* pMessage)
 
 	switch (type)
 	{
-	case PACKET_CS_CHAT_LOGIN_REQ:
+	case PACKET_CS_GAME_LOGIN_REQ:
 		LoginRequestProc(sessionID, pMessage);
 		break;
 

@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <cmath>
 #include "ContentsDefine.h"
+#include "ContentsEnum.h"
 #include "ContentsProtocol.h"
 #include "MemoryPoolTLS.h"
 #include "CMessage.h"
@@ -17,7 +18,7 @@ using namespace FieldProtocol;
 void FieldGroup::Init(CGameLibrary* p)
 {
 	m_pGameLib = p;
-	m_GroupFrameTime = UPDATE_FRAME;
+	m_GroupFrameTime = UPDATE_LOOP_TIME;
 	m_OldTime = timeGetTime();
 	m_Shared = false;
 	m_RecvTPS = 0;
@@ -46,8 +47,6 @@ void FieldGroup::OnClientJoin(UINT64 sessionID)
 
 void FieldGroup::OnClientLeave(UINT64 sessionID)
 {
-	
-
 	std::unordered_map<uint64, CUser*>::iterator it;
 	it = m_userLookUpTable.find(sessionID);
 	if (it == m_userLookUpTable.end())
@@ -80,7 +79,7 @@ void FieldGroup::OnRecv(UINT64 sessionID, CMessage* pMessage)
 
 	switch (type)
 	{
-	case PACKET_CS_CHARACTER_INPUT_UPDATE:
+	case PACKET_CS_UPDATE_CHARACTER_MOVEMENT_INPUT:
 		HandleCharacterInputUpdate(sessionID, pMessage);
 		break;
 
@@ -221,64 +220,6 @@ bool FieldGroup::GetInputOffset(uint8 inputMask, float& outOffset)
 {
 	outOffset = 0;
 
-	// 키가 눌렸는지 체크(키 눌렸으면 비트& 하면 0아닌 값 나옴)
-	bool w = (inputMask & InputMask::North) != 0;
-	bool d = (inputMask & InputMask::East) != 0;
-	bool s = (inputMask & InputMask::South) != 0;
-	bool a = (inputMask & InputMask::West) != 0;
-
-	// 반대 방향 키가 동시에 온 경우 offset 그대로
-	if (w && s || a && d)
-		return false;
-
-	// W 키만 눌린 경우
-	if (w && !a && !d)
-	{
-		outOffset = 0.0f;
-	}
-
-	// W + A 키 눌린 경우
-	else if (w && a)
-	{
-		outOffset = 45.0f;
-	}
-
-	// A 키만 눌린 경우
-	else if (a && !w && !s)
-	{
-		outOffset = 90.0f;
-	}
-
-	// A + S 키 눌린 경우
-	else if (s && a)
-	{
-		outOffset = 135.0f;
-	}
-
-	// S 키만 눌린 경우
-	else if (s && !a && !d)
-	{
-		outOffset = 180.0f;
-	}
-
-	// S + D 키 눌린 경우
-	else if (s && d)
-	{
-		outOffset = -135.0f;
-	}
-
-	// D 키만 눌린 경우
-	else if (d && !w && !s)
-	{
-		outOffset = -90.0f;
-	}
-
-	// W + D 키 눌린 경우
-	else if (w && d)
-	{
-		outOffset = -45.0f;
-	}
-
 	return true;
 }
 
@@ -288,6 +229,7 @@ void FieldGroup::mpCreateMyCharacter(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_sessionID;
 	*pMessage << pUser->m_xpos;
 	*pMessage << pUser->m_ypos;
+	*pMessage << pUser->m_zpos;
 	*pMessage << pUser->m_hp;
 	*pMessage << pUser->m_mp;
 }
@@ -297,7 +239,8 @@ void FieldGroup::mpCreateOtherCharacter(CUser* pUser, CMessage* pMessage)
 	*pMessage << PACKET_SC_CREATE_OTHER_CHARACTER;
 	*pMessage << pUser->m_xpos;
 	*pMessage << pUser->m_ypos;
-	*pMessage << pUser->m_cameraYaw;
+	*pMessage << pUser->m_zpos;
+	*pMessage << pUser->m_movementYaw;
 	*pMessage << pUser->m_hp;
 	*pMessage << (uint8)pUser->m_action;
 }
@@ -310,25 +253,24 @@ void FieldGroup::mpDeleteCharacter(CUser* pUser, CMessage* pMessage)
 
 void FieldGroup::mpCharacterInputUpdate(CUser* pUser, CMessage* pMessage)
 {
-	*pMessage << PACKET_SC_CHARACTER_INPUT_UPDATE;
+	*pMessage << PACKET_SC_UPDATE_CHARACTER_MOVEMENT_INPUT;
 	*pMessage << pUser->m_sessionID;
 	*pMessage << pUser->m_xpos;
 	*pMessage << pUser->m_ypos;
-	*pMessage << pUser->m_cameraYaw;
-	*pMessage << pUser->m_inputMask;
+	*pMessage << pUser->m_movementYaw;
 	*pMessage << (uint8)pUser->m_action;
 }
 
 void FieldGroup::mpSyncMyCharacterPosition(CUser* pUser, CMessage* pMessage)
 {
-	*pMessage << PACKET_SC_MY_CHARACTER_POS_SYNC;
+	*pMessage << PACKET_SC_SYNC_MY_CHARACTER_POS;
 	*pMessage << pUser->m_xpos;
 	*pMessage << pUser->m_ypos;
 }
 
 void FieldGroup::mpSyncOtherCharacterPosition(CUser* pUser, CMessage* pMessage)
 {
-	*pMessage << PACKET_SC_OTHER_CHARACTER_POS_SYNC;
+	*pMessage << PACKET_SC_SYNC_OTHER_CHARACTER_POS;
 	*pMessage << pUser->m_sessionID;
 	*pMessage << pUser->m_xpos;
 	*pMessage << pUser->m_ypos;

@@ -68,7 +68,7 @@ public:
     ///////////////////////////////////
 	constexpr float DegreeToRadian(float degree)
 	{
-		return degree * FieldConst::PI / 180.0f;
+		return degree * FieldConst::Pi / 180.0f;
 	}
 
 	///////////////////////////////////

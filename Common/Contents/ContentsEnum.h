@@ -7,7 +7,7 @@
 /////////////////////////////////////////
 enum class EM1MoveMode : uint8
 {
-	Stop = 0,
+	None = 0,
 	Walk,
 	Run
 };
