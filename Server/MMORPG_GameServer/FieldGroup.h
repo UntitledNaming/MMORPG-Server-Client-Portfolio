@@ -59,11 +59,6 @@ public:
 	void SendPacket_SectorAround(CMessage* pMessage, CUser* pUser);                        // 해당 섹터에 있는 유저들에게 메세지 보내기
 
 	///////////////////////////////////
-    // Input Offset 처리 함수        //
-    ///////////////////////////////////
-	bool GetInputOffset(uint8 inputMask, float& outOffset);
-
-	///////////////////////////////////
     // Degree 변환 함수              //
     ///////////////////////////////////
 	constexpr float DegreeToRadian(float degree)
@@ -84,7 +79,7 @@ public:
 	///////////////////////////////////
     // 클라이언트 메세지 처리 핸들러 //
     ///////////////////////////////////
-	void HandleCharacterInputUpdate(uint64 sessionID, CMessage* pMessage);
+	void HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMessage);
 
 	///////////////////////////////////
     // 프레임 로직 처리 함수         //

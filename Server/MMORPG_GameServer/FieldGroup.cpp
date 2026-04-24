@@ -80,7 +80,7 @@ void FieldGroup::OnRecv(UINT64 sessionID, CMessage* pMessage)
 	switch (type)
 	{
 	case PACKET_CS_UPDATE_CHARACTER_MOVEMENT_INPUT:
-		HandleCharacterInputUpdate(sessionID, pMessage);
+		HandleCharacterMovementUpdate(sessionID, pMessage);
 		break;
 
 	}
@@ -216,13 +216,6 @@ void FieldGroup::SendPacket_SectorAround(CMessage* pMessage, CUser* pUser)
 	}
 }
 
-bool FieldGroup::GetInputOffset(uint8 inputMask, float& outOffset)
-{
-	outOffset = 0;
-
-	return true;
-}
-
 void FieldGroup::mpCreateMyCharacter(CUser* pUser, CMessage* pMessage)
 {
 	*pMessage << PACKET_SC_CREATE_MY_CHARACTER;
@@ -276,7 +269,7 @@ void FieldGroup::mpSyncOtherCharacterPosition(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_ypos;
 }
 
-void FieldGroup::HandleCharacterInputUpdate(uint64 sessionID, CMessage* pMessage)
+void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMessage)
 {
 	float xpos;
 	float ypos;
