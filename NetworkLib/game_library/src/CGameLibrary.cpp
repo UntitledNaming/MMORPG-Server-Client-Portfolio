@@ -10,6 +10,7 @@
 #include <vector>
 #include <codecvt>
 
+#pragma comment(lib, "Ws2_32.lib")
 
 #include "NetPacketHeader.h"
 #include "TextParser.h"
@@ -929,7 +930,7 @@ bool CGameLibrary::SendPost(CSession* pSession)
 	for (int i = 0; i < index; i++)
 	{
 		wsa[i].buf = pSession->m_SendArray[i]->GetAllocPos();
-		wsa[i].len = pSession->m_SendArray[i]->GetRealDataSize();
+		wsa[i].len = pSession->m_SendArray[i]->GetRealDataSize(1);
 	}
 
 

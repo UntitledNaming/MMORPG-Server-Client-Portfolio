@@ -1,9 +1,103 @@
-﻿  AuthGroup.cpp
-  GameServer.cpp
-  MMORPG_GameServer.cpp
+﻿  CMessage.cpp
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(74,9): warning C4101: 'tempTop' :참조되지 않은 지역 변수입니다.
+  (소스 파일 '../../NetworkLib/common_files/src/buffer/CMessage.cpp'을(를) 컴파일하는 중)
+      C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(74,9):
+      템플릿 인스턴스화 컨텍스트(가장 오래된 인스턴스화 컨텍스트)가
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\src\buffer\CMessage.cpp(54,9):
+          컴파일되는 클래스 템플릿 인스턴스화 'CMPoolTLS<CMessage>'에 대한 참조를 확인하세요.
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\MemoryPoolTLS.h(210,3):
+          클래스 템플릿 멤버 함수 'CMPoolTLS<CMessage>::~CMPoolTLS(void)'을(를) 컴파일하는 중입니다.
+              C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\MemoryPoolTLS.h(411,1):
+              'CMPoolTLS<CMessage>::~CMPoolTLS'에서 'CMPoolTLS<CMessage>::~CMPoolTLS'에 대한 첫 번째 참조를 확인하세요.
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\MemoryPoolTLS.h(254,4):
+          컴파일되는 클래스 템플릿 인스턴스화 'CMemoryPool<CMPoolTLS<CMessage>::Bucket>'에 대한 참조를 확인하세요.
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(70,3):
+          클래스 템플릿 멤버 함수 'CMemoryPool<CMPoolTLS<CMessage>::Bucket>::~CMemoryPool(void)'을(를) 컴파일하는 중입니다.
+              C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(310,1):
+              'CMemoryPool<CMPoolTLS<CMessage>::Bucket>::~CMemoryPool'에서 'CMemoryPool<CMPoolTLS<CMessage>::Bucket>::~CMemoryPool'에 대한 첫 번째 참조를 확인하세요.
+  
+  CGameLibrary.cpp
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\game_library\src\CGameLibrary.cpp(474,19): warning C4302: '형식 캐스트': 'CSession *'에서 'UINT16'(으)로 잘립니다.
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\game_library\src\CGameLibrary.cpp(484,21): warning C4302: '형식 캐스트': 'CSession *'에서 'UINT16'(으)로 잘립니다.
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(74,9): warning C4101: 'tempTop' :참조되지 않은 지역 변수입니다.
+  (소스 파일 '../../NetworkLib/game_library/src/CGameLibrary.cpp'을(를) 컴파일하는 중)
+      C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(74,9):
+      템플릿 인스턴스화 컨텍스트(가장 오래된 인스턴스화 컨텍스트)가
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\game_library\src\CGameLibrary.cpp(164,2):
+          컴파일되는 클래스 템플릿 인스턴스화 'LFStack<UINT16>'에 대한 참조를 확인하세요.
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\lockfree\LFStack.h(83,7):
+          클래스 템플릿 멤버 함수 'bool LFStack<UINT16>::Pop(T &)'을(를) 컴파일하는 중입니다.
+          with
+          [
+              T=UINT16
+          ]
+              C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\game_library\src\CGameLibrary.cpp(607,26):
+              'CGameLibrary::AcceptThread'에서 'LFStack<UINT16>::Pop'에 대한 첫 번째 참조를 확인하세요.
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\lockfree\LFStack.h(114,9):
+          컴파일되는 클래스 템플릿 인스턴스화 'CMemoryPool<LFStack<UINT16>::Node>'에 대한 참조를 확인하세요.
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(70,3):
+          클래스 템플릿 멤버 함수 'CMemoryPool<LFStack<UINT16>::Node>::~CMemoryPool(void)'을(를) 컴파일하는 중입니다.
+              C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(310,1):
+              'CMemoryPool<LFStack<UINT16>::Node>::~CMemoryPool'에서 'CMemoryPool<LFStack<UINT16>::Node>::~CMemoryPool'에 대한 첫 번째 참조를 확인하세요.
+  
+  CGroup.cpp
+  GameSession.cpp
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(74,9): warning C4101: 'tempTop' :참조되지 않은 지역 변수입니다.
+  (소스 파일 '../../NetworkLib/game_library/src/GameSession.cpp'을(를) 컴파일하는 중)
+      C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(74,9):
+      템플릿 인스턴스화 컨텍스트(가장 오래된 인스턴스화 컨텍스트)가
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\game_library\include\GameSession.h(21,25):
+          컴파일되는 클래스 템플릿 인스턴스화 'LFQueueMul<CMessage *>'에 대한 참조를 확인하세요.
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\lockfree\LFQMultiLive.h(83,3):
+          클래스 템플릿 멤버 함수 'LFQueueMul<CMessage *>::~LFQueueMul(void)'을(를) 컴파일하는 중입니다.
+              C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\game_library\src\GameSession.cpp(10,1):
+              'CSession::CSession'에서 'LFQueueMul<CMessage *>::~LFQueueMul'에 대한 첫 번째 참조를 확인하세요.
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\lockfree\LFQMultiLive.h(87,4):
+          컴파일되는 클래스 템플릿 인스턴스화 'CMemoryPool<LFQueueMul<CMessage *>::Node>'에 대한 참조를 확인하세요.
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(70,3):
+          클래스 템플릿 멤버 함수 'CMemoryPool<LFQueueMul<CMessage *>::Node>::~CMemoryPool(void)'을(를) 컴파일하는 중입니다.
+              C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(310,1):
+              'CMemoryPool<LFQueueMul<CMessage *>::Node>::~CMemoryPool'에서 'CMemoryPool<LFQueueMul<CMessage *>::Node>::~CMemoryPool'에 대한 첫 번째 참조를 확인하세요.
+  
+  AuthGroup.cpp
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Common\Contents\ContentsEnum.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'AuthGroup.cpp'을(를) 컴파일하는 중)
+  
+  CDBManager.cpp
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(74,9): warning C4101: 'tempTop' :참조되지 않은 지역 변수입니다.
+  (소스 파일 'CDBManager.cpp'을(를) 컴파일하는 중)
+      C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(74,9):
+      템플릿 인스턴스화 컨텍스트(가장 오래된 인스턴스화 컨텍스트)가
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\CDBManager.cpp(14,17):
+          컴파일되는 클래스 템플릿 인스턴스화 'LFQueue<CMessage *>'에 대한 참조를 확인하세요.
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\lockfree\LFQSingleLive.h(61,3):
+          클래스 템플릿 멤버 함수 'LFQueue<CMessage *>::~LFQueue(void)'을(를) 컴파일하는 중입니다.
+              C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\lockfree\LFQSingleLive.h(215,1):
+              'LFQueue<CMessage *>::~LFQueue'에서 'LFQueue<CMessage *>::~LFQueue'에 대한 첫 번째 참조를 확인하세요.
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\lockfree\LFQSingleLive.h(63,3):
+          컴파일되는 클래스 템플릿 인스턴스화 'CMemoryPool<LFQueue<CMessage *>::Node>'에 대한 참조를 확인하세요.
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(70,3):
+          클래스 템플릿 멤버 함수 'CMemoryPool<LFQueue<CMessage *>::Node>::~CMemoryPool(void)'을(를) 컴파일하는 중입니다.
+              C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(310,1):
+              'CMemoryPool<LFQueue<CMessage *>::Node>::~CMemoryPool'에서 'CMemoryPool<LFQueue<CMessage *>::Node>::~CMemoryPool'에 대한 첫 번째 참조를 확인하세요.
+  
+  ChatService.cpp
+  FieldGroup.cpp
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Common\Contents\ContentsEnum.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'FieldGroup.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(178,23): warning C4838: 'int'에서 'uint16'(으)로의 변환에는 축소 변환이 필요합니다.
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(178,30): warning C4838: 'int'에서 'uint16'(으)로의 변환에는 축소 변환이 필요합니다.
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(178,37): warning C4838: 'int'에서 'uint16'(으)로의 변환에는 축소 변환이 필요합니다.
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(179,23): warning C4838: 'int'에서 'uint16'(으)로의 변환에는 축소 변환이 필요합니다.
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(179,26): warning C4838: 'int'에서 'uint16'(으)로의 변환에는 축소 변환이 필요합니다.
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(179,29): warning C4838: 'int'에서 'uint16'(으)로의 변환에는 축소 변환이 필요합니다.
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(199,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(382,24): warning C4244: '초기화 중': 'float'에서 'uint16'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(383,24): warning C4244: '초기화 중': 'float'에서 'uint16'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   코드를 생성하고 있습니다.
-  16 of 1240 functions ( 1.3%) were compiled, the rest were copied from previous compilation.
+  1 of 1279 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    2 functions had inline decision re-evaluated but remain unchanged
+    1 functions had inline decision re-evaluated but remain unchanged
   코드를 생성했습니다.
   MMORPG_GameServer.vcxproj -> C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\x64\Release\MMORPG_GameServer.exe

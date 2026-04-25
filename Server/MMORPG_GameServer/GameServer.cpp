@@ -78,6 +78,16 @@ void GameServer::Monitoring()
 		wprintf(L"AcceptTotalT          : %lld \n", m_pGameLib->m_AcceptTotal);
 		wprintf(L"Current Session Count : %d \n", m_pGameLib->m_CurSessionCnt);
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
+		wprintf(L"-----------------------------------------------------------------------------------------\n");
+		wprintf(L"                                FieldGroup                                               \n");
+		wprintf(L"-----------------------------------------------------------------------------------------\n");
+		wprintf(L" First User Pos       (x,y,z) : (%f, %f, %f) \n", m_pFieldGroup->xpos, m_pFieldGroup->ypos, m_pFieldGroup->zpos);
+		wprintf(L" First User SectorPos (x, y)  : (%d, %d) \n", m_pFieldGroup->secxpos, m_pFieldGroup->secypos);
+		wprintf(L" User Count : %d \n", m_pFieldGroup->UserCount());
+		wprintf(L"-----------------------------------------------------------------------------------------\n");
+
+
+
 
 		m_pGameLib->m_AcceptTPS = 0;
 		m_pGameLib->m_RecvIOTPS = 0;

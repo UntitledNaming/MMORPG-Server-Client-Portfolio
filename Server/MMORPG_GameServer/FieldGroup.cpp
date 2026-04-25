@@ -15,6 +15,11 @@
 using namespace FieldConst;
 using namespace FieldProtocol;
 
+size_t FieldGroup::UserCount()
+{
+	return m_userLookUpTable.size();
+}
+
 void FieldGroup::Init(CGameLibrary* p)
 {
 	m_pGameLib = p;
@@ -31,6 +36,7 @@ void FieldGroup::Init(CGameLibrary* p)
 		for (int x = 0; x < SECTOR_X_MAX; x++)
 		{
 			m_sectors[y][x].m_userArray.m_userCount = 0;
+			m_sectors[y][x].m_userArray.m_userTable.resize(SECTOR_USER_DEFAULT_COUNT);
 		}
 	}
 }
@@ -70,6 +76,7 @@ void FieldGroup::OnClientLeave(UINT64 sessionID)
 	userArray.m_userCount--;
 
 	CUser::Free(pUser);
+	m_userLookUpTable.erase(it);
 }
 
 void FieldGroup::OnRecv(UINT64 sessionID, CMessage* pMessage)
@@ -219,7 +226,6 @@ void FieldGroup::SendPacket_SectorAround(CMessage* pMessage, CUser* pUser)
 void FieldGroup::mpCreateMyCharacter(CUser* pUser, CMessage* pMessage)
 {
 	*pMessage << PACKET_SC_CREATE_MY_CHARACTER;
-	*pMessage << pUser->m_sessionID;
 	*pMessage << pUser->m_xpos;
 	*pMessage << pUser->m_ypos;
 	*pMessage << pUser->m_zpos;
@@ -284,13 +290,14 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 	float zpos = 0.0f;
 	float movementyaw = 0.0f;
 	bool  moveflag = false;
+
 	*pMessage >> xpos;
 	*pMessage >> ypos;
 	*pMessage >> zpos;
 	*pMessage >> movementyaw;
 	*pMessage >> moveflag;
 	
-	// todo : 추출한 데이터 검증(action, inputmask, yaw 범위 검증)
+	// todo : 추출한 데이터 검증
 
 	CUser* pUser = nullptr;
 
@@ -299,11 +306,13 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 	if (it == m_userLookUpTable.end())
 		__debugbreak();
 
-	pUser->m_action = (CUser::USER_ACTION)action;
-	pUser->m_cameraYaw = camerayaw;
-	pUser->m_inputMask = inputmask;
-	pUser->m_cameraYaw = camerayaw;
+	pUser = it->second;
 
+	pUser->m_movementYaw = movementyaw;
+	pUser->m_moveFlag = moveflag;
+
+	if (moveflag == false)
+		__debugbreak();
 
 	// 싱크 틀어졌으면 싱크 패킷 및 input Update 패킷 보내기
 	if (std::abs(pUser->m_xpos - xpos) >= SYNC_X_RANGE || std::abs(pUser->m_ypos - ypos) >= SYNC_Y_RANGE)
@@ -315,7 +324,6 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 		SendPacket(pUser->m_sessionID, pSyncMyChrMsg);
 
 		CMessage::Free(pSyncMyChrMsg);
-
 
 		CMessage* pSyncOthrChrMsg = CMessage::Alloc();
 		pSyncOthrChrMsg->Clear(1);
@@ -329,11 +337,11 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 
 
 
-	// input Update 패킷 뿌리기
+	// Movement Update 패킷 뿌리기
 	CMessage* pInputUpdateMsg = CMessage::Alloc();
 	pInputUpdateMsg->Clear(1);
 
-	mpCharacterInputUpdate(pUser, pInputUpdateMsg);
+	mpCharacterMovementUpdate(pUser, pInputUpdateMsg);
 
 	SendPacket_SectorAround(pInputUpdateMsg, pUser);
 
@@ -349,33 +357,54 @@ void FieldGroup::MovementProc()
 	{
 		CUser* pUser = it->second;
 
-		// 현재 유저 상태가 STOP 이거나 InputMask 설정된게 없으면 이동할 필요 없으니 다음 유저로 이동
-		if (pUser->m_action == CUser::USER_ACTION::STOP || pUser->m_inputMask == InputMask::None)
+		if (it == m_userLookUpTable.begin())
+		{
+			xpos = it->second->m_xpos;
+			ypos = it->second->m_ypos;
+			zpos = it->second->m_zpos;
+			secxpos = it->second->m_sectorXpos;
+			secypos = it->second->m_sectorYpos;
+		}
+
+
+		// 현재 유저의 moveFlag가 
+		if (pUser->m_moveFlag == false )
 			continue;
-
-		float offset = 0.0f;
-
-		// 상쇄 키 입력 발생시 이동 안하고 다음 유저
-		if (!GetInputOffset(pUser->m_inputMask, offset))
-			continue;
-
-		float moveyaw = pUser->m_cameraYaw + offset;
 
 		// Degree -> Radian으로 변환
-		float rad = DegreeToRadian(moveyaw);
+		float rad = DegreeToRadian(pUser->m_movementYaw);
 		float dirX = cosf(rad);
 		float dirY = sinf(rad);
 
-		// 나중에 달리기도 구현시 action 타입에 따라서 xpos 변경
-		if (pUser->m_action == CUser::USER_ACTION::WALK)
+		pUser->m_xpos += dirX * pUser->m_moveSpeed;
+		pUser->m_ypos += dirY * pUser->m_moveSpeed;
+
+		uint16 newSectorXpos = (pUser->m_xpos - MAP_WORLD_OFFSET_X) / SECTOR_SIZE;
+		uint16 newSectorYpos = (pUser->m_ypos - MAP_WORLD_OFFSET_Y) / SECTOR_SIZE;
+
+		if (newSectorXpos != pUser->m_sectorXpos || newSectorYpos != pUser->m_sectorYpos)
 		{
-			pUser->m_xpos += dirX * pUser->m_walkSpeed;
-			pUser->m_ypos += dirY * pUser->m_walkSpeed;
-		}
-		else if (pUser->m_action == CUser::USER_ACTION::RUN)
-		{
-			pUser->m_xpos += dirX * pUser->m_runSpeed;
-			pUser->m_ypos += dirY * pUser->m_runSpeed;
+			SectorUpdate(pUser, newSectorXpos, newSectorYpos);
 		}
 	}
+}
+
+void FieldGroup::SectorUpdate(CUser* pUser, uint16 nextXpos, uint16 nextYpos)
+{
+	// 현재 섹터에서 삭제 작업
+	UserArray& userArray = m_sectors[pUser->m_sectorYpos][pUser->m_sectorXpos].m_userArray;
+	CUser* pOther = userArray.m_userTable[userArray.m_userCount - 1];
+	userArray.m_userTable[pUser->m_arrayIdx] = pOther;
+	pOther->m_arrayIdx = pUser->m_arrayIdx;
+	userArray.m_userCount--;
+
+
+	// 새로운 섹터에 삽입 작업
+	UserArray& newUserArray = m_sectors[nextYpos][nextXpos].m_userArray;
+	newUserArray.m_userTable[newUserArray.m_userCount] = pUser;
+	pUser->m_arrayIdx = newUserArray.m_userCount;
+	newUserArray.m_userCount++;
+
+	pUser->m_sectorXpos = nextXpos;
+	pUser->m_sectorYpos = nextYpos;
 }

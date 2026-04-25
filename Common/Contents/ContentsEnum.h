@@ -7,9 +7,8 @@
 /////////////////////////////////////////
 enum class EM1MoveMode : uint8
 {
-	None = 0,
-	Walk,
-	Run
+	Walk = 0,   // Shift 안눌렀을 때
+	Run         // Shift 눌렀을 때
 };
 
 // 상태관련 타입

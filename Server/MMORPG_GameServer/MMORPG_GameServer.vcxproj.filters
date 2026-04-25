@@ -48,9 +48,6 @@
     <ClCompile Include="..\..\NetworkLib\common_files\src\buffer\CMessage.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\NetworkLib\game_library\src\CLanGameClient.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="CUserDirectory.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>

@@ -139,7 +139,6 @@
     <ClCompile Include="..\..\NetworkLib\common_files\src\util\TextParser.cpp" />
     <ClCompile Include="..\..\NetworkLib\game_library\src\CGameLibrary.cpp" />
     <ClCompile Include="..\..\NetworkLib\game_library\src\CGroup.cpp" />
-    <ClCompile Include="..\..\NetworkLib\game_library\src\CLanGameClient.cpp" />
     <ClCompile Include="..\..\NetworkLib\game_library\src\GameSession.cpp" />
     <ClCompile Include="AuthGroup.cpp" />
     <ClCompile Include="CDBManager.cpp" />

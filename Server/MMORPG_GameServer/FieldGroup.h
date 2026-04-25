@@ -38,6 +38,7 @@ public:
 	FieldGroup() = default;
 	~FieldGroup() = default;
 
+	size_t UserCount();
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// 그룹 콜백 함수
@@ -85,10 +86,17 @@ public:
     // 프레임 로직 처리 함수         //
     ///////////////////////////////////
 	void MovementProc();
-
+	void SectorUpdate(CUser* pUser, uint16 nextXpos, uint16 nextYpos);
 
 private:
 	std::unordered_map<uint64, CUser*> m_userLookUpTable;
 	Sector                             m_sectors[FieldConst::SECTOR_Y_MAX][FieldConst::SECTOR_X_MAX];
+
+public:
+	float xpos = 0;
+	float ypos = 0;
+	float zpos = 0;
+	uint16 secxpos = 0;
+	uint16 secypos = 0;
 };
 

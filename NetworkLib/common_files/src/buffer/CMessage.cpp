@@ -302,6 +302,7 @@ CMessage& CMessage::operator<<(BYTE byValue)
 	return *this;
 }
 
+
 CMessage& CMessage::operator<<(char chValue)
 {
 	*(char*)m_iWritePos = chValue;
@@ -329,6 +330,7 @@ CMessage& CMessage::operator<<(WORD wValue)
 	return *this;
 }
 
+
 CMessage& CMessage::operator<<(int iValue)
 {
 	*(int*)m_iWritePos = iValue;
@@ -346,6 +348,7 @@ CMessage& CMessage::operator<<(DWORD lValue)
 
 	return *this;
 }
+
 
 CMessage& CMessage::operator<<(float fValue)
 {
