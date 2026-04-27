@@ -28,6 +28,7 @@ public:
 	uint16              m_sectorXpos;                    // 캐릭터 섹터 X좌표
 	uint16              m_sectorYpos;                    // 캐릭터 섹터 Y좌표
 	uint16              m_arrayIdx;                      // 특정 섹터에 있는 배열의 몇번째 index에 있는지에 대한 정보
+	uint16              m_posGapCount;                   // 특정 시간동안 좌표 차이 크게 발생한 횟수
 	EM1ActionStateType  m_action;                        // 캐릭터가 현재 하는 행동
 	EM1MoveMode         m_moveMode;                      // 캐릭터 이동 타입(Walk, Run), Shift 누르면 Run
 	float               m_movementYaw;                   // 캐릭터 이동 방향, 이동 처리시 사용

@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include "GameLibDefine.h"
 #include "ContentsEnum.h"
+#include "MemoryPoolTLS.h"
+#include "CMessage.h"
 #include "CService.h"
 #include "CGroup.h"
 #include "ChatService.h"
@@ -85,6 +87,8 @@ void GameServer::Monitoring()
 		wprintf(L" First User SectorPos (x, y)  : (%d, %d) \n", m_pFieldGroup->secxpos, m_pFieldGroup->secypos);
 		wprintf(L" User Count  : %d \n", m_pFieldGroup->UserCount());
 		wprintf(L" Field Frame : %lld \n", m_pFieldGroup->fieldframe);
+		wprintf(L"-----------------------------------------------------------------------------------------\n");
+		wprintf(L" CMessage Pool Usage Count  : %d \n", CMessage::m_pMessagePool->GetUseCnt());
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
 
 

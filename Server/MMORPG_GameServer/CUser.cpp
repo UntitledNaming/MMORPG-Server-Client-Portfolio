@@ -27,6 +27,7 @@ void CUser::Init(uint64 sessionID)
 	m_maxMP = 100;
 	m_sectorXpos = (m_xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE;
 	m_sectorYpos = (m_ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE;
+	m_posGapCount = 0;
 	m_action = EM1ActionStateType::None;
 	m_moveMode = EM1MoveMode::Walk;
 	m_movementYaw = 0.0f;

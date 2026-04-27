@@ -267,7 +267,7 @@ void FieldGroup::mpCharacterMovementUpdate(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_ypos;
 	*pMessage << pUser->m_zpos;
 	*pMessage << pUser->m_movementYaw;
-	*pMessage << pUser->m_moveSpeed;
+	*pMessage << pUser->m_moveFlag;
 }
 
 void FieldGroup::mpSyncMyCharacterPosition(CUser* pUser, CMessage* pMessage)
@@ -362,13 +362,13 @@ void FieldGroup::HandleRTTMessage(uint64 sessionID, CMessage* pMessage)
 
 	*pMessage >> recvtime;
 
-	CMessage* pMessage = CMessage::Alloc();
-	pMessage->Clear(1);
-	mpRTTEchoMessage(pMessage, recvtime);
+	CMessage* pRTTMessage = CMessage::Alloc();
+	pRTTMessage->Clear(1);
+	mpRTTEchoMessage(pRTTMessage, recvtime);
 
-	SendPacket(sessionID, pMessage);
+	SendPacket(sessionID, pRTTMessage);
 
-	CMessage::Free(pMessage);
+	CMessage::Free(pRTTMessage);
 
 }
 
