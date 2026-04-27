@@ -100,7 +100,7 @@ namespace FieldProtocol
     //	4	-   Ypos		    (float)
     //	4	-   Zpos		    (float)
     //	4	-   MoveYaw         (float)
-    //	1	-   MoveFlag 	    (bool)
+    //	4	-   MoveSpeed       (uint32)
     //  
     //---------------------------------------------------------------
 

@@ -33,5 +33,5 @@ namespace UserConst
 namespace ClientMovement
 {
 	constexpr float MOVEMENT_SEND_INTERNAL_SEC      = 0.1f;
-	constexpr float MOVEMENT_YAW_SEND_THRESHOLD_DEG = 5.0f;
+	constexpr float MOVEMENT_YAW_SEND_THRESHOLD_DEG = 10.0f;
 }

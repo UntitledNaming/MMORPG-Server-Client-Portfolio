@@ -79,7 +79,8 @@ void AM1PlayerController::SetupInputComponent()
         auto LookAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_Look);
         auto LeftAttackAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_LeftAttack);
 
-        // todo : Jump BindAction
+        EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AM1PlayerController::OnJumpStart);
+        EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AM1PlayerController::OnJumpEnd);
         EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AM1PlayerController::OnMove);
         EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Canceled, this, &AM1PlayerController::OnMove);
         EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AM1PlayerController::OnMove);
