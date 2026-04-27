@@ -285,11 +285,21 @@ CMessage& CMessage::operator=(CMessage& clSrcMessage)
 	return *this;
 }
 
-CMessage& CMessage::operator<<(BYTE byValue)
+CMessage& CMessage::operator<<(uint8 byValue)
 {
-	*(BYTE*)m_iWritePos = byValue;
-	m_iWritePos += sizeof(BYTE);
-	m_iDataSize += sizeof(BYTE);
+	*(uint8*)m_iWritePos = byValue;
+	m_iWritePos += sizeof(uint8);
+	m_iDataSize += sizeof(uint8);
+
+
+	return *this;
+}
+
+CMessage& CMessage::operator<<(bool bValue)
+{
+	*(bool*)m_iWritePos = bValue;
+	m_iWritePos += sizeof(bool);
+	m_iDataSize += sizeof(bool);
 
 
 	return *this;
@@ -313,11 +323,11 @@ CMessage& CMessage::operator<<(short shValue)
 	return *this;
 }
 
-CMessage& CMessage::operator<<(WORD wValue)
+CMessage& CMessage::operator<<(uint16 wValue)
 {
-	*(WORD*)m_iWritePos = wValue;
-	m_iWritePos += sizeof(WORD);
-	m_iDataSize += sizeof(WORD);
+	*(uint16*)m_iWritePos = wValue;
+	m_iWritePos += sizeof(uint16);
+	m_iDataSize += sizeof(uint16);
 
 	return *this;
 }
@@ -327,15 +337,6 @@ CMessage& CMessage::operator<<(int iValue)
 	*(int*)m_iWritePos = iValue;
 	m_iWritePos += sizeof(int);
 	m_iDataSize += sizeof(int);
-
-	return *this;
-}
-
-CMessage& CMessage::operator<<(DWORD lValue)
-{
-	*(DWORD*)m_iWritePos = lValue;
-	m_iWritePos += sizeof(DWORD);
-	m_iDataSize += sizeof(DWORD);
 
 	return *this;
 }
@@ -367,14 +368,15 @@ CMessage& CMessage::operator<<(__int64 iValue)
 	return *this;
 }
 
-CMessage& CMessage::operator<<(unsigned long long  iValue)
+CMessage& CMessage::operator<<(uint64 iValue)
 {
-	*(unsigned long long*)m_iWritePos = iValue;
-	m_iWritePos += sizeof(unsigned long long);
-	m_iDataSize += sizeof(unsigned long long);
+	*(uint64*)m_iWritePos = iValue;
+	m_iWritePos += sizeof(uint64);
+	m_iDataSize += sizeof(uint64);
 
 	return *this;
 }
+
 
 CMessage& CMessage::operator<<(double iValue)
 {
@@ -385,18 +387,34 @@ CMessage& CMessage::operator<<(double iValue)
 	return *this;
 }
 
-CMessage& CMessage::operator>>(BYTE& byValue)
+CMessage& CMessage::operator>>(uint8& byValue)
 {
-	if (m_iDataSize < sizeof(BYTE))
+	if (m_iDataSize < sizeof(uint8))
 	{
 		m_iError = true;
 		return *this;
 	}
 
-	byValue = *(BYTE*)m_iReadPos;
+	byValue = *(uint8*)m_iReadPos;
 
-	m_iReadPos += sizeof(BYTE);
-	m_iDataSize -= sizeof(BYTE);
+	m_iReadPos += sizeof(uint8);
+	m_iDataSize -= sizeof(uint8);
+
+	return *this;
+}
+
+CMessage& CMessage::operator>>(bool& bValue)
+{
+	if (m_iDataSize < sizeof(bool))
+	{
+		m_iError = true;
+		return *this;
+	}
+
+	bValue = *(bool*)m_iReadPos;
+
+	m_iReadPos += sizeof(bool);
+	m_iDataSize -= sizeof(bool);
 
 	return *this;
 }
@@ -433,18 +451,18 @@ CMessage& CMessage::operator>>(short& shValue)
 	return *this;
 }
 
-CMessage& CMessage::operator>>(WORD& wValue)
+CMessage& CMessage::operator>>(uint16& wValue)
 {
-	if (m_iDataSize < sizeof(WORD))
+	if (m_iDataSize < sizeof(uint16))
 	{
 		m_iError = true;
 		return *this;
 	}
 
-	wValue = *(WORD*)m_iReadPos;
+	wValue = *(uint16*)m_iReadPos;
 
-	m_iReadPos += sizeof(WORD);
-	m_iDataSize -= sizeof(WORD);
+	m_iReadPos += sizeof(uint16);
+	m_iDataSize -= sizeof(uint16);
 
 	return *this;
 }
@@ -481,22 +499,6 @@ CMessage& CMessage::operator>>(uint32& dwValue)
 	return *this;
 }
 
-CMessage& CMessage::operator>>(DWORD& dwValue)
-{
-	if (m_iDataSize < sizeof(DWORD))
-	{
-		m_iError = true;
-		return *this;
-	}
-
-	dwValue = *(DWORD*)m_iReadPos;
-
-	m_iReadPos += sizeof(DWORD);
-	m_iDataSize -= sizeof(DWORD);
-
-	return *this;
-}
-
 CMessage& CMessage::operator>>(float& fValue)
 {
 	if (m_iDataSize < sizeof(float))
@@ -529,21 +531,22 @@ CMessage& CMessage::operator>>(__int64& iValue)
 	return *this;
 }
 
-CMessage& CMessage::operator>>(unsigned long long& iValue)
+CMessage& CMessage::operator>>(uint64& iValue)
 {
-	if (m_iDataSize < sizeof(unsigned long long))
+	if (m_iDataSize < sizeof(uint64))
 	{
 		m_iError = true;
 		return *this;
 	}
 
-	iValue = *(unsigned long long*)m_iReadPos;
+	iValue = *(uint64*)m_iReadPos;
 
-	m_iReadPos += sizeof(unsigned long long);
-	m_iDataSize -= sizeof(unsigned long long);
+	m_iReadPos += sizeof(uint64);
+	m_iDataSize -= sizeof(uint64);
 
 	return *this;
 }
+
 
 CMessage& CMessage::operator>>(double& dValue)
 {

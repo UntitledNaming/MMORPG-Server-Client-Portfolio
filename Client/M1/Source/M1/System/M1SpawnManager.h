@@ -5,6 +5,8 @@
 #include "M1/System/Type/M1Type.h"
 #include "M1SpawnManager.generated.h"
 
+class CMessage;
+
 UCLASS()
 class M1_API AM1SpawnManager : public AActor
 {
@@ -30,6 +32,11 @@ public:
 	//void UpdatePlayerState(uint64 EntityID, const FVector& Location, const FRotator& Rotation, EM1ActionStateType ActionType, uint8 InputMask, int32 HP, int32 MaxHP);
 	//void UpdateMonsterState(uint64 EntityID, const FVector& Location, const FRotator& Rotation, EM1ActionStateType ActionType,int32 HP, int32 MaxHP);
 
+	// RTT 측정 관련 함수
+	void SendRttPacket();
+	void mpCreateRttPacket(CMessage* pMessage, double Time);
+	void GetRTTEchoMsg();
+	void mpMovementInput(CMessage* pMessage, const FVector& Location, float Yaw, bool MoveFlag);
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Spawn")
@@ -43,4 +50,9 @@ private:
 
 	UPROPERTY()
 	TMap<uint64, class AM1Character*> MonsterMap; // 몬스터 관리 자료구조
+
+
+	double LastSendTime = 0;
+
+	class UM1NetworkManager* NetworkManager = nullptr;
 };

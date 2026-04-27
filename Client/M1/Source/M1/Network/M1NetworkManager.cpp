@@ -1,5 +1,8 @@
 #include "M1NetworkManager.h"
 #include "NetPacketHeader.h"
+#include "Engine/GameInstance.h"
+#include "Engine/World.h"
+#include "GameFramework/PlayerController.h"
 #include "ClientCore/CLanGameClient.h"
 #include "ClientCore/M1Client.h"
 #include "ClientCore/MemoryPoolTLS.h"
@@ -32,6 +35,7 @@ void UM1NetworkManager::Initialize(FSubsystemCollectionBase& Collection)
 		UE_LOG(LogTemp, Error, TEXT("서버와 연결이 되지 않았습니다."));
 	    return;
 	}
+
 }
 
 void UM1NetworkManager::Deinitialize()
@@ -39,6 +43,7 @@ void UM1NetworkManager::Deinitialize()
 	Super::Deinitialize();
 	if (ClientInstance)
 	{
+		ClientInstance->Disconnect();
 		ClientInstance->Destroy();
 		delete ClientInstance;
 		ClientInstance = nullptr;
@@ -123,5 +128,6 @@ void UM1NetworkManager::InitFunctorArray()
 	M1FunctorArray[FieldProtocol::PACKET_SC_UPDATE_CHARACTER_MOVEMENT_INPUT] = &M1PacketHandler::Handle_SC_UPDATE_CHARACTER_INPUT;
 	M1FunctorArray[FieldProtocol::PACKET_SC_SYNC_MY_CHARACTER_POS] = &M1PacketHandler::Handle_SC_SYNC_MY_CHARACTER_POS;
 	M1FunctorArray[FieldProtocol::PACKET_SC_SYNC_OTHER_CHARACTER_POS] = &M1PacketHandler::Handle_SC_SYNC_OTHER_CHARACTER_POS;
+	M1FunctorArray[FieldProtocol::PACKET_SC_RTT_ECHO] = &M1PacketHandler::Handle_SC_RTT_ECHO;
 }
 

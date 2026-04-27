@@ -138,7 +138,7 @@ namespace FieldProtocol
     //---------------------------------------------------------------
 
 
-    constexpr uint16 PACKET_SC_CHANGE_CHARACTER_MOVEMODE = 1007;
+    constexpr uint16 PACKET_SC_CHANGE_CHARACTER_MOVEMODE = 1008;
     //---------------------------------------------------------------
     //  Character MoveMode Change Msg         Server -> Client
     // 
@@ -147,5 +147,20 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
+    constexpr uint16 PACKET_CS_RTT_SEND = 1009;
+    //---------------------------------------------------------------
+    //  Character MoveMode Change Msg         Client -> Server
+    // 
+    //  8   -   Time            (double)  
+    //
+    //---------------------------------------------------------------
 
+    constexpr uint16 PACKET_SC_RTT_ECHO = 1010;
+    //---------------------------------------------------------------
+    //  Character MoveMode Change Msg         Server -> Client
+    // 
+    //  8   -   Time            (double)  
+    //
+    //---------------------------------------------------------------
 }
+

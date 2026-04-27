@@ -52,6 +52,7 @@ private:
 
     PacketHandlerFunc M1FunctorArray[ContentsProtocol::MAX_PACKET_ID];
 
-private:
     AM1SpawnManager* SpawnManager = nullptr;
+
+    double LastSendTime = 0;
 };

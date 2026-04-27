@@ -9,6 +9,8 @@
 #include "Character\M1Character.h"
 #include "Character\M1Player.h"
 #include "Character\M1Monster.h"
+#include "Network\ClientCore\CMessage.h"
+#include "NetPacketHeader.h"
 #include "Kismet/GameplayStatics.h"
 
 AM1SpawnManager::AM1SpawnManager()
@@ -25,7 +27,7 @@ void AM1SpawnManager::BeginPlay()
         return;
 
 
-    UM1NetworkManager* NetworkManager = GI->GetSubsystem<UM1NetworkManager>();
+    NetworkManager = GI->GetSubsystem<UM1NetworkManager>();
     if (NetworkManager == nullptr)
         return;
 
@@ -68,10 +70,12 @@ void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
     AM1PlayerController* PC = Cast< AM1PlayerController>(UGameplayStatics::GetPlayerController(World, 0));
     if (PC)
     {
-
         PC->Possess(NewPlayer);
         PC->SetCachedPlayer(NewPlayer);
-        PC->SetLastYaw(NewPlayer->GetActorRotation().Yaw);
+        PC->SetControlRotation(FRotator(0.f, 0.f, 0.f));
+        NewPlayer->SetActorRotation(FRotator(0.f, 0.f, 0.f));
+        
+        SendRttPacket();
     }
 
 }
@@ -153,3 +157,36 @@ AM1Character* AM1SpawnManager::FindMonster(uint64 EntityID) const
     return *Found;
 }
 
+void AM1SpawnManager::SendRttPacket()
+{
+    if (NetworkManager == nullptr)
+        return;
+
+    CMessage* pMessage = CMessage::Alloc();
+    pMessage->Clear(1);
+
+    LastSendTime = FPlatformTime::Seconds();
+    mpCreateRttPacket(pMessage, LastSendTime);
+
+    NetworkManager->SendPacket(pMessage, static_cast<uint8>(ERouteType::GROUP), ServiceID::NONE_SERVICE);
+
+    CMessage::Free(pMessage);
+}
+
+void AM1SpawnManager::mpCreateRttPacket(CMessage* pMessage, double Time)
+{
+    *pMessage << FieldProtocol::PACKET_CS_RTT_SEND;
+    *pMessage << Time;
+}
+
+
+void AM1SpawnManager::GetRTTEchoMsg()
+{
+    double RecvTime = FPlatformTime::Seconds();
+
+    UE_LOG(LogTemp, Warning, TEXT("RTT = %.3f ms"), (RecvTime - LastSendTime) * 1000.0);
+
+    LastSendTime = RecvTime;
+
+    SendRttPacket();
+}

@@ -36,4 +36,6 @@ public:
 	// 서버가 보낸 "다른 캐릭터 위치 싱크" 처리
 	static void Handle_SC_SYNC_OTHER_CHARACTER_POS(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 
+	// 서버가 보낸 "RTT 응답" 처리
+	static void Handle_SC_RTT_ECHO(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 };

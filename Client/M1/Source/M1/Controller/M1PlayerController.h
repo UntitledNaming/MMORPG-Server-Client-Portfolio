@@ -20,7 +20,6 @@ public:
 	void SetCachedPlayer(AM1Player* InPlayer);
 	void SetLastYaw(float Yaw);
 
-
 protected:
 	virtual void BeginPlayingState() override;
 	virtual void SetupInputComponent() override;
@@ -53,4 +52,5 @@ protected:
 	float MovementSendTime = 0.0f;
 	float LastSendYaw = 0.0f;
 	float CurrentYaw = 0.0f;
+	double LastSendTime = 0;
 };

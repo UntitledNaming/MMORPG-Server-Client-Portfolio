@@ -5,8 +5,10 @@
 #include "System\Type\M1Type.h"
 #include "System\M1SpawnManager.h"
 #include "M1NetworkManager.h"
+#include "Controller\M1PlayerController.h"
 #include "ClientCore/MemoryPoolTLS.h"
 #include "ClientCore/CMessage.h"
+#include "Kismet/GameplayStatics.h"
 
 M1PacketHandler::M1PacketHandler()
 {
@@ -122,4 +124,13 @@ void M1PacketHandler::Handle_SC_SYNC_MY_CHARACTER_POS(CMessage* pMessage, UM1Net
 void M1PacketHandler::Handle_SC_SYNC_OTHER_CHARACTER_POS(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
 
+}
+
+void M1PacketHandler::Handle_SC_RTT_ECHO(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	double time;
+
+	*pMessage >> time;
+
+	NetworkManager->GetSpawnManager()->GetRTTEchoMsg();
 }

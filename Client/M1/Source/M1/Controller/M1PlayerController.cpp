@@ -54,13 +54,14 @@ void AM1PlayerController::BeginPlayingState()
 
 
 
-    if (NetworkManager)
+    if (!NetworkManager)
     {
         if (UGameInstance* GI = GetGameInstance())
         {
             NetworkManager = GI->GetSubsystem<UM1NetworkManager>();
         }
     }
+
 }
 
 void AM1PlayerController::SetupInputComponent()
@@ -81,6 +82,8 @@ void AM1PlayerController::SetupInputComponent()
         EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AM1PlayerController::OnJumpStart);
         EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AM1PlayerController::OnJumpEnd);
         EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AM1PlayerController::OnMove);
+        EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Canceled, this, &AM1PlayerController::OnMove);
+        EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AM1PlayerController::OnMove);
         EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AM1PlayerController::OnLook);
         EnhancedInputComponent->BindAction(LeftAttackAction, ETriggerEvent::Started, this, &AM1PlayerController::OnAttackStart);
         EnhancedInputComponent->BindAction(LeftAttackAction, ETriggerEvent::Completed, this, &AM1PlayerController::OnAttackEnd);
@@ -166,7 +169,7 @@ void AM1PlayerController::DoMove(float Right, float Forward)
     MoveDirection.Z = 0.f;
 
     // 이동 벡터 크기가 0에 가까우면 멈춤으로 판단해서 CurrentMoveFlag를 false로 변경
-    bCurrentMoveFlag = !MoveDirection.IsNearlyZero();
+    bCurrentMoveFlag = !(FMath::IsNearlyZero(Right) && FMath::IsNearlyZero(Forward));
 
     // 이동중 플래그가 켜질때 이동벡터 정규화하고 해당 벡터의 Yaw값이 실제 이동방향에 대한 Yaw값이니 이를 CurrentYaw에 저장.
     if (bCurrentMoveFlag)
@@ -238,9 +241,9 @@ void AM1PlayerController::TrySendMovementPacket()
 void AM1PlayerController::mpMovementInput(CMessage* pMessage, const FVector& Location, float Yaw, bool MoveFlag)
 {
     *pMessage << FieldProtocol::PACKET_CS_UPDATE_CHARACTER_MOVEMENT_INPUT;
-    *pMessage << Location.X;
-    *pMessage << Location.Y;
-    *pMessage << Location.Z;
+    *pMessage << (float)Location.X;
+    *pMessage << (float)Location.Y;
+    *pMessage << (float)Location.Z;
     *pMessage << Yaw;
     *pMessage << MoveFlag;
 }
