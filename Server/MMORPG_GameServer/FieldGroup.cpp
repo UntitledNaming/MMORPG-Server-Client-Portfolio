@@ -324,6 +324,24 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 	// 싱크 틀어졌으면 싱크 패킷 및 input Update 패킷 보내기
 	if (std::abs(pUser->m_xpos - xpos) >= SYNC_X_RANGE || std::abs(pUser->m_ypos - ypos) >= SYNC_Y_RANGE)
 	{
+		// 싱크 발생시 마지막 체크 시간부터 현재 시간이 특정 시간인 10초를 넘었으면 Sync Count를 0으로 밀어줌.
+		if (timeGetTime() - pUser->m_lastSyncCheckTime >= SYNC_COUNT_WINDOW_MS)
+		{
+			pUser->m_syncCount = 0;
+			pUser->m_lastSyncCheckTime = timeGetTime();
+		}
+
+		pUser->m_syncCount++;
+
+		// 특정 시간동안 해당 유저의 싱크 패킷 횟수가 임계값을 넘을때 해당 유저 끊기
+		if (pUser->m_syncCount >= SYNC_MAX_COUNT)
+		{
+			// todo : 로그
+			Disconnect(sessionID);
+			return;
+		}
+
+
 		CMessage* pSyncMyChrMsg = CMessage::Alloc();
 		pSyncMyChrMsg->Clear(1);
 

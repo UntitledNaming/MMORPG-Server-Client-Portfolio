@@ -28,13 +28,14 @@ public:
 	uint16              m_sectorXpos;                    // 캐릭터 섹터 X좌표
 	uint16              m_sectorYpos;                    // 캐릭터 섹터 Y좌표
 	uint16              m_arrayIdx;                      // 특정 섹터에 있는 배열의 몇번째 index에 있는지에 대한 정보
-	uint16              m_posGapCount;                   // 특정 시간동안 좌표 차이 크게 발생한 횟수
+	uint16              m_syncCount;                     // 특정 시간동안 싱크 발생한 횟수
 	EM1ActionStateType  m_action;                        // 캐릭터가 현재 하는 행동
 	EM1MoveMode         m_moveMode;                      // 캐릭터 이동 타입(Walk, Run), Shift 누르면 Run
 	float               m_movementYaw;                   // 캐릭터 이동 방향, 이동 처리시 사용
 	float               m_moveSpeed;                     // 캐릭터 이동 속도(고정 프레임 방식이라 프레임 당 이동량)
 	uint32              m_recvTime;                      // 메세지 마지막 수신 시간
 	uint32              m_jumpStartTime;                 // 점프 시작시간
+	uint32              m_lastSyncCheckTime;             // 마지막 싱크 패킷 측정 시간
 	WCHAR               m_nickName[UserConst::NICK_MAX]; // 캐릭터 닉네임
 	uint64              m_sessionID;                     // 게임 라이브러리가 전달한 세션 Key
 

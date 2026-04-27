@@ -17,8 +17,10 @@ namespace FieldConst
 	constexpr uint16  SECTOR_USER_DEFAULT_COUNT = 100;
 	constexpr uint16  SECTOR_X_MAX              = 40; 
 	constexpr uint16  SECTOR_Y_MAX              = 40;
-	constexpr float   SYNC_X_RANGE              = 1000;                        // Sync Range : 10m
-	constexpr float   SYNC_Y_RANGE              = 1000;
+	constexpr uint16  SYNC_MAX_COUNT            = 15;                          // Max Sync Count per SYNC_COUNT_WINDOW_MS
+	constexpr uint32  SYNC_COUNT_WINDOW_MS      = 10000;                       // Sync Time Window
+	constexpr float   SYNC_X_RANGE              = 500;                         // Sync Range : 10m
+	constexpr float   SYNC_Y_RANGE              = 500;
 	constexpr float   Pi                        = 3.1415926535f;
 }
 
