@@ -389,8 +389,6 @@ void CGameLibrary::FrameThread()
 		// 그룹의 프레임 PQCS 쏘기
 		for (int i = 0; i < m_GroupID; i++)
 		{
-
-
 			groupoldTime = m_GroupArray[i]->GetOldTime();
 			groupframetime = m_GroupArray[i]->GetGroupFrame();
 			cnt1 = min((curTime - groupoldTime) / groupframetime , GAMELIB_MAX_FRAMEPROC_COUNT); // PQCS 쏠 최대 횟수 정해서 최대 3번 쏘기.

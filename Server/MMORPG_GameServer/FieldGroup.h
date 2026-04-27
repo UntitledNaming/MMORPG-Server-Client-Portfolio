@@ -76,11 +76,13 @@ public:
 	void mpCharacterMovementUpdate(CUser* pUser, CMessage* pMessage);
 	void mpSyncMyCharacterPosition(CUser* pUser, CMessage* pMessage);
 	void mpSyncOtherCharacterPosition(CUser* pUser, CMessage* pMessage);
+	void mpRTTEchoMessage(CMessage* pMessage, double Time);
 
 	///////////////////////////////////
     // 클라이언트 메세지 처리 핸들러 //
     ///////////////////////////////////
 	void HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMessage);
+	void HandleRTTMessage(uint64 sessionID, CMessage* pMessage);
 
 	///////////////////////////////////
     // 프레임 로직 처리 함수         //
@@ -98,5 +100,6 @@ public:
 	float zpos = 0;
 	uint16 secxpos = 0;
 	uint16 secypos = 0;
+	uint64 fieldframe = 0;
 };
 

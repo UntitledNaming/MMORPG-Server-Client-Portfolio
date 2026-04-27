@@ -83,7 +83,8 @@ void GameServer::Monitoring()
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
 		wprintf(L" First User Pos       (x,y,z) : (%f, %f, %f) \n", m_pFieldGroup->xpos, m_pFieldGroup->ypos, m_pFieldGroup->zpos);
 		wprintf(L" First User SectorPos (x, y)  : (%d, %d) \n", m_pFieldGroup->secxpos, m_pFieldGroup->secypos);
-		wprintf(L" User Count : %d \n", m_pFieldGroup->UserCount());
+		wprintf(L" User Count  : %d \n", m_pFieldGroup->UserCount());
+		wprintf(L" Field Frame : %lld \n", m_pFieldGroup->fieldframe);
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
 
 
@@ -92,5 +93,6 @@ void GameServer::Monitoring()
 		m_pGameLib->m_AcceptTPS = 0;
 		m_pGameLib->m_RecvIOTPS = 0;
 		m_pGameLib->m_SendIOTPS = 0;
+		m_pFieldGroup->fieldframe = 0;
 	}
 }

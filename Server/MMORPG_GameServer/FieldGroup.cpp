@@ -90,6 +90,9 @@ void FieldGroup::OnRecv(UINT64 sessionID, CMessage* pMessage)
 		HandleCharacterMovementUpdate(sessionID, pMessage);
 		break;
 
+	case PACKET_CS_RTT_SEND:
+		HandleRTTMessage(sessionID, pMessage);
+		break;
 	}
 }
 
@@ -161,6 +164,7 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 void FieldGroup::OnUpdate()
 {
 	MovementProc();
+	fieldframe++;
 }
 
 bool FieldGroup::SectorRangeCheck(uint16 xpos, uint16 ypos)
@@ -283,6 +287,12 @@ void FieldGroup::mpSyncOtherCharacterPosition(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_zpos;
 }
 
+void FieldGroup::mpRTTEchoMessage(CMessage* pMessage, double Time)
+{
+	*pMessage << PACKET_SC_RTT_ECHO;
+	*pMessage << Time;
+}
+
 void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMessage)
 {
 	float xpos = 0.0f;
@@ -310,9 +320,6 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 
 	pUser->m_movementYaw = movementyaw;
 	pUser->m_moveFlag = moveflag;
-
-	if (moveflag == false)
-		__debugbreak();
 
 	// 싱크 틀어졌으면 싱크 패킷 및 input Update 패킷 보내기
 	if (std::abs(pUser->m_xpos - xpos) >= SYNC_X_RANGE || std::abs(pUser->m_ypos - ypos) >= SYNC_Y_RANGE)
@@ -346,6 +353,22 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 	SendPacket_SectorAround(pInputUpdateMsg, pUser);
 
 	CMessage::Free(pInputUpdateMsg);
+
+}
+
+void FieldGroup::HandleRTTMessage(uint64 sessionID, CMessage* pMessage)
+{
+	double recvtime;
+
+	*pMessage >> recvtime;
+
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+	mpRTTEchoMessage(pMessage, recvtime);
+
+	SendPacket(sessionID, pMessage);
+
+	CMessage::Free(pMessage);
 
 }
 
