@@ -15,7 +15,8 @@
 
 AM1SpawnManager::AM1SpawnManager()
 {
-	PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bStartWithTickEnabled = true;
 }
 
 void AM1SpawnManager::BeginPlay()
@@ -32,6 +33,19 @@ void AM1SpawnManager::BeginPlay()
         return;
 
     NetworkManager->SetSpawnManager(this);
+
+    OldRTTCheckTime = FPlatformTime::Seconds();
+}
+
+void AM1SpawnManager::Tick(float Deltatime)
+{
+    Super::Tick(Deltatime);
+
+    if (FPlatformTime::Seconds() - OldRTTCheckTime >= 1.0f)
+    {
+        SendRttPacket();
+        OldRTTCheckTime += 1;
+    }
 }
 
 void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
@@ -185,8 +199,4 @@ void AM1SpawnManager::GetRTTEchoMsg()
     double RecvTime = FPlatformTime::Seconds();
 
     UE_LOG(LogTemp, Warning, TEXT("RTT = %.3f ms"), (RecvTime - LastSendTime) * 1000.0);
-
-    LastSendTime = RecvTime;
-
-    SendRttPacket();
 }

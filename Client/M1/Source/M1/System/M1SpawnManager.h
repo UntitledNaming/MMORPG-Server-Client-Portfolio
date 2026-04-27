@@ -17,6 +17,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float Deltatime) override;
 
 public:
 	void SpawnMyPlayer(FM1SpawnData& Data);
@@ -53,6 +54,6 @@ private:
 
 
 	double LastSendTime = 0;
-
+	double OldRTTCheckTime = 0;
 	class UM1NetworkManager* NetworkManager = nullptr;
 };
