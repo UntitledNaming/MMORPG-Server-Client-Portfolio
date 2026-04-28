@@ -227,6 +227,63 @@ void FieldGroup::SendPacket_SectorAround(CMessage* pMessage, CUser* pUser)
 	}
 }
 
+void FieldGroup::CalSectorTransitionMessageTargets(uint16 oldSecXpos, uint16 oldSecYpos, uint16 newSecXpos, uint16 newSecYpos, SectorAround& outDeleteSector, SectorAround& outCreateSector)
+{
+	bool curSecOverlapflag[9] = { false };
+	SectorAround curSec;
+	SectorFind(curSec, oldSecXpos, oldSecYpos);
+	
+
+	bool newSecOverlapflag[9] = { false };
+	SectorAround newSec;
+	SectorFind(newSec, newSecXpos, newSecYpos);
+
+
+	// 겹치는 좌표를 찾아서 이를 제외한 좌표값을 아웃 파라미터에 담기
+	for (int i = 0; i < curSec.m_count; i++)
+	{
+		for (int j = 0; j < newSec.m_count; j++)
+		{
+			if (curSecOverlapflag[i] == true || newSecOverlapflag[j] == true)
+				continue;
+
+			if (curSec.m_Around[i].m_xpos == newSec.m_Around[j].m_xpos && curSec.m_Around[i].m_ypos == newSec.m_Around[j].m_ypos)
+			{
+				curSecOverlapflag[i] = true;
+				newSecOverlapflag[j] = true;
+			}
+		}
+	}
+
+	// 아웃 파라미터에 담기
+	int deletecount = 0;
+	int createcount = 0;
+	for (int i = 0; i < curSec.m_count; i++)
+	{
+		if (curSecOverlapflag[i] == true)
+			continue;
+
+		outDeleteSector.m_Around[deletecount].m_xpos = curSec.m_Around[i].m_xpos;
+		outDeleteSector.m_Around[deletecount].m_ypos = curSec.m_Around[i].m_ypos;
+		deletecount++;
+
+	}
+	outDeleteSector.m_count = deletecount;
+
+
+	for (int i = 0; i < newSec.m_count; i++)
+	{
+		if (newSecOverlapflag[i] == true)
+			continue;
+
+		outCreateSector.m_Around[deletecount].m_xpos = newSec.m_Around[i].m_xpos;
+		outCreateSector.m_Around[deletecount].m_ypos = newSec.m_Around[i].m_ypos;
+		createcount++;
+
+	}
+	outCreateSector.m_count = deletecount;
+}
+
 void FieldGroup::mpCreateMyCharacter(CUser* pUser, CMessage* pMessage)
 {
 	*pMessage << PACKET_SC_CREATE_MY_CHARACTER;
@@ -246,11 +303,11 @@ void FieldGroup::mpCreateOtherCharacter(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_ypos;
 	*pMessage << pUser->m_zpos;
 	*pMessage << pUser->m_movementYaw;
-	*pMessage << pUser->m_moveSpeed;
 	*pMessage << pUser->m_hp;
 	*pMessage << pUser->m_maxHP;
 	*pMessage << (uint8)pUser->m_action;
 	*pMessage << (uint8)pUser->m_moveMode;
+	*pMessage << pUser->m_moveFlag;
 }
 
 void FieldGroup::mpDeleteCharacter(CUser* pUser, CMessage* pMessage)
@@ -359,7 +416,22 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 
 		CMessage::Free(pSyncOthrChrMsg);
 	}
+	else
+	{
+		// 싱크 안틀어졌으면 클라의 좌표를 서버가 믿어줌.
+		pUser->m_xpos = xpos;
+		pUser->m_ypos = ypos;
+		pUser->m_zpos = zpos;
 
+		uint16 newSecX = (xpos - MAP_WORLD_OFFSET_X) / SECTOR_SIZE;
+		uint16 newSecY = (ypos - MAP_WORLD_OFFSET_Y) / SECTOR_SIZE;
+
+		// 변경된 좌표에 해당하는 섹터가 기존 섹터 좌표와 다르면 섹터 업데이트
+		if (pUser->m_sectorXpos != newSecX || pUser->m_sectorYpos != newSecY)
+		{
+			SectorUpdate(pUser, newSecX, newSecY);
+		}
+	}
 
 
 	// Movement Update 패킷 뿌리기
@@ -439,12 +511,42 @@ void FieldGroup::SectorUpdate(CUser* pUser, uint16 nextXpos, uint16 nextYpos)
 	pOther->m_arrayIdx = pUser->m_arrayIdx;
 	userArray.m_userCount--;
 
-
 	// 새로운 섹터에 삽입 작업
 	UserArray& newUserArray = m_sectors[nextYpos][nextXpos].m_userArray;
 	newUserArray.m_userTable[newUserArray.m_userCount] = pUser;
 	pUser->m_arrayIdx = newUserArray.m_userCount;
 	newUserArray.m_userCount++;
+
+
+	// 새롭게 보이는 섹터에 캐릭터 생성 메세지, 안보이는 섹터에 캐릭터 삭제 메세지 보내기
+	SectorAround DeleteSector;
+	SectorAround CreateSector;
+	CalSectorTransitionMessageTargets(pUser->m_sectorXpos, pUser->m_sectorYpos, nextXpos, nextYpos, DeleteSector, CreateSector);
+
+	// 캐릭터 삭제 메세지 보내기
+	CMessage* pDeleteMsg = CMessage::Alloc();
+	pDeleteMsg->Clear(1);
+
+	mpDeleteCharacter(pUser, pDeleteMsg);
+
+	for (int i = 0; i < DeleteSector.m_count; i++)
+	{
+		SendPacket_SectorOne(pDeleteMsg, DeleteSector.m_Around[i].m_xpos, DeleteSector.m_Around[i].m_ypos, pUser);
+	}
+	CMessage::Free(pDeleteMsg);
+
+
+	// 캐릭터 생성 메세지 보내기
+	CMessage* pCreateMsg = CMessage::Alloc();
+	pCreateMsg->Clear(1);
+
+	mpCreateOtherCharacter(pUser, pCreateMsg);
+
+	for (int i = 0; i < CreateSector.m_count; i++)
+	{
+		SendPacket_SectorOne(pCreateMsg, CreateSector.m_Around[i].m_xpos, CreateSector.m_Around[i].m_ypos, pUser);
+	}
+	CMessage::Free(pCreateMsg);
 
 	pUser->m_sectorXpos = nextXpos;
 	pUser->m_sectorYpos = nextYpos;

@@ -58,11 +58,11 @@ namespace FieldProtocol
     //	4	-	Ypos			(float)
     //	4	-	Zpos			(float)
     //  4   -   MoveYaw         (float)  
-    //  4   -   MoveSpeed       (uint32)  
     //  2   -   HP              (uint16) 
     //  2   -   MaxHP           (uint16) 
     //  1   -   Action          (uint8)  
     //  1   -   MoveMode        (uint8)  
+    //  1   -   MoveFlag        (bool)
     //
     //---------------------------------------------------------------
 

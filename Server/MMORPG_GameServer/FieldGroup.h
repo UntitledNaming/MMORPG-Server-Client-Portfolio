@@ -58,6 +58,7 @@ public:
 	void SectorFind(SectorAround& pAround, uint16 xpos, uint16 ypos);
 	void SendPacket_SectorOne(CMessage* pMessage, uint16 xpos, uint16 ypos, CUser* pUser);     // 해당 섹터에 있는 유저들에게 메세지 보내기
 	void SendPacket_SectorAround(CMessage* pMessage, CUser* pUser);                        // 해당 섹터에 있는 유저들에게 메세지 보내기
+	void CalSectorTransitionMessageTargets(uint16 oldSecXpos, uint16 oldSecYpos, uint16 newSecXpos, uint16 newSecYpos, SectorAround& outDeleteSector, SectorAround& outCreateSector);
 
 	///////////////////////////////////
     // Degree 변환 함수              //
