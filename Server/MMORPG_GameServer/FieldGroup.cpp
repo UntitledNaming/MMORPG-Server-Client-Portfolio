@@ -299,6 +299,7 @@ void FieldGroup::mpCreateMyCharacter(CUser* pUser, CMessage* pMessage)
 void FieldGroup::mpCreateOtherCharacter(CUser* pUser, CMessage* pMessage)
 {
 	*pMessage << PACKET_SC_CREATE_OTHER_CHARACTER;
+	*pMessage << pUser->m_sessionID;
 	*pMessage << pUser->m_xpos;
 	*pMessage << pUser->m_ypos;
 	*pMessage << pUser->m_zpos;
