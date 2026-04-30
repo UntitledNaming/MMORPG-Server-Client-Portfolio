@@ -25,6 +25,9 @@ public:
 	void SpawnMonster(FM1SpawnData& Data);
 	void DespawnPlayer(uint64 EntityID);
 	void DespawnMonster(uint64 EntityID);
+	void SyncMyPlayer(FVector& Location);
+	void SyncOtherPlayer(uint64 EntityID, FVector& Location);
+	void UpdateOtherPlayerMovementInput(uint64 EntityID, FVector& Location, FRotator& Rotation, bool Moveflag);
 
 	class AM1Character* FindPlayer(uint64 EntityID) const;
 	class AM1Character* FindMonster(uint64 EntityID) const;
@@ -47,10 +50,13 @@ private:
 	TSubclassOf<class AM1Monster> MonsterCharacterClass;
 
 	UPROPERTY()
-	TMap<uint64, class AM1Character*> PlayerMap;  // 나와 타 플레이어 관리 자료구조
+	TObjectPtr<AM1Player> MyPlayer = nullptr;
 
 	UPROPERTY()
-	TMap<uint64, class AM1Character*> MonsterMap; // 몬스터 관리 자료구조
+	TMap<uint64, class AM1Player*> PlayerMap;  // 나와 타 플레이어 관리 자료구조
+
+	UPROPERTY()
+	TMap<uint64, class AM1Monster*> MonsterMap; // 몬스터 관리 자료구조
 
 
 	double LastSendTime = 0;

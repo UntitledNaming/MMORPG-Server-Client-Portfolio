@@ -43,30 +43,34 @@ void UM1AnimInstance::UpdateOwner()
 
 void UM1AnimInstance::UpdateMovementData()
 {
-    FVector Velocity = OwnerCharacter->GetVelocity();
-    Velocity.Z = 0.f;
-
-    Speed = Velocity.Size();
-    bIsMoving = (Speed > 3.f);
-    bIsInAir = MovementComp->IsFalling();
-    Direction = UKismetAnimationLibrary::CalculateDirection(Velocity, OwnerCharacter->GetActorRotation());
-
-    if (bIsMoving == false)
+    if (OwnerCharacter->bIsMyPlayer)
     {
-        Direction = 0.f;
-        return;
+
+        FVector Velocity = OwnerCharacter->GetVelocity();
+        Velocity.Z = 0.f;
+
+        Speed = Velocity.Size();
+        bIsMoving = (Speed > 3.f);
+        bIsInAir = MovementComp->IsFalling();
+        Direction = UKismetAnimationLibrary::CalculateDirection(Velocity, OwnerCharacter->GetActorRotation());
+
+        if (bIsMoving == false)
+        {
+            Direction = 0.f;
+            return;
+        }
+
+        AM1Player* Player = Cast<AM1Player>(OwnerCharacter);
+        if (Player != nullptr)
+        {
+            MoveModeRaw = Player->GetMoveMode();
+        }
     }
-
-
-
-    AM1Player* Player = Cast<AM1Player>(OwnerCharacter);
-    if (Player != nullptr)
+    else
     {
-        MoveModeRaw = Player->GetMoveMode();
-
+        Speed = OwnerCharacter->GetMoveSpeed();
+        bIsMoving = OwnerCharacter->GetRenderMove();
     }
-
-
 }
 
 void UM1AnimInstance::UpdateStateData()

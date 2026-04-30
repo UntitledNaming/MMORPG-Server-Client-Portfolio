@@ -62,11 +62,11 @@ void M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER(CMessage* pMessage, UM1Netwo
 void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
 	uint64 id;
+	bool moveflag;
 	float xpos;
 	float ypos;
 	float zpos;
 	float yaw;
-	uint32 speed;
 	uint16 hp;
 	uint16 maxhp;
 	uint8 action;
@@ -77,12 +77,11 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 	*pMessage >> ypos;
 	*pMessage >> zpos;
 	*pMessage >> yaw;
-	*pMessage >> speed;
 	*pMessage >> hp;
 	*pMessage >> maxhp;
 	*pMessage >> action;
 	*pMessage >> movemode;
-
+	*pMessage >> moveflag;
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
 
@@ -91,12 +90,13 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 
 	FM1SpawnData Data;
 	Data.EntityID = id;
+	Data.Location = Location;
+	Data.Rotation = Rotation;
 	Data.HP = hp;
-	Data.MoveSpeed = speed;
 	Data.MaxHP = maxhp;
 	Data.ActionType = static_cast<EM1ActionStateType>(action);
 	Data.MoveMode = movemode;
-
+	Data.MoveFlag = moveflag;
 	SpawnManager->SpawnOtehrPlayer(Data);
 }
 
@@ -111,19 +111,62 @@ void M1PacketHandler::Handle_SC_DELETE_CHARACTER(CMessage* pMessage, UM1NetworkM
 	SpawnManager->DespawnPlayer(id);
 }
 
-void M1PacketHandler::Handle_SC_UPDATE_CHARACTER_INPUT(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+void M1PacketHandler::Handle_SC_UPDATE_CHARACTER_MOVEMENT_INPUT(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
+	uint64 id;
+	float  xpos;
+	float  ypos;
+	float  zpos;
+	float  moveyaw;
+	bool   moveflag;
 
+	*pMessage >> id;
+	*pMessage >> xpos;
+	*pMessage >> ypos;
+	*pMessage >> zpos;
+	*pMessage >> moveyaw;
+	*pMessage >> moveflag;
+
+	FVector Location(xpos, ypos, zpos);
+	FRotator Rotation(0, moveyaw, 0);
+
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	SpawnManager->UpdateOtherPlayerMovementInput(id, Location, Rotation, moveflag);
 }
 
 void M1PacketHandler::Handle_SC_SYNC_MY_CHARACTER_POS(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
+	float xpos;
+	float ypos;
+	float zpos;
 
+	*pMessage >> xpos;
+	*pMessage >> ypos;
+	*pMessage >> zpos;
+
+	FVector location(xpos, ypos, zpos);
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	SpawnManager->SyncMyPlayer(location);
 }
 
 void M1PacketHandler::Handle_SC_SYNC_OTHER_CHARACTER_POS(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
+	uint64 id;
+	float xpos;
+	float ypos;
+	float zpos;
 
+	*pMessage >> id;
+	*pMessage >> xpos;
+	*pMessage >> ypos;
+	*pMessage >> zpos;
+
+	FVector location(xpos, ypos, zpos);
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	SpawnManager->SyncOtherPlayer(id, location);
 }
 
 void M1PacketHandler::Handle_SC_RTT_ECHO(CMessage* pMessage, UM1NetworkManager* NetworkManager)

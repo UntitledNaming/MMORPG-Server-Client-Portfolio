@@ -1,4 +1,5 @@
 #include "M1PlayerController.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Network\M1NetworkManager.h"
 #include "Network\ClientCore\CMessage.h"
 #include "NetPacketHeader.h"
@@ -89,6 +90,8 @@ void AM1PlayerController::SetupInputComponent()
         EnhancedInputComponent->BindAction(LeftAttackAction, ETriggerEvent::Canceled, this, &AM1PlayerController::OnAttackEnd);
     }
 
+
+    InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AM1PlayerController::QuitGame);
 }
 
 void AM1PlayerController::PlayerTick(float DeltaTime)
@@ -185,6 +188,16 @@ void AM1PlayerController::DoLook(float Yaw, float Pitch)
         M1Player->AddControllerYawInput(Yaw);
         M1Player->AddControllerPitchInput(Pitch);
     }
+}
+
+void AM1PlayerController::QuitGame()
+{
+    UKismetSystemLibrary::QuitGame(
+        this,
+        this,
+        EQuitPreference::Quit,
+        true
+    );
 }
 
 void AM1PlayerController::TrySendMovementPacket()

@@ -2,6 +2,7 @@
 
 #include "M1SpawnManager.h"
 #include "Network\M1NetworkManager.h"
+#include "ContentsDefine.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
@@ -79,6 +80,7 @@ void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
     NewPlayer->bIsMyPlayer = true;
     NewPlayer->ApplySpawnData(Data);
 
+    MyPlayer = NewPlayer;
 
     // 컨트롤러 가져와서 이 캐릭터에 Possess함. 컨트롤러가 지금 생성한 캐릭터 컨트롤 할 수 있게 함.
     AM1PlayerController* PC = Cast< AM1PlayerController>(UGameplayStatics::GetPlayerController(World, 0));
@@ -122,7 +124,6 @@ void AM1SpawnManager::SpawnOtehrPlayer(FM1SpawnData& Data)
 
     NewCharacter->bIsMyPlayer = false;
     NewCharacter->ApplySpawnData(Data);
-
     PlayerMap.Add(Data.EntityID, NewCharacter);
 }
 
@@ -133,7 +134,7 @@ void AM1SpawnManager::SpawnMonster(FM1SpawnData& Data)
 
 void AM1SpawnManager::DespawnPlayer(uint64 EntityID)
 {
-	AM1Character** Found = PlayerMap.Find(EntityID);
+    AM1Player** Found = PlayerMap.Find(EntityID);
 	if (Found == nullptr || *Found == nullptr)
 		return;
 
@@ -143,7 +144,7 @@ void AM1SpawnManager::DespawnPlayer(uint64 EntityID)
 
 void AM1SpawnManager::DespawnMonster(uint64 EntityID)
 {
-    AM1Character** Found = MonsterMap.Find(EntityID);
+    AM1Monster** Found = MonsterMap.Find(EntityID);
     if (Found == nullptr || *Found == nullptr)
         return;
 
@@ -151,9 +152,74 @@ void AM1SpawnManager::DespawnMonster(uint64 EntityID)
     MonsterMap.Remove(EntityID);
 }
 
+void AM1SpawnManager::SyncMyPlayer(FVector& Location)
+{
+    if (PlayerCharacterClass == nullptr || MyPlayer == nullptr)
+        return;
+
+    MyPlayer->SetActorLocation(Location);
+}
+
+void AM1SpawnManager::SyncOtherPlayer(uint64 EntityID, FVector& Location)
+{
+    AM1Player** Found = PlayerMap.Find(EntityID);
+    if (Found == nullptr || *Found == nullptr)
+        return;
+
+    (*Found)->SetActorLocation(Location);
+}
+
+void AM1SpawnManager::UpdateOtherPlayerMovementInput(uint64 EntityID, FVector& Location, FRotator& Rotation, bool Moveflag)
+{
+    AM1Player** Found = PlayerMap.Find(EntityID);
+    if (Found == nullptr || *Found == nullptr)
+        return;
+
+
+    AM1Player* OtherPlayer = *Found;
+
+
+    const bool  bOldMoveFlag = OtherPlayer->GetServerMoveFlag();
+    const float Dist = FVector::Dist2D(OtherPlayer->GetActorLocation(), Location);
+
+    // 현재 해당 캐릭터는 정지한 상태인데 이동 시작 패킷이 온것이면
+    // 이동 플래그만 켜주고 리턴
+    // Tick 함수에서 해당 방향으로 이동할 것임.
+    if (bOldMoveFlag == false && Moveflag == true)
+    {
+        OtherPlayer->SetServerMoveFlag(Moveflag);
+
+        // 서버로 부터 받은거는 정지 플래그인데 현재 수렴중이면 
+        if (OtherPlayer->GetStopCorrectionFlag() == true)
+        {
+            OtherPlayer->SetStopCorrectionFlag(false);
+        }
+
+    }
+
+    // 해당 캐릭터가 이동중인데 정지 패킷이 온 경우
+    else if (bOldMoveFlag == true && Moveflag == false)
+    {
+        OtherPlayer->SetServerMoveFlag(Moveflag);
+        OtherPlayer->SetStopCorrectionFlag(true);
+        OtherPlayer->SetStopTargetLocation(Location);
+    }
+
+
+    // 현재 캐릭터 위치랑 패킷으로 받은 위치 차이가 크면 바로 이동
+    if (Dist >= ClientMovement::REMOTE_PLAYER_POS_SNAP_DIST_CM)
+    {
+        OtherPlayer->SetActorLocation(Location);
+    }
+
+    // 이동 방향은 바로 변경
+    OtherPlayer->SetActorRotation(Rotation);
+    return;
+}
+
 AM1Character* AM1SpawnManager::FindPlayer(uint64 EntityID) const
 {
-    AM1Character* const* Found = PlayerMap.Find(EntityID);
+    AM1Player* const* Found = PlayerMap.Find(EntityID);
 
 	if (Found == nullptr)
 		return nullptr;
@@ -163,7 +229,7 @@ AM1Character* AM1SpawnManager::FindPlayer(uint64 EntityID) const
 
 AM1Character* AM1SpawnManager::FindMonster(uint64 EntityID) const
 {
-    AM1Character* const* Found = MonsterMap.Find(EntityID);
+    AM1Monster* const* Found = MonsterMap.Find(EntityID);
 
     if (Found == nullptr)
         return nullptr;

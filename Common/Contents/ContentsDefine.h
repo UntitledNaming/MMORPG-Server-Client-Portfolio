@@ -36,4 +36,6 @@ namespace ClientMovement
 {
 	constexpr float MOVEMENT_SEND_INTERNAL_SEC      = 0.1f;
 	constexpr float MOVEMENT_YAW_SEND_THRESHOLD_DEG = 5.0f;
+	constexpr float REMOTE_PLAYER_POS_SNAP_DIST_CM = 150.0f;
+	constexpr float SOFT_CORRECTION_STOP_DIST_CM = 5.0f;
 }

@@ -28,7 +28,7 @@ public:
 	static void Handle_SC_DELETE_CHARACTER(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 
 	// 서버가 보낸 "이동 업데이트" 처리
-	static void Handle_SC_UPDATE_CHARACTER_INPUT(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+	static void Handle_SC_UPDATE_CHARACTER_MOVEMENT_INPUT(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 
 	// 서버가 보낸 "내 캐릭터 위치 싱크" 처리
 	static void Handle_SC_SYNC_MY_CHARACTER_POS(CMessage* pMessage, UM1NetworkManager* NetworkManager);

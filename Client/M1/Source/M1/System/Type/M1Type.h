@@ -26,8 +26,6 @@ struct FM1SpawnData
 
     uint8    MoveMode = 0; 
 
-    uint32   MoveSpeed = 0;
-
     int32    HP = 0;
 
     int32    MaxHP = 0;
@@ -37,4 +35,6 @@ struct FM1SpawnData
     int32    MaxMP = 0;
 
     EM1ActionStateType ActionType = EM1ActionStateType::None;
+
+    bool MoveFlag = false;
 };

@@ -125,7 +125,7 @@ void UM1NetworkManager::InitFunctorArray()
 	M1FunctorArray[FieldProtocol::PACKET_SC_CREATE_MY_CHARACTER] = &M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER;
 	M1FunctorArray[FieldProtocol::PACKET_SC_CREATE_OTHER_CHARACTER] = &M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER;
 	M1FunctorArray[FieldProtocol::PACKET_SC_DELETE_CHARACTER] = &M1PacketHandler::Handle_SC_DELETE_CHARACTER;
-	M1FunctorArray[FieldProtocol::PACKET_SC_UPDATE_CHARACTER_MOVEMENT_INPUT] = &M1PacketHandler::Handle_SC_UPDATE_CHARACTER_INPUT;
+	M1FunctorArray[FieldProtocol::PACKET_SC_UPDATE_CHARACTER_MOVEMENT_INPUT] = &M1PacketHandler::Handle_SC_UPDATE_CHARACTER_MOVEMENT_INPUT;
 	M1FunctorArray[FieldProtocol::PACKET_SC_SYNC_MY_CHARACTER_POS] = &M1PacketHandler::Handle_SC_SYNC_MY_CHARACTER_POS;
 	M1FunctorArray[FieldProtocol::PACKET_SC_SYNC_OTHER_CHARACTER_POS] = &M1PacketHandler::Handle_SC_SYNC_OTHER_CHARACTER_POS;
 	M1FunctorArray[FieldProtocol::PACKET_SC_RTT_ECHO] = &M1PacketHandler::Handle_SC_RTT_ECHO;

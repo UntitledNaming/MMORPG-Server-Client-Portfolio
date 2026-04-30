@@ -20,7 +20,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public:	
 	virtual void Tick(float DeltaTime) override;
 
 public:
@@ -42,35 +41,64 @@ public:
         return bIsSpawnInit;
     }
 
-private:
-    void OnMove(const FInputActionValue& Value);
+    FORCEINLINE bool GetServerMoveFlag() const
+    {
+        return bServerMoveFlag;
+    }
 
-    void OnLook(const FInputActionValue& Value);
+    FORCEINLINE bool GetRenderMove() const
+    {
+        return bRenderMoveFlag;
+    }
 
-    void OnJumpStart();
+    FORCEINLINE bool GetStopCorrectionFlag() const
+    {
+        return bNeedStopCorrection;
+    }
 
-    void OnJumpEnd();
+    FORCEINLINE void SetServerMoveFlag(bool isMoving)
+    {
+        bServerMoveFlag = isMoving;
+    }
 
-    void OnAttackStart();
+    FORCEINLINE uint32 GetMoveSpeed() const
+    {
+        return MoveSpeed;
+    }
 
-    void OnAttackEnd();
+    FORCEINLINE void SetMoveSpeed(uint32 InMoveSpeed)
+    {
+        MoveSpeed = InMoveSpeed;
+    }
 
-    void DoMove(float Right, float Forward);
+    FORCEINLINE void SetStopCorrectionFlag(bool StopCorrection)
+    {
+        bNeedStopCorrection = StopCorrection;
+    }
 
-    void DoLook(float Yaw, float Pitch);
+    FORCEINLINE void SetStopTargetLocation(FVector& StopLocation)
+    {
+        StopTargetLocation = StopLocation;
+    }
 
 public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere)
     TObjectPtr<class UWidgetComponent> HpBarComponent;
 
     UPROPERTY(VisibleAnywhere)
-    uint64 EntityID = 0;
-
-    UPROPERTY(VisibleAnywhere)
     bool bIsMyPlayer = false;
 
     UPROPERTY(VisibleAnywhere)
-    bool bIsSpawnInit = false;      // 하위 클래스에서 true로 변경 필요
+    bool bIsSpawnInit = false;      
+
+
+protected:
+    /////////////////////////////////////////////////////////////////////////
+    // 프로토콜을 통해 얻는 값
+    /////////////////////////////////////////////////////////////////////////
+
+    UPROPERTY(VisibleAnywhere)
+    uint64 EntityID = 0;
 
     UPROPERTY(VisibleAnywhere)
     uint8 ActionType = 0;
@@ -82,9 +110,20 @@ public:
     int32 MaxHP = 0;
 
     UPROPERTY(VisibleAnywhere)
-    uint32 MoveSpeed = 0;
+    uint32 MoveSpeed = 0;                             // 렌더링 할 때 기준값이 되는 속도값
+
+    UPROPERTY(VisibleAnywhere)
+    bool bServerMoveFlag = false;                     // 서버가 보낸 해당 캐릭터 현재 이동 상태
+
+    UPROPERTY(VisibleAnywhere)
+    bool bRenderMoveFlag = false;                     // 이 클라에서 해당 캐릭터에 대한 움직임이 보여야 하는지에 대한 상태
+     
+    UPROPERTY(VisibleAnywhere)
+    bool bNeedStopCorrection = false;                 // 정지 좌표까지 수렴 중인지에 대한 플래그
+
+    UPROPERTY(VisibleAnywhere)
+    FVector StopTargetLocation = FVector::Zero();
 
 public:
-    virtual void Destroy();
     virtual void ApplySpawnData(const FM1SpawnData& Data);
 };

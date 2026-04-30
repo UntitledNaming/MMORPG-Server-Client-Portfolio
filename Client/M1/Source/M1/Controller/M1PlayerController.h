@@ -34,6 +34,7 @@ private:
 	void OnAttackEnd();
 	void DoMove(float Right, float Forward);
 	void DoLook(float Yaw, float Pitch);
+	void QuitGame();
 
 	void TrySendMovementPacket();
 

@@ -89,3 +89,21 @@ Build/
 *.uasset
 *.umap
 *.blend
+
+# Build/package outputs
+Build/
+Builds/
+Packaged/
+Packages/
+Windows/
+WindowsNoEditor/
+StagedBuilds/
+
+# Logs / temp
+*.log
+*.tmp
+*.cache
+
+# OS files
+.DS_Store
+Thumbs.db
