@@ -35,7 +35,7 @@ protected:
     uint8 MoveModeRaw = 0;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|Movement")
-    float Speed = 0.f;
+    float AnimSpeed = 0.f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|Movement")
     float Direction = 0.f;
@@ -54,5 +54,6 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|State")
     uint8 ActionTypeRaw = 0;
+
 
 };

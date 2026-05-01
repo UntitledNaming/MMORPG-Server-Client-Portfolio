@@ -178,7 +178,6 @@ void AM1SpawnManager::UpdateOtherPlayerMovementInput(uint64 EntityID, FVector& L
 
     AM1Player* OtherPlayer = *Found;
 
-
     const bool  bOldMoveFlag = OtherPlayer->GetServerMoveFlag();
     const float Dist = FVector::Dist2D(OtherPlayer->GetActorLocation(), Location);
 

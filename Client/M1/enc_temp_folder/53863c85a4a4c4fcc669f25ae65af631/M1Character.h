@@ -61,6 +61,16 @@ public:
         bServerMoveFlag = isMoving;
     }
 
+    FORCEINLINE uint32 GetMoveSpeed() const
+    {
+        return MoveSpeed;
+    }
+
+    FORCEINLINE void SetMoveSpeed(uint32 InMoveSpeed)
+    {
+        MoveSpeed = InMoveSpeed;
+    }
+
     FORCEINLINE void SetStopCorrectionFlag(bool StopCorrection)
     {
         bNeedStopCorrection = StopCorrection;
@@ -98,6 +108,9 @@ protected:
 
     UPROPERTY(VisibleAnywhere)
     int32 MaxHP = 0;
+
+    UPROPERTY(VisibleAnywhere)
+    float MoveSpeed = 0;                              // 렌더링 할 때 기준값이 되는 속도값
 
     UPROPERTY(VisibleAnywhere)
     bool bServerMoveFlag = false;                     // 서버가 보낸 해당 캐릭터 현재 이동 상태

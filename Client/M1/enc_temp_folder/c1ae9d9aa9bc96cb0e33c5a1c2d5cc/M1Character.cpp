@@ -1,11 +1,11 @@
 #include "M1Character.h"
 #include "ContentsDefine.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/WidgetComponent.h"
 
 AM1Character::AM1Character()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	MoveSpeed = (float)UserConst::WALK_SPEED;
 }
 
 void AM1Character::BeginPlay()
@@ -22,8 +22,6 @@ void AM1Character::Tick(float DeltaTime)
 		return;
 
 	FVector NewLocation = GetActorLocation();
-	float MoveSpeed = GetCharacterMovement()->MaxWalkSpeed;
-
 
 	if (bServerMoveFlag)
 	{
@@ -37,8 +35,6 @@ void AM1Character::Tick(float DeltaTime)
 	// 서버는 멈췄는데 수렴 플래그가 켜져있으면
 	else if (bNeedStopCorrection)
 	{
-		bRenderMoveFlag = true;
-
 		NewLocation = FMath::VInterpConstantTo(
 			NewLocation,
 			StopTargetLocation,
@@ -61,7 +57,6 @@ void AM1Character::Tick(float DeltaTime)
 		bRenderMoveFlag = false;
 	}
 
-	SetActorLocation(NewLocation);
 }
 
 void AM1Character::ApplySpawnData(const FM1SpawnData& Data)

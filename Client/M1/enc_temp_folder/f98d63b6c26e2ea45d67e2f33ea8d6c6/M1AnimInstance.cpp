@@ -57,26 +57,19 @@ void UM1AnimInstance::UpdateMovementData()
         if (bIsMoving == false)
         {
             Direction = 0.f;
+            return;
+        }
+
+        AM1Player* Player = Cast<AM1Player>(OwnerCharacter);
+        if (Player != nullptr)
+        {
+            MoveModeRaw = Player->GetMoveMode();
         }
     }
     else
     {
         bIsMoving = OwnerCharacter->GetRenderMove();
-        if (bIsMoving)
-        {
-            AnimSpeed = OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed;
-        }
-        else
-            AnimSpeed = 0.f;
-
-        Direction = OwnerCharacter->GetActorRotation().Yaw;
-    }
-
-
-    AM1Player* Player = Cast<AM1Player>(OwnerCharacter);
-    if (Player != nullptr)
-    {
-        MoveModeRaw = Player->GetMoveMode();
+        AnimSpeed = bIsMoving ? OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed : 0.f;
     }
 }
 
