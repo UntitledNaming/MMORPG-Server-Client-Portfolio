@@ -276,12 +276,12 @@ void FieldGroup::CalSectorTransitionMessageTargets(uint16 oldSecXpos, uint16 old
 		if (newSecOverlapflag[i] == true)
 			continue;
 
-		outCreateSector.m_Around[deletecount].m_xpos = newSec.m_Around[i].m_xpos;
-		outCreateSector.m_Around[deletecount].m_ypos = newSec.m_Around[i].m_ypos;
+		outCreateSector.m_Around[createcount].m_xpos = newSec.m_Around[i].m_xpos;
+		outCreateSector.m_Around[createcount].m_ypos = newSec.m_Around[i].m_ypos;
 		createcount++;
 
 	}
-	outCreateSector.m_count = deletecount;
+	outCreateSector.m_count = createcount;
 }
 
 void FieldGroup::mpCreateMyCharacter(CUser* pUser, CMessage* pMessage)
@@ -366,6 +366,9 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 	*pMessage >> moveflag;
 	
 	// todo : 추출한 데이터 검증
+	// 1) Z축 값에 대한 검증 필요. 섹터 하나가 100m이니 그 안에 Zone을 만드는데 Zone의 구역을 직육면체로 정의함.
+	//    이 Zone들 마다 속성들이 있음. Z축이 허용되는 지역이 있을 것이고 그게 안되는 지역이 있을 것임.
+	//
 
 	CUser* pUser = nullptr;
 
