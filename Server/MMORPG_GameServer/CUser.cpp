@@ -14,6 +14,13 @@ using namespace UserConst;
 void CUser::Init(uint64 sessionID)
 {
 	// todo : 추후 DB에서 데이터 긁어와서 초기화 하기
+	// 
+	// movespeed는 실질적으로 max walk speed임. 이벤트 방식을 통해 특정 이벤트 발생시 max walk speed가 변경되면 
+	// 이를 클라에게 전파해서 해당 클라의 max walk speed를 변경하여 이동 속도를 조절함.
+	// 캐릭터 생성, 삭제시 이 Max Walk Speed를 서버가 전파해주던가 아니면 프로토콜로 버프, 디버프 상태를
+	// 추가하여 이를 전달해 클라가 자체 계산해서 max speed값 조정하던가 해야 함.
+	
+
 	m_sessionID = sessionID;
 	m_xpos = 405430.0f;
 	m_ypos = 397350.0f;
@@ -30,7 +37,8 @@ void CUser::Init(uint64 sessionID)
 	m_action = EM1ActionStateType::None;
 	m_moveMode = EM1MoveMode::Walk;
 	m_movementYaw = 0.0f;
-	m_moveSpeed = WALK_SPEED / FieldConst::UPDATE_FRAME;
+	m_maxWalkSpeed = WALK_SPEED;
+	m_moveSpeed = m_maxWalkSpeed / FieldConst::UPDATE_FRAME;
 	m_recvTime = timeGetTime();
 	m_lastSyncCheckTime = timeGetTime();
 

@@ -432,6 +432,7 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 		{
 			SectorUpdate(pUser, newSecX, newSecY);
 		}
+		syncCount++;
 	}
 
 

@@ -102,5 +102,6 @@ public:
 	uint16 secxpos = 0;
 	uint16 secypos = 0;
 	uint64 fieldframe = 0;
+	uint64 syncCount = 0;
 };
 

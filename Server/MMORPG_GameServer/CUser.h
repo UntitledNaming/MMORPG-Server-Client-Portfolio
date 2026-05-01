@@ -32,6 +32,7 @@ public:
 	EM1ActionStateType  m_action;                        // 캐릭터가 현재 하는 행동
 	EM1MoveMode         m_moveMode;                      // 캐릭터 이동 타입(Walk, Run), Shift 누르면 Run
 	float               m_movementYaw;                   // 캐릭터 이동 방향, 이동 처리시 사용
+	float               m_maxWalkSpeed;                  // 캐릭터 최대 이동 속도(이벤트 발생시 변화 값)
 	float               m_moveSpeed;                     // 캐릭터 이동 속도(고정 프레임 방식이라 프레임 당 이동량)
 	uint32              m_recvTime;                      // 메세지 마지막 수신 시간
 	uint32              m_jumpStartTime;                 // 점프 시작시간
