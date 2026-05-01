@@ -416,6 +416,8 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 		SendPacket_SectorAround(pSyncMyChrMsg, pUser);
 
 		CMessage::Free(pSyncOthrChrMsg);
+
+		syncCount++;
 	}
 	else
 	{
@@ -432,7 +434,6 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 		{
 			SectorUpdate(pUser, newSecX, newSecY);
 		}
-		syncCount++;
 	}
 
 
