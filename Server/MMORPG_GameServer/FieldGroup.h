@@ -7,7 +7,6 @@ class CUser;
 class FieldGroup : public CGroup
 {
 private:
-
 	struct st_Pos
 	{
 		uint16 m_xpos;
@@ -67,6 +66,12 @@ public:
 	{
 		return degree * FieldConst::Pi / 180.0f;
 	}
+
+	///////////////////////////////////
+    // 서버 시간 측정               //
+    ///////////////////////////////////
+	uint64 GetServerTimeMs();
+
 
 	///////////////////////////////////
     // 컨텐츠 메세지 생성 함수       //

@@ -2,6 +2,7 @@
 #include <vector>
 #include <unordered_map>
 #include <cmath>
+#include <chrono>
 #include "ContentsDefine.h"
 #include "ContentsEnum.h"
 #include "ContentsProtocol.h"
@@ -284,6 +285,12 @@ void FieldGroup::CalSectorTransitionMessageTargets(uint16 oldSecXpos, uint16 old
 	outCreateSector.m_count = createcount;
 }
 
+uint64 FieldGroup::GetServerTimeMs()
+{
+	auto now = std::chrono::system_clock::now();
+	return std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+}
+
 void FieldGroup::mpCreateMyCharacter(CUser* pUser, CMessage* pMessage)
 {
 	*pMessage << PACKET_SC_CREATE_MY_CHARACTER;
@@ -321,6 +328,7 @@ void FieldGroup::mpCharacterMovementUpdate(CUser* pUser, CMessage* pMessage)
 {
 	*pMessage << PACKET_SC_UPDATE_CHARACTER_MOVEMENT_INPUT;
 	*pMessage << pUser->m_sessionID;
+	*pMessage << GetServerTimeMs();
 	*pMessage << pUser->m_xpos;
 	*pMessage << pUser->m_ypos;
 	*pMessage << pUser->m_zpos;
@@ -340,6 +348,7 @@ void FieldGroup::mpSyncOtherCharacterPosition(CUser* pUser, CMessage* pMessage)
 {
 	*pMessage << PACKET_SC_SYNC_OTHER_CHARACTER_POS;
 	*pMessage << pUser->m_sessionID;
+	*pMessage << GetServerTimeMs();
 	*pMessage << pUser->m_xpos;
 	*pMessage << pUser->m_ypos;
 	*pMessage << pUser->m_zpos;
