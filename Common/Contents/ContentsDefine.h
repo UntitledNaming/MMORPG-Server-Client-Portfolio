@@ -39,3 +39,9 @@ namespace ClientMovement
 	constexpr float REMOTE_PLAYER_POS_SNAP_DIST_CM = 150.0f;
 	constexpr float SOFT_CORRECTION_STOP_DIST_CM = 5.0f;
 }
+
+namespace SnapShotProc
+{
+	constexpr float INTERP_DELAY_MS = 200.f;
+	constexpr float CORRECTION_INTERP_SPEED = 10.f;
+}

@@ -6,7 +6,7 @@
 #include "M1PlayerController.generated.h"
 
 struct FInputActionValue;
-class AM1Player;
+class AM1LocalPlayer;
 class CMessage;
 
 UCLASS()
@@ -17,7 +17,7 @@ class M1_API AM1PlayerController : public APlayerController
 public:
 	AM1PlayerController(const FObjectInitializer& ObjectInitializer);
 
-	void SetCachedPlayer(AM1Player* InPlayer);
+	void SetCachedPlayer(AM1LocalPlayer* InPlayer);
 	void SetLastYaw(float Yaw);
 
 protected:
@@ -43,15 +43,15 @@ private:
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<AM1Player> M1Player;
+	TObjectPtr<AM1LocalPlayer> M1Player;
 
 	UPROPERTY()
 	TObjectPtr<class UM1NetworkManager> NetworkManager = nullptr;
 
-	bool bCurrentMoveFlag = false;
-	bool bLastSendMoveFlag = false;
-	float MovementSendTime = 0.0f;
-	float LastSendYaw = 0.0f;
-	float CurrentYaw = 0.0f;
-	double LastSendTime = 0;
+	bool   bCurrentMoveFlag  = false;
+	bool   bLastSendMoveFlag = false;
+	float  MovementSendTime  = 0.0f;
+	float  LastSendYaw       = 0.0f;
+	float  CurrentYaw        = 0.0f;
+	double LastSendTime      = 0;
 };

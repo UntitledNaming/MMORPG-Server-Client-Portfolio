@@ -3,10 +3,6 @@
 #include "CoreMinimal.h"
 #include "ContentsEnum.h"
 
-//////////////////////////////////////////
-// 0 : Stop  / 1 : Walk / 2 : Run
-/////////////////////////////////////////
-
 namespace Client_InputMask
 {
     constexpr uint16 None = 1 << 0;
@@ -37,4 +33,44 @@ struct FM1SpawnData
     EM1ActionStateType ActionType = EM1ActionStateType::None;
 
     bool MoveFlag = false;
+};
+
+
+struct FMovementSnapshot
+{
+    uint64   ServerTimestamp = 0;
+    FVector  Position = FVector::ZeroVector;
+    float    MoveYaw = 0.f;
+    bool     bMoving = false;
+};
+
+
+template<typename T, int32 Size>
+struct TCircularSnapBuffer
+{
+    T     Data[Size];
+    int32 Head = 0;
+    int32 Count = 0;
+
+    void Add(const T& Item)
+    {
+        Data[Head] = Item;
+        Head = (Head + 1) % Size;
+        if (Count < Size) Count++;
+    }
+
+    void Reset()
+    {
+        Head = 0;
+        Count = 0;
+    }
+
+    // 오래된 순서부터 접근
+    T& operator[](int32 Idx)
+    {
+        int32 Start = (Head - Count + Size) % Size;
+        return Data[(Start + Idx) % Size];
+    }
+
+    T& Last() { return (*this)[Count - 1]; }
 };

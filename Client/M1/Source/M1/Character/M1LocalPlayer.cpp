@@ -1,15 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "M1Player.h"
+#include "Character/M1LocalPlayer.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework//SpringArmComponent.h"
 #include "Camera//CameraComponent.h"
 
-AM1Player::AM1Player()
+AM1LocalPlayer::AM1LocalPlayer()
 {
-
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
@@ -34,33 +33,14 @@ AM1Player::AM1Player()
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;
 
+	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AM1Player::BeginPlay()
+float AM1LocalPlayer::GetMoveSpeed()
 {
-	Super::BeginPlay();
-
+	return GetCharacterMovement()->Velocity.Size2D();
 }
-
-
-void AM1Player::ApplySpawnData(const FM1SpawnData& Data)
+bool AM1LocalPlayer::GetMoveFlag()
 {
-	Super::ApplySpawnData(Data);
-
-	if (bIsMyPlayer)
-	{
-		MP = Data.MP;
-		MaxMP = Data.MaxMP;
-	}
-
-	bIsSpawnInit = true;
+	return GetCharacterMovement()->Velocity.Size2D() > 5.f;
 }
-
-
-void AM1Player::UpdateAutoAttack()
-{
-	if (!bAutoAttack)
-		return;
-
-}
-

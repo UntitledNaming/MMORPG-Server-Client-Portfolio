@@ -96,6 +96,7 @@ namespace FieldProtocol
     //
     // 
     //  8   -   CharacterID     (uint64)
+    //  8   -   ServerTimestamp (uint64)           Server UTC ms
     //	4	-   Xpos		    (float)
     //	4	-   Ypos		    (float)
     //	4	-   Zpos		    (float)
@@ -123,6 +124,7 @@ namespace FieldProtocol
     //
     // 
     //  8   -   CharacterID     (uint64)
+    //  8   -   ServerTimestamp (uint64)        Server UTC ms
     //	4	-   Xpos		    (float)
     //	4	-   Ypos		    (float)
     //	4	-   Zpos		    (float)

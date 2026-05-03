@@ -6,7 +6,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Character/M1Player.h"
+#include "Character\M1LocalPlayer.h"
 #include "System/M1AssetManager.h"
 #include "Data/M1InputDataAsset.h"
 #include "Data/M1PrimaryDataAsset.h"
@@ -22,7 +22,7 @@ AM1PlayerController::AM1PlayerController(const FObjectInitializer& ObjectInitial
 
 }
 
-void AM1PlayerController::SetCachedPlayer(AM1Player* InPlayer)
+void AM1PlayerController::SetCachedPlayer(AM1LocalPlayer* InPlayer)
 {
     M1Player = InPlayer;
 }
@@ -110,6 +110,7 @@ void AM1PlayerController::OnMove(const FInputActionValue& Value)
     DoMove(MovementVector.X, MovementVector.Y);
 }
 
+
 void AM1PlayerController::OnLook(const FInputActionValue& Value)
 {
     FVector2D LookAxisVector = Value.Get<FVector2D>();
@@ -122,7 +123,6 @@ void AM1PlayerController::OnJumpStart()
     if (M1Player)
     {
         M1Player->Jump();
-        M1Player->SetJumpRequest(true);
     }
 }
 
@@ -131,7 +131,6 @@ void AM1PlayerController::OnJumpEnd()
     if (M1Player)
     {
         M1Player->StopJumping();
-        M1Player->SetJumpRequest(false);
     }
 }
 
@@ -139,7 +138,7 @@ void AM1PlayerController::OnAttackStart()
 {
     if (M1Player)
     {
-        M1Player->StartAutoLeftAttack();
+
     }
 }
 
@@ -147,7 +146,6 @@ void AM1PlayerController::OnAttackEnd()
 {
     if (M1Player)
     {
-        M1Player->StopAutoLeftAttack();
     }
 }
 
@@ -172,6 +170,8 @@ void AM1PlayerController::DoMove(float Right, float Forward)
 
     // 이동 벡터 크기가 0에 가까우면 멈춤으로 판단해서 CurrentMoveFlag를 false로 변경
     bCurrentMoveFlag = !(FMath::IsNearlyZero(Right) && FMath::IsNearlyZero(Forward));
+
+    M1Player->SetMoveFlag(bCurrentMoveFlag);
 
     // 이동중 플래그가 켜질때 이동벡터 정규화하고 해당 벡터의 Yaw값이 실제 이동방향에 대한 Yaw값이니 이를 CurrentYaw에 저장.
     if (bCurrentMoveFlag)

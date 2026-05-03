@@ -114,6 +114,7 @@ void M1PacketHandler::Handle_SC_DELETE_CHARACTER(CMessage* pMessage, UM1NetworkM
 void M1PacketHandler::Handle_SC_UPDATE_CHARACTER_MOVEMENT_INPUT(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
 	uint64 id;
+	uint64 servertimestamp;
 	float  xpos;
 	float  ypos;
 	float  zpos;
@@ -121,18 +122,21 @@ void M1PacketHandler::Handle_SC_UPDATE_CHARACTER_MOVEMENT_INPUT(CMessage* pMessa
 	bool   moveflag;
 
 	*pMessage >> id;
+	*pMessage >> servertimestamp;
 	*pMessage >> xpos;
 	*pMessage >> ypos;
 	*pMessage >> zpos;
 	*pMessage >> moveyaw;
 	*pMessage >> moveflag;
 
-	FVector Location(xpos, ypos, zpos);
-	FRotator Rotation(0, moveyaw, 0);
-
+	FMovementSnapshot Snapshot;
+	Snapshot.bMoving = moveflag;
+	Snapshot.ServerTimestamp = servertimestamp;
+	Snapshot.MoveYaw = moveyaw;
+	Snapshot.Position = FVector(xpos, ypos, zpos);
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
-	SpawnManager->UpdateOtherPlayerMovementInput(id, Location, Rotation, moveflag);
+	SpawnManager->UpdateOtherPlayerMovementInput(id, Snapshot);
 }
 
 void M1PacketHandler::Handle_SC_SYNC_MY_CHARACTER_POS(CMessage* pMessage, UM1NetworkManager* NetworkManager)
@@ -154,11 +158,13 @@ void M1PacketHandler::Handle_SC_SYNC_MY_CHARACTER_POS(CMessage* pMessage, UM1Net
 void M1PacketHandler::Handle_SC_SYNC_OTHER_CHARACTER_POS(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
 	uint64 id;
+	uint64 servertimestamp;
 	float xpos;
 	float ypos;
 	float zpos;
 
 	*pMessage >> id;
+	*pMessage >> servertimestamp;
 	*pMessage >> xpos;
 	*pMessage >> ypos;
 	*pMessage >> zpos;
@@ -166,7 +172,7 @@ void M1PacketHandler::Handle_SC_SYNC_OTHER_CHARACTER_POS(CMessage* pMessage, UM1
 	FVector location(xpos, ypos, zpos);
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
-	SpawnManager->SyncOtherPlayer(id, location);
+	SpawnManager->SyncOtherPlayer(id, location, servertimestamp);
 }
 
 void M1PacketHandler::Handle_SC_RTT_ECHO(CMessage* pMessage, UM1NetworkManager* NetworkManager)

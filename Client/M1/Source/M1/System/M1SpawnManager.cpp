@@ -8,7 +8,9 @@
 #include "DrawDebugHelpers.h"
 #include "Controller\M1PlayerController.h"
 #include "Character\M1Character.h"
-#include "Character\M1Player.h"
+#include "Character\M1BasePlayer.h"
+#include "Character\M1LocalPlayer.h"
+#include "Character\M1OtherPlayer.h"
 #include "Character\M1Monster.h"
 #include "Network\ClientCore\CMessage.h"
 #include "NetPacketHeader.h"
@@ -42,10 +44,11 @@ void AM1SpawnManager::Tick(float Deltatime)
 {
     Super::Tick(Deltatime);
 
-    if (FPlatformTime::Seconds() - OldRTTCheckTime >= 1.0f)
+    double curTime = FPlatformTime::Seconds();
+    if (curTime - OldRTTCheckTime >= 1.0f)
     {
         SendRttPacket();
-        OldRTTCheckTime += 1;
+        OldRTTCheckTime = curTime;
     }
 }
 
@@ -55,7 +58,7 @@ void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
     //if (PlayerMap.Contains(Data.EntityID))
     //    __debugbreak();
 
-    if (PlayerCharacterClass == nullptr)
+    if (LocalPlayerCharacterClass == nullptr)
         return;
 
 
@@ -70,17 +73,17 @@ void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
     Params.SpawnCollisionHandlingOverride =
         ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-    AM1Player* NewPlayer =
-        World->SpawnActor<AM1Player>(PlayerCharacterClass, Data.Location, Data.Rotation, Params);
+    AM1LocalPlayer* NewPlayer =
+        World->SpawnActor<AM1LocalPlayer>(LocalPlayerCharacterClass, Data.Location, Data.Rotation, Params);
 
     if (NewPlayer == nullptr)
         return;
 
     // 플레이어 생성하면 플래그 키고 플레이어 초기화 후 PlayerMap에 넣기
-    NewPlayer->bIsMyPlayer = true;
     NewPlayer->ApplySpawnData(Data);
-
+    NewPlayer->SetSpawnFlag(true);
     MyPlayer = NewPlayer;
+
 
     // 컨트롤러 가져와서 이 캐릭터에 Possess함. 컨트롤러가 지금 생성한 캐릭터 컨트롤 할 수 있게 함.
     AM1PlayerController* PC = Cast< AM1PlayerController>(UGameplayStatics::GetPlayerController(World, 0));
@@ -101,7 +104,7 @@ void AM1SpawnManager::SpawnOtehrPlayer(FM1SpawnData& Data)
     if (PlayerMap.Contains(Data.EntityID))
         return;
 
-    if (PlayerCharacterClass == nullptr)
+    if (OtherPlayerCharacterClass == nullptr)
         return;
 
     UWorld* World = GetWorld();
@@ -112,9 +115,9 @@ void AM1SpawnManager::SpawnOtehrPlayer(FM1SpawnData& Data)
     Params.SpawnCollisionHandlingOverride =
         ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-    AM1Player* NewCharacter =
-        World->SpawnActor<AM1Player>(
-            PlayerCharacterClass,
+    AM1OtherPlayer* NewCharacter =
+        World->SpawnActor<AM1OtherPlayer>(
+            OtherPlayerCharacterClass,
             Data.Location,
             Data.Rotation,
             Params);
@@ -122,8 +125,8 @@ void AM1SpawnManager::SpawnOtehrPlayer(FM1SpawnData& Data)
     if (NewCharacter == nullptr)
         return;
 
-    NewCharacter->bIsMyPlayer = false;
     NewCharacter->ApplySpawnData(Data);
+    NewCharacter->SetSpawnFlag(true);
     PlayerMap.Add(Data.EntityID, NewCharacter);
 }
 
@@ -134,7 +137,7 @@ void AM1SpawnManager::SpawnMonster(FM1SpawnData& Data)
 
 void AM1SpawnManager::DespawnPlayer(uint64 EntityID)
 {
-    AM1Player** Found = PlayerMap.Find(EntityID);
+    AM1OtherPlayer** Found = PlayerMap.Find(EntityID);
 	if (Found == nullptr || *Found == nullptr)
 		return;
 
@@ -154,71 +157,33 @@ void AM1SpawnManager::DespawnMonster(uint64 EntityID)
 
 void AM1SpawnManager::SyncMyPlayer(FVector& Location)
 {
-    if (PlayerCharacterClass == nullptr || MyPlayer == nullptr)
+    if (LocalPlayerCharacterClass == nullptr || MyPlayer == nullptr)
         return;
 
     MyPlayer->SetActorLocation(Location);
 }
 
-void AM1SpawnManager::SyncOtherPlayer(uint64 EntityID, FVector& Location)
+void AM1SpawnManager::SyncOtherPlayer(uint64 EntityID, FVector& Location, uint64 ServerTimestamp)
 {
-    AM1Player** Found = PlayerMap.Find(EntityID);
+    AM1OtherPlayer** Found = PlayerMap.Find(EntityID);
     if (Found == nullptr || *Found == nullptr)
         return;
 
-    (*Found)->SetActorLocation(Location);
+    (*Found)->OnReceiveSyncPacket(ServerTimestamp, Location);
 }
 
-void AM1SpawnManager::UpdateOtherPlayerMovementInput(uint64 EntityID, FVector& Location, FRotator& Rotation, bool Moveflag)
+void AM1SpawnManager::UpdateOtherPlayerMovementInput(uint64 EntityID, FMovementSnapshot& Snapshot)
 {
-    AM1Player** Found = PlayerMap.Find(EntityID);
+    AM1OtherPlayer** Found = PlayerMap.Find(EntityID);
     if (Found == nullptr || *Found == nullptr)
         return;
 
-
-    AM1Player* OtherPlayer = *Found;
-
-    const bool  bOldMoveFlag = OtherPlayer->GetServerMoveFlag();
-    const float Dist = FVector::Dist2D(OtherPlayer->GetActorLocation(), Location);
-
-    // 현재 해당 캐릭터는 정지한 상태인데 이동 시작 패킷이 온것이면
-    // 이동 플래그만 켜주고 리턴
-    // Tick 함수에서 해당 방향으로 이동할 것임.
-    if (bOldMoveFlag == false && Moveflag == true)
-    {
-        OtherPlayer->SetServerMoveFlag(Moveflag);
-
-        // 서버로 부터 받은거는 정지 플래그인데 현재 수렴중이면 
-        if (OtherPlayer->GetStopCorrectionFlag() == true)
-        {
-            OtherPlayer->SetStopCorrectionFlag(false);
-        }
-
-    }
-
-    // 해당 캐릭터가 이동중인데 정지 패킷이 온 경우
-    else if (bOldMoveFlag == true && Moveflag == false)
-    {
-        OtherPlayer->SetServerMoveFlag(Moveflag);
-        OtherPlayer->SetStopCorrectionFlag(true);
-        OtherPlayer->SetStopTargetLocation(Location);
-    }
-
-
-    // 현재 캐릭터 위치랑 패킷으로 받은 위치 차이가 크면 바로 이동
-    if (Dist >= ClientMovement::REMOTE_PLAYER_POS_SNAP_DIST_CM)
-    {
-        OtherPlayer->SetActorLocation(Location);
-    }
-
-    // 이동 방향은 바로 변경
-    OtherPlayer->SetActorRotation(Rotation);
-    return;
+    (*Found)->OnReceiveMovementPacket(Snapshot);
 }
 
 AM1Character* AM1SpawnManager::FindPlayer(uint64 EntityID) const
 {
-    AM1Player* const* Found = PlayerMap.Find(EntityID);
+    AM1OtherPlayer* const* Found = PlayerMap.Find(EntityID);
 
 	if (Found == nullptr)
 		return nullptr;
@@ -258,10 +223,11 @@ void AM1SpawnManager::mpCreateRttPacket(CMessage* pMessage, double Time)
     *pMessage << Time;
 }
 
-
 void AM1SpawnManager::GetRTTEchoMsg()
 {
-    double RecvTime = FPlatformTime::Seconds();
+    RTT = FPlatformTime::Seconds() - LastSendTime;
+    RTTRecv = true;
+    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green,
+        FString::Printf(TEXT("RTT : %f"), RTT * 1000));
 
-    UE_LOG(LogTemp, Warning, TEXT("RTT = %.3f ms"), (RecvTime - LastSendTime) * 1000.0);
 }
