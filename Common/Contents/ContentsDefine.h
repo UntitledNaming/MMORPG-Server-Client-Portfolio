@@ -15,8 +15,8 @@ namespace FieldConst
 	constexpr uint32  MAP_WORLD_OFFSET_Y        = 200000;                      // (0,0) Sector Position Y
 	constexpr uint16  SECTOR_SIZE               = 5000;                        // Sector Size : 50m
 	constexpr uint16  SECTOR_USER_DEFAULT_COUNT = 100;
-	constexpr uint16  SECTOR_X_MAX              = 40; 
-	constexpr uint16  SECTOR_Y_MAX              = 40;
+	constexpr uint16  SECTOR_X_MAX              = 80; 
+	constexpr uint16  SECTOR_Y_MAX              = 80;
 	constexpr uint16  SYNC_MAX_COUNT            = 15;                          // Max Sync Count per SYNC_COUNT_WINDOW_MS
 	constexpr uint32  SYNC_COUNT_WINDOW_MS      = 10000;                       // Sync Time Window
 	constexpr float   SYNC_X_RANGE              = 500;                         // Sync Range : 10m

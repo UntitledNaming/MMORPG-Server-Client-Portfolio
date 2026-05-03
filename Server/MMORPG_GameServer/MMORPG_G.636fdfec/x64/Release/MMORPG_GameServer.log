@@ -1,4 +1,31 @@
-﻿  FieldGroup.cpp
+﻿  AuthGroup.cpp
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Common\Contents\ContentsEnum.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'AuthGroup.cpp'을(를) 컴파일하는 중)
+  
+  CUser.cpp
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Common\Contents\ContentsEnum.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'CUser.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\CUser.cpp(34,59): warning C4244: '=': 'float'에서 'uint16'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\CUser.cpp(35,59): warning C4244: '=': 'float'에서 'uint16'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(74,9): warning C4101: 'tempTop' :참조되지 않은 지역 변수입니다.
+  (소스 파일 'CUser.cpp'을(를) 컴파일하는 중)
+      C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(74,9):
+      템플릿 인스턴스화 컨텍스트(가장 오래된 인스턴스화 컨텍스트)가
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\CUser.cpp(9,25):
+          컴파일되는 클래스 템플릿 인스턴스화 'CMPoolTLS<CUser>'에 대한 참조를 확인하세요.
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\MemoryPoolTLS.h(210,3):
+          클래스 템플릿 멤버 함수 'CMPoolTLS<CUser>::~CMPoolTLS(void)'을(를) 컴파일하는 중입니다.
+              C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\CUser.cpp(9,25):
+              'void __cdecl `dynamic atexit destructor for 'private: static CMPoolTLS<CUser> CUser::m_userPool''(void)'에서 'CMPoolTLS<CUser>::~CMPoolTLS'에 대한 첫 번째 참조를 확인하세요.
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\MemoryPoolTLS.h(254,4):
+          컴파일되는 클래스 템플릿 인스턴스화 'CMemoryPool<CMPoolTLS<CUser>::Bucket>'에 대한 참조를 확인하세요.
+          C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(70,3):
+          클래스 템플릿 멤버 함수 'CMemoryPool<CMPoolTLS<CUser>::Bucket>::~CMemoryPool(void)'을(를) 컴파일하는 중입니다.
+              C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\NetworkLib\common_files\include\memorypool\LockFreeMemoryPoolLive.h(310,1):
+              'CMemoryPool<CMPoolTLS<CUser>::Bucket>::~CMemoryPool'에서 'CMemoryPool<CMPoolTLS<CUser>::Bucket>::~CMemoryPool'에 대한 첫 번째 참조를 확인하세요.
+  
+  FieldGroup.cpp
 C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Common\Contents\ContentsEnum.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
   (소스 파일 'FieldGroup.cpp'을(를) 컴파일하는 중)
   
@@ -13,9 +40,34 @@ C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\Fi
 C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(433,18): warning C4244: '초기화 중': 'float'에서 'uint16'(으)로 변환하면서 데이터가 손실될 수 있습니다.
 C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(501,24): warning C4244: '초기화 중': 'float'에서 'uint16'(으)로 변환하면서 데이터가 손실될 수 있습니다.
 C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(502,24): warning C4244: '초기화 중': 'float'에서 'uint16'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  GameServer.cpp
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Common\Contents\ContentsEnum.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'GameServer.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\GameServer.cpp(88,11): warning C4477: 'wprintf' : 서식 문자열 '%d'에 'int' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'size_t'입니다.
+      C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\GameServer.cpp(88,11):
+      서식 문자열에서 '%zd'을(를) 사용하는 것이 좋습니다.
+  
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\GameServer.cpp(89,11): warning C4477: 'wprintf' : 서식 문자열 '%d'에 'int' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'uint64'입니다.
+      C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\GameServer.cpp(89,11):
+      서식 문자열에서 '%lld'을(를) 사용하는 것이 좋습니다.
+      C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\GameServer.cpp(89,11):
+      서식 문자열에서 '%Id'을(를) 사용하는 것이 좋습니다.
+      C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\GameServer.cpp(89,11):
+      서식 문자열에서 '%I64d'을(를) 사용하는 것이 좋습니다.
+  
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\GameServer.cpp(92,11): warning C4477: 'wprintf' : 서식 문자열 '%d'에 'int' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'UINT64'입니다.
+      C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\GameServer.cpp(92,11):
+      서식 문자열에서 '%lld'을(를) 사용하는 것이 좋습니다.
+      C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\GameServer.cpp(92,11):
+      서식 문자열에서 '%Id'을(를) 사용하는 것이 좋습니다.
+      C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\GameServer.cpp(92,11):
+      서식 문자열에서 '%I64d'을(를) 사용하는 것이 좋습니다.
+  
+  MMORPG_GameServer.cpp
   코드를 생성하고 있습니다.
-  1 of 1287 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+  14 of 1287 functions ( 1.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+    4 functions had inline decision re-evaluated but remain unchanged
   코드를 생성했습니다.
   MMORPG_GameServer.vcxproj -> C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\x64\Release\MMORPG_GameServer.exe
