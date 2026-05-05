@@ -54,10 +54,6 @@ void AM1SpawnManager::Tick(float Deltatime)
 
 void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
 {
-    //// 서버로부터 캐릭터 생성 패킷 2번 오거나 코드 실수로 2번 쳤을 때
-    //if (PlayerMap.Contains(Data.EntityID))
-    //    __debugbreak();
-
     if (LocalPlayerCharacterClass == nullptr)
         return;
 

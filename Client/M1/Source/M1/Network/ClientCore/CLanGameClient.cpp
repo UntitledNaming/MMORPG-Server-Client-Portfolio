@@ -456,16 +456,19 @@ void CLanClient::RecvIOProc(DWORD cbTransferred)
 
 	m_pSession->s_RecvQ.MoveWritePos(cbTransferred);
 
-	//���� ������ �� �� ���� �޼��� �����ؼ� �ٷ� Ŭ���̾�Ʈ���� ����
 	while (1)
 	{
+
+		if (cbTransferred == 0)
+		{
+			m_pSession->s_DCFlag = 1;
+			break;
+		}
 
 		CMessage* pPacket = CMessage::Alloc();
 		pPacket->Clear();
 
-		//RecvQ���� �ϼ��� �޼��� Ȯ��
 		GAMELIB_LANHEADER header;
-
 
 
 		//���� �����ۿ� len�� ��Ʈ��ũ ����ε� �������� ������ �׳� ������
@@ -505,7 +508,6 @@ void CLanClient::RecvIOProc(DWORD cbTransferred)
 
 	if (!m_pSession->s_DCFlag)
 	{
-		//Recv���
 		RecvPost();
 	}
 

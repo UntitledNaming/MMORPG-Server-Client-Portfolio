@@ -31,7 +31,7 @@ private:
 	void UpdateStopCorrection(float DeltaTime);
 
 private:
-	TCircularSnapBuffer<FMovementSnapshot, 8> SnapshotBuffer;
+	TCircularSnapBuffer<FMovementSnapshot, 16> SnapshotBuffer;
 	class UM1NetworkManager* NetworkManager = nullptr;
 
 private:	
