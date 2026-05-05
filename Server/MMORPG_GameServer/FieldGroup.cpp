@@ -354,10 +354,10 @@ void FieldGroup::mpSyncOtherCharacterPosition(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_zpos;
 }
 
-void FieldGroup::mpRTTEchoMessage(CMessage* pMessage, double Time)
+void FieldGroup::mpRTTEchoMessage(CMessage* pMessage)
 {
 	*pMessage << PACKET_SC_RTT_ECHO;
-	*pMessage << Time;
+	*pMessage << GetServerTimeMs();
 }
 
 void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMessage)
@@ -469,7 +469,7 @@ void FieldGroup::HandleRTTMessage(uint64 sessionID, CMessage* pMessage)
 
 	CMessage* pRTTMessage = CMessage::Alloc();
 	pRTTMessage->Clear(1);
-	mpRTTEchoMessage(pRTTMessage, recvtime);
+	mpRTTEchoMessage(pRTTMessage);
 
 	SendPacket(sessionID, pRTTMessage);
 

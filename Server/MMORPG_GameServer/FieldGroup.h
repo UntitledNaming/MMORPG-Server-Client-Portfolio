@@ -82,7 +82,7 @@ public:
 	void mpCharacterMovementUpdate(CUser* pUser, CMessage* pMessage);
 	void mpSyncMyCharacterPosition(CUser* pUser, CMessage* pMessage);
 	void mpSyncOtherCharacterPosition(CUser* pUser, CMessage* pMessage);
-	void mpRTTEchoMessage(CMessage* pMessage, double Time);
+	void mpRTTEchoMessage(CMessage* pMessage);
 
 	///////////////////////////////////
     // 클라이언트 메세지 처리 핸들러 //
