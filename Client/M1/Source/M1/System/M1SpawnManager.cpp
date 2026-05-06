@@ -279,6 +279,12 @@ void AM1SpawnManager::GetRTTEchoMsg(uint64 ServerStampMs)
     GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green,
         FString::Printf(TEXT("RTT : %lld"), RTT_ms));
 
+    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green,
+        FString::Printf(TEXT("ClockOffsetMs : %lld"), ClockOffsetMs));
+
+    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green,
+        FString::Printf(TEXT("TargetOffsetMs : %lld"), TargetOffsetMs));
+
 }
 
 void AM1SpawnManager::TickClock(float DeltaTime)
@@ -289,7 +295,7 @@ void AM1SpawnManager::TickClock(float DeltaTime)
     if (Diff == 0) return;
 
     // 초당 50ms 속도로 따라감. 너무 빠르면 보간 캐릭터 위치가 출렁임.
-    const int64 MaxStepMs = FMath::Max((int64)1, (int64)(50.0 * DeltaTime));
+    const int64 MaxStepMs = FMath::Max((int64)1, (int64)(25.0 * DeltaTime));
     if (FMath::Abs(Diff) <= MaxStepMs)
         ClockOffsetMs = TargetOffsetMs;
     else

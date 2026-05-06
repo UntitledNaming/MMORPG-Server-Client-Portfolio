@@ -69,6 +69,8 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 	float yaw;
 	uint16 hp;
 	uint16 maxhp;
+	uint16 mp;
+	uint16 maxmp;
 	uint8 action;
 	uint8 movemode;
 
@@ -79,6 +81,8 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 	*pMessage >> yaw;
 	*pMessage >> hp;
 	*pMessage >> maxhp;
+	*pMessage >> mp;
+	*pMessage >> maxmp;
 	*pMessage >> action;
 	*pMessage >> movemode;
 	*pMessage >> moveflag;
@@ -94,6 +98,8 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 	Data.Rotation = Rotation;
 	Data.HP = hp;
 	Data.MaxHP = maxhp;
+	Data.MP = mp;
+	Data.MaxMP = maxmp;
 	Data.ActionType = static_cast<EM1ActionStateType>(action);
 	Data.MoveMode = movemode;
 	Data.MoveFlag = moveflag;

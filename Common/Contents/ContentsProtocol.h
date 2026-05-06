@@ -60,6 +60,8 @@ namespace FieldProtocol
     //  4   -   MoveYaw         (float)  
     //  2   -   HP              (uint16) 
     //  2   -   MaxHP           (uint16) 
+    //  2   -   MP              (uint16) 
+    //  2   -   MaxMP           (uint16) 
     //  1   -   Action          (uint8)  
     //  1   -   MoveMode        (uint8)  
     //  1   -   MoveFlag        (bool)

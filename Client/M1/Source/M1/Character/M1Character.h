@@ -37,10 +37,10 @@ protected:
     uint64 EntityID = 0;
 
     UPROPERTY(VisibleAnywhere)
-    int32 HP = 0;
+    int32 HP = 100;
 
     UPROPERTY(VisibleAnywhere)
-    int32 MaxHP = 0;
+    int32 MaxHP = 100;
 
     UPROPERTY(VisibleAnywhere)
     bool bSpawnFlag = false;
