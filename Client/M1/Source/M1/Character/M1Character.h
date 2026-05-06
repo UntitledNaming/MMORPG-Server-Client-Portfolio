@@ -30,8 +30,6 @@ public:
     virtual bool  GetMoveFlag() { return false; }
 
 protected:
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
-    TObjectPtr<class UWidgetComponent> HpBarComponent;
 
     UPROPERTY(VisibleAnywhere)
     uint64 EntityID = 0;
