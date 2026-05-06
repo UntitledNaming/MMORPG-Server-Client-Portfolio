@@ -177,9 +177,9 @@ void M1PacketHandler::Handle_SC_SYNC_OTHER_CHARACTER_POS(CMessage* pMessage, UM1
 
 void M1PacketHandler::Handle_SC_RTT_ECHO(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
-	double time;
+	uint64 time;
 
 	*pMessage >> time;
 
-	NetworkManager->GetSpawnManager()->GetRTTEchoMsg();
+	NetworkManager->GetSpawnManager()->GetRTTEchoMsg(time);
 }

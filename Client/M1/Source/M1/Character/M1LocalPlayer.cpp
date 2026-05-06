@@ -42,5 +42,5 @@ float AM1LocalPlayer::GetMoveSpeed()
 }
 bool AM1LocalPlayer::GetMoveFlag()
 {
-	return GetCharacterMovement()->Velocity.Size2D() > 5.f;
+	return GetCharacterMovement()->Velocity.Size2D() > 1.f;
 }

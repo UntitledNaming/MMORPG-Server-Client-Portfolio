@@ -1,0 +1,6 @@
+version: 3.1.3
+vfs:
+  source: C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Client\M1Client\Windows
+  default: index.html
+base_url: http://172.30.1.81
+platform: win32-x64

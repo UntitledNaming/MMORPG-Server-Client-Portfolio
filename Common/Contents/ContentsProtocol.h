@@ -153,7 +153,7 @@ namespace FieldProtocol
     //---------------------------------------------------------------
     //  Character MoveMode Change Msg         Client -> Server
     // 
-    //  8   -   Time            (double)  
+    //  8   -   Time            (uint64)  
     //
     //---------------------------------------------------------------
 
@@ -161,7 +161,7 @@ namespace FieldProtocol
     //---------------------------------------------------------------
     //  Character MoveMode Change Msg         Server -> Client
     // 
-    //  8   -   Time            (double)  
+    //  8   -   Time            (uint64)  
     //
     //---------------------------------------------------------------
 }

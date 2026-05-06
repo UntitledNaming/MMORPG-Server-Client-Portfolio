@@ -22,7 +22,6 @@ public:
 
         return false;
     }
-    FORCEINLINE void SetMoveFlag(bool InFlag) { bMoveFlag = InFlag; }
     FORCEINLINE void SetSpawnFlag(bool InFlag) { bSpawnFlag = InFlag; }
     FORCEINLINE bool GetSpawnFlag() { return bSpawnFlag; }
 
@@ -35,9 +34,6 @@ protected:
     TObjectPtr<class UWidgetComponent> HpBarComponent;
 
     UPROPERTY(VisibleAnywhere)
-    bool bIsSpawnInit = false;      
-
-    UPROPERTY(VisibleAnywhere)
     uint64 EntityID = 0;
 
     UPROPERTY(VisibleAnywhere)
@@ -45,9 +41,6 @@ protected:
 
     UPROPERTY(VisibleAnywhere)
     int32 MaxHP = 0;
-
-    UPROPERTY(VisibleAnywhere)
-    bool bMoveFlag = false;
 
     UPROPERTY(VisibleAnywhere)
     bool bSpawnFlag = false;

@@ -182,6 +182,14 @@ void AM1OtherPlayer::UpdateInterpolation(float DeltaTime)
     // 보간한 위치와 방향으로 actor 위치시키기
     SetActorLocationAndRotation(InterpPos, FRotator(0.f, InterpYaw, 0.f));
 
+    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green,
+        FString::Printf(TEXT("Moveflag : %d"), GetMoveFlag()));
+
+    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green,
+        FString::Printf(TEXT("Movingflag : %d"), bMoving));
+
+    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green,
+        FString::Printf(TEXT("StopCorrectionflag : %d"), bNeedStopCorrection));
 }
 
 void AM1OtherPlayer::UpdateStopCorrection(float DeltaTime)

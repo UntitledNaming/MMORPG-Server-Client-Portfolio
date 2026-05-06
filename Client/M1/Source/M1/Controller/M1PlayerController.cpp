@@ -171,8 +171,6 @@ void AM1PlayerController::DoMove(float Right, float Forward)
     // 이동 벡터 크기가 0에 가까우면 멈춤으로 판단해서 CurrentMoveFlag를 false로 변경
     bCurrentMoveFlag = !(FMath::IsNearlyZero(Right) && FMath::IsNearlyZero(Forward));
 
-    M1Player->SetMoveFlag(bCurrentMoveFlag);
-
     // 이동중 플래그가 켜질때 이동벡터 정규화하고 해당 벡터의 Yaw값이 실제 이동방향에 대한 Yaw값이니 이를 CurrentYaw에 저장.
     if (bCurrentMoveFlag)
     {

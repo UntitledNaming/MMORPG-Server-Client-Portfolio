@@ -41,6 +41,7 @@ void UM1NetworkManager::Initialize(FSubsystemCollectionBase& Collection)
 void UM1NetworkManager::Deinitialize()
 {
 	Super::Deinitialize();
+
 	if (ClientInstance)
 	{
 		ClientInstance->Disconnect();
@@ -49,7 +50,7 @@ void UM1NetworkManager::Deinitialize()
 		ClientInstance = nullptr;
 	}
 
-	CMessage::PoolDestroy();
+	//CMessage::PoolDestroy();
 }
 
 void UM1NetworkManager::Tick(float DeltaTime)

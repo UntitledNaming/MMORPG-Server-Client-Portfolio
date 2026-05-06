@@ -16,6 +16,5 @@ void AM1Character::ApplySpawnData(const FM1SpawnData& Data)
 	SetActorRotation(Data.Rotation);
 	HP = Data.HP;
 	MaxHP = Data.MaxHP;
-	bMoveFlag = Data.MoveFlag;
 }
 

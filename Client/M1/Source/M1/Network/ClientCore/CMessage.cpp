@@ -89,8 +89,11 @@ void CMessage::Init(int32 lanHeaderSize, int32 netHeaderSize)
 
 void CMessage::PoolDestroy()
 {
-	delete m_pMessagePool;
-	m_pMessagePool = nullptr;
+	if (m_pMessagePool)
+	{
+		delete m_pMessagePool;
+		m_pMessagePool = nullptr;
+	}
 }
 
 void CMessage::Clear(int32 type)

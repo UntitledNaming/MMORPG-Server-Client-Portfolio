@@ -25,7 +25,7 @@ public:
 
 	uint64 GetServerTimeMs() const
 	{
-		return GetLocalTimeMs() + (uint64)(RTT * 1000.0) / 2;
+		return GetLocalTimeMs() + ClockOffsetMs;
 	}
 
 	bool GetRTTRecv() const
@@ -53,8 +53,9 @@ public:
 	// RTT 측정 관련 함수
 	void SendRttPacket();
 	void mpCreateRttPacket(CMessage* pMessage, double Time);
-	void GetRTTEchoMsg();
+	void GetRTTEchoMsg(uint64 ServerStampMs);
 	void mpMovementInput(CMessage* pMessage, const FVector& Location, float Yaw, bool MoveFlag);
+	void TickClock(float DeltaTime);
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Spawn")
@@ -77,12 +78,11 @@ private:
 
 private:
 
-	int64  ClockOffsetMs = 0;                             // 현재 적용 중인 offset (점진 보정 대상)
-	int64  TargetOffsetMs = 0;                            // 새 측정으로 갱신되는 목표 offset
-	uint64 PendingPingSentTime = 0;                       // 핑 송신 시점 (로컬 ms)
-	TArray<FOffsetSample> OffsetSamples;                  // 최근 측정 샘플 N개
+	int64                    ClockOffsetMs = 0;              // 현재 적용 중인 offset (점진 보정 대상)
+	int64                    TargetOffsetMs = 0;             // 새 측정으로 갱신되는 목표 offset
+	uint64                   PendingPingSentTime = 0;        // 핑 송신 시점 (로컬 ms)
+	TArray<FOffsetSample>    OffsetSamples;                  // 최근 측정 샘플 N개
 	class UM1NetworkManager* NetworkManager = nullptr;
-	float  RTT = 0.f;                                     // 초 단위 (기존 호환)
-	double OldRTTCheckTime = 0.f;
-	bool   bSynced = false;                               // 첫 동기화 완료 여부
+	double                   OldRTTCheckTime = 0.f;		     
+	bool                     bSynced = false;                // 첫 동기화 완료 여부
 };

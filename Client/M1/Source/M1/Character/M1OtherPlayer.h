@@ -17,7 +17,6 @@ public:
 	virtual float GetMoveSpeed() override;
 	virtual bool  GetMoveFlag()  override;
 
-
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -35,7 +34,6 @@ private:
 	class UM1NetworkManager* NetworkManager = nullptr;
 
 private:	
-	bool    bMoving = false;
 	bool    bNeedStopCorrection = false;
 	float   StopTargetYaw = 0.f;
 	FVector StopTargetLocation = FVector::ZeroVector;
