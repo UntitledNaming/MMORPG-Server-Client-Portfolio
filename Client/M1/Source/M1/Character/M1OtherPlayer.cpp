@@ -35,6 +35,7 @@ void AM1OtherPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UpdateInterpolation(DeltaTime);
+	UpdateMoveDirection();
 
 	if (bNeedStopCorrection)
 		UpdateStopCorrection(DeltaTime);
@@ -43,6 +44,37 @@ void AM1OtherPlayer::Tick(float DeltaTime)
 void AM1OtherPlayer::OnReceiveMovementPacket(const FMovementSnapshot& Snapshot)
 {
 	SnapshotBuffer.Add(Snapshot);
+}
+
+void AM1OtherPlayer::UpdateMoveDirection()
+{
+    FVector Delta = GetActorLocation() - PrevLocation;
+    PrevLocation  = GetActorLocation();
+
+    if (Delta.SizeSquared2D() < 0.1f)
+    {
+        MoveDirectionAngle = 0.f;
+        return;
+    }
+
+    FVector DirNorm = Delta.GetSafeNormal2D();
+    FVector Fwd     = GetActorForwardVector().GetSafeNormal2D();
+    FVector Right   = GetActorRightVector().GetSafeNormal2D();
+    MoveDirectionAngle = FMath::RadiansToDegrees(
+        FMath::Atan2(FVector::DotProduct(Right, DirNorm),
+                     FVector::DotProduct(Fwd,   DirNorm)));
+}
+
+void AM1OtherPlayer::OnReceiveAttackStart(float FacingYaw)
+{
+    bIsAttacking = true;
+    SetActorRotation(FRotator(0.f, FacingYaw, 0.f));
+   
+}
+
+void AM1OtherPlayer::OnReceiveAttackStop()
+{
+    bIsAttacking = false;
 }
 
 void AM1OtherPlayer::OnReceiveSyncPacket(uint64 ServerTimestamp, FVector SyncPosition)
@@ -77,12 +109,19 @@ void AM1OtherPlayer::UpdateInterpolation(float DeltaTime)
     if (NetworkManager == nullptr || !(NetworkManager->GetSpawnManager()->GetRTTRecv()))
         return;
 
-    // RenderTime 계산시 GetServerTimeMs는 클라에서 측정한 UTC값 + 편도 레이턴시 값을 반환함. 
-    // 편도 레이턴시가 들어가는 이유는 클라는 서버 시간 기준 100ms 전을 렌더링하는 느낌으로 갈건데 
-    // 서버에서 찍은 stamp가 1000ms이고 편도가 50ms 레이턴시 걸려서 클라가 시간 측정시 1050ms일건데 
+    // RenderTime 계산시 GetServerTimeMs는 클라에서 측정한 UTC값 + 편도 레이턴시 값을 반환함.
+    // 편도 레이턴시가 들어가는 이유는 클라는 서버 시간 기준 100ms 전을 렌더링하는 느낌으로 갈건데
+    // 서버에서 찍은 stamp가 1000ms이고 편도가 50ms 레이턴시 걸려서 클라가 시간 측정시 1050ms일건데
     // 실제 rendertime은 1050ms + 50ms - 100ms = 950ms로 해야 딱 클라가 stamp찍은 1050ms에서 100ms 전 시간이 나옴
     // 레이턴시가 없으면 rendertime이 900ms가 나올것이고 100ms를 벗어남.
-    uint64 RenderTime = NetworkManager->GetSpawnManager()->GetServerTimeMs() - (uint64)SnapShotProc::INTERP_DELAY_MS;
+    const uint64 ServerTimeMs   = NetworkManager->GetSpawnManager()->GetServerTimeMs();
+    const uint64 DelayMs        = (uint64)SnapShotProc::INTERP_DELAY_MS;
+    uint64       RenderTime     = (ServerTimeMs > DelayMs) ? (ServerTimeMs - DelayMs) : 0;
+
+    // ClockOffset 역방향 보정 또는 시스템 클럭 후퇴로 RenderTime이 줄어들면
+    // 보간 위치가 역행해서 캐릭터가 뒤로 순간이동하는 현상이 발생하므로 단조 증가 보장
+    if (RenderTime < LastRenderTimeMs) RenderTime = LastRenderTimeMs;
+    else LastRenderTimeMs = RenderTime;
 
 
     // 스냅샷 버퍼의 []에 들어가는 값은 head로 부터 떨어진 offset임.
@@ -137,7 +176,10 @@ void AM1OtherPlayer::UpdateInterpolation(float DeltaTime)
         bMoving = true;
         bNeedStopCorrection = false;
         // 이동 시작시 방향은 다음 스냅샷인 이동 시작 스냅샷의 방향을 따라가도록함. 이동중이면 방향값도 사이로 보간
-        SetActorRotation(FRotator(0.f, Next.MoveYaw, 0.f));
+        if (!bIsAttacking)
+        {
+            SetActorRotation(FRotator(0.f, Next.MoveYaw, 0.f));
+        }
         GetCharacterMovement()->MaxWalkSpeed = UserConst::WALK_SPEED;
     }
 
@@ -175,12 +217,19 @@ void AM1OtherPlayer::UpdateInterpolation(float DeltaTime)
     // 이 Alpha 비율값을 가지고 이전 스냅샷의 위치와 이후 스냅샷 위치 사이에서 60% 위치한 위치값 계산
     FVector InterpPos = FMath::Lerp(Prev.Position, Next.Position, Alpha);
 
-    // 방향도 이전 이동방향과 이후 이동방향을 보간함.
-    float DeltaYaw = FMath::FindDeltaAngleDegrees(Prev.MoveYaw, Next.MoveYaw); // 이전 이동방향과 이후 이동방향 사잇값을 계산
-    float InterpYaw = Prev.MoveYaw + DeltaYaw * Alpha;                         // 해당 사잇값에 alpha를 곱해서 나온값을 이전 이동방향값에 더해서 보간
+    // 방향도 이전 이동방향과 이후 이동방향을 보간함.(공격 안하고 있을 때)
+    float DeltaYaw;
+    float InterpYaw = GetActorRotation().Yaw;
 
-    // 보간한 위치와 방향으로 actor 위치시키기
-    SetActorLocationAndRotation(InterpPos, FRotator(0.f, InterpYaw, 0.f));
+    if (!bIsAttacking)
+    {
+        DeltaYaw = FMath::FindDeltaAngleDegrees(Prev.MoveYaw, Next.MoveYaw); // 이전 이동방향과 이후 이동방향 사잇값을 계산
+        InterpYaw = Prev.MoveYaw + DeltaYaw * Alpha;                         // 해당 사잇값에 alpha를 곱해서 나온값을 이전 이동방향값에 더해서 보간
+    }
+
+    // TeleportPhysics: 매 프레임 velocity를 0으로 초기화해서
+    // CharacterMovement가 보간 사이 갭에서 캐릭터를 앞으로 밀어버리는 현상 방지
+    SetActorLocationAndRotation(InterpPos, FRotator(0.f, InterpYaw, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
 
 }
 
@@ -195,13 +244,13 @@ void AM1OtherPlayer::UpdateStopCorrection(float DeltaTime)
     float DeltaYaw = FMath::FindDeltaAngleDegrees(CurrentYaw, StopTargetYaw);
     float InterpYaw = CurrentYaw + DeltaYaw * DeltaTime * SnapShotProc::CORRECTION_INTERP_SPEED;
 
-    SetActorLocationAndRotation(Next, FRotator(0.f, InterpYaw, 0.f));
+    SetActorLocationAndRotation(Next, FRotator(0.f, InterpYaw, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
 
     // 만약 다음 이동할 위치가 정지 위치랑 거의 차이없으면 그냥 정지 위치로 이동
     // VInterpTo는 수학적으로 완전히 TargetPos에 도달 못해서 작아지면 그냥 그 위치로 맞춰야 함.
     if (FVector::Dist(Next, StopTargetLocation) < 1.f)
     {
-        SetActorLocationAndRotation(StopTargetLocation, FRotator(0.f, StopTargetYaw, 0.f));
+        SetActorLocationAndRotation(StopTargetLocation, FRotator(0.f, StopTargetYaw, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
         bNeedStopCorrection = false;
     }
 }

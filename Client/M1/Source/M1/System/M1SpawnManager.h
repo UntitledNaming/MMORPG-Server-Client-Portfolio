@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "M1/System/Type/M1Type.h"
+#include "Ability\M1AbilityTypes.h"
 #include "M1SpawnManager.generated.h"
 
 class CMessage;
@@ -46,6 +47,13 @@ public:
 	void SyncMyPlayer(FVector& Location);
 	void SyncOtherPlayer(uint64 EntityID, FVector& Location, uint64 ServerTimestamp);
 	void UpdateOtherPlayerMovementInput(uint64 EntityID, FMovementSnapshot& Snapshot);
+	void OnOtherPlayerAttackStart(uint64 EntityID, float FacingYaw);
+	void OnOtherPlayerAttackStop(uint64 EntityID);
+	void ProcessClientAttackHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg);
+	void ProcessClientSingleTargetHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg);
+	void ApplyHitResult(uint64 EntityID, int32 NewHP);
+	void OnMyPlayerSkillResponse(EAbilitySlot Slot, bool bSuccess);
+	void OnOtherCharacterUseSkill(uint64 EntityID, EAbilitySlot Slot);
 
 	class AM1Character* FindPlayer(uint64 EntityID) const;
 	class AM1Character* FindMonster(uint64 EntityID) const;

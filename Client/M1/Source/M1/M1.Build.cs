@@ -16,7 +16,8 @@ public class M1 : ModuleRules
             "EnhancedInput",
             "GameplayTags",
             "AnimGraphRuntime",
-            "UMG"});
+            "UMG",
+             });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
@@ -31,6 +32,12 @@ public class M1 : ModuleRules
         PublicIncludePaths.AddRange(new string[]
         {
                 "M1"
+        });
+
+        PublicDependencyModuleNames.AddRange(new string[]
+        {
+            "Niagara",
+            "NiagaraCore",
         });
     }
 }

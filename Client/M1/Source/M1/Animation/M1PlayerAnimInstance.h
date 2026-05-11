@@ -16,6 +16,9 @@ public:
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|Movement")
+    float MoveDirection = 0;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|Movement")
     uint8 MoveMode = 0;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|State")

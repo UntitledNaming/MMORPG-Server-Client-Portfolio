@@ -23,5 +23,7 @@ void UM1PlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
     MoveMode = OwnerPlayer->GetMoveMode();
     ActionType = OwnerPlayer->GetActionType();
+    MoveDirection = OwnerPlayer->GetMoveDirection();
+    bUseUpperBodyWhenMoving = OwnerPlayer->GetUseUpperBodyWhenMovingFlag();
 }
 

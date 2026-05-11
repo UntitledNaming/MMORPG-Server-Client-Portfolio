@@ -6,6 +6,7 @@
 #include "System\M1SpawnManager.h"
 #include "M1NetworkManager.h"
 #include "Controller\M1PlayerController.h"
+#include "Ability\M1AbilityTypes.h"
 #include "ClientCore/MemoryPoolTLS.h"
 #include "ClientCore/CMessage.h"
 #include "Kismet/GameplayStatics.h"
@@ -188,4 +189,62 @@ void M1PacketHandler::Handle_SC_RTT_ECHO(CMessage* pMessage, UM1NetworkManager* 
 	*pMessage >> time;
 
 	NetworkManager->GetSpawnManager()->GetRTTEchoMsg(time);
+}
+
+void M1PacketHandler::Handle_SC_START_ATTACK(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint64 id;
+	float  facingYaw;
+
+	*pMessage >> id;
+	*pMessage >> facingYaw;
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	SpawnManager->OnOtherPlayerAttackStart(id, facingYaw);
+}
+
+void M1PacketHandler::Handle_SC_STOP_ATTACK(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint64 id;
+
+	*pMessage >> id;
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	SpawnManager->OnOtherPlayerAttackStop(id);
+}
+
+void M1PacketHandler::Handle_SC_ATTACK_HIT_RESULT(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint8 HitCount;
+	*pMessage >> HitCount;
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	for (uint8 i = 0; i < HitCount; ++i)
+	{
+		uint64 id;
+		uint16 newHp;
+		*pMessage >> id;
+		*pMessage >> newHp;
+		SpawnManager->ApplyHitResult(id, (int32)newHp);
+	}
+}
+
+void M1PacketHandler::Handle_SC_USE_SKILL_RES(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint8 SlotID;
+	uint8 bSuccess;
+	*pMessage >> SlotID >> bSuccess;
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	SpawnManager->OnMyPlayerSkillResponse(static_cast<EAbilitySlot>(SlotID), bSuccess != 0);
+}
+
+void M1PacketHandler::Handle_SC_USE_SKILL_BROADCAST(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint64 CharacterID;
+	uint8  SlotID;
+	*pMessage >> CharacterID >> SlotID;
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	SpawnManager->OnOtherCharacterUseSkill(CharacterID, static_cast<EAbilitySlot>(SlotID));
 }

@@ -30,6 +30,12 @@ struct FM1SpawnData
 
     int32    MaxMP = 0;
 
+    int32    Level = 1;
+
+    float    CurrentEXP = 0.f;
+
+    float    RequiredEXP = 100.f;
+
     EM1ActionStateType ActionType = EM1ActionStateType::None;
 
     bool MoveFlag = false;

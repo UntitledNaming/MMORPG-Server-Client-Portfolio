@@ -26,14 +26,20 @@ AM1LocalPlayer::AM1LocalPlayer()
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	SpringArmComponent->SetupAttachment(RootComponent);
-	SpringArmComponent->TargetArmLength = 500.0f;
+	SpringArmComponent->TargetArmLength = 800.0f;
 	SpringArmComponent->bUsePawnControlRotation = true;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;
 
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
+}
+
+void AM1LocalPlayer::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	UpdateMoveDirection();
 }
 
 float AM1LocalPlayer::GetMoveSpeed()

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(head *)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\sdj53\\\\Documents\\\\GitHub\\\\MMO-Server-Portfolio\\\\Client\\\\M1\\\\Source\\\\M1\\\\Character\" -File | ForEach-Object { $_.Name })"
+    ]
+  }
+}

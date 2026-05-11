@@ -38,4 +38,19 @@ public:
 
 	// 서버가 보낸 "RTT 응답" 처리
 	static void Handle_SC_RTT_ECHO(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "공격 시작" 처리
+	static void Handle_SC_START_ATTACK(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "공격 종료" 처리
+	static void Handle_SC_STOP_ATTACK(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "피격 결과 (HP 갱신)" 처리
+	static void Handle_SC_ATTACK_HIT_RESULT(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "스킬 사용 응답 (로컬 플레이어)" 처리
+	static void Handle_SC_USE_SKILL_RES(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "스킬 사용 브로드캐스트 (타 캐릭터)" 처리
+	static void Handle_SC_USE_SKILL_BROADCAST(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 };

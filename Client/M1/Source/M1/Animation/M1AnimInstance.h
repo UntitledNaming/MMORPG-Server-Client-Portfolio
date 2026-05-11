@@ -35,4 +35,15 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|State")
     bool bSpanwend = false;
 
+    // 피격 방향 각도 (-180 ~ 180): BS_HitReact X축
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|Combat")
+    float HitDirectionAngle = 0.f;
+
+    // 피격 상태: AnimBP 상태머신 전이 조건
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|Combat")
+    bool bIsHit = false;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|Combat")
+    bool bUseUpperBodyWhenMoving = false;
+
 };

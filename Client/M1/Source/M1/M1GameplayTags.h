@@ -10,4 +10,8 @@ namespace M1GameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Look);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Jump);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_LeftAttack);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill1);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill2);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill3);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill4);
 }

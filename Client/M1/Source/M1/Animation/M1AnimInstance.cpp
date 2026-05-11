@@ -21,9 +21,12 @@ void UM1AnimInstance::NativeUpdateAnimation(float DeltaSeconds)
             return;
     }
 
-    MoveSpeed = OwnerCharacter->GetMoveSpeed();
-    bIsDead = OwnerCharacter->IsDead();
+    MoveSpeed  = OwnerCharacter->GetMoveSpeed();
+    bIsDead    = OwnerCharacter->IsDead();
     bIsJumping = OwnerCharacter->GetCharacterMovement()->IsFalling();
-    bIsMoving = OwnerCharacter->GetMoveFlag();
-    bSpanwend = OwnerCharacter->GetSpawnFlag();
+    bIsMoving  = OwnerCharacter->GetMoveFlag();
+    bSpanwend  = OwnerCharacter->GetSpawnFlag();
+
+    HitDirectionAngle = OwnerCharacter->GetHitDirectionAngle();
+    bIsHit            = OwnerCharacter->IsHit();
 }

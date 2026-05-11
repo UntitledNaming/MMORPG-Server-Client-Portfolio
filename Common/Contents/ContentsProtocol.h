@@ -162,8 +162,78 @@ namespace FieldProtocol
     constexpr uint16 PACKET_SC_RTT_ECHO = 1010;
     //---------------------------------------------------------------
     //  Character MoveMode Change Msg         Server -> Client
-    // 
-    //  8   -   Time            (uint64)  
+    //
+    //  8   -   Time            (uint64)
+    //
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_CS_START_LEFT_ATTACK = 1011;
+    //---------------------------------------------------------------
+    //  Attack Start Msg                      Client -> Server
+    //
+    //  4   -   FacingYaw       (float)
+    //
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_CS_STOP_LEFT_ATTACK = 1012;
+    //---------------------------------------------------------------
+    //  Attack Stop Msg                       Client -> Server
+    //
+    //  (no payload)
+    //
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_START_LEFT_ATTACK = 1013;
+    //---------------------------------------------------------------
+    //  Attack Start Broadcast                Server -> Client
+    //
+    //  8   -   CharacterID     (uint64)
+    //  4   -   FacingYaw       (float)
+    //
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_STOP_LEFT_ATTACK = 1014;
+    //---------------------------------------------------------------
+    //  Attack Stop Broadcast                 Server -> Client
+    //
+    //  8   -   CharacterID     (uint64)
+    //
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_ATTACK_HIT_RESULT = 1015;
+    //---------------------------------------------------------------
+    //  Attack Hit Result Broadcast           Server -> Client
+    //
+    //  1   -   HitCount        (uint8)
+    //  per hit:
+    //    8 -   CharacterID     (uint64)
+    //    2 -   NewHP           (uint16)
+    //
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_CS_USE_SKILL = 1016;
+    //---------------------------------------------------------------
+    //  Skill Use Request                     Client -> Server
+    //
+    //  1   -   SkillSlot       (uint8)
+    //
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_USE_SKILL_RES = 1017;
+    //---------------------------------------------------------------
+    //  Skill Use Response                    Server -> Client
+    //
+    //  1   -   SkillSlot       (uint8)
+    //  1   -   Success         (uint8)   1=success, 0=fail
+    //
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_USE_SKILL_BROADCAST = 1018;
+    //---------------------------------------------------------------
+    //  Skill Use Broadcast                   Server -> Client
+    //
+    //  8   -   CharacterID     (uint64)
+    //  1   -   SkillSlot       (uint8)
     //
     //---------------------------------------------------------------
 }

@@ -24,6 +24,10 @@ protected:
 public:
 	void OnReceiveMovementPacket(const FMovementSnapshot& Snapshot);
 	void OnReceiveSyncPacket(uint64 ServerTimestamp, FVector SyncPosition);
+	void OnReceiveAttackStart(float FacingYaw);
+	void OnReceiveAttackStop();
+
+	virtual void UpdateMoveDirection() override;
 
 private:
 	void UpdateInterpolation(float DeltaTime);
@@ -33,8 +37,14 @@ private:
 	TCircularSnapBuffer<FMovementSnapshot, 16> SnapshotBuffer;
 	class UM1NetworkManager* NetworkManager = nullptr;
 
-private:	
-	bool    bNeedStopCorrection = false;
-	float   StopTargetYaw = 0.f;
-	FVector StopTargetLocation = FVector::ZeroVector;
+private:
+	bool     bIsAttacking        = false;
+	bool     bNeedStopCorrection = false;
+	float    StopTargetYaw       = 0.f;
+	FVector  StopTargetLocation  = FVector::ZeroVector;
+
+	// RenderTime이 역행하지 않도록 보장 (ClockOffset 역방향 보정 / 시스템 클럭 후퇴 방어)
+	uint64   LastRenderTimeMs    = 0;
+
+	FVector  PrevLocation        = FVector::ZeroVector;
 };

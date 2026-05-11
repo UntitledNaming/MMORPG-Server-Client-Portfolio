@@ -12,6 +12,7 @@
 #include "Character\M1LocalPlayer.h"
 #include "Character\M1OtherPlayer.h"
 #include "Character\M1Monster.h"
+#include "Ability\M1PlayerActorComponent.h"
 #include "Network\ClientCore\CMessage.h"
 #include "NetPacketHeader.h"
 #include "Kismet/GameplayStatics.h"
@@ -78,6 +79,9 @@ void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
         return;
 
     // 플레이어 생성하면 플래그 키고 플레이어 초기화 후 PlayerMap에 넣기
+    Data.CurrentEXP = 50.f;
+    Data.RequiredEXP = 100.f;
+    Data.Level = 1;
     NewPlayer->ApplySpawnData(Data);
     NewPlayer->SetSpawnFlag(true);
     MyPlayer = NewPlayer;
@@ -99,8 +103,8 @@ void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
     AM1PlayerController* PC = Cast<AM1PlayerController>(LocalPC);
     if (PC)
     {
-        PC->Possess(NewPlayer);
         PC->SetCachedPlayer(NewPlayer);
+        PC->OnPossess(NewPlayer);
         PC->SetControlRotation(FRotator(0.f, 0.f, 0.f));
         NewPlayer->SetActorRotation(FRotator(0.f, 0.f, 0.f));
         
@@ -137,6 +141,11 @@ void AM1SpawnManager::SpawnOtehrPlayer(FM1SpawnData& Data)
 
     NewCharacter->ApplySpawnData(Data);
     NewCharacter->SetSpawnFlag(true);
+
+    FString Name = TEXT("GreyStone");
+    NewCharacter->InitOverheadStatus(Name, Data.HP, Data.MaxHP);
+    NewCharacter->SetOverheadVisible(true);
+
     PlayerMap.Add(Data.EntityID, NewCharacter);
 }
 
@@ -189,6 +198,115 @@ void AM1SpawnManager::UpdateOtherPlayerMovementInput(uint64 EntityID, FMovementS
         return;
 
     (*Found)->OnReceiveMovementPacket(Snapshot);
+}
+
+void AM1SpawnManager::OnOtherPlayerAttackStart(uint64 EntityID, float FacingYaw)
+{
+    AM1OtherPlayer** Found = PlayerMap.Find(EntityID);
+    if (Found == nullptr || *Found == nullptr)
+        return;
+
+    (*Found)->OnReceiveAttackStart(FacingYaw);
+}
+
+void AM1SpawnManager::OnOtherPlayerAttackStop(uint64 EntityID)
+{
+    AM1OtherPlayer** Found = PlayerMap.Find(EntityID);
+    if (Found == nullptr || *Found == nullptr)
+        return;
+
+    (*Found)->OnReceiveAttackStop();
+}
+
+void AM1SpawnManager::ProcessClientAttackHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg)
+{
+    float CosHalfAngle = FMath::Cos(FMath::DegreesToRadians(HalfAngleDeg));
+    float RangeSquared = Range * Range;
+
+    // PlayerMap 순회
+    for (TMap<uint64, AM1OtherPlayer*>::TIterator It(PlayerMap); It; ++It)
+    {
+        AM1Character* Target = It.Value();
+        if (!Target)
+            continue;
+
+        // 공격 캐릭터와 탐색한 피격 대상 캐릭터간 위치벡터를 ToTarget에 저장해서 거리가 Range 벗어나면 피격 대상아님
+        FVector ToTarget = Target->GetActorLocation() - Origin;
+        if (ToTarget.SizeSquared() > RangeSquared)
+            continue;
+
+        // 위치벡터 정규화 
+        ToTarget.Normalize();
+
+        // 공격자의 앞방향 벡터와 타겟과의 방향벡터를 내적해서 공격자 앞방향 벡터와 방향벡터 사이의 사잇각에 대한 Cos를 구함.
+        // 그게 공격범위각도의 절반값에 대해서 Cos값을 취한 CosHalfAngle 보다 작으면 공격 각도 범위안에 있다는 말임.
+        if (FVector::DotProduct(Forward, ToTarget) < CosHalfAngle)
+            continue;
+
+        // 피격자에서 공격자로 가는 위치 벡터 계산
+        FVector ToAttacker = (Origin - Target->GetActorLocation()).GetSafeNormal2D();
+
+        // 피격자가 보는 앞방향 벡터
+        FVector TargetFwd = Target->GetActorForwardVector().GetSafeNormal2D();
+
+        // 피격자의 우측 방향 벡터
+        FVector TargetRight = Target->GetActorRightVector().GetSafeNormal2D();
+
+
+        // 피격 당한 캐릭터 기준으로 공격자가 어느 방향에 있는지 각도 계산
+        // 0° = 정면, +90° = 우측, -90° = 좌측, ±180° = 후면
+        // 공격자가 피격자의 앞에서 공격하면 HitAngle +0도
+        float HitAngle = FMath::RadiansToDegrees(
+            FMath::Atan2(
+                FVector::DotProduct(TargetRight, ToAttacker),
+                FVector::DotProduct(TargetFwd, ToAttacker)
+            ));
+
+        // 타겟에게 피격각도 전달해서 각도에 따른 피격 애니재생하기
+        Target->TriggerHitReact(HitAngle);
+    }
+
+    // MonsterMap 순회
+    for (TMap<uint64, AM1Monster*>::TIterator It(MonsterMap); It; ++It)
+    {
+        AM1Character* Target = It.Value();
+        if (!Target)
+            continue;
+
+        FVector ToTarget = Target->GetActorLocation() - Origin;
+        if (ToTarget.SizeSquared() > RangeSquared)
+            continue;
+
+        ToTarget.Normalize();
+        if (FVector::DotProduct(Forward, ToTarget) < CosHalfAngle)
+            continue;
+
+        // 피격 당한 캐릭터 기준으로 공격자가 어느 방향에 있는지 각도 계산
+        FVector ToAttacker = (Origin - Target->GetActorLocation()).GetSafeNormal2D();
+        FVector TargetFwd = Target->GetActorForwardVector().GetSafeNormal2D();
+        FVector TargetRight = Target->GetActorRightVector().GetSafeNormal2D();
+
+        float HitAngle = FMath::RadiansToDegrees(
+            FMath::Atan2(
+                FVector::DotProduct(TargetRight, ToAttacker),
+                FVector::DotProduct(TargetFwd, ToAttacker)
+            ));
+
+        Target->TriggerHitReact(HitAngle);
+    }
+}
+
+void AM1SpawnManager::ApplyHitResult(uint64 EntityID, int32 NewHP)
+{
+    if (AM1Character* Character = FindPlayer(EntityID))
+    {
+        Character->SetHP(NewHP);
+        return;
+    }
+    if (AM1Character* Monster = FindMonster(EntityID))
+    {
+        Monster->SetHP(NewHP);
+    }
 }
 
 AM1Character* AM1SpawnManager::FindPlayer(uint64 EntityID) const
@@ -300,4 +418,55 @@ void AM1SpawnManager::TickClock(float DeltaTime)
         ClockOffsetMs = TargetOffsetMs;
     else
         ClockOffsetMs += (Diff > 0) ? MaxStepMs : -MaxStepMs;
+}
+
+void AM1SpawnManager::ProcessClientSingleTargetHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg)
+{
+    float CosHalfAngle = FMath::Cos(FMath::DegreesToRadians(HalfAngleDeg));
+    float RangeSquared = Range * Range;
+
+    AM1Character* BestTarget  = nullptr;
+    float         BestDistSq  = TNumericLimits<float>::Max();
+
+    auto CheckTarget = [&](AM1Character* Target)
+    {
+        if (!Target) return;
+        FVector ToTarget = Target->GetActorLocation() - Origin;
+        float   DistSq   = ToTarget.SizeSquared();
+        if (DistSq > RangeSquared) return;
+        ToTarget.Normalize();
+        if (FVector::DotProduct(Forward, ToTarget) < CosHalfAngle) return;
+        if (DistSq < BestDistSq) { BestDistSq = DistSq; BestTarget = Target; }
+    };
+
+    for (auto& Pair : PlayerMap)  CheckTarget(Pair.Value);
+    for (auto& Pair : MonsterMap) CheckTarget(Pair.Value);
+
+    if (!BestTarget) return;
+
+    FVector ToAttacker  = (Origin - BestTarget->GetActorLocation()).GetSafeNormal2D();
+    FVector TargetFwd   = BestTarget->GetActorForwardVector().GetSafeNormal2D();
+    FVector TargetRight = BestTarget->GetActorRightVector().GetSafeNormal2D();
+    float   HitAngle    = FMath::RadiansToDegrees(
+        FMath::Atan2(FVector::DotProduct(TargetRight, ToAttacker),
+                     FVector::DotProduct(TargetFwd,   ToAttacker)));
+
+    BestTarget->TriggerHitReact(HitAngle);
+}
+
+void AM1SpawnManager::OnMyPlayerSkillResponse(EAbilitySlot Slot, bool bSuccess)
+{
+    if (!MyPlayer) return;
+    if (UM1PlayerActorComponent* AC = MyPlayer->GetAbilityComponent())
+        AC->OnSkillResponse(Slot, bSuccess);
+}
+
+void AM1SpawnManager::OnOtherCharacterUseSkill(uint64 EntityID, EAbilitySlot Slot)
+{
+    AM1OtherPlayer** Found = PlayerMap.Find(EntityID);
+    if (Found && *Found)
+    {
+        if (UM1PlayerActorComponent* AC = (*Found)->GetAbilityComponent())
+            AC->TriggerAbilityFX(Slot);
+    }
 }
