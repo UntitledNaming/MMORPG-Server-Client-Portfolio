@@ -171,7 +171,7 @@ namespace FieldProtocol
     //---------------------------------------------------------------
     //  Attack Start Msg                      Client -> Server
     //
-    //  4   -   AttackYaw       (float)
+    //  4   -   FacingYaw       (float)
     //
     //---------------------------------------------------------------
 
@@ -183,26 +183,16 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_CS_UPDATE_LEFT_ATTACK_YAW = 1013;
-    //---------------------------------------------------------------
-    //  Attack Stop Msg                       Client -> Server
-    //
-    //  4   -   AttackYaw       (float)
-    //
-    //---------------------------------------------------------------
-
-
-
-    constexpr uint16 PACKET_SC_START_LEFT_ATTACK = 1014;
+    constexpr uint16 PACKET_SC_START_LEFT_ATTACK = 1013;
     //---------------------------------------------------------------
     //  Attack Start Broadcast                Server -> Client
     //
     //  8   -   CharacterID     (uint64)
-    //  4   -   AttackYaw       (float)
+    //  4   -   FacingYaw       (float)
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_STOP_LEFT_ATTACK = 1015;
+    constexpr uint16 PACKET_SC_STOP_LEFT_ATTACK = 1014;
     //---------------------------------------------------------------
     //  Attack Stop Broadcast                 Server -> Client
     //
@@ -210,16 +200,7 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_UPDATE_LEFT_ATTACK_YAW = 1016;
-    //---------------------------------------------------------------
-    //  Attack Stop Msg                       Client -> Server
-    //
-    //  8   -   CharacterID     (uint64) 
-    //  4   -   AttackYaw       (float)
-    //
-    //---------------------------------------------------------------
-
-    constexpr uint16 PACKET_SC_ATTACK_HIT_RESULT = 1017;
+    constexpr uint16 PACKET_SC_ATTACK_HIT_RESULT = 1015;
     //---------------------------------------------------------------
     //  Attack Hit Result Broadcast           Server -> Client
     //
@@ -230,7 +211,7 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_CS_USE_SKILL = 1018;
+    constexpr uint16 PACKET_CS_USE_SKILL = 1016;
     //---------------------------------------------------------------
     //  Skill Use Request                     Client -> Server
     //
@@ -238,7 +219,7 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_USE_SKILL_RES = 1019;
+    constexpr uint16 PACKET_SC_USE_SKILL_RES = 1017;
     //---------------------------------------------------------------
     //  Skill Use Response                    Server -> Client
     //
@@ -247,7 +228,7 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_USE_SKILL_BROADCAST = 1020;
+    constexpr uint16 PACKET_SC_USE_SKILL_BROADCAST = 1018;
     //---------------------------------------------------------------
     //  Skill Use Broadcast                   Server -> Client
     //

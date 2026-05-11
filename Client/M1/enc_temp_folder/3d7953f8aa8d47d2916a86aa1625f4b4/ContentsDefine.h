@@ -45,8 +45,3 @@ namespace SnapShotProc
 	constexpr float INTERP_DELAY_MS = 200.f;
 	constexpr float CORRECTION_INTERP_SPEED = 10.f;
 }
-
-namespace ClientAttack
-{
-	constexpr float LEFTATTACK_YAW_SEND_THRESHOLD_DEG = 5.0f;
-}

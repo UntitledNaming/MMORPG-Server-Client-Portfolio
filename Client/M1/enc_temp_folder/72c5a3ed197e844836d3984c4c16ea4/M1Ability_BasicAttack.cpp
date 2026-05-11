@@ -8,7 +8,6 @@
 #include "System\M1SpawnManager.h"
 #include "Network\M1NetworkManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "ContentsDefine.h"
 
 // Ability_BasicAttack - 즉시 실행형
 void UM1Ability_BasicAttack::OnActivate(AM1Character* Owner)
@@ -30,8 +29,6 @@ void UM1Ability_BasicAttack::OnActivate(AM1Character* Owner)
         AttackTimerHandle,
         [this, Owner, PC]() { PerformAttack(Owner, PC->GetNetworkManager()); },
         AttackInterval, true);
-
-    LastAttackYaw = PC->GetControlRotation().Yaw;
 }
 
 void UM1Ability_BasicAttack::OnDeactivate(AM1Character* Owner)
@@ -70,14 +67,5 @@ void UM1Ability_BasicAttack::PerformAttack(AM1Character* Owner, class UM1Network
     if (AM1SpawnManager* SM = NetworkManager->GetSpawnManager())
     {
         SM->ProcessClientSingleTargetHit(Owner->GetActorLocation(), Owner->GetActorForwardVector(), AttackRange, AttackHalfAngle);
-    }
-    
-    AM1PlayerController* PC = Cast<AM1PlayerController>(Owner->GetController());
-    float CurrentYaw = PC->GetControlRotation().Yaw;
-    float DeltaYaw = FMath::Abs(FMath::FindDeltaAngleDegrees(CurrentYaw, LastAttackYaw));
-
-    if (PC&& DeltaYaw >= ClientAttack::LEFTATTACK_YAW_SEND_THRESHOLD_DEG)
-    {
-        PC->SendLeftAttackYawUpdate(CurrentYaw);
     }
 }

@@ -35,16 +35,15 @@ public:
 private:
     void PacketHandler(CMessage* pMessage);
     void InitFunctorArray();
+    void LoadServerConfig();
 
 protected:
     // Config 키워드를 붙이면 .ini 파일의 섹션에서 값을 자동으로 가져옵니다.
     // 지금은 게임서버의 IP, Port지만 실제로는 로그인 서버의 IP, Port로 로그인 서버에 먼저 접속해서
     // 토큰 발급 및 게임 서버의 IP, Port를 가지고 와야 함.
 
-    UPROPERTY(Config)
     FString ServerIP;
 
-    UPROPERTY(Config)
     int32 ServerPort;
 
 private:

@@ -10,12 +10,15 @@
 #include "System\M1SpawnManager.h"
 #include "M1PacketHandler.h"
 #include "EngineUtils.h"
+#include "Misc/ConfigCacheIni.h"
+#include "Misc/Paths.h"
+
 
 void UM1NetworkManager::Initialize(FSubsystemCollectionBase& Collection)
 {
-
-
 	Super::Initialize(Collection);
+
+	LoadServerConfig();
 
 	// 배열 초기화
 	InitFunctorArray();
@@ -137,3 +140,47 @@ void UM1NetworkManager::InitFunctorArray()
 	M1FunctorArray[FieldProtocol::PACKET_SC_USE_SKILL_BROADCAST]      = &M1PacketHandler::Handle_SC_USE_SKILL_BROADCAST;
 }
 
+void UM1NetworkManager::LoadServerConfig()
+{
+	if (GConfig == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("GConfig is null"));
+		return;
+	}
+
+	FString ConfigPath;
+
+#if WITH_EDITOR
+	// 에디터: .uproject 있는 프로젝트 루트
+	ConfigPath = FPaths::Combine(
+		FPaths::ProjectDir(),
+		TEXT("ServerConfig.ini")
+	);
+#else
+	// 패키징 후: exe 실행 위치
+	ConfigPath = FPaths::Combine(
+		FPaths::LaunchDir(),
+		TEXT("ServerConfig.ini")
+	);
+#endif
+
+	bool bReadIP = GConfig->GetString(
+		TEXT("Network"),
+		TEXT("ServerIP"),
+		ServerIP,
+		ConfigPath
+	);
+
+	bool bReadPort = GConfig->GetInt(
+		TEXT("Network"),
+		TEXT("ServerPort"),
+		ServerPort,
+		ConfigPath
+	);
+
+	if (!bReadIP || !bReadPort)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to read ServerConfig.ini: %s"), *ConfigPath);
+		return;
+	}
+}

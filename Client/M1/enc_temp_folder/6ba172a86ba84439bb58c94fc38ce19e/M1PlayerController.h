@@ -50,7 +50,6 @@ private:
 public:
 	void SendLeftAttackStartPacket(float FacingYaw);
 	void SendLeftAttackStopPacket();
-	void SendLeftAttackYawUpdate(float AttackYaw);
 	void SendUseSkillPacket(uint8 SkillSlot);
 
 private:
@@ -72,5 +71,4 @@ private:
 	float  LastSendYaw       = 0.0f;
 	float  CurrentYaw        = 0.0f;
 	double LastSendTime      = 0;
-
 };

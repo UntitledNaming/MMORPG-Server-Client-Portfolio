@@ -30,5 +30,4 @@ private:
 private:
     FTimerHandle AttackTimerHandle;
     bool         bIsAttacking = false;
-    float        LastAttackYaw = 0.f;
 };

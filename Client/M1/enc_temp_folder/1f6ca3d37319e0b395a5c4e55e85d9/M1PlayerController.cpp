@@ -366,19 +366,6 @@ void AM1PlayerController::SendLeftAttackStopPacket()
     CMessage::Free(pMessage);
 }
 
-void AM1PlayerController::SendLeftAttackYawUpdate(float AttackYaw)
-{
-    if (!NetworkManager)
-        return;
-
-    CMessage* pMessage = CMessage::Alloc();
-    pMessage->Clear(1);
-    *pMessage << FieldProtocol::PACKET_SC_UPDATE_LEFT_ATTACK_YAW;
-    *pMessage << AttackYaw;
-    NetworkManager->SendPacket(pMessage, static_cast<uint8>(ERouteType::GROUP), ServiceID::NONE_SERVICE);
-    CMessage::Free(pMessage);
-}
-
 void AM1PlayerController::SendUseSkillPacket(uint8 SkillSlot)
 {
     if (!NetworkManager)

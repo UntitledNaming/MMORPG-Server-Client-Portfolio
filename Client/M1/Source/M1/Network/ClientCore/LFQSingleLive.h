@@ -80,8 +80,9 @@ public:
 		Node*    localRealTail;
 		int64   retCnt;
 
+		if (m_pMemoryPool == nullptr)
+			return;
 
-		//�ű� ��� ����
 		newNode = m_pMemoryPool->Alloc();
 		newNode->_data = InputParam;
 		newNode->_next = (Node*)0xFFFFFFFFFFFFFFFF;

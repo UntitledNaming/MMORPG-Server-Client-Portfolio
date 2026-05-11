@@ -69,6 +69,8 @@ bool CLanClient::Connect(const WCHAR* SERVERIP, uint32 SERVERPORT)
 
 bool CLanClient::Disconnect()
 {
+	if (m_pSession == nullptr)
+		return false;
 
 	if (FPlatformAtomics::InterlockedExchange(&m_pSession->s_DCFlag, 1) != 0)
 		return false;
@@ -324,6 +326,9 @@ bool CLanClient::SendPost()
 	DWORD flags = 0;
 
 	DWORD curThreadID = GetCurrentThreadId();
+
+	if (m_pSession == nullptr)
+		return false;
 
 	if (m_pSession->s_DCFlag == 1)
 		return false;
