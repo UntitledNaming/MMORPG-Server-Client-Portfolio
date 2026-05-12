@@ -48,9 +48,8 @@ private:
 	void TrySendMovementPacket();
 
 public:
-	void SendLeftAttackStartPacket(float FacingYaw);
+	void SendLeftAttackSwingPacket(float FacingYaw, uint8 SwingIdx);
 	void SendLeftAttackStopPacket();
-	void SendLeftAttackYawUpdate(float AttackYaw);
 	void SendUseSkillPacket(uint8 SkillSlot);
 
 private:

@@ -2,82 +2,59 @@
 
 
 #include "Ability/M1Ability_BasicAttack.h"
-#include "Engine/GameInstance.h"
 #include "Character\M1Character.h"
 #include "Controller\M1PlayerController.h"
-#include "System\M1SpawnManager.h"
-#include "Network\M1NetworkManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "ContentsDefine.h"
+#include "Animation/AnimInstance.h"
 
-// Ability_BasicAttack - 즉시 실행형
 void UM1Ability_BasicAttack::OnActivate(AM1Character* Owner)
 {
     if (!Owner || bIsAttacking) return;
     bIsAttacking = true;
+    CachedOwner  = Owner;
+
     Owner->SetUseUpperBodyWhenMovingFlag(true);
 
     if (UCharacterMovementComponent* MoveComp = Owner->GetCharacterMovement())
         MoveComp->bOrientRotationToMovement = false;
     Owner->bUseControllerRotationYaw = true;
 
-    AM1PlayerController* PC = Cast<AM1PlayerController>(Owner->GetController());
-    if (PC)
-        PC->SendLeftAttackStartPacket(PC->GetControlRotation().Yaw);
+    PlayCastFX(Owner);
 
-    PerformAttack(Owner,PC->GetNetworkManager());
-    Owner->GetWorldTimerManager().SetTimer(
-        AttackTimerHandle,
-        [this, Owner, PC]() { PerformAttack(Owner, PC->GetNetworkManager()); },
-        AttackInterval, true);
-
-    LastAttackYaw = PC->GetControlRotation().Yaw;
+    UAnimInstance* AnimInst = Owner->GetMesh()->GetAnimInstance();
+    if (AnimInst)
+        AnimInst->OnMontageEnded.AddDynamic(this, &UM1Ability_BasicAttack::OnMontageEnded);
 }
 
 void UM1Ability_BasicAttack::OnDeactivate(AM1Character* Owner)
 {
     if (!Owner || !bIsAttacking) return;
     bIsAttacking = false;
+    CachedOwner  = nullptr;
+
     Owner->SetUseUpperBodyWhenMovingFlag(false);
 
     if (UCharacterMovementComponent* MoveComp = Owner->GetCharacterMovement())
         MoveComp->bOrientRotationToMovement = true;
     Owner->bUseControllerRotationYaw = false;
 
-    Owner->GetWorldTimerManager().ClearTimer(AttackTimerHandle);
+    UAnimInstance* AnimInst = Owner->GetMesh()->GetAnimInstance();
+    if (AnimInst)
+    {
+        AnimInst->OnMontageEnded.RemoveDynamic(this, &UM1Ability_BasicAttack::OnMontageEnded);
+        if (FXData.CastMontage)
+            AnimInst->Montage_Stop(0.15f, FXData.CastMontage);
+    }
 
     AM1PlayerController* PC = Cast<AM1PlayerController>(Owner->GetController());
     if (PC)
         PC->SendLeftAttackStopPacket();
-
-
-    // 몽타주 재생중이면 정지
-    if (FXData.CastMontage)
-    {
-        UAnimInstance* AnimInst = Owner->GetMesh()->GetAnimInstance();
-
-        AnimInst->Montage_Stop(0.15f, FXData.CastMontage);
-    }
-
 }
 
-void UM1Ability_BasicAttack::PerformAttack(AM1Character* Owner, class UM1NetworkManager* NetworkManager)
+void UM1Ability_BasicAttack::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-    if (!Owner || NetworkManager == nullptr) return;
+    if (bInterrupted || !bIsAttacking || !CachedOwner) return;
+    if (Montage != FXData.CastMontage) return;
 
-    PlayCastFX(Owner);
-
-    if (AM1SpawnManager* SM = NetworkManager->GetSpawnManager())
-    {
-        SM->ProcessClientSingleTargetHit(Owner->GetActorLocation(), Owner->GetActorForwardVector(), AttackRange, AttackHalfAngle);
-    }
-    
-    AM1PlayerController* PC = Cast<AM1PlayerController>(Owner->GetController());
-    float CurrentYaw = PC->GetControlRotation().Yaw;
-    float DeltaYaw = FMath::Abs(FMath::FindDeltaAngleDegrees(CurrentYaw, LastAttackYaw));
-
-    if (PC&& DeltaYaw >= ClientAttack::LEFTATTACK_YAW_SEND_THRESHOLD_DEG)
-    {
-        PC->SendLeftAttackYawUpdate(CurrentYaw);
-    }
+    PlayCastFX(CachedOwner);
 }

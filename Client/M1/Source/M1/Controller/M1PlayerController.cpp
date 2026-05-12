@@ -341,15 +341,16 @@ void AM1PlayerController::mpMovementInput(CMessage* pMessage, const FVector& Loc
     *pMessage << MoveFlag;
 }
 
-void AM1PlayerController::SendLeftAttackStartPacket(float FacingYaw)
+void AM1PlayerController::SendLeftAttackSwingPacket(float FacingYaw, uint8 SwingIdx)
 {
     if (!NetworkManager)
         return;
 
     CMessage* pMessage = CMessage::Alloc();
     pMessage->Clear(1);
-    *pMessage << FieldProtocol::PACKET_CS_START_LEFT_ATTACK;
+    *pMessage << FieldProtocol::PACKET_CS_SWING_LEFT_ATTACK;
     *pMessage << FacingYaw;
+    *pMessage << SwingIdx;
     NetworkManager->SendPacket(pMessage, static_cast<uint8>(ERouteType::GROUP), ServiceID::NONE_SERVICE);
     CMessage::Free(pMessage);
 }
@@ -362,19 +363,6 @@ void AM1PlayerController::SendLeftAttackStopPacket()
     CMessage* pMessage = CMessage::Alloc();
     pMessage->Clear(1);
     *pMessage << FieldProtocol::PACKET_CS_STOP_LEFT_ATTACK;
-    NetworkManager->SendPacket(pMessage, static_cast<uint8>(ERouteType::GROUP), ServiceID::NONE_SERVICE);
-    CMessage::Free(pMessage);
-}
-
-void AM1PlayerController::SendLeftAttackYawUpdate(float AttackYaw)
-{
-    if (!NetworkManager)
-        return;
-
-    CMessage* pMessage = CMessage::Alloc();
-    pMessage->Clear(1);
-    *pMessage << FieldProtocol::PACKET_SC_UPDATE_LEFT_ATTACK_YAW;
-    *pMessage << AttackYaw;
     NetworkManager->SendPacket(pMessage, static_cast<uint8>(ERouteType::GROUP), ServiceID::NONE_SERVICE);
     CMessage::Free(pMessage);
 }

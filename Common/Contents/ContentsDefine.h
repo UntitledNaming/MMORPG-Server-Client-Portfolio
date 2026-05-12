@@ -48,5 +48,6 @@ namespace SnapShotProc
 
 namespace ClientAttack
 {
-	constexpr float LEFTATTACK_YAW_SEND_THRESHOLD_DEG = 5.0f;
+	constexpr float LEFATTACK_HALF_ANGLE = 60.0f;
+	constexpr float LEFTATTACK_RANGE = 150.0f;
 }

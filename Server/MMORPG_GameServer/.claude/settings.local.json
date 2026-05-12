@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\sdj53\\\\Documents\\\\GitHub\\\\MMO-Server-Portfolio\\\\Server\\\\MMORPG_GameServer\" -Recurse | Where-Object {$_.Extension -in '.h', '.hpp'} | Select-Object -First 30 FullName)",
+      "PowerShell(head *)"
+    ]
+  }
+}

@@ -167,11 +167,12 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_CS_START_LEFT_ATTACK = 1011;
+    constexpr uint16 PACKET_CS_SWING_LEFT_ATTACK = 1011;
     //---------------------------------------------------------------
     //  Attack Start Msg                      Client -> Server
     //
     //  4   -   AttackYaw       (float)
+    //  1   -   SwingIdx        (uint8)
     //
     //---------------------------------------------------------------
 
@@ -183,22 +184,14 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_CS_UPDATE_LEFT_ATTACK_YAW = 1013;
-    //---------------------------------------------------------------
-    //  Attack Stop Msg                       Client -> Server
-    //
-    //  4   -   AttackYaw       (float)
-    //
-    //---------------------------------------------------------------
 
-
-
-    constexpr uint16 PACKET_SC_START_LEFT_ATTACK = 1014;
+    constexpr uint16 PACKET_SC_SWING_LEFT_ATTACK = 1014;
     //---------------------------------------------------------------
     //  Attack Start Broadcast                Server -> Client
     //
     //  8   -   CharacterID     (uint64)
     //  4   -   AttackYaw       (float)
+    //  1   -   SwingIdx        (uint8)
     //
     //---------------------------------------------------------------
 
@@ -210,23 +203,21 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_UPDATE_LEFT_ATTACK_YAW = 1016;
-    //---------------------------------------------------------------
-    //  Attack Stop Msg                       Client -> Server
-    //
-    //  8   -   CharacterID     (uint64) 
-    //  4   -   AttackYaw       (float)
-    //
-    //---------------------------------------------------------------
 
     constexpr uint16 PACKET_SC_ATTACK_HIT_RESULT = 1017;
     //---------------------------------------------------------------
     //  Attack Hit Result Broadcast           Server -> Client
     //
-    //  1   -   HitCount        (uint8)
+    //  1   -   PlayerHitCount  (uint8)
+    //  1   -   MonsterHitCount (uint8)
+    // 
     //  per hit:
-    //    8 -   CharacterID     (uint64)
-    //    2 -   NewHP           (uint16)
+    //  8   -   CharacterID       (uint64)
+    //  2   -   NewHP             (uint16)
+    //      
+    //  per hit:
+    //  8   -   MonsterID         (uint64)
+    //  2   -   NewHP             (uint16)
     //
     //---------------------------------------------------------------
 
