@@ -31,3 +31,12 @@ enum class EAIState : uint8
 	Return,
 	Dead
 };
+
+enum class EAbilitySlot : uint8
+{
+	LeftAttack,
+	Skill1,
+	Skill2,
+	Skill3,
+	Skill4,
+};

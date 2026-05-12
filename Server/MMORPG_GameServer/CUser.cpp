@@ -19,7 +19,6 @@ void CUser::Init(uint64 sessionID)
 	// 이를 클라에게 전파해서 해당 클라의 max walk speed를 변경하여 이동 속도를 조절함.
 	// 캐릭터 생성, 삭제시 이 Max Walk Speed를 서버가 전파해주던가 아니면 프로토콜로 버프, 디버프 상태를
 	// 추가하여 이를 전달해 클라가 자체 계산해서 max speed값 조정하던가 해야 함.
-	
 
 	m_sessionID = sessionID;
 	m_xpos = 405430.0f;
@@ -27,9 +26,11 @@ void CUser::Init(uint64 sessionID)
 	m_zpos = -38690.f;
 	m_isFalling = false;
 	m_moveFlag = false;
-	m_hp = 100;
+	m_atk = 5;
+	m_def = 10;
+	m_hp = 50;
 	m_maxHP = 100;
-	m_mp = 100;
+	m_mp = 50;
 	m_maxMP = 100;
 	m_sectorXpos = (m_xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE;
 	m_sectorYpos = (m_ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE;
@@ -43,6 +44,10 @@ void CUser::Init(uint64 sessionID)
 	m_lastSyncCheckTime = timeGetTime();
 
 	memcpy_s(m_nickName, NICK_MAX, L"MY", NICK_MAX);
+
+	// SwingInfo 초기화
+	m_swingInfo.m_lastSwingIdx = 0;
+	m_swingInfo.m_lastSwingRecvTime = 0;
 }
 
 CUser* CUser::Alloc()

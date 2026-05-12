@@ -143,6 +143,7 @@
     <ClCompile Include="AuthGroup.cpp" />
     <ClCompile Include="CDBManager.cpp" />
     <ClCompile Include="ChatService.cpp" />
+    <ClCompile Include="CMonster.cpp" />
     <ClCompile Include="CUser.cpp" />
     <ClCompile Include="CUserDirectory.cpp" />
     <ClCompile Include="FieldGroup.cpp" />
@@ -153,6 +154,7 @@
     <ClInclude Include="AuthGroup.h" />
     <ClInclude Include="CDBManager.h" />
     <ClInclude Include="ChatService.h" />
+    <ClInclude Include="CMonster.h" />
     <ClInclude Include="CUser.h" />
     <ClInclude Include="CUserDirectory.h" />
     <ClInclude Include="FieldGroup.h" />

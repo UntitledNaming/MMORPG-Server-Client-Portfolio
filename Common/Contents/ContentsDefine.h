@@ -42,12 +42,13 @@ namespace ClientMovement
 
 namespace SnapShotProc
 {
-	constexpr float INTERP_DELAY_MS = 200.f;
+	constexpr float INTERP_DELAY_MS = 150.f;
 	constexpr float CORRECTION_INTERP_SPEED = 10.f;
 }
 
 namespace ClientAttack
 {
-	constexpr float LEFATTACK_HALF_ANGLE = 60.0f;
-	constexpr float LEFTATTACK_RANGE = 150.0f;
+	constexpr float  LEFATTACK_HALF_ANGLE = 60.0f;
+	constexpr float  LEFTATTACK_RANGE = 150.0f;
+	constexpr uint32 LEFTATTACK_MAX_HIT_COUNT = 8;
 }

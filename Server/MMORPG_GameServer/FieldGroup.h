@@ -1,8 +1,10 @@
 #pragma once
 #include "ContentsDefine.h"
 #include "ContentsType.h"
+#include "ContentsEnum.h"
 
 class CUser;
+class CMonster;
 
 class FieldGroup : public CGroup
 {
@@ -72,6 +74,12 @@ public:
     ///////////////////////////////////
 	uint64 GetServerTimeMs();
 
+	///////////////////////////////////
+    // 공격 관련 함수                //
+    ///////////////////////////////////
+	void CollectHitTarget(EAbilitySlot skillSlot, float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster,uint32& outHitPlayerCount, uint32& outHitMonsterCount);
+	void CalDamage(uint16 atk, uint16 def, uint16 curHP, uint16& outNewHP);
+	void CollectHitTaget_LeftAttack(float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster, uint32& outHitPlayerCount, uint32& outHitMonsterCount);
 
 	///////////////////////////////////
     // 컨텐츠 메세지 생성 함수       //
@@ -83,12 +91,16 @@ public:
 	void mpSyncMyCharacterPosition(CUser* pUser, CMessage* pMessage);
 	void mpSyncOtherCharacterPosition(CUser* pUser, CMessage* pMessage);
 	void mpRTTEchoMessage(CMessage* pMessage);
+	void mpLeftAttackSwing(CUser* pUser, CMessage* pMessage, uint8 swingIndex, float attackyaw);
+	void mpLeftAttackStop(CUser* pUser, CMessage* pMessage);
 
 	///////////////////////////////////
     // 클라이언트 메세지 처리 핸들러 //
     ///////////////////////////////////
 	void HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMessage);
 	void HandleRTTMessage(uint64 sessionID, CMessage* pMessage);
+	void HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage);
+	void HandleLeftAttackStop(uint64 sessionID, CMessage* pMessage);
 
 	///////////////////////////////////
     // 프레임 로직 처리 함수         //

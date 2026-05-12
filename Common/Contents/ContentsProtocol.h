@@ -184,7 +184,6 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-
     constexpr uint16 PACKET_SC_SWING_LEFT_ATTACK = 1014;
     //---------------------------------------------------------------
     //  Attack Start Broadcast                Server -> Client

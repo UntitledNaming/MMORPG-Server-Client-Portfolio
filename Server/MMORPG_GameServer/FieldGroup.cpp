@@ -94,6 +94,14 @@ void FieldGroup::OnRecv(UINT64 sessionID, CMessage* pMessage)
 	case PACKET_CS_RTT_SEND:
 		HandleRTTMessage(sessionID, pMessage);
 		break;
+
+	case PACKET_CS_SWING_LEFT_ATTACK:
+		HandleLeftAttackSwing(sessionID, pMessage);
+		break;
+
+	case PACKET_CS_STOP_LEFT_ATTACK:
+		HandleLeftAttackStop(sessionID, pMessage);
+		break;
 	}
 }
 
@@ -291,6 +299,26 @@ uint64 FieldGroup::GetServerTimeMs()
 	return std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
 }
 
+void FieldGroup::CollectHitTarget(EAbilitySlot skillSlot, float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster, uint32& outHitPlayerCount, uint32& outHitMonsterCount)
+{
+	switch (skillSlot)
+	{
+	case EAbilitySlot::LeftAttack:
+		CollectHitTaget_LeftAttack(attackYaw, attacker, outHitPlayer, outHitMonster, outHitPlayerCount, outHitMonsterCount);
+		break;
+	}
+}
+
+void FieldGroup::CalDamage(uint16 atk, uint16 def, uint16 curHP, uint16& outNewHP)
+{
+
+}
+
+void FieldGroup::CollectHitTaget_LeftAttack(float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster, uint32& outHitPlayerCount, uint32& outHitMonsterCount)
+{
+	
+}
+
 void FieldGroup::mpCreateMyCharacter(CUser* pUser, CMessage* pMessage)
 {
 	*pMessage << PACKET_SC_CREATE_MY_CHARACTER;
@@ -313,6 +341,8 @@ void FieldGroup::mpCreateOtherCharacter(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_movementYaw;
 	*pMessage << pUser->m_hp;
 	*pMessage << pUser->m_maxHP;
+	*pMessage << pUser->m_mp;
+	*pMessage << pUser->m_maxMP;
 	*pMessage << (uint8)pUser->m_action;
 	*pMessage << (uint8)pUser->m_moveMode;
 	*pMessage << pUser->m_moveFlag;
@@ -358,6 +388,20 @@ void FieldGroup::mpRTTEchoMessage(CMessage* pMessage)
 {
 	*pMessage << PACKET_SC_RTT_ECHO;
 	*pMessage << GetServerTimeMs();
+}
+
+void FieldGroup::mpLeftAttackSwing(CUser* pUser, CMessage* pMessage, uint8 swingIndex, float attackyaw)
+{
+	*pMessage << FieldProtocol::PACKET_SC_SWING_LEFT_ATTACK;
+	*pMessage << pUser->m_sessionID;
+	*pMessage << attackyaw;
+	*pMessage << swingIndex;
+}
+
+void FieldGroup::mpLeftAttackStop(CUser* pUser, CMessage* pMessage)
+{
+	*pMessage << FieldProtocol::PACKET_SC_STOP_LEFT_ATTACK;
+	*pMessage << pUser->m_sessionID;
 }
 
 void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMessage)
@@ -475,6 +519,43 @@ void FieldGroup::HandleRTTMessage(uint64 sessionID, CMessage* pMessage)
 
 	CMessage::Free(pRTTMessage);
 
+}
+
+void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
+{
+	float attackyaw;
+	uint8 swingindex;
+
+	*pMessage >> attackyaw;
+	*pMessage >> swingindex;
+
+	CUser* pUser = nullptr;
+
+	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
+	if (it == m_userLookUpTable.end())
+		__debugbreak();
+
+	// 공격자의 위치, 공격 타입을 매개인자로 전달하여 피격자들 찾기
+	std::vector<CUser*> targetHitPlayer;
+	std::vector<CMonster*> targetHitMonster;
+	uint32 hitplayerCount = 0;
+	uint32 hitmonsterCount = 0;
+	CollectHitTarget(EAbilitySlot::LeftAttack, attackyaw, pUser, targetHitPlayer, targetHitMonster, hitplayerCount, hitmonsterCount);
+
+
+}
+
+void FieldGroup::HandleLeftAttackStop(uint64 sessionID, CMessage* pMessage)
+{
+	float attackyaw;
+
+	*pMessage >> attackyaw;
+
+	CUser* pUser = nullptr;
+
+	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
+	if (it == m_userLookUpTable.end())
+		__debugbreak();
 }
 
 void FieldGroup::MovementProc()
