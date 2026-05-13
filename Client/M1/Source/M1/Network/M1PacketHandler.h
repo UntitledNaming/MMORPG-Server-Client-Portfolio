@@ -40,7 +40,7 @@ public:
 	static void Handle_SC_RTT_ECHO(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 
 	// 서버가 보낸 "공격 시작" 처리
-	static void Handle_SC_START_ATTACK(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+	static void Handle_SC_SWING_ATTACK(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 
 	// 서버가 보낸 "공격 종료" 처리
 	static void Handle_SC_STOP_ATTACK(CMessage* pMessage, UM1NetworkManager* NetworkManager);

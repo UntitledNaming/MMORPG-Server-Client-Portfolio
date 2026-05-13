@@ -10,7 +10,6 @@ void AM1BasePlayer::BeginPlay()
 	Super::BeginPlay();
 
 	// 초기값 브로드캐스트
-	OnHealthChanged.Broadcast(HP, MaxHP);
 	OnManaChanged.Broadcast(MP, MaxMP);
 	OnExpChanged.Broadcast(CurrentExp, RequiredExp);
 }

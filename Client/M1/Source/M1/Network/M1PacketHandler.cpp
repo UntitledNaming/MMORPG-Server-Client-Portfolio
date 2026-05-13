@@ -33,7 +33,9 @@ void M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER(CMessage* pMessage, UM1Netwo
 	uint16 mp;
 	uint16 maxhp;
 	uint16 maxmp;
+	uint64 id;
 
+	*pMessage >> id;
 	*pMessage >> xpos;
 	*pMessage >> ypos;
 	*pMessage >> zpos;
@@ -48,7 +50,7 @@ void M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER(CMessage* pMessage, UM1Netwo
 	FRotator Rotation(0, 0, 0);
 
 	FM1SpawnData Data;
-	Data.EntityID = -1;
+	Data.EntityID = id;
 	Data.HP = hp;
 	Data.MP = mp;
 	Data.ActionType = EM1ActionStateType::None;
@@ -191,16 +193,18 @@ void M1PacketHandler::Handle_SC_RTT_ECHO(CMessage* pMessage, UM1NetworkManager* 
 	NetworkManager->GetSpawnManager()->GetRTTEchoMsg(time);
 }
 
-void M1PacketHandler::Handle_SC_START_ATTACK(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+void M1PacketHandler::Handle_SC_SWING_ATTACK(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
 	uint64 id;
+	uint8 swingidx;
 	float  facingYaw;
 
 	*pMessage >> id;
 	*pMessage >> facingYaw;
+	*pMessage >> swingidx;
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
-	SpawnManager->OnOtherPlayerAttackStart(id, facingYaw);
+	SpawnManager->OnOtherPlayerAttackSwing(id, facingYaw, swingidx);
 }
 
 void M1PacketHandler::Handle_SC_STOP_ATTACK(CMessage* pMessage, UM1NetworkManager* NetworkManager)
@@ -215,17 +219,28 @@ void M1PacketHandler::Handle_SC_STOP_ATTACK(CMessage* pMessage, UM1NetworkManage
 
 void M1PacketHandler::Handle_SC_ATTACK_HIT_RESULT(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
-	uint8 HitCount;
-	*pMessage >> HitCount;
+	uint8 PlayerHitCount;
+	uint8 MonsterHitCount;
+	*pMessage >> PlayerHitCount;
+	*pMessage >> MonsterHitCount;
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
-	for (uint8 i = 0; i < HitCount; ++i)
+	for (uint8 i = 0; i < PlayerHitCount; ++i)
 	{
 		uint64 id;
 		uint16 newHp;
 		*pMessage >> id;
 		*pMessage >> newHp;
-		SpawnManager->ApplyHitResult(id, (int32)newHp);
+		SpawnManager->ApplyPlayerHitResult(id, (int32)newHp);
+	}
+
+	for (uint8 i = 0; i < MonsterHitCount; ++i)
+	{
+		uint64 id;
+		uint16 newHp;
+		*pMessage >> id;
+		*pMessage >> newHp;
+		SpawnManager->ApplyMonsterHitResult(id, (int32)newHp);
 	}
 }
 

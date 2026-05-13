@@ -36,6 +36,18 @@ AM1LocalPlayer::AM1LocalPlayer()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+void AM1LocalPlayer::BeginPlay()
+{
+	Super::BeginPlay();
+	OnHealthChanged.Broadcast(HP, MaxHP);
+}
+
+void AM1LocalPlayer::SetHP(int32 NewHP)
+{
+	Super::SetHP(NewHP);
+	OnHealthChanged.Broadcast(HP, MaxHP);
+}
+
 void AM1LocalPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

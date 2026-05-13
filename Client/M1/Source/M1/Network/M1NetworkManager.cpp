@@ -133,7 +133,7 @@ void UM1NetworkManager::InitFunctorArray()
 	M1FunctorArray[FieldProtocol::PACKET_SC_SYNC_MY_CHARACTER_POS] = &M1PacketHandler::Handle_SC_SYNC_MY_CHARACTER_POS;
 	M1FunctorArray[FieldProtocol::PACKET_SC_SYNC_OTHER_CHARACTER_POS] = &M1PacketHandler::Handle_SC_SYNC_OTHER_CHARACTER_POS;
 	M1FunctorArray[FieldProtocol::PACKET_SC_RTT_ECHO] = &M1PacketHandler::Handle_SC_RTT_ECHO;
-	M1FunctorArray[FieldProtocol::PACKET_SC_SWING_LEFT_ATTACK]        = &M1PacketHandler::Handle_SC_START_ATTACK;
+	M1FunctorArray[FieldProtocol::PACKET_SC_SWING_LEFT_ATTACK]        = &M1PacketHandler::Handle_SC_SWING_ATTACK;
 	M1FunctorArray[FieldProtocol::PACKET_SC_STOP_LEFT_ATTACK]         = &M1PacketHandler::Handle_SC_STOP_ATTACK;
 	M1FunctorArray[FieldProtocol::PACKET_SC_ATTACK_HIT_RESULT]        = &M1PacketHandler::Handle_SC_ATTACK_HIT_RESULT;
 	M1FunctorArray[FieldProtocol::PACKET_SC_USE_SKILL_RES]            = &M1PacketHandler::Handle_SC_USE_SKILL_RES;
