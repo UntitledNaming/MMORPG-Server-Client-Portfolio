@@ -316,11 +316,11 @@ uint64 FieldGroup::GetServerTimeMs()
 	return std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
 }
 
-void FieldGroup::CollectHitTarget(EAbilitySlot skillSlot, float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster, uint8& outHitPlayerCount, uint8& outHitMonsterCount)
+void FieldGroup::CollectHitTarget(EServerAbilitySlot skillSlot, float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster, uint8& outHitPlayerCount, uint8& outHitMonsterCount)
 {
 	switch (skillSlot)
 	{
-	case EAbilitySlot::LeftAttack:
+	case EServerAbilitySlot::LeftAttack:
 		CollectHitTaget_LeftAttack(attackYaw, attacker, outHitPlayer, outHitMonster, outHitPlayerCount, outHitMonsterCount);
 		break;
 	}
@@ -703,7 +703,7 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 
 	uint8 hitplayerCount = 0;
 	uint8 hitmonsterCount = 0;
-	CollectHitTarget(EAbilitySlot::LeftAttack, attackyaw, pUser, targetHitPlayer, targetHitMonster, hitplayerCount, hitmonsterCount);
+	CollectHitTarget(EServerAbilitySlot::LeftAttack, attackyaw, pUser, targetHitPlayer, targetHitMonster, hitplayerCount, hitmonsterCount);
 
 	// 데미지 계산 및 hp 수정
 	for (int i = 0; i < hitplayerCount; i++)

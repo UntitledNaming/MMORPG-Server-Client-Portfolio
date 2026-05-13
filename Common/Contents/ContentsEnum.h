@@ -32,7 +32,7 @@ enum class EAIState : uint8
 	Dead
 };
 
-enum class EAbilitySlot : uint8
+enum class EServerAbilitySlot : uint8
 {
 	LeftAttack,
 	Skill1,

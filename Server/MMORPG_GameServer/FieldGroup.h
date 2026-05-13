@@ -80,7 +80,7 @@ public:
 	///////////////////////////////////
     // 공격 관련 함수                //
     ///////////////////////////////////
-	void   CollectHitTarget(EAbilitySlot skillSlot, float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster, uint8& outHitPlayerCount, uint8& outHitMonsterCount);
+	void   CollectHitTarget(EServerAbilitySlot skillSlot, float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster, uint8& outHitPlayerCount, uint8& outHitMonsterCount);
 	void   CollectHitTaget_LeftAttack(float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster, uint8& outHitPlayerCount, uint8& outHitMonsterCount);
 	bool   IsInAttackCone(const Vec2& attackPos, float attackYaw, float range, float attackHalfAngle, const Vec2& targetPos);
 	uint16 CalDamage(uint16 atk, uint16 def);
