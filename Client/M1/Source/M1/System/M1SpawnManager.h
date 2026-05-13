@@ -47,11 +47,12 @@ public:
 	void SyncMyPlayer(FVector& Location);
 	void SyncOtherPlayer(uint64 EntityID, FVector& Location, uint64 ServerTimestamp);
 	void UpdateOtherPlayerMovementInput(uint64 EntityID, FMovementSnapshot& Snapshot);
-	void OnOtherPlayerAttackStart(uint64 EntityID, float FacingYaw);
+	void OnOtherPlayerAttackSwing(uint64 EntityID, float FacingYaw, uint8 SwingIdx);
 	void OnOtherPlayerAttackStop(uint64 EntityID);
 	void ProcessClientAttackHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg);
 	void ProcessClientSingleTargetHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg);
-	void ApplyHitResult(uint64 EntityID, int32 NewHP);
+	void ApplyPlayerHitResult(uint64 EntityID, int32 NewHP);
+	void ApplyMonsterHitResult(uint64 EntityID, int32 NewHP);
 	void OnMyPlayerSkillResponse(EAbilitySlot Slot, bool bSuccess);
 	void OnOtherCharacterUseSkill(uint64 EntityID, EAbilitySlot Slot);
 
@@ -85,7 +86,7 @@ private:
 	TMap<uint64, class AM1Monster*>                MonsterMap;     // 몬스터 관리 자료구조
 
 private:
-
+	uint64                   MyID = 0;                       // 서버로 부터 부여받은 내 캐릭터 ID
 	int64                    ClockOffsetMs = 0;              // 현재 적용 중인 offset (점진 보정 대상)
 	int64                    TargetOffsetMs = 0;             // 새 측정으로 갱신되는 목표 offset
 	uint64                   PendingPingSentTime = 0;        // 핑 송신 시점 (로컬 ms)

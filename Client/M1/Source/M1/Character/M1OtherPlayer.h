@@ -16,6 +16,7 @@ public:
 	AM1OtherPlayer();
 	virtual float GetMoveSpeed() override;
 	virtual bool  GetMoveFlag()  override;
+	virtual void  SetHP(int32 NewHP) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -24,7 +25,7 @@ protected:
 public:
 	void OnReceiveMovementPacket(const FMovementSnapshot& Snapshot);
 	void OnReceiveSyncPacket(uint64 ServerTimestamp, FVector SyncPosition);
-	void OnReceiveAttackStart(float FacingYaw);
+	void OnReceiveAttackSwing(float FacingYaw, uint8 SwingIdx);
 	void OnReceiveAttackStop();
 
 	virtual void UpdateMoveDirection() override;

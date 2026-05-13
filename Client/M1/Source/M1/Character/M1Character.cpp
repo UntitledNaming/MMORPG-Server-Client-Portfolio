@@ -36,7 +36,6 @@ void AM1Character::ApplySpawnData(const FM1SpawnData& Data)
 void AM1Character::SetHP(int32 NewHP)
 {
     HP = FMath::Clamp(NewHP, 0, MaxHP);
-    OnHealthChanged.Broadcast(HP, MaxHP);
 }
 
 void AM1Character::TriggerHitReact(float HitAngle)

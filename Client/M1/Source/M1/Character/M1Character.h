@@ -10,9 +10,6 @@ struct FInputActionValue;
 class UWidgetComponent;
 class UM1OverheadStatusWidget;
 
-// HP 변경 델리게이트
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, int32, CurrentHealth, int32, MaxHealth);
-
 UCLASS()
 class M1_API AM1Character : public ACharacter
 {
@@ -47,7 +44,7 @@ public:
     virtual float GetMoveSpeed() { return 0.f; }
     virtual bool  GetMoveFlag() { return false; }
 
-    void SetHP(int32 NewHP);
+    virtual void SetHP(int32 NewHP);
 
     // 피격 방향 각도로 피격 리액션 트리거 (0=정면, ±90=측면, ±180=후면)
     void TriggerHitReact(float HitAngle);
@@ -94,11 +91,6 @@ protected:
     // 이동 중 상체 사용 플래그
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anim|Combat")
     bool bUseUpperBodyWhenMoving = false;
-
-public:
-    // HP 변경 델리게이트
-    UPROPERTY(BlueprintAssignable, Category = "Events")
-    FOnHealthChanged OnHealthChanged;
 
 protected:
     // PDA에 등록된 UM1CharacterAbilityDataAsset의 AssetName (서브클래스 BP에서 설정)

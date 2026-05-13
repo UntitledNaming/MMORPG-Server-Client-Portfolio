@@ -23,6 +23,13 @@ bool  AM1OtherPlayer::GetMoveFlag()
 	return bMoving;
 }
 
+void  AM1OtherPlayer::SetHP(int32 NewHP)
+{
+    Super::SetHP(NewHP);
+
+    SetOverheadHP(NewHP, MaxHP);
+}
+
 void AM1OtherPlayer::BeginPlay()
 {
     Super::BeginPlay();
@@ -65,7 +72,7 @@ void AM1OtherPlayer::UpdateMoveDirection()
                      FVector::DotProduct(Fwd,   DirNorm)));
 }
 
-void AM1OtherPlayer::OnReceiveAttackStart(float FacingYaw)
+void AM1OtherPlayer::OnReceiveAttackSwing(float FacingYaw, uint8 SwingIdx)
 {
     bIsAttacking = true;
     SetActorRotation(FRotator(0.f, FacingYaw, 0.f));

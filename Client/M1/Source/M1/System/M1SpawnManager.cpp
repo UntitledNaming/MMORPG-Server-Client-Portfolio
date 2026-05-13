@@ -66,7 +66,6 @@ void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
     if (World == nullptr)
         return;
 
-
     // 어쨌든 생성하겠다는 의미. 겹치면 위치 조정해서
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride =
@@ -79,6 +78,7 @@ void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
         return;
 
     // 플레이어 생성하면 플래그 키고 플레이어 초기화 후 PlayerMap에 넣기
+    MyID = Data.EntityID;
     Data.CurrentEXP = 50.f;
     Data.RequiredEXP = 100.f;
     Data.Level = 1;
@@ -200,13 +200,13 @@ void AM1SpawnManager::UpdateOtherPlayerMovementInput(uint64 EntityID, FMovementS
     (*Found)->OnReceiveMovementPacket(Snapshot);
 }
 
-void AM1SpawnManager::OnOtherPlayerAttackStart(uint64 EntityID, float FacingYaw)
+void AM1SpawnManager::OnOtherPlayerAttackSwing(uint64 EntityID, float FacingYaw, uint8 SwingIdx)
 {
     AM1OtherPlayer** Found = PlayerMap.Find(EntityID);
     if (Found == nullptr || *Found == nullptr)
         return;
 
-    (*Found)->OnReceiveAttackStart(FacingYaw);
+    (*Found)->OnReceiveAttackSwing(FacingYaw, SwingIdx);
 }
 
 void AM1SpawnManager::OnOtherPlayerAttackStop(uint64 EntityID)
@@ -296,16 +296,21 @@ void AM1SpawnManager::ProcessClientAttackHit(FVector Origin, FVector Forward, fl
     }
 }
 
-void AM1SpawnManager::ApplyHitResult(uint64 EntityID, int32 NewHP)
+void AM1SpawnManager::ApplyPlayerHitResult(uint64 EntityID, int32 NewHP)
 {
     if (AM1Character* Character = FindPlayer(EntityID))
     {
         Character->SetHP(NewHP);
         return;
     }
+}
+
+void AM1SpawnManager::ApplyMonsterHitResult(uint64 EntityID, int32 NewHP)
+{
     if (AM1Character* Monster = FindMonster(EntityID))
     {
         Monster->SetHP(NewHP);
+        return;
     }
 }
 
