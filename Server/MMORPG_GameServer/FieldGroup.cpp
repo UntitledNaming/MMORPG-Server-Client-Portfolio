@@ -222,7 +222,7 @@ void FieldGroup::SendPacket_SectorOne(CMessage* pMessage, uint16 xpos, uint16 yp
 
 }
 
-void FieldGroup::SendPacket_SectorAround(CMessage* pMessage, CUser* pUser)
+void FieldGroup::SendPacket_SectorAround(CMessage* pMessage, CUser* pUser, bool userSend)
 {
 	uint32 secX = pUser->m_sectorXpos;
 	uint32 secY = pUser->m_sectorYpos;
@@ -232,6 +232,12 @@ void FieldGroup::SendPacket_SectorAround(CMessage* pMessage, CUser* pUser)
 
 	for (int i = 0; i < around.m_count; i++)
 	{
+		if (userSend)
+		{
+			SendPacket_SectorOne(pMessage, around.m_Around[i].m_xpos, around.m_Around[i].m_ypos, nullptr);
+			continue;
+		}
+
 		SendPacket_SectorOne(pMessage, around.m_Around[i].m_xpos, around.m_Around[i].m_ypos, pUser);
 	}
 }
@@ -293,13 +299,24 @@ void FieldGroup::CalSectorTransitionMessageTargets(uint16 oldSecXpos, uint16 old
 	outCreateSector.m_count = createcount;
 }
 
+bool FieldGroup::IsAlreadyPushed(const SecPos* arr, int count, uint16 sx, uint16 sy)
+{
+	for (int i = 0; i < count; ++i)
+	{
+		if (arr[i].m_secXpos == sx && arr[i].m_secYpos == sy)
+			return true;
+	}
+	
+	return false;
+}
+
 uint64 FieldGroup::GetServerTimeMs()
 {
 	auto now = std::chrono::system_clock::now();
 	return std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
 }
 
-void FieldGroup::CollectHitTarget(EAbilitySlot skillSlot, float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster, uint32& outHitPlayerCount, uint32& outHitMonsterCount)
+void FieldGroup::CollectHitTarget(EAbilitySlot skillSlot, float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster, uint8& outHitPlayerCount, uint8& outHitMonsterCount)
 {
 	switch (skillSlot)
 	{
@@ -309,14 +326,101 @@ void FieldGroup::CollectHitTarget(EAbilitySlot skillSlot, float attackYaw, CUser
 	}
 }
 
-void FieldGroup::CalDamage(uint16 atk, uint16 def, uint16 curHP, uint16& outNewHP)
+void FieldGroup::CollectHitTaget_LeftAttack(float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster, uint8& outHitPlayerCount, uint8& outHitMonsterCount)
 {
+	// 공격 방향으로 캐릭터 위치에서 직사각형 그려서 공격범위에 들어오는 섹터 좌표 찾기
+	int minSX = (int)floorf(attacker->m_xpos - ClientAttack::LEFTATTACK_RANGE / SECTOR_SIZE);
+	int maxSX = (int)floorf(attacker->m_xpos + ClientAttack::LEFTATTACK_RANGE / SECTOR_SIZE);
+	int minSY = (int)floorf(attacker->m_ypos - ClientAttack::LEFTATTACK_RANGE / SECTOR_SIZE);
+	int maxSY = (int)floorf(attacker->m_ypos + ClientAttack::LEFTATTACK_RANGE / SECTOR_SIZE);
+
+	minSX = max(0, minSX);
+	minSY = max(0, minSY);
+	maxSX = min(SECTOR_X_MAX - 1, maxSX);
+	maxSY = min(SECTOR_Y_MAX - 1, maxSY);
+
+	// 해당 섹터들 순회하면서 공격 범위 안에 있는지 체크
+	uint8 hitplayerCount = 0;
+	uint8 hitmonsterCount = 0;
+	for (uint16 sy = minSY; sy <= maxSY; sy++)
+	{
+		for (uint16 sx = minSX; sx <= maxSX; sx++)
+		{
+			int count = m_sectors[sy][sx].m_userArray.m_userCount;
+			for (int i = 0; i < count; i++)
+			{
+				CUser* targetPlayer = m_sectors[sy][sx].m_userArray.m_userTable[i];
+
+				if (IsInAttackCone(Vec2{attacker->m_xpos, attacker->m_ypos},attackYaw,ClientAttack::LEFTATTACK_RANGE, ClientAttack::LEFATTACK_HALF_ANGLE, 
+					Vec2{ targetPlayer->m_xpos,targetPlayer->m_ypos }))
+				{
+					outHitPlayer[hitplayerCount++] = targetPlayer;
+				}
+
+				// todo : 몬스터
+			}
+		}
+	}
+
+	outHitPlayerCount = hitplayerCount;
+	outHitMonsterCount = hitmonsterCount;
 
 }
 
-void FieldGroup::CollectHitTaget_LeftAttack(float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster, uint32& outHitPlayerCount, uint32& outHitMonsterCount)
+bool FieldGroup::IsInAttackCone(const Vec2& attackPos, float attackYaw, float range, float attackHalfAngle, const Vec2& targetPos)
 {
-	
+	float dx = targetPos.m_xpos - attackPos.m_xpos;
+	float dy = targetPos.m_ypos - attackPos.m_ypos;
+
+	float distSq = dx * dx + dy * dy; // 거리 제곱
+	float rangeSq = range * range;    // 사거리 제곱
+
+	// 사거리 밖이면 false
+	if (distSq > rangeSq)
+		return false;
+
+	// 공격자와 거리가 매우 가까우면 방향상관없이 맞는 처리
+	if (distSq <= 0.0001f)
+		return false;
+
+	Vec2 forward;
+	forward.m_xpos = cosf(DegreeToRadian(attackYaw));
+	forward.m_ypos = sinf(DegreeToRadian(attackYaw));
+
+	// 공격 방향 단위 벡터와 내 위치에서 타겟 방향으로의 위치벡터의 내적
+	// 다른 말로 내 위치에서 타겟 방향으로의 벡터를 공격 방향 단위 벡터 위로 투영시킨값
+	// forwrad . toTarget = |forward| * |toTarget| * cosTheta;
+	float dot = dx * forward.m_xpos + dy * forward.m_ypos;
+
+	if (dot <= 0.f)
+		return false;
+
+	// forward는 단위 벡터임.
+	// dot = |toTarget| * cosTheta;
+	// cosTheta = dot / | toTarget|
+	// cosTheta는 공격 방향 벡터와 공격자 위치에서 타겟방향으로의 벡터의 사잇각임.
+	// 이 각도가 설정한 값 아래여야 함.
+	// 사잇각 <= HalfAngle을 만족하려면 cos값을 취하면 cos(사잇각) >= cos(HalfAngle)임
+	// cosTheta = dot / sqrt(distSq)
+	// 지금 cosTheta >= cosHalfAngle을 만족해야 범위 안임.
+	// dot / sqrt(distSq) >= cosHalfAngle 인데 양변 제곱하면
+	// dot * dot / distSq >= cosHalfAngle * cosHalfAngle
+	// dot * dot >= distSq * cosHalfAngle * cosHalfAngle
+	float halfAngleRad = DegreeToRadian(attackHalfAngle);
+	float cosHalfAngle = cosf(halfAngleRad);
+
+	return dot * dot >= distSq * cosHalfAngle * cosHalfAngle;
+}
+
+uint16 FieldGroup::CalDamage(uint16 atk, uint16 def)
+{
+	constexpr int DEFENSE_SCALE = 100;
+
+	int damage = atk * DEFENSE_SCALE / (DEFENSE_SCALE * def);
+	if (damage < 1)
+		return 1;
+
+	return damage;
 }
 
 void FieldGroup::mpCreateMyCharacter(CUser* pUser, CMessage* pMessage)
@@ -343,8 +447,6 @@ void FieldGroup::mpCreateOtherCharacter(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_maxHP;
 	*pMessage << pUser->m_mp;
 	*pMessage << pUser->m_maxMP;
-	*pMessage << (uint8)pUser->m_action;
-	*pMessage << (uint8)pUser->m_moveMode;
 	*pMessage << pUser->m_moveFlag;
 }
 
@@ -390,18 +492,36 @@ void FieldGroup::mpRTTEchoMessage(CMessage* pMessage)
 	*pMessage << GetServerTimeMs();
 }
 
-void FieldGroup::mpLeftAttackSwing(CUser* pUser, CMessage* pMessage, uint8 swingIndex, float attackyaw)
+void FieldGroup::mpLeftAttackSwing(CUser* pUser, CMessage* pMessage,float attackyaw)
 {
 	*pMessage << FieldProtocol::PACKET_SC_SWING_LEFT_ATTACK;
 	*pMessage << pUser->m_sessionID;
 	*pMessage << attackyaw;
-	*pMessage << swingIndex;
+	*pMessage << pUser->m_swingInfo.m_lastSwingIdx;
 }
 
 void FieldGroup::mpLeftAttackStop(CUser* pUser, CMessage* pMessage)
 {
 	*pMessage << FieldProtocol::PACKET_SC_STOP_LEFT_ATTACK;
 	*pMessage << pUser->m_sessionID;
+}
+
+void FieldGroup::mpTargetHit(uint8 hitPlayerCount, uint8 hitMonsterCount, std::vector<CUser*>& hitPlayerArray, std::vector<CMonster*>& hitMonsterArray, CMessage* pMessage)
+{
+	*pMessage << PACKET_SC_ATTACK_HIT_RESULT;
+	*pMessage << hitPlayerCount;
+	*pMessage << hitMonsterCount;
+
+	for (int i = 0; i < hitPlayerCount; i++)
+	{
+		*pMessage << hitPlayerArray[i]->m_sessionID;
+		*pMessage << hitPlayerArray[i]->m_hp;
+	}
+
+	for (int i = 0; i < hitMonsterCount; i++)
+	{
+		// todo : 몬스터 넣기
+	}
 }
 
 void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMessage)
@@ -529,20 +649,103 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 	*pMessage >> attackyaw;
 	*pMessage >> swingindex;
 
+	// 정상 범위 벗어나면 연결 끊기
+	if (swingindex <= 0 || swingindex >= 5 )
+	{
+		Disconnect(sessionID);
+		return;
+	}
+
 	CUser* pUser = nullptr;
 
 	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
 	if (it == m_userLookUpTable.end())
 		__debugbreak();
 
+	pUser = it->second;
+
+	bool dis = false;
+
+	// 스윙 패킷이 처음 왔거나 4번째 패킷 보내고 다시 몽타주 재생하여 첫번째 스윙 패킷을 보낸 경우 
+	if (pUser->m_swingInfo.m_lastSwingIdx == 0 || pUser->m_swingInfo.m_lastSwingIdx == 4)
+	{
+		pUser->m_swingInfo.m_lastSwingIdx = 1;
+	}
+
+	// 그게 아니면 기존 index 증가
+	else
+	{
+		pUser->m_swingInfo.m_lastSwingIdx++;
+	}
+
+	// 유저 swingindex랑 패킷으로 받은 swingindex가 다르면 연결 끊기
+	if (pUser->m_swingInfo.m_lastSwingIdx != swingindex)
+	{
+		Disconnect(sessionID);
+		return;
+	}
+
+	// 이전 swing 받은 시간과 다음 swing 받은 시간이 600ms 아래면 비정상 유저로 간주
+	uint32 curTime = timeGetTime();
+	if (curTime - pUser->m_swingInfo.m_lastSwingRecvTime <= ClientAttack::LEFTATTACK_SWING_INTERVAL)
+	{
+		Disconnect(sessionID);
+		return;
+	}
+
+	pUser->m_swingInfo.m_lastSwingRecvTime = curTime;
+
 	// 공격자의 위치, 공격 타입을 매개인자로 전달하여 피격자들 찾기
 	std::vector<CUser*> targetHitPlayer;
 	std::vector<CMonster*> targetHitMonster;
-	uint32 hitplayerCount = 0;
-	uint32 hitmonsterCount = 0;
+	targetHitPlayer.resize(ClientAttack::LEFTATTACK_MAX_HIT_COUNT);
+	targetHitMonster.resize(ClientAttack::LEFTATTACK_MAX_HIT_COUNT);
+
+	uint8 hitplayerCount = 0;
+	uint8 hitmonsterCount = 0;
 	CollectHitTarget(EAbilitySlot::LeftAttack, attackyaw, pUser, targetHitPlayer, targetHitMonster, hitplayerCount, hitmonsterCount);
 
+	// 데미지 계산 및 hp 수정
+	for (int i = 0; i < hitplayerCount; i++)
+	{
+		targetHitPlayer[i]->m_hp -=CalDamage(pUser->m_atk, targetHitPlayer[i]->m_def);
+		if (targetHitPlayer[i]->m_hp <= 0)
+			targetHitPlayer[i]->m_hp = 0;
 
+	}
+
+	// 공격자 swing 메세지 뿌리기 
+	CMessage* pSwingMsg = CMessage::Alloc();
+	pSwingMsg->Clear(1);
+	mpLeftAttackSwing(pUser, pSwingMsg, attackyaw);
+
+	SendPacket_SectorAround(pSwingMsg, pUser);
+	CMessage::Free(pSwingMsg);
+
+
+	// 피격자 피격 메세지 뿌리기
+	CMessage* pHitMsg = CMessage::Alloc();
+	pHitMsg->Clear(1);
+	mpTargetHit(hitplayerCount, hitmonsterCount, targetHitPlayer, targetHitMonster, pHitMsg);
+
+	SecPos sendflagArray[5];
+	int pushCount = 0;
+
+
+	for (int i = 0; i < hitplayerCount; i++)
+	{
+		uint16 secX = targetHitPlayer[i]->m_sectorXpos;
+		uint16 secY = targetHitPlayer[i]->m_sectorYpos;
+
+		// 이미 메세지 넣은 섹터 좌표면 pass
+		if (IsAlreadyPushed(sendflagArray, pushCount, secX, secY))
+			continue;
+
+		SendPacket_SectorAround(pHitMsg, targetHitPlayer[i]);
+		sendflagArray[pushCount++] = SecPos{ secX , secY };
+	}
+
+	CMessage::Free(pHitMsg);
 }
 
 void FieldGroup::HandleLeftAttackStop(uint64 sessionID, CMessage* pMessage)
@@ -556,6 +759,18 @@ void FieldGroup::HandleLeftAttackStop(uint64 sessionID, CMessage* pMessage)
 	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
 	if (it == m_userLookUpTable.end())
 		__debugbreak();
+
+	pUser = it->second;
+
+	pUser->m_swingInfo.m_lastSwingIdx = 0;
+
+	// 공격자 스윙 정지 메세지 뿌리기
+	CMessage* pSwingStop = CMessage::Alloc();
+	pSwingStop->Clear(1);
+	mpLeftAttackStop(pUser, pSwingStop);
+
+	SendPacket_SectorAround(pSwingStop, pUser);
+	CMessage::Free(pSwingStop);
 }
 
 void FieldGroup::MovementProc()

@@ -34,8 +34,6 @@ public:
 	uint16              m_sectorYpos;                    // 캐릭터 섹터 Y좌표
 	uint16              m_arrayIdx;                      // 특정 섹터에 있는 배열의 몇번째 index에 있는지에 대한 정보
 	uint16              m_syncCount;                     // 특정 시간동안 싱크 발생한 횟수
-	EM1ActionStateType  m_action;                        // 캐릭터가 현재 하는 행동
-	EM1MoveMode         m_moveMode;                      // 캐릭터 이동 타입(Walk, Run), Shift 누르면 Run
 	float               m_movementYaw;                   // 캐릭터 이동 방향, 이동 처리시 사용
 	float               m_maxWalkSpeed;                  // 캐릭터 최대 이동 속도(이벤트 발생시 변화 값)
 	float               m_moveSpeed;                     // 캐릭터 이동 속도(고정 프레임 방식이라 프레임 당 이동량)

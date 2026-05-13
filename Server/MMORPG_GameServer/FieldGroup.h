@@ -2,6 +2,7 @@
 #include "ContentsDefine.h"
 #include "ContentsType.h"
 #include "ContentsEnum.h"
+#include "ContentsStruct.h"
 
 class CUser;
 class CMonster;
@@ -58,8 +59,10 @@ public:
 	bool SectorRangeCheck(uint16 xpos, uint16 ypos);
 	void SectorFind(SectorAround& pAround, uint16 xpos, uint16 ypos);
 	void SendPacket_SectorOne(CMessage* pMessage, uint16 xpos, uint16 ypos, CUser* pUser);     // 해당 섹터에 있는 유저들에게 메세지 보내기
-	void SendPacket_SectorAround(CMessage* pMessage, CUser* pUser);                        // 해당 섹터에 있는 유저들에게 메세지 보내기
+	void SendPacket_SectorAround(CMessage* pMessage, CUser* pUser, bool userSend = false);     // 해당 섹터에 있는 유저들에게 메세지 보내기
 	void CalSectorTransitionMessageTargets(uint16 oldSecXpos, uint16 oldSecYpos, uint16 newSecXpos, uint16 newSecYpos, SectorAround& outDeleteSector, SectorAround& outCreateSector);
+	bool IsAlreadyPushed(const SecPos* arr, int count, uint16 sx, uint16 sy);
+
 
 	///////////////////////////////////
     // Degree 변환 함수              //
@@ -77,9 +80,10 @@ public:
 	///////////////////////////////////
     // 공격 관련 함수                //
     ///////////////////////////////////
-	void CollectHitTarget(EAbilitySlot skillSlot, float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster,uint32& outHitPlayerCount, uint32& outHitMonsterCount);
-	void CalDamage(uint16 atk, uint16 def, uint16 curHP, uint16& outNewHP);
-	void CollectHitTaget_LeftAttack(float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster, uint32& outHitPlayerCount, uint32& outHitMonsterCount);
+	void   CollectHitTarget(EAbilitySlot skillSlot, float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster, uint8& outHitPlayerCount, uint8& outHitMonsterCount);
+	void   CollectHitTaget_LeftAttack(float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster, uint8& outHitPlayerCount, uint8& outHitMonsterCount);
+	bool   IsInAttackCone(const Vec2& attackPos, float attackYaw, float range, float attackHalfAngle, const Vec2& targetPos);
+	uint16 CalDamage(uint16 atk, uint16 def);
 
 	///////////////////////////////////
     // 컨텐츠 메세지 생성 함수       //
@@ -91,8 +95,9 @@ public:
 	void mpSyncMyCharacterPosition(CUser* pUser, CMessage* pMessage);
 	void mpSyncOtherCharacterPosition(CUser* pUser, CMessage* pMessage);
 	void mpRTTEchoMessage(CMessage* pMessage);
-	void mpLeftAttackSwing(CUser* pUser, CMessage* pMessage, uint8 swingIndex, float attackyaw);
+	void mpLeftAttackSwing(CUser* pUser, CMessage* pMessage, float attackyaw);
 	void mpLeftAttackStop(CUser* pUser, CMessage* pMessage);
+	void mpTargetHit(uint8 hitPlayerCount, uint8 hitMonsterCount,std::vector<CUser*>& hitPlayerArray, std::vector<CMonster*>& hitMonsterArray, CMessage* pMessage);
 
 	///////////////////////////////////
     // 클라이언트 메세지 처리 핸들러 //

@@ -45,3 +45,16 @@ struct st_SwingInfo
 	uint8  m_lastSwingIdx;
 	uint32 m_lastSwingRecvTime;
 }typedef SwingInfo;
+
+
+struct st_Vector2
+{
+	float m_xpos;
+	float m_ypos;
+}typedef Vec2;
+
+struct st_SecPos
+{
+	uint16 m_secXpos;
+	uint16 m_secYpos;
+}typedef SecPos;

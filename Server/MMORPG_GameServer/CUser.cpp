@@ -27,7 +27,7 @@ void CUser::Init(uint64 sessionID)
 	m_isFalling = false;
 	m_moveFlag = false;
 	m_atk = 5;
-	m_def = 10;
+	m_def = 1;
 	m_hp = 50;
 	m_maxHP = 100;
 	m_mp = 50;
@@ -35,8 +35,6 @@ void CUser::Init(uint64 sessionID)
 	m_sectorXpos = (m_xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE;
 	m_sectorYpos = (m_ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE;
 	m_syncCount = 0;
-	m_action = EM1ActionStateType::None;
-	m_moveMode = EM1MoveMode::Walk;
 	m_movementYaw = 0.0f;
 	m_maxWalkSpeed = WALK_SPEED;
 	m_moveSpeed = m_maxWalkSpeed / FieldConst::UPDATE_FRAME;

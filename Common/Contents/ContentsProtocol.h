@@ -38,6 +38,7 @@ namespace FieldProtocol
     //---------------------------------------------------------------
     //  My Character Create Msg					Server -> Client
     //
+    //  8   -   CharacterID     (uint64) // Use for Hit Result Protocol
     //	4	-	Xpos			(float)
     //	4	-	Ypos			(float)
     //	4	-	Zpos			(float)
@@ -62,8 +63,6 @@ namespace FieldProtocol
     //  2   -   MaxHP           (uint16) 
     //  2   -   MP              (uint16) 
     //  2   -   MaxMP           (uint16) 
-    //  1   -   Action          (uint8)  
-    //  1   -   MoveMode        (uint8)  
     //  1   -   MoveFlag        (bool)
     //
     //---------------------------------------------------------------
