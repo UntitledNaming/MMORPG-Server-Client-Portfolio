@@ -20,8 +20,6 @@ struct FM1SpawnData
 
     FRotator Rotation = FRotator::ZeroRotator;
 
-    uint8    MoveMode = 0; 
-
     int32    HP = 0;
 
     int32    MaxHP = 0;
@@ -36,9 +34,7 @@ struct FM1SpawnData
 
     float    RequiredEXP = 100.f;
 
-    EM1ActionStateType ActionType = EM1ActionStateType::None;
-
-    bool MoveFlag = false;
+    bool     MoveFlag = false;
 };
 
 

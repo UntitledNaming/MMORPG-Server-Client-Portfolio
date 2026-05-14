@@ -466,7 +466,6 @@ void CLanClient::RecvIOProc(DWORD cbTransferred)
 
 		if (cbTransferred == 0)
 		{
-			m_pSession->s_DCFlag = 1;
 			break;
 		}
 

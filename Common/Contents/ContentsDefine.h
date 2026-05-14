@@ -36,7 +36,7 @@ namespace ClientMovement
 {
 	constexpr float MOVEMENT_SEND_INTERNAL_SEC      = 0.1f;
 	constexpr float MOVEMENT_YAW_SEND_THRESHOLD_DEG = 5.0f;
-	constexpr float REMOTE_PLAYER_POS_SNAP_DIST_CM = 150.0f;
+	constexpr float REMOTE_PLAYER_POS_SNAP_DIST_CM = 200.0f;
 	constexpr float SOFT_CORRECTION_STOP_DIST_CM = 5.0f;
 }
 
@@ -49,7 +49,7 @@ namespace SnapShotProc
 namespace ClientAttack
 {
 	constexpr float  LEFATTACK_HALF_ANGLE = 60.0f;
-	constexpr float  LEFTATTACK_RANGE = 150.0f;
+	constexpr float  LEFTATTACK_RANGE = 250.0f;
 	constexpr uint32 LEFTATTACK_MAX_HIT_COUNT = 8;
 	constexpr uint32 LEFTATTACK_SWING_INTERVAL = 600;
 }

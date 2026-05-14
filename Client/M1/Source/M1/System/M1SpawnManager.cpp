@@ -89,18 +89,7 @@ void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
 
     // 컨트롤러 가져와서 이 캐릭터에 Possess함. 컨트롤러가 지금 생성한 캐릭터 컨트롤 할 수 있게 함.
     // 이 액터를 소유한 로컬 플레이어 찾기
-    APlayerController* LocalPC = nullptr;
-    for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It)
-    {
-        APlayerController* TestPC = It->Get();
-        if (TestPC && TestPC->IsLocalController())
-        {
-            LocalPC = TestPC;
-            break;
-        }
-    }
-
-    AM1PlayerController* PC = Cast<AM1PlayerController>(LocalPC);
+    AM1PlayerController* PC = Cast< AM1PlayerController>(UGameplayStatics::GetPlayerController(World, 0));
     if (PC)
     {
         PC->SetCachedPlayer(NewPlayer);

@@ -53,7 +53,6 @@ void M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER(CMessage* pMessage, UM1Netwo
 	Data.EntityID = id;
 	Data.HP = hp;
 	Data.MP = mp;
-	Data.ActionType = EM1ActionStateType::None;
 	Data.MaxHP = maxhp;
 	Data.MaxMP = maxmp;
 	Data.Location = Location;
@@ -74,8 +73,6 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 	uint16 maxhp;
 	uint16 mp;
 	uint16 maxmp;
-	uint8 action;
-	uint8 movemode;
 
 	*pMessage >> id;
 	*pMessage >> xpos;
@@ -86,8 +83,6 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 	*pMessage >> maxhp;
 	*pMessage >> mp;
 	*pMessage >> maxmp;
-	*pMessage >> action;
-	*pMessage >> movemode;
 	*pMessage >> moveflag;
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
@@ -103,8 +98,6 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 	Data.MaxHP = maxhp;
 	Data.MP = mp;
 	Data.MaxMP = maxmp;
-	Data.ActionType = static_cast<EM1ActionStateType>(action);
-	Data.MoveMode = movemode;
 	Data.MoveFlag = moveflag;
 	SpawnManager->SpawnOtehrPlayer(Data);
 }

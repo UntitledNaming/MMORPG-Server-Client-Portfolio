@@ -12,7 +12,10 @@
 #include "EngineUtils.h"
 #include "Misc/ConfigCacheIni.h"
 #include "Misc/Paths.h"
-
+#include "GameFramework/GameUserSettings.h"
+#include "HAL/IConsoleManager.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 void UM1NetworkManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -39,6 +42,32 @@ void UM1NetworkManager::Initialize(FSubsystemCollectionBase& Collection)
 	    return;
 	}
 
+	// 백그라운드 클라 느려지는 것 방지
+	if (IConsoleVariable* CVar = IConsoleManager::Get().FindConsoleVariable(TEXT("t.IdleWhenNotForeground")))
+	{
+		CVar->Set(0, ECVF_SetByCode);
+	}
+
+	// FPS 제한
+	if (IConsoleVariable* CVar = IConsoleManager::Get().FindConsoleVariable(TEXT("t.MaxFPS")))
+	{
+		CVar->Set(60.0f, ECVF_SetByCode);
+	}
+
+	// 해상도 / 창모드 / VSync 설정
+	if (GEngine)
+	{
+		if (UGameUserSettings* Settings = GEngine->GetGameUserSettings())
+		{
+			Settings->SetFullscreenMode(EWindowMode::Windowed);
+			Settings->SetScreenResolution(FIntPoint(960, 540));
+			Settings->SetVSyncEnabled(false);
+			Settings->SetFrameRateLimit(60.0f);
+
+			Settings->ApplySettings(false);
+			Settings->SaveSettings();
+		}
+	}
 }
 
 void UM1NetworkManager::Deinitialize()
@@ -63,6 +92,24 @@ void UM1NetworkManager::Tick(float DeltaTime)
 
 	if (SpawnManager == nullptr)
 		return;
+
+	if (!ClientInstance->ConnectAlive())
+	{
+		UWorld* World = GetGameInstance()->GetWorld();
+
+		if (!World)
+			return;
+
+		APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
+
+		UKismetSystemLibrary::QuitGame(
+			World,
+			PC,
+			EQuitPreference::Quit,
+			false
+		);
+	}
+
 
 	CMessage* pMessage = nullptr;
 

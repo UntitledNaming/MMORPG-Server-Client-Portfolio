@@ -20,11 +20,9 @@ void AM1BasePlayer::ApplySpawnData(const FM1SpawnData& Data)
 
 	MP = Data.MP;
 	MaxMP = Data.MaxMP;
-	MoveMode = Data.MoveMode;
 	CurrentExp = Data.CurrentEXP;
 	RequiredExp = Data.RequiredEXP;
 	Level = Data.Level;
-	ActionType = static_cast<uint8>(Data.ActionType);
 	bMoving = Data.MoveFlag;
 }
 
