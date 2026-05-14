@@ -426,6 +426,7 @@ uint16 FieldGroup::CalDamage(uint16 atk, uint16 def)
 void FieldGroup::mpCreateMyCharacter(CUser* pUser, CMessage* pMessage)
 {
 	*pMessage << PACKET_SC_CREATE_MY_CHARACTER;
+	*pMessage << pUser->m_sessionID;
 	*pMessage << pUser->m_xpos;
 	*pMessage << pUser->m_ypos;
 	*pMessage << pUser->m_zpos;

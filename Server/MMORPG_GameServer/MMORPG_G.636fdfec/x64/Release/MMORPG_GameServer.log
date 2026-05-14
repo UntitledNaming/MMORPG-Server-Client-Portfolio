@@ -36,10 +36,10 @@ C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\Fi
 C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(192,26): warning C4838: 'int'에서 'uint16'(으)로의 변환에는 축소 변환이 필요합니다.
 C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(192,29): warning C4838: 'int'에서 'uint16'(으)로의 변환에는 축소 변환이 필요합니다.
 C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(212,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(605,18): warning C4244: '초기화 중': 'float'에서 'uint16'(으)로 변환하면서 데이터가 손실될 수 있습니다.
 C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(606,18): warning C4244: '초기화 중': 'float'에서 'uint16'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(806,24): warning C4244: '초기화 중': 'float'에서 'uint16'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(607,18): warning C4244: '초기화 중': 'float'에서 'uint16'(으)로 변환하면서 데이터가 손실될 수 있습니다.
 C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(807,24): warning C4244: '초기화 중': 'float'에서 'uint16'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\FieldGroup.cpp(808,24): warning C4244: '초기화 중': 'float'에서 'uint16'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   GameServer.cpp
 C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Common\Contents\ContentsEnum.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
   (소스 파일 'GameServer.cpp'을(를) 컴파일하는 중)
@@ -69,8 +69,8 @@ C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Common\Contents\ContentsEnu
   (소스 파일 'MMORPG_GameServer.cpp'을(를) 컴파일하는 중)
   
   코드를 생성하고 있습니다.
-  2 of 1352 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
-    1 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+  19 of 1352 functions ( 1.4%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    15 functions had inline decision re-evaluated but remain unchanged
   코드를 생성했습니다.
   MMORPG_GameServer.vcxproj -> C:\Users\sdj53\Documents\GitHub\MMO-Server-Portfolio\Server\MMORPG_GameServer\x64\Release\MMORPG_GameServer.exe
