@@ -29,7 +29,9 @@ public:
 	void OnReceiveAttackStop();
 
 	virtual void UpdateMoveDirection() override;
-
+	FName GetLeftAttackSectionName(uint8 SwingIndex) const;
+	void PlayLeftAttackSectionOnly(uint8 SwingIndex);
+	
 private:
 	void UpdateInterpolation(float DeltaTime);
 	void UpdateStopCorrection(float DeltaTime);
@@ -48,4 +50,7 @@ private:
 	uint64   LastRenderTimeMs    = 0;
 
 	FVector  PrevLocation        = FVector::ZeroVector;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	TObjectPtr<class UAnimMontage> LeftAttackMontage;
 };

@@ -2,7 +2,7 @@
 
 
 #include "Animation/M1SwingHit_AnimNotify.h"
-#include "Character\M1Character.h"
+#include "Character\M1LocalPlayer.h"
 #include "Controller\M1PlayerController.h"
 #include "System\M1SpawnManager.h"
 #include "Network\M1NetworkManager.h"
@@ -11,7 +11,7 @@
 
 void UM1SwingHit_AnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
-    AM1Character* Character = Cast<AM1Character>(MeshComp->GetOwner());
+    AM1LocalPlayer* Character = Cast<AM1LocalPlayer>(MeshComp->GetOwner());
     if (!Character) return;
 
     UGameInstance* GI = Character->GetGameInstance();

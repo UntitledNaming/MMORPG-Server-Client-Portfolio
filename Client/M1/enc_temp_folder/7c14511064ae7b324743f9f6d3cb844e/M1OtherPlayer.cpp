@@ -76,11 +76,7 @@ void AM1OtherPlayer::OnReceiveAttackSwing(float FacingYaw, uint8 SwingIdx)
 {
     bIsAttacking = true;
     SetActorRotation(FRotator(0.f, FacingYaw, 0.f));
-
-    if (GetMoveFlag())
-    {
-        SetUseUpperBodyWhenMovingFlag(true);
-    }
+    SetUseUpperBodyWhenMovingFlag(true);
 }
 
 void AM1OtherPlayer::OnReceiveAttackStop()
@@ -252,20 +248,9 @@ void AM1OtherPlayer::UpdateStopCorrection(float DeltaTime)
     FVector Next = FMath::VInterpTo(Current, StopTargetLocation, DeltaTime, SnapShotProc::CORRECTION_INTERP_SPEED);
 
     // 방향도 현재 캐릭터 방향과 정지 스냅샷의 이동방향을 보간해서 서서히 정지 스냅샷의 방향으로 시선 이동하게 함.
-    float CurrentYaw;
-    float DeltaYaw;
-    float InterpYaw;
-    
-    if (bIsAttacking)
-    {
-        InterpYaw = GetActorRotation().Yaw;
-    }
-    else
-    {
-        CurrentYaw = GetActorRotation().Yaw;
-        DeltaYaw = FMath::FindDeltaAngleDegrees(CurrentYaw, StopTargetYaw);
-        InterpYaw = CurrentYaw + DeltaYaw * DeltaTime * SnapShotProc::CORRECTION_INTERP_SPEED;
-    }
+    float CurrentYaw = GetActorRotation().Yaw;
+    float DeltaYaw = FMath::FindDeltaAngleDegrees(CurrentYaw, StopTargetYaw);
+    float InterpYaw = CurrentYaw + DeltaYaw * DeltaTime * SnapShotProc::CORRECTION_INTERP_SPEED;
 
     SetActorLocationAndRotation(Next, FRotator(0.f, InterpYaw, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
 

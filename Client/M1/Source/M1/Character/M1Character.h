@@ -43,7 +43,6 @@ public:
     virtual void  ApplySpawnData(const FM1SpawnData& Data);
     virtual float GetMoveSpeed() { return 0.f; }
     virtual bool  GetMoveFlag() { return false; }
-
     virtual void SetHP(int32 NewHP);
 
     // 피격 방향 각도로 피격 리액션 트리거 (0=정면, ±90=측면, ±180=후면)
