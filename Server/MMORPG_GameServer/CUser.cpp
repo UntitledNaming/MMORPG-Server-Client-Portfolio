@@ -28,7 +28,7 @@ void CUser::Init(uint64 sessionID)
 	m_moveFlag = false;
 	m_atk = 5;
 	m_def = 1;
-	m_hp = 50;
+	m_hp = 100;
 	m_maxHP = 100;
 	m_mp = 50;
 	m_maxMP = 100;

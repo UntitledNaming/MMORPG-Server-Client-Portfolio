@@ -329,10 +329,10 @@ void FieldGroup::CollectHitTarget(EServerAbilitySlot skillSlot, float attackYaw,
 void FieldGroup::CollectHitTaget_LeftAttack(float attackYaw, CUser* attacker, std::vector<CUser*>& outHitPlayer, std::vector<CMonster*>& outHitMonster, uint8& outHitPlayerCount, uint8& outHitMonsterCount)
 {
 	// 공격 방향으로 캐릭터 위치에서 직사각형 그려서 공격범위에 들어오는 섹터 좌표 찾기
-	int minSX = (int)floorf(attacker->m_xpos - ClientAttack::LEFTATTACK_RANGE / SECTOR_SIZE);
-	int maxSX = (int)floorf(attacker->m_xpos + ClientAttack::LEFTATTACK_RANGE / SECTOR_SIZE);
-	int minSY = (int)floorf(attacker->m_ypos - ClientAttack::LEFTATTACK_RANGE / SECTOR_SIZE);
-	int maxSY = (int)floorf(attacker->m_ypos + ClientAttack::LEFTATTACK_RANGE / SECTOR_SIZE);
+	int minSX = (int)((attacker->m_xpos - ClientAttack::LEFTATTACK_RANGE  - FieldConst::MAP_WORLD_OFFSET_X) / SECTOR_SIZE);
+	int maxSX = (int)((attacker->m_xpos + ClientAttack::LEFTATTACK_RANGE  - FieldConst::MAP_WORLD_OFFSET_X) / SECTOR_SIZE);
+	int minSY = (int)((attacker->m_ypos - ClientAttack::LEFTATTACK_RANGE  - FieldConst::MAP_WORLD_OFFSET_Y) / SECTOR_SIZE);
+	int maxSY = (int)((attacker->m_ypos + ClientAttack::LEFTATTACK_RANGE  - FieldConst::MAP_WORLD_OFFSET_Y) / SECTOR_SIZE);
 
 	minSX = max(0, minSX);
 	minSY = max(0, minSY);
@@ -350,6 +350,9 @@ void FieldGroup::CollectHitTaget_LeftAttack(float attackYaw, CUser* attacker, st
 			for (int i = 0; i < count; i++)
 			{
 				CUser* targetPlayer = m_sectors[sy][sx].m_userArray.m_userTable[i];
+
+				if (targetPlayer == attacker)
+					continue;
 
 				if (IsInAttackCone(Vec2{attacker->m_xpos, attacker->m_ypos},attackYaw,ClientAttack::LEFTATTACK_RANGE, ClientAttack::LEFATTACK_HALF_ANGLE, 
 					Vec2{ targetPlayer->m_xpos,targetPlayer->m_ypos }))
@@ -687,8 +690,10 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 	}
 
 	// 이전 swing 받은 시간과 다음 swing 받은 시간이 600ms 아래면 비정상 유저로 간주
+	// 다만 2번째 애니 시작과 동시에 서버로 패킷 보내고 바로 공격 정지하고 다시 공격하면 Interval이 짧아질 수 있음.
+	// swing index가 1이면 예외로 해야 함.
 	uint32 curTime = timeGetTime();
-	if (curTime - pUser->m_swingInfo.m_lastSwingRecvTime <= ClientAttack::LEFTATTACK_SWING_INTERVAL)
+	if (curTime - pUser->m_swingInfo.m_lastSwingRecvTime <= ClientAttack::LEFTATTACK_SWING_INTERVAL && swingindex != 1)
 	{
 		Disconnect(sessionID);
 		return;
@@ -789,6 +794,7 @@ void FieldGroup::MovementProc()
 			zpos = it->second->m_zpos;
 			secxpos = it->second->m_sectorXpos;
 			secypos = it->second->m_sectorYpos;
+			hp = it->second->m_hp;
 		}
 
 

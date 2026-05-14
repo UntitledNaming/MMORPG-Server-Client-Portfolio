@@ -85,6 +85,7 @@ void GameServer::Monitoring()
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
 		wprintf(L" First User Pos       (x,y,z) : (%f, %f, %f) \n", m_pFieldGroup->xpos, m_pFieldGroup->ypos, m_pFieldGroup->zpos);
 		wprintf(L" First User SectorPos (x, y)  : (%d, %d) \n", m_pFieldGroup->secxpos, m_pFieldGroup->secypos);
+		wprintf(L" First User HP                : (%d) \n", m_pFieldGroup->hp);
 		wprintf(L" User Count  : %d \n", m_pFieldGroup->UserCount());
 		wprintf(L" Sync Count  : %d \n", m_pFieldGroup->syncCount);
 		wprintf(L" Field Frame : %lld \n", m_pFieldGroup->fieldframe);

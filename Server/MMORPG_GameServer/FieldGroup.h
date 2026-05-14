@@ -125,5 +125,6 @@ public:
 	uint16 secypos = 0;
 	uint64 fieldframe = 0;
 	uint64 syncCount = 0;
+	uint16 hp = 100;
 };
 
