@@ -20,6 +20,7 @@ void AM1BasePlayer::ApplySpawnData(const FM1SpawnData& Data)
 
 	MP = Data.MP;
 	MaxMP = Data.MaxMP;
+	MPRegenPerSec = Data.MPRegenPerSec;
 	CurrentExp = Data.CurrentEXP;
 	RequiredExp = Data.RequiredEXP;
 	Level = Data.Level;

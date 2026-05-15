@@ -20,15 +20,17 @@ struct FM1SpawnData
 
     FRotator Rotation = FRotator::ZeroRotator;
 
-    int32    HP = 0;
+    uint16    HP = 0;
 
-    int32    MaxHP = 0;
+    uint16    MaxHP = 0;
 
-    int32    MP = 0;
+    uint16    MP = 0;
 
-    int32    MaxMP = 0;
+    uint16    MaxMP = 0;
 
-    int32    Level = 1;
+    uint16    Level = 1;
+
+    uint16   MPRegenPerSec = 0;
 
     float    CurrentEXP = 0.f;
 

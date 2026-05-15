@@ -52,6 +52,7 @@ void AM1LocalPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	UpdateMoveDirection();
+	TickManaRegen(DeltaTime);
 }
 
 float AM1LocalPlayer::GetMoveSpeed()
@@ -61,4 +62,21 @@ float AM1LocalPlayer::GetMoveSpeed()
 bool AM1LocalPlayer::GetMoveFlag()
 {
 	return GetCharacterMovement()->Velocity.Size2D() > 1.f;
+}
+
+void AM1LocalPlayer::TickManaRegen(float DeltaTime)
+{
+	ManaRegenAccum += DeltaTime;
+
+	if (ManaRegenAccum < 1.f) 
+		return;
+
+	ManaRegenAccum -= 1.f;
+
+	MP += MPRegenPerSec;
+	if (MP > MaxMP)
+		MP = MaxMP;
+
+	OnManaChanged.Broadcast(MP, MaxMP);
+
 }

@@ -33,6 +33,7 @@ void M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER(CMessage* pMessage, UM1Netwo
 	uint16 mp;
 	uint16 maxhp;
 	uint16 maxmp;
+	uint16 mpregenpersec;
 	uint64 id;
 
 	*pMessage >> id;
@@ -43,6 +44,7 @@ void M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER(CMessage* pMessage, UM1Netwo
 	*pMessage >> maxhp;
 	*pMessage >> mp;
 	*pMessage >> maxmp;
+	*pMessage >> mpregenpersec;
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
 
@@ -57,6 +59,7 @@ void M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER(CMessage* pMessage, UM1Netwo
 	Data.MaxMP = maxmp;
 	Data.Location = Location;
 	Data.Rotation = Rotation;
+	Data.MPRegenPerSec = mpregenpersec;
 
 	SpawnManager->SpawnMyPlayer(Data);
 }

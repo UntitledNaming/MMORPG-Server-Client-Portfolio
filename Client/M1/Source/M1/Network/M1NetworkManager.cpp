@@ -23,6 +23,8 @@ void UM1NetworkManager::Initialize(FSubsystemCollectionBase& Collection)
 
 	LoadServerConfig();
 
+	//DisableBackgroundIdle();
+
 	// 배열 초기화
 	InitFunctorArray();
 
@@ -231,3 +233,4 @@ void UM1NetworkManager::LoadServerConfig()
 		return;
 	}
 }
+

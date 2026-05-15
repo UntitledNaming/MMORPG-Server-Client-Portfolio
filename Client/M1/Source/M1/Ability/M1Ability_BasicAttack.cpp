@@ -9,7 +9,7 @@
 
 void UM1Ability_BasicAttack::OnActivate(AM1Character* Owner)
 {
-    if (!Owner || bIsAttacking) return;
+    if (!Owner || bIsAttacking || bPendingStop) return;
     bIsAttacking = true;
     CachedOwner  = Owner;
 
@@ -23,38 +23,59 @@ void UM1Ability_BasicAttack::OnActivate(AM1Character* Owner)
 
     UAnimInstance* AnimInst = Owner->GetMesh()->GetAnimInstance();
     if (AnimInst)
+    {
+        AnimInst->OnMontageEnded.RemoveDynamic(this, &UM1Ability_BasicAttack::OnMontageEnded);
         AnimInst->OnMontageEnded.AddDynamic(this, &UM1Ability_BasicAttack::OnMontageEnded);
+    }
 }
 
 void UM1Ability_BasicAttack::OnDeactivate(AM1Character* Owner)
 {
-    if (!Owner || !bIsAttacking) return;
-    bIsAttacking = false;
-    CachedOwner  = nullptr;
+    if (!Owner || !bIsAttacking)
+        return;
 
-    Owner->SetUseUpperBodyWhenMovingFlag(false);
-
-    if (UCharacterMovementComponent* MoveComp = Owner->GetCharacterMovement())
-        MoveComp->bOrientRotationToMovement = true;
-    Owner->bUseControllerRotationYaw = false;
+    bPendingStop = true;
 
     UAnimInstance* AnimInst = Owner->GetMesh()->GetAnimInstance();
-    if (AnimInst)
+    if (AnimInst && FXData.CastMontage)
     {
-        AnimInst->OnMontageEnded.RemoveDynamic(this, &UM1Ability_BasicAttack::OnMontageEnded);
-        if (FXData.CastMontage)
-            AnimInst->Montage_Stop(0.15f, FXData.CastMontage);
+        if (FAnimMontageInstance* Inst = AnimInst->GetActiveMontageInstance())
+        {
+            FName CurSection = Inst->GetCurrentSection();
+            if (!CurSection.IsNone())
+                AnimInst->Montage_SetNextSection(CurSection, NAME_None, FXData.CastMontage);
+        }
     }
-
-    AM1PlayerController* PC = Cast<AM1PlayerController>(Owner->GetController());
-    if (PC)
-        PC->SendLeftAttackStopPacket();
 }
 
 void UM1Ability_BasicAttack::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-    if (bInterrupted || !bIsAttacking || !CachedOwner) return;
     if (Montage != FXData.CastMontage) return;
 
-    PlayCastFX(CachedOwner);
+    if (bPendingStop || bInterrupted)
+    {
+        bIsAttacking = false;
+        bPendingStop = false;
+
+        if (CachedOwner)
+        {
+            CachedOwner->SetUseUpperBodyWhenMovingFlag(false);
+            if (UCharacterMovementComponent* MoveComp = CachedOwner->GetCharacterMovement())
+                MoveComp->bOrientRotationToMovement = true;
+            CachedOwner->bUseControllerRotationYaw = false;
+
+            UAnimInstance* AnimInst = CachedOwner->GetMesh()->GetAnimInstance();
+            if (AnimInst)
+                AnimInst->OnMontageEnded.RemoveDynamic(this, &UM1Ability_BasicAttack::OnMontageEnded);
+
+            AM1PlayerController* PC = Cast<AM1PlayerController>(CachedOwner->GetController());
+            if (PC) PC->SendLeftAttackStopPacket();
+        }
+
+        CachedOwner = nullptr;
+        return;
+    }
+
+    if (bIsAttacking)
+        PlayCastFX(CachedOwner);
 }

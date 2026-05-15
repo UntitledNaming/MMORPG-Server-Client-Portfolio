@@ -20,7 +20,10 @@ public:
     UFUNCTION()
     void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
+    bool IsPendingStop() const { return bPendingStop; }
+
 private:
     bool          bIsAttacking = false;
+    bool          bPendingStop = false;
     AM1Character* CachedOwner  = nullptr;
 };

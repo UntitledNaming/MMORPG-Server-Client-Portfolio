@@ -53,12 +53,12 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere) FString NickName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")   int32   MP = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")   uint16   MP = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")   int32   MaxMP = 0;
-																	  
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")   int32   Level = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")   uint16   MaxMP = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")   uint16   MPRegenPerSec = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")   uint16   Level = 1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")   float RequiredExp = 100.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats") float CurrentExp = 0.0f;

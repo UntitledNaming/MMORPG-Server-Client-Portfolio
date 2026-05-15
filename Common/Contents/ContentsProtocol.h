@@ -46,7 +46,7 @@ namespace FieldProtocol
     //  2   -   MaxHP           (uint16)  
     //  2   -   MP              (uint16)
     //  2   -   MaxMP           (uint16)
-    //
+    //  2   -   MPRegenPerSec   (uint16)
     //---------------------------------------------------------------
 
     constexpr uint16 PACKET_SC_CREATE_OTHER_CHARACTER = 1001;

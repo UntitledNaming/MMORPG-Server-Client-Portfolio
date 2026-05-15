@@ -25,8 +25,14 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
     
+private:
+	void TickManaRegen(float DeltaTime);
+
 protected:
 	// 카메라는 여기로
 	UPROPERTY(VisibleAnywhere) TObjectPtr<class USpringArmComponent> SpringArmComponent;
 	UPROPERTY(VisibleAnywhere) TObjectPtr<class UCameraComponent>    CameraComponent;
+
+private:
+	float ManaRegenAccum = 0.f;
 };

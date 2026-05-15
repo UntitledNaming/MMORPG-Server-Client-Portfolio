@@ -116,6 +116,8 @@ void AM1OtherPlayer::OnReceiveAttackSwing(float FacingYaw, uint8 SwingIdx)
     {
         SetUseUpperBodyWhenMovingFlag(true);
     }
+
+    PlayLeftAttackSectionOnly(SwingIdx);
 }
 
 void AM1OtherPlayer::OnReceiveAttackStop()
@@ -383,18 +385,22 @@ void AM1OtherPlayer::PlayLeftAttackSectionOnly(uint8 SwingIndex)
     if (SectionName.IsNone())
         return;
 
-    // 몽타주 인스턴스를 먼저 만들어야 Montage_SetNextSection이 먹음
-    const float Result = AnimInst->Montage_Play(
-        LeftAttackMontage,
-        1.0f,
-        EMontagePlayReturnType::MontageLength,
-        0.0f,
-        false
-    );
+    // 몽타주가 재생 중이 아닐 때만 Montage_Play 호출
+    // 이미 재생 중인데 Montage_Play(0)을 다시 호출하면 첫 섹션 위치로 리셋된 뒤 점프해서
+    // 이전 섹션이 순간적으로 재생되는 문제가 생김
+    if (!AnimInst->Montage_IsPlaying(LeftAttackMontage))
+    {
+        const float Result = AnimInst->Montage_Play(
+            LeftAttackMontage,
+            1.0f,
+            EMontagePlayReturnType::MontageLength,
+            0.0f,
+            false
+        );
 
-
-    if (Result <= 0.0f)
-        return;
+        if (Result <= 0.0f)
+            return;
+    }
 
     // 해당 섹션으로 이동
     AnimInst->Montage_JumpToSection(SectionName, LeftAttackMontage);

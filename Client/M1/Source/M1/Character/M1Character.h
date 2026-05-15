@@ -67,10 +67,10 @@ protected:
     uint64 EntityID = -1;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-    int32 HP = 100;
+    uint16 HP = 100;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
-    int32 MaxHP = 100;
+    uint16 MaxHP = 100;
 
     UPROPERTY(VisibleAnywhere)
     bool bSpawnFlag = false;
