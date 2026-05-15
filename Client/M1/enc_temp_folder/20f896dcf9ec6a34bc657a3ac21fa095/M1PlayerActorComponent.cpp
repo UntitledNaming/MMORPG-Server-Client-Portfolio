@@ -48,10 +48,11 @@ void UM1PlayerActorComponent::OnSkillResponse(EAbilitySlot Slot, bool bSuccess)
     }
 }
 
+// 타 캐릭터가 스킬 쓸 때 발동하는 함수
 void UM1PlayerActorComponent::TriggerAbilityFX(EAbilitySlot Slot)
 {
     if (UM1AbilityBase* Ability = AbilityInstances.FindRef(Slot))
-        Ability->OnRemoteActivate(GetOwnerCharacter());
+        Ability->OnServerConfirmed(GetOwnerCharacter());
 }
 
 bool UM1PlayerActorComponent::IsBasicAttackPendingStop() const

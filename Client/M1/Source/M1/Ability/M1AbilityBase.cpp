@@ -58,6 +58,18 @@ void UM1AbilityBase::PlayHitFX(AM1Character* Target)
             Target, FXData.HitSound, Target->GetActorLocation());
 }
 
+void UM1AbilityBase::PlayImpactFX(AM1Character* Owner)
+{
+    if (!Owner) return;
+
+    USkeletalMeshComponent* MeshComp = Owner->GetMesh();
+    if (!MeshComp) return;
+
+    if (FXData.ImpactEffect)
+        UGameplayStatics::SpawnEmitterAtLocation(
+            Owner, FXData.ImpactEffect, Owner->GetActorLocation(), FRotator::ZeroRotator, true);
+}
+
 UM1NetworkManager* UM1AbilityBase::GetNetworkManager(AM1Character* Owner) const
 {
     if (!Owner) return nullptr;

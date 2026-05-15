@@ -57,7 +57,6 @@ void AM1PlayerController::BeginPlayingState()
                 auto MoveAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_Move);
                 auto LookAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_Look);
                 auto LeftAttackAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_LeftAttack);
-                auto Skill1Action = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_Skill1);
 
             }
         }

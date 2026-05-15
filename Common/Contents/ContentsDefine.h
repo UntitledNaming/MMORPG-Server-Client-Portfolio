@@ -48,8 +48,17 @@ namespace SnapShotProc
 
 namespace ClientAttack
 {
+	///////////////////////////////////////////////
+	//  평타
+	///////////////////////////////////////////////
 	constexpr float  LEFATTACK_HALF_ANGLE = 60.0f;
 	constexpr float  LEFTATTACK_RANGE = 250.0f;
 	constexpr uint32 LEFTATTACK_MAX_HIT_COUNT = 8;
 	constexpr uint32 LEFTATTACK_SWING_INTERVAL = 600;
+
+	////////////////////////////////////////////////
+	//  1번 스킬
+	////////////////////////////////////////////////
+	constexpr uint16 DEFENCE_BUFF_REQUIRED_MANA = 25;
+	constexpr float  DEFENCE_BUFF_COOLTIME_SEC  = 10.0f;
 }

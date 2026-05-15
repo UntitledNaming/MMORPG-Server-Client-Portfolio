@@ -11,7 +11,7 @@
 UENUM(BlueprintType)
 enum class EAbilitySlot : uint8
 {
-    BasicAttack UMETA(DisplayName = "Basic Attack") = 0,
+    BasicAttack UMETA(DisplayName = "Basic Attack"),
     Skill1      UMETA(DisplayName = "Skill 1"),
     Skill2      UMETA(DisplayName = "Skill 2"),
     Skill3      UMETA(DisplayName = "Skill 3"),

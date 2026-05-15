@@ -27,8 +27,3 @@ void AM1BasePlayer::ApplySpawnData(const FM1SpawnData& Data)
 	bMoving = Data.MoveFlag;
 }
 
-void  AM1BasePlayer::SetCurrentMana(uint16 Mana)
-{
-	MP = Mana;
-	OnManaChanged.Broadcast(MP, MaxMP);
-}
