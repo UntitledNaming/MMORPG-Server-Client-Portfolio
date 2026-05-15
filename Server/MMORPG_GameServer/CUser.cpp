@@ -32,6 +32,7 @@ void CUser::Init(uint64 sessionID)
 	m_maxHP = 100;
 	m_mp = 50;
 	m_maxMP = 100;
+	m_mpRegenPerSec = 5;
 	m_sectorXpos = (m_xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE;
 	m_sectorYpos = (m_ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE;
 	m_syncCount = 0;

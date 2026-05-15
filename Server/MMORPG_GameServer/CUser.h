@@ -30,6 +30,7 @@ public:
 	uint16              m_maxHP;                         // 캐릭터 MaxHP
 	uint16              m_mp;                            // 캐릭터 MP
 	uint16              m_maxMP;                         // 캐릭터 MaxMP
+	uint16              m_mpRegenPerSec;                 // 캐릭터 초당 마나 재생
 	uint16              m_sectorXpos;                    // 캐릭터 섹터 X좌표
 	uint16              m_sectorYpos;                    // 캐릭터 섹터 Y좌표
 	uint16              m_arrayIdx;                      // 특정 섹터에 있는 배열의 몇번째 index에 있는지에 대한 정보

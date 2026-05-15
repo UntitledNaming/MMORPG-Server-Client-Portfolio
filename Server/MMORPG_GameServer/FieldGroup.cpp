@@ -437,6 +437,7 @@ void FieldGroup::mpCreateMyCharacter(CUser* pUser, CMessage* pMessage)
 	*pMessage << pUser->m_maxHP;
 	*pMessage << pUser->m_mp;
 	*pMessage << pUser->m_maxMP;
+	*pMessage << pUser->m_mpRegenPerSec;
 }
 
 void FieldGroup::mpCreateOtherCharacter(CUser* pUser, CMessage* pMessage)
@@ -690,10 +691,8 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 	}
 
 	// 이전 swing 받은 시간과 다음 swing 받은 시간이 600ms 아래면 비정상 유저로 간주
-	// 다만 2번째 애니 시작과 동시에 서버로 패킷 보내고 바로 공격 정지하고 다시 공격하면 Interval이 짧아질 수 있음.
-	// swing index가 1이면 예외로 해야 함.
 	uint32 curTime = timeGetTime();
-	if (curTime - pUser->m_swingInfo.m_lastSwingRecvTime <= ClientAttack::LEFTATTACK_SWING_INTERVAL && swingindex != 1)
+	if (curTime - pUser->m_swingInfo.m_lastSwingRecvTime <= ClientAttack::LEFTATTACK_SWING_INTERVAL )
 	{
 		Disconnect(sessionID);
 		return;
@@ -747,7 +746,7 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 		if (IsAlreadyPushed(sendflagArray, pushCount, secX, secY))
 			continue;
 
-		SendPacket_SectorAround(pHitMsg, targetHitPlayer[i]);
+		SendPacket_SectorAround(pHitMsg, targetHitPlayer[i], true);
 		sendflagArray[pushCount++] = SecPos{ secX , secY };
 	}
 
