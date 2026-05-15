@@ -66,10 +66,10 @@ protected:
     UPROPERTY(VisibleAnywhere)
     uint64 EntityID = -1;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+    UPROPERTY()
     uint16 HP = 100;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+    UPROPERTY()
     uint16 MaxHP = 100;
 
     UPROPERTY(VisibleAnywhere)

@@ -25,6 +25,13 @@ public:
     UFUNCTION(BlueprintImplementableEvent, Category = "UI")
     void UpdateLevel(int32 Level);
 
+    UFUNCTION(BlueprintImplementableEvent, Category = "UI")
+    void UpdateHealthText(int32 CurrentHealth, int32 MaxHealth);
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "UI")
+    void UpdateManaText(int32 CurrentMana, int32 MaxMana);
+
+
     // C++에서 호출할 바인딩 함수
     UFUNCTION(BlueprintCallable, Category = "UI")
     void BindToPlayer(class AM1LocalPlayer* Player);

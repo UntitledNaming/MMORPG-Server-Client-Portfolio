@@ -26,21 +26,14 @@ void UM1MainHUDWidget::BindToPlayer(AM1LocalPlayer* Player)
 
 void UM1MainHUDWidget::OnHealthChanged(int32 CurrentHealth, int32 MaxHealth)
 {
-    if (CurrentHealth > 0)
-    {
-        float Ratio = 0.0f;
-
-        Ratio = static_cast<float>(CurrentHealth) / static_cast<float>(MaxHealth);
-        Ratio = FMath::Clamp(Ratio, 0.0f, 1.0f);
-        Ratio = FMath::Max(Ratio, 0.02f);
-    }
-
     UpdateHealthBar(CurrentHealth, MaxHealth);
+    UpdateHealthText(CurrentHealth, MaxHealth);
 }
 
 void UM1MainHUDWidget::OnManaChanged(int32 CurrentMana, int32 MaxMana)
 {
     UpdateManaBar(CurrentMana, MaxMana);
+    UpdateManaText(CurrentMana, MaxMana);
 }
 
 void UM1MainHUDWidget::OnExpChanged(float CurrentExp, float RequiredExp)
