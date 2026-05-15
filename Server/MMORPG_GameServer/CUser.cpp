@@ -30,7 +30,7 @@ void CUser::Init(uint64 sessionID)
 	m_def = 1;
 	m_hp = 100;
 	m_maxHP = 100;
-	m_mp = 50;
+	m_mp = 100;
 	m_maxMP = 100;
 	m_mpRegenPerSec = 5;
 	m_sectorXpos = (m_xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE;

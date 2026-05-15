@@ -112,10 +112,12 @@ public:
     ///////////////////////////////////
 	void MovementProc();
 	void SectorUpdate(CUser* pUser, uint16 nextXpos, uint16 nextYpos);
+	void ManaRegen();
 
 private:
 	std::unordered_map<uint64, CUser*> m_userLookUpTable;
 	Sector                             m_sectors[FieldConst::SECTOR_Y_MAX][FieldConst::SECTOR_X_MAX];
+	uint32                             m_ManaRegenOldTime = 0;
 
 public:
 	float xpos = 0;

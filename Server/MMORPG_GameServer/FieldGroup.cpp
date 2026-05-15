@@ -31,6 +31,7 @@ void FieldGroup::Init(CGameLibrary* p)
 	m_SendTPS = 0;
 	m_FrameTPS = 0;
 	InitializeSRWLock(&m_GroupLock);
+	m_ManaRegenOldTime = timeGetTime();
 
 	for (int y = 0; y < SECTOR_Y_MAX; y++)
 	{
@@ -173,6 +174,7 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 void FieldGroup::OnUpdate()
 {
 	MovementProc();
+	ManaRegen();
 	fieldframe++;
 }
 
@@ -867,4 +869,21 @@ void FieldGroup::SectorUpdate(CUser* pUser, uint16 nextXpos, uint16 nextYpos)
 
 	pUser->m_sectorXpos = nextXpos;
 	pUser->m_sectorYpos = nextYpos;
+}
+
+void FieldGroup::ManaRegen()
+{
+	if (timeGetTime() - m_ManaRegenOldTime < 1000)
+		return;
+
+	CUser* targetUser = nullptr;
+	std::unordered_map<uint64, CUser*>::iterator it;
+
+	for (it = m_userLookUpTable.begin(); it != m_userLookUpTable.end(); ++it)
+	{
+		targetUser = it->second;
+		targetUser->m_mp += targetUser->m_mpRegenPerSec;
+		if (targetUser->m_mp > targetUser->m_maxMP)
+			targetUser->m_mp = targetUser->m_maxMP;
+	}
 }
