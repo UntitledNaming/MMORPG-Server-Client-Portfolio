@@ -30,6 +30,7 @@ namespace UserConst
 	constexpr float   WALK_SPEED = 600.0; // 600 cm/s
 	constexpr float   RUN_SPEED = 1200.0; // 1200 cm/s
 	constexpr float   JUMP_ANIMATION_TIME = 0.0f;
+	constexpr uint16  USER_SKILL_SLOT_COUNT = 4;
 }
 
 namespace ClientMovement
@@ -60,5 +61,7 @@ namespace ClientAttack
 	//  1번 스킬
 	////////////////////////////////////////////////
 	constexpr uint16 DEFENCE_BUFF_REQUIRED_MANA = 25;
-	constexpr float  DEFENCE_BUFF_COOLTIME_SEC  = 10.0f;
+	constexpr uint32 DEFENCE_BUFF_COOLTIME_SEC  = 15000;
+	constexpr uint32 DEFENCE_BUFF_DURATION      = 7000;
+	constexpr uint16 DEFENCE_BUFF_ADD_AMOUNT    = 2;
 }

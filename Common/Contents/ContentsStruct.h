@@ -58,3 +58,11 @@ struct st_SecPos
 	uint16 m_secXpos;
 	uint16 m_secYpos;
 }typedef SecPos;
+
+struct st_SkillInfo
+{
+	bool   m_skillActivate;     // skill Activate Flag
+	uint32 m_skillLastRecvTime; // skill Coll Time
+	uint32 m_skillExpiredTime;  // skill Expired Time
+
+}typedef SkillInfo;

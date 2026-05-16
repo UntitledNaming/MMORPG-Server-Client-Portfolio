@@ -103,6 +103,11 @@ void FieldGroup::OnRecv(UINT64 sessionID, CMessage* pMessage)
 	case PACKET_CS_STOP_LEFT_ATTACK:
 		HandleLeftAttackStop(sessionID, pMessage);
 		break;
+
+	case PACKET_CS_USE_SKILL:
+		HandleSkillUse(sessionID, pMessage);
+		break;
+
 	}
 }
 
@@ -715,7 +720,7 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 	// 데미지 계산 및 hp 수정
 	for (int i = 0; i < hitplayerCount; i++)
 	{
-		targetHitPlayer[i]->m_hp -=CalDamage(pUser->m_atk, targetHitPlayer[i]->m_def);
+		targetHitPlayer[i]->m_hp -=CalDamage(pUser->m_atk, targetHitPlayer[i]->GetDef());
 		if (targetHitPlayer[i]->m_hp <= 0)
 			targetHitPlayer[i]->m_hp = 0;
 
@@ -778,6 +783,94 @@ void FieldGroup::HandleLeftAttackStop(uint64 sessionID, CMessage* pMessage)
 
 	SendPacket_SectorAround(pSwingStop, pUser);
 	CMessage::Free(pSwingStop);
+}
+
+void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
+{
+	uint8 skillslot;
+	*pMessage >> skillslot;
+
+	switch (static_cast<EServerAbilitySlot>(skillslot))
+	{
+	case EServerAbilitySlot::Skill1:
+		HandleSkill1Use(sessionID, pMessage);
+		break;
+
+	case EServerAbilitySlot::Skill2:
+		HandleSkill2Use(sessionID, pMessage);
+		break;
+
+	case EServerAbilitySlot::Skill3:
+		HandleSkill3Use(sessionID, pMessage);
+		break;
+
+	case EServerAbilitySlot::Skill4:
+		HandleSkill4Use(sessionID, pMessage);
+		break;
+	}
+}
+
+void FieldGroup::HandleSkill1Use(uint64 sessionID, CMessage* pMessage)
+{
+	uint32 curTime = timeGetTime();
+
+	CUser* pUser = nullptr;
+	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
+	if (it == m_userLookUpTable.end())
+		__debugbreak();
+
+	pUser = it->second;
+
+	bool Success = false;
+
+	// 쿨 타임이 안 지났거나 mp가 부족하면 스킬 실패
+	if (curTime - pUser->m_skillInfo[0].m_skillLastRecvTime < ClientAttack::DEFENCE_BUFF_COOLTIME_SEC
+		|| pUser->m_mp < ClientAttack::DEFENCE_BUFF_REQUIRED_MANA)
+		Success = false;
+	else
+		Success = true;
+
+	// todo : 쿨타임 안 지났는데 패킷 지속적으로 보내는게 체크되면 연결 끊기
+
+	CMessage* pUseSkillRes = CMessage::Alloc();
+	pUseSkillRes->Clear(1);
+	*pUseSkillRes << PACKET_SC_USE_SKILL_RES;
+	*pUseSkillRes << static_cast<uint8>(EServerAbilitySlot::Skill1);
+	*pUseSkillRes << (uint8)(Success);
+
+	SendPacket(sessionID, pUseSkillRes);
+	CMessage::Free(pUseSkillRes);
+
+	if (Success)
+	{
+		// 성공했으면 방어력 증가시키고 MP 줄이기
+		pUser->SkillInfoUpdate(0, timeGetTime(), true);
+
+		// Skill 사용 패킷 뿌리기
+		CMessage* pUseSkillBroad = CMessage::Alloc();
+		pUseSkillBroad->Clear(1);
+		*pUseSkillBroad << PACKET_SC_USE_SKILL_BROADCAST;
+		*pUseSkillBroad << sessionID;
+		*pUseSkillBroad << static_cast<uint8>(EServerAbilitySlot::Skill1);
+
+		SendPacket_SectorAround(pUseSkillBroad, pUser);
+
+		CMessage::Free(pUseSkillBroad);
+	}
+
+}
+
+void FieldGroup::HandleSkill2Use(uint64 sessionID, CMessage* pMessage)
+{
+}
+
+void FieldGroup::HandleSkill3Use(uint64 sessionID, CMessage* pMessage)
+{
+}
+
+void FieldGroup::HandleSkill4Use(uint64 sessionID, CMessage* pMessage)
+{
+
 }
 
 void FieldGroup::MovementProc()

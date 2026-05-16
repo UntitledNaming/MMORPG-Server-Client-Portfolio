@@ -34,7 +34,7 @@ enum class EAIState : uint8
 
 enum class EServerAbilitySlot : uint8
 {
-	LeftAttack,
+	LeftAttack = 0,
 	Skill1,
 	Skill2,
 	Skill3,

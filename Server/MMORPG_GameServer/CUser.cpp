@@ -47,6 +47,54 @@ void CUser::Init(uint64 sessionID)
 	// SwingInfo 초기화
 	m_swingInfo.m_lastSwingIdx = 0;
 	m_swingInfo.m_lastSwingRecvTime = 0;
+
+	// SkillInfo 초기화
+	for (int i = 0; i < USER_SKILL_SLOT_COUNT; i++)
+	{
+		m_skillInfo[i].m_skillActivate = false;
+		m_skillInfo[i].m_skillLastRecvTime = 0;
+		m_skillInfo[i].m_skillExpiredTime = 0;
+	}
+}
+
+void CUser::SkillInfoUpdate(uint16 skillIndex, uint32 curTime, bool bActivate)
+{
+	if (skillIndex >= USER_SKILL_SLOT_COUNT)
+		return;
+
+	m_skillInfo[skillIndex].m_skillActivate = bActivate;
+	m_skillInfo[skillIndex].m_skillLastRecvTime = timeGetTime();
+
+	switch (skillIndex)
+	{
+	case 0:
+
+		DefUpdate();
+
+		m_skillInfo[skillIndex].m_skillExpiredTime = curTime + ClientAttack::DEFENCE_BUFF_DURATION;
+		m_mp -= ClientAttack::DEFENCE_BUFF_REQUIRED_MANA;
+		m_def += ClientAttack::DEFENCE_BUFF_ADD_AMOUNT;
+		break;
+
+	case 1:
+		break;
+
+	case 2:
+		break;
+
+	case 3:
+		break;
+	}
+
+	m_skillInfo[skillIndex].m_skillActivate = bActivate;
+	m_skillInfo[skillIndex].m_skillLastRecvTime = timeGetTime();
+}
+
+uint16 CUser::GetDef()
+{
+	DefUpdate();
+
+	return m_def;
 }
 
 CUser* CUser::Alloc()
@@ -58,4 +106,20 @@ CUser* CUser::Alloc()
 void CUser::Free(CUser* pUser)
 {
 	m_userPool.Free(pUser);
+}
+
+void CUser::DefUpdate()
+{
+	// 자 버프 만료 시간 체크
+	SkillInfo& defenceBuff = m_skillInfo[0];
+
+	if (defenceBuff.m_skillActivate && timeGetTime() >= defenceBuff.m_skillExpiredTime)
+	{
+		m_def -= ClientAttack::DEFENCE_BUFF_ADD_AMOUNT;
+		defenceBuff.m_skillActivate = false;
+	}
+
+	// 아이템 버프 체크
+
+	// 타 버프 만료 시간 체크
 }

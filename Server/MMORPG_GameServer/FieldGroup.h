@@ -106,6 +106,11 @@ public:
 	void HandleRTTMessage(uint64 sessionID, CMessage* pMessage);
 	void HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage);
 	void HandleLeftAttackStop(uint64 sessionID, CMessage* pMessage);
+	void HandleSkillUse(uint64 sessionID, CMessage* pMessage);
+	void HandleSkill1Use(uint64 sessionID, CMessage* pMessage);
+	void HandleSkill2Use(uint64 sessionID, CMessage* pMessage);
+	void HandleSkill3Use(uint64 sessionID, CMessage* pMessage);
+	void HandleSkill4Use(uint64 sessionID, CMessage* pMessage);
 
 	///////////////////////////////////
     // 프레임 로직 처리 함수         //
