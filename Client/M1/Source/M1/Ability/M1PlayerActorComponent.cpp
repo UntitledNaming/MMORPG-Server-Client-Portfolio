@@ -3,7 +3,7 @@
 #include "Ability\M1AbilityBase.h"
 #include "Ability\M1Ability_BasicAttack.h"
 #include "Character\M1Character.h"
-
+#include "ContentsDefine.h"
 
 UM1PlayerActorComponent::UM1PlayerActorComponent()
 {
@@ -42,7 +42,10 @@ void UM1PlayerActorComponent::OnSkillResponse(EAbilitySlot Slot, bool bSuccess)
     if (UM1AbilityBase* Ability = AbilityInstances.FindRef(Slot))
     {
         if (bSuccess)
+        {
             Ability->OnServerConfirmed(GetOwnerCharacter());
+            OnCoolTimeStarted.Broadcast(Slot, Ability->GetCoolTime());
+        }
         else
             Ability->OnServerRejected(GetOwnerCharacter());
     }

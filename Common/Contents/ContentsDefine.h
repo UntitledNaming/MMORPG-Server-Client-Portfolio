@@ -64,4 +64,21 @@ namespace ClientAttack
 	constexpr uint32 DEFENCE_BUFF_COOLTIME_SEC  = 15000;
 	constexpr uint32 DEFENCE_BUFF_DURATION      = 7000;
 	constexpr uint16 DEFENCE_BUFF_ADD_AMOUNT    = 2;
+
+	////////////////////////////////////////////////
+    //  2번 스킬
+    ////////////////////////////////////////////////
+	constexpr uint16 SPINSLASH_REQUIRED_MANA = 10;
+	constexpr uint32 SPINSLASH_COOLTIME_SEC = 7000;
+	constexpr float  SPINSLASH_HALF_ANGLE = 180.0f;
+	constexpr float  SPINSLASH_RANGE = 550.0f;
+
+
+	////////////////////////////////////////////////
+    //  3번 스킬
+    ////////////////////////////////////////////////
+	constexpr uint16 GROUNDSMASH_REQUIRED_MANA = 30;
+	constexpr uint32 GROUNDSMASH_COOLTIME_SEC = 20000;
+	constexpr float  GROUNDSMASH_HALF_ANGLE = 90.0f;
+	constexpr float  GROUNDSMASH_RANGE = 600.0f;
 }

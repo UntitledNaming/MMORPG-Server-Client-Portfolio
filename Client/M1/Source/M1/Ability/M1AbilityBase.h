@@ -36,6 +36,8 @@ public:
     // 타 캐릭터가 스킬 쓸 때 연출만 재생 (로컬 로직 없음)
     virtual void OnRemoteActivate(AM1Character* Owner) { PlayCastFX(Owner); }
 
+    FORCEINLINE float GetCoolTime() { return CoolTime; }
+
 protected:
     // FX는 스킬 마다 위치 다를 수 있으니 스킬 마다 다르게 처리
     virtual void PlayCastFX(AM1Character* Owner);
@@ -44,10 +46,7 @@ protected:
     UM1NetworkManager* GetNetworkManager(AM1Character* Owner) const;
 
 protected:
-    UPROPERTY(EditDefaultsOnly, Category = "Ability")
-    float  Cooldown = 0.f;       // 쿨타임 (초)
+    float  CoolTime = 0.f;       // 쿨타임 (초)
 
-    UPROPERTY(EditDefaultsOnly, Category = "Ability")
     uint16 RequiredMP = 0;       // 필요 마나 
-
 };

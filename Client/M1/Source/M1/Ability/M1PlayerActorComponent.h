@@ -11,6 +11,8 @@ class UM1AbilityBase;
 class UM1CharacterAbilityDataAsset;
 class AM1Character;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSkillCoolTimeStarted, EAbilitySlot, Slot, float, Duration);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class M1_API UM1PlayerActorComponent : public UActorComponent
 {
@@ -30,4 +32,8 @@ private:
     UPROPERTY()
     TMap<EAbilitySlot, UM1AbilityBase*> AbilityInstances;
     AM1Character* GetOwnerCharacter() const;
+
+public:
+    UPROPERTY(BlueprintAssignable)
+    FOnSkillCoolTimeStarted OnCoolTimeStarted;
 };

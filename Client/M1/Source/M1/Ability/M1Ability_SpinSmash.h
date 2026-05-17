@@ -4,14 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Ability/M1AbilityBase.h"
-#include "M1Ability_DefencBuff.generated.h"
+#include "M1Ability_SpinSmash.generated.h"
 
+/**
+ * 
+ */
 UCLASS()
-class M1_API UM1Ability_DefencBuff : public UM1AbilityBase
+class M1_API UM1Ability_SpinSmash : public UM1AbilityBase
 {
 	GENERATED_BODY()
 public:
-	UM1Ability_DefencBuff();
+	UM1Ability_SpinSmash();
 
 	virtual void OnActivate(AM1Character* Owner) override;
 

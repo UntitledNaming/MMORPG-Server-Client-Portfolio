@@ -3,7 +3,7 @@
 
 #include "UI/M1MainHUDWidget.h"
 #include "Character/M1LocalPlayer.h"
-
+#include "M1SkillBarWidget.h"
 
 void UM1MainHUDWidget::BindToPlayer(AM1LocalPlayer* Player)
 {
@@ -22,6 +22,9 @@ void UM1MainHUDWidget::BindToPlayer(AM1LocalPlayer* Player)
     Player->OnManaChanged.Broadcast(Player->GetCurrentMana(), Player->GetMaxMana());
     Player->OnExpChanged.Broadcast(Player->GetCurrentExp(), Player->GetRequiredExp());
     Player->OnLevelUpdate.Broadcast(Player->GetLevel());
+
+    if (SkillBar)
+        SkillBar->BindToComponent(Player->GetAbilityComponent());
 }
 
 void UM1MainHUDWidget::OnHealthChanged(int32 CurrentHealth, int32 MaxHealth)

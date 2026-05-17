@@ -27,11 +27,19 @@ void UM1AbilityBase::PlayCastFX(AM1Character* Owner)
 
     if (FXData.CastEffect)
     {
-        UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(FXData.CastEffect, MeshComp,TEXT("weapon_r"), FVector(0.f, 0.f, 100.f), FRotator::ZeroRotator, EAttachLocation::SnapToTarget,true);
-        if (PSC)
-        {
-            PSC->SetRelativeScale3D(FVector(0.5f, 0.5f, 0.5f));
-        }
+        FVector SpawnLocation =
+            Owner->GetActorLocation()
+            + FVector(0.f, 0.f, 100.f);
+
+        UParticleSystemComponent* PSC =
+            UGameplayStatics::SpawnEmitterAtLocation(
+                Owner->GetWorld(),
+                FXData.CastEffect,
+                SpawnLocation,
+                FRotator::ZeroRotator,
+                FVector(3.f, 3.f, 3.f),
+                true
+            );
     }
 
     if (FXData.CastSound)

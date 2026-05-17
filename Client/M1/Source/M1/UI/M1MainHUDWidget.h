@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "M1MainHUDWidget.generated.h"
 
+class UM1SkillBarWidget;
+
 UCLASS()
 class M1_API UM1MainHUDWidget : public UUserWidget
 {
@@ -51,4 +53,8 @@ protected:
 
     UFUNCTION()
     void OnLevelUpdate(int32 Level);
+
+protected:
+    UPROPERTY(meta = (BindWidget))
+    UM1SkillBarWidget* SkillBar;
 };
