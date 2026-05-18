@@ -16,18 +16,17 @@ struct SwingInfo
 	uint32 m_lastSwingRecvTime;
 };
 
-struct st_Vector2
+struct Vec2
 {
 	float m_xpos;
 	float m_ypos;
-}typedef Vec2;
+};
 
 struct SkillInfo
 {
 	bool   m_skillActivate;     // skill Activate Flag
 	uint32 m_skillLastRecvTime; // skill Coll Time
 	uint32 m_skillExpiredTime;  // skill Expired Time
-
 };
 
 struct UserStat

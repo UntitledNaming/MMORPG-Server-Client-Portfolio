@@ -9,20 +9,6 @@ struct HitResult;
 
 class FieldGroup : public CGroup
 {
-private:
-	struct st_UserArray
-	{
-		std::vector<CUser*> m_userTable;
-		uint16              m_userCount;
-	}typedef UserArray;
-
-	struct st_Sector
-	{
-		UserArray m_userArray;
-		// todo : 몬스터
-		// todo : 아이템
-	}typedef Sector;
-
 public:
 	FieldGroup() = default;
 	~FieldGroup() = default;

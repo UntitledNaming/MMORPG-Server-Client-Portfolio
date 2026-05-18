@@ -21,6 +21,7 @@ void CUser::Init(uint64 sessionID)
 	m_mpRegenPerSec = WARRIOR_MANA_REGEN;
 	m_secPos.SetPos(SectorPos((m_location.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (m_location.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE));
 	m_arrayIdx = 0;
+	m_mpRegenPerSec = 5;
 	m_syncCount = 0;
 	m_movementYaw = 0.0f;
 	m_maxWalkSpeed = WALK_SPEED;
@@ -45,6 +46,10 @@ void CUser::Init(uint64 sessionID)
 	m_baseStat.m_def = 1;
 	m_baseStat.m_maxHP = 100;
 	m_baseStat.m_maxMP = 100;
+	m_baseStat.m_atk = BASE_ATK;
+	m_baseStat.m_def = BASE_DEF;
+	m_baseStat.m_maxHP = BASE_MAXHP;
+	m_baseStat.m_maxMP = BASE_MAXMP;
 
 	m_equipBonusStat.m_atk = 0;
 	m_equipBonusStat.m_def = 0;
@@ -226,7 +231,7 @@ uint16 CUser::GetDef(uint32 curTime)
 			def += ClientAttack::BUFF_DEF_ADD_AMOUNT;
 	}
 
-	// 디버프 유효성
+	// todo : 타 버프/디버프 스킬 유효성 체크
 
 	return def;
 }
@@ -253,12 +258,6 @@ uint16 CUser::GetMaxHP(uint32 curTime)
 {
 	uint16 maxhp = m_baseStat.m_maxHP + m_equipBonusStat.m_maxHP;
 
-	// 버프 유효성 체크
-	// 버프 아직 켜져있으면서 만료시간이 안되었으면 def 증가
-
-
-	// 디버프 유효성
-
 	return maxhp;
 }
 
@@ -271,7 +270,6 @@ uint16 CUser::GetMaxMP(uint32 curTime)
 
 
 	// 디버프 유효성
-
 	return maxmp;
 }
 

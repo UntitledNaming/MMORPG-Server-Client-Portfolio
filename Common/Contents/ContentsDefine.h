@@ -36,6 +36,10 @@ namespace UserConst
 	constexpr uint16  USER_SKILL_SLOT_COUNT = 4;
 	constexpr uint16  USER_BUFF_SKILL_SLOT_COUNT = 1;
 	constexpr uint16  USER_ACTIVE_SKILL_SLOT_COUNT = 3;
+	constexpr uint16  BASE_MAXHP = 100;
+	constexpr uint16  BASE_MAXMP = 100;
+	constexpr uint16  BASE_ATK = 5;
+	constexpr uint16  BASE_DEF = 1;
 }
 
 namespace ClientMovement

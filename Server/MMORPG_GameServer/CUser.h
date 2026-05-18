@@ -48,15 +48,20 @@ public:
 	void SetMoveYaw(float moveYaw) { m_movementYaw = moveYaw; }
 	void SetSectorArrayIdx(uint16 idx) { m_arrayIdx = idx; }
 	void SetMoveFlag(bool flag) { m_moveFlag = flag; }
+	void   SkillInfoUpdate(uint16 skillIndex, uint32 curTime, bool bActivate);
+	uint16 GetDef();
+	uint16 GetAtk();
+	uint16 GetMaxHP();
+	uint16 GetMaxMP();
 
 	static CUser* Alloc();
 	static void Free(CUser* pUser);
 
 public:
-	uint16              m_syncCount;                                                       // 특정 시간동안 싱크 발생한 횟수
-	uint32              m_recvTime;                                                        // 메세지 마지막 수신 시간
-	uint32              m_lastSyncCheckTime;                                               // 마지막 싱크 패킷 측정 시간
-	                                                                                       // 서버가 저장한 lastswing 패킷 저장 시간 + Alpha보다 더 빠르게 도착한거면 비정상으로 판단하여 연결 끊기
+	uint64 m_syncCount;
+	uint32 m_recvTime;
+	uint32 m_lastSyncCheckTime;
+
 private:
 	static CMPoolTLS<CUser> m_userPool;
 

@@ -307,6 +307,7 @@ void FieldGroup::CollectHitTarget(CUser* attacker, HitSearchInfo& hitInfo, HitRe
 
 	hitResult.HitUserCount = hitplayerCount;
 	hitResult.HitMonsterCount = hitmonsterCount;
+
 }
 
 void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMessage)
