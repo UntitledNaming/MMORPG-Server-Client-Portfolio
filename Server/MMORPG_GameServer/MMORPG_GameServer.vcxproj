@@ -140,6 +140,7 @@
     <ClCompile Include="..\..\NetworkLib\game_library\src\CGameLibrary.cpp" />
     <ClCompile Include="..\..\NetworkLib\game_library\src\CGroup.cpp" />
     <ClCompile Include="..\..\NetworkLib\game_library\src\GameSession.cpp" />
+    <ClCompile Include="AttackCollision.cpp" />
     <ClCompile Include="AuthGroup.cpp" />
     <ClCompile Include="CDBManager.cpp" />
     <ClCompile Include="ChatService.cpp" />
@@ -147,10 +148,15 @@
     <ClCompile Include="CUser.cpp" />
     <ClCompile Include="CUserDirectory.cpp" />
     <ClCompile Include="FieldGroup.cpp" />
+    <ClCompile Include="FieldSector.cpp" />
     <ClCompile Include="GameServer.cpp" />
+    <ClCompile Include="HitSearchBuilder.cpp" />
     <ClCompile Include="MMORPG_GameServer.cpp" />
+    <ClCompile Include="PacketBuilder.cpp" />
+    <ClCompile Include="SectorPos.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AttackCollision.h" />
     <ClInclude Include="AuthGroup.h" />
     <ClInclude Include="CDBManager.h" />
     <ClInclude Include="ChatService.h" />
@@ -158,7 +164,12 @@
     <ClInclude Include="CUser.h" />
     <ClInclude Include="CUserDirectory.h" />
     <ClInclude Include="FieldGroup.h" />
+    <ClInclude Include="FieldSector.h" />
     <ClInclude Include="GameServer.h" />
+    <ClInclude Include="HitSearchBuilder.h" />
+    <ClInclude Include="PacketBuilder.h" />
+    <ClInclude Include="SectorPos.h" />
+    <ClInclude Include="SkillTable.h" />
     <ClInclude Include="TodoList.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

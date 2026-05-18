@@ -1,8 +1,9 @@
 #pragma once
-
 #include "ContentsType.h"
+#include "SectorPos.h"
 #include "ContentsStruct.h"
-#include "ContentsStruct.h"
+#include "ContentsDefine.h"
+#include "MemoryPoolTLS.h"
 
 class CUser : public IUser
 {
@@ -11,46 +12,70 @@ public:
 	~CUser() = default;
 	
 	void   Init(uint64 sessionID);
-	void   SkillInfoUpdate(uint16 skillIndex, uint32 curTime, bool bActivate);
-	void   AddDef(uint16 amount) { m_def += amount; }
-	uint16 GetDef();
+	void   ManaRegen(uint32 curTime);
+	void   Damage(uint16 damage);
+	void   UseSkill(uint32 curTime, uint8 skillIndex);
+	void   SectorFind(SectorAround& pAround);
+	void   SetNewSectorPos(const SectorPos& newSec) { m_secPos = newSec; }
+	void   CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, const SectorPos& newSecPos, SectorAround& outDeleteSector, SectorAround& outCreateSector);
+	void   SwingStop() { m_swingInfo.m_lastSwingIdx = 0; }
+	bool   CanUseSkill(uint32 curTime, uint8 skillIndex);
+	bool   Move();
+	bool   CanSwing(uint32 curTime, uint8 swingidx);
+	uint64 GetSessionID() const { return m_sessionID; }
+	uint32 CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime);
+	uint32 CalBaseAttackDamage(CUser* target, uint32 curTime);
+	uint16 GetDef(uint32 curTime);
+	uint16 GetAtk(uint32 curTime);
+	uint16 GetMaxHP(uint32 curTime);
+	uint16 GetMaxMP(uint32 curTime);
+	uint16 GetHP() const { return m_hp; }
+	uint16 GetMP() const { return m_mp; }
+	uint16 GetMPRegenSec() const{ return m_mpRegenPerSec; }
+	uint16 GetSectorArrayIdx() const { return m_arrayIdx; }
+	uint16 GetSectorXpos() const { return m_secPos.GetX(); }
+	uint16 GetSectorYpos() const { return m_secPos.GetY(); }
+	uint8  GetLastSwingIndex() const { return m_swingInfo.m_lastSwingIdx; }
+	float  GetX() const { return m_location.xpos; }
+	float  GetY() const { return m_location.ypos; }
+	float  GetZ() const { return m_location.zpos; }
+	float  GetMoveYaw() const { return m_movementYaw; }
+	bool   GetMoveFlag() const { return m_moveFlag; }
+
+	const SectorPos& GetSectorPos() const { return m_secPos; }
+	const Location& GetLocation() const { return m_location; }
+	void SetLocation(Location& location) { m_location = location; }
+	void SetMoveYaw(float moveYaw) { m_movementYaw = moveYaw; }
+	void SetSectorArrayIdx(uint16 idx) { m_arrayIdx = idx; }
+	void SetMoveFlag(bool flag) { m_moveFlag = flag; }
 
 	static CUser* Alloc();
 	static void Free(CUser* pUser);
 
-private:
-	void DefUpdate();
-
 public:
-	SwingInfo           m_swingInfo;                                                       // 좌 클릭 공격 처리 관련 구조체
-	SkillInfo           m_skillInfo[UserConst::USER_SKILL_SLOT_COUNT];             // 유저 스킬 쿨타임 처리 구조체
-	float               m_xpos;                                                            // 캐릭터 X좌표
-	float               m_ypos;                                                            // 캐릭터 Y좌표
-	float               m_zpos;                                                            // 캐릭터 Z좌표
-	bool                m_isFalling;                                                       // 낙하중인지(true면 점프 중, 이때 공격 불가)
-	bool                m_moveFlag;                                                        // 정지, 이동 플래그
-	uint16              m_atk;                                                             // 캐릭터 공격력
-	uint16              m_def;                                                             // 캐릭터 방어력
-	uint16              m_hp;                                                              // 캐릭터 HP
-	uint16              m_maxHP;                                                           // 캐릭터 MaxHP
-	uint16              m_mp;                                                              // 캐릭터 MP
-	uint16              m_maxMP;                                                           // 캐릭터 MaxMP
-	uint16              m_mpRegenPerSec;                                                   // 캐릭터 초당 마나 재생
-	uint16              m_sectorXpos;                                                      // 캐릭터 섹터 X좌표
-	uint16              m_sectorYpos;                                                      // 캐릭터 섹터 Y좌표
-	uint16              m_arrayIdx;                                                        // 특정 섹터에 있는 배열의 몇번째 index에 있는지에 대한 정보
 	uint16              m_syncCount;                                                       // 특정 시간동안 싱크 발생한 횟수
-	float               m_movementYaw;                                                     // 캐릭터 이동 방향, 이동 처리시 사용
-	float               m_maxWalkSpeed;                                                    // 캐릭터 최대 이동 속도(이벤트 발생시 변화 값)
-	float               m_moveSpeed;                                                       // 캐릭터 이동 속도(고정 프레임 방식이라 프레임 당 이동량)
 	uint32              m_recvTime;                                                        // 메세지 마지막 수신 시간
-	uint32              m_jumpStartTime;                                                   // 점프 시작시간
 	uint32              m_lastSyncCheckTime;                                               // 마지막 싱크 패킷 측정 시간
 	                                                                                       // 서버가 저장한 lastswing 패킷 저장 시간 + Alpha보다 더 빠르게 도착한거면 비정상으로 판단하여 연결 끊기
-	WCHAR               m_nickName[UserConst::NICK_MAX];                                   // 캐릭터 닉네임
-	uint64              m_sessionID;                                                       // 게임 라이브러리가 전달한 세션 Key
-
 private:
 	static CMPoolTLS<CUser> m_userPool;
+
+	uint64              m_sessionID;      
+	SwingInfo           m_swingInfo;                                                       // 좌 클릭 공격 처리 관련 구조체
+	SkillInfo           m_skillInfo[UserConst::USER_SKILL_SLOT_COUNT];
+	Location            m_location;                                                        // 캐릭터 위치
+	SectorPos           m_secPos;           
+	uint16              m_arrayIdx;     
+	uint16              m_hp;                                                              // 캐릭터 HP
+	uint16              m_mp;                                                              // 캐릭터 MP
+	UserStat            m_baseStat;                                                        // 유저 기본 스탯(클래스, 레벨 기반)
+	UserStat            m_equipBonusStat;                                                  // 유저 장비 보너스 스탯
+	uint16              m_mpRegenPerSec;
+
+	bool                m_moveFlag;
+	float               m_movementYaw;                                                     // 캐릭터 이동 방향, 이동 처리시 사용
+	float               m_maxWalkSpeed;                                                    // 캐릭터 최대 이동 속도(이벤트 발생시 변화 값)
+	float               m_moveSpeed;
+
 };
 

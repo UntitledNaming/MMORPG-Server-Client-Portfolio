@@ -3,11 +3,15 @@
 #include <thread>
 #include <vector>
 #include <unordered_map>
+#include "ContentsDefine.h"
+#include "ContentsEnum.h"
+#include "ContentsStruct.h"
 #include "GameLibDefine.h"
 #include "CGroup.h"
 #include "CService.h"
 #include "CGameLibrary.h"
 #include "AuthGroup.h"
+#include "FieldSector.h"
 #include "FieldGroup.h"
 #include "ChatService.h"
 #include "CDBManager.h"

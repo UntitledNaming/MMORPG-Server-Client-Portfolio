@@ -34,9 +34,24 @@ enum class EAIState : uint8
 
 enum class EServerAbilitySlot : uint8
 {
-	LeftAttack = 0,
 	Skill1,
 	Skill2,
 	Skill3,
 	Skill4,
+};
+
+enum class ESkillDamageType : uint8
+{
+	None,
+	Physical,
+	Magic,
+	TrueDamage,
+};
+
+enum class EHitShape : uint8
+{
+	None,
+	Circle,
+	Cone,
+	Box,
 };

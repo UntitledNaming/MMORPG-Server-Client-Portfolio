@@ -1,8 +1,7 @@
 #include <string>
 #include <windows.h>
-#include "ContentsDefine.h"
 #include "ContentsEnum.h"
-#include "MemoryPoolTLS.h"
+#include "SkillTable.h"
 #include "IUser.h"
 #include "CUser.h"
 
@@ -10,31 +9,18 @@ CMPoolTLS<CUser> CUser::m_userPool;
 
 using namespace UserConst;
 
-
 void CUser::Init(uint64 sessionID)
 {
 	// todo : 추후 DB에서 데이터 긁어와서 초기화 하기
-	// 
-	// movespeed는 실질적으로 max walk speed임. 이벤트 방식을 통해 특정 이벤트 발생시 max walk speed가 변경되면 
-	// 이를 클라에게 전파해서 해당 클라의 max walk speed를 변경하여 이동 속도를 조절함.
-	// 캐릭터 생성, 삭제시 이 Max Walk Speed를 서버가 전파해주던가 아니면 프로토콜로 버프, 디버프 상태를
-	// 추가하여 이를 전달해 클라가 자체 계산해서 max speed값 조정하던가 해야 함.
 
 	m_sessionID = sessionID;
-	m_xpos = 405430.0f;
-	m_ypos = 397350.0f;
-	m_zpos = -38690.f;
-	m_isFalling = false;
+	m_location = Location{ 405430.0f ,397350.0f ,-38690.f };
 	m_moveFlag = false;
-	m_atk = 5;
-	m_def = 1;
 	m_hp = 100;
-	m_maxHP = 100;
 	m_mp = 100;
-	m_maxMP = 100;
-	m_mpRegenPerSec = 5;
-	m_sectorXpos = (m_xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE;
-	m_sectorYpos = (m_ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE;
+	m_mpRegenPerSec = WARRIOR_MANA_REGEN;
+	m_secPos.SetPos(SectorPos((m_location.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (m_location.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE));
+	m_arrayIdx = 0;
 	m_syncCount = 0;
 	m_movementYaw = 0.0f;
 	m_maxWalkSpeed = WALK_SPEED;
@@ -42,59 +28,251 @@ void CUser::Init(uint64 sessionID)
 	m_recvTime = timeGetTime();
 	m_lastSyncCheckTime = timeGetTime();
 
-	memcpy_s(m_nickName, NICK_MAX, L"MY", NICK_MAX);
 
 	// SwingInfo 초기화
 	m_swingInfo.m_lastSwingIdx = 0;
 	m_swingInfo.m_lastSwingRecvTime = 0;
 
-	// SkillInfo 초기화
 	for (int i = 0; i < USER_SKILL_SLOT_COUNT; i++)
 	{
 		m_skillInfo[i].m_skillActivate = false;
-		m_skillInfo[i].m_skillLastRecvTime = 0;
 		m_skillInfo[i].m_skillExpiredTime = 0;
+		m_skillInfo[i].m_skillLastRecvTime = 0;
 	}
+
+	// 스탯 초기화
+	m_baseStat.m_atk = 5;
+	m_baseStat.m_def = 1;
+	m_baseStat.m_maxHP = 100;
+	m_baseStat.m_maxMP = 100;
+
+	m_equipBonusStat.m_atk = 0;
+	m_equipBonusStat.m_def = 0;
+	m_equipBonusStat.m_maxHP = 0;
+	m_equipBonusStat.m_maxMP = 0;
 }
 
-void CUser::SkillInfoUpdate(uint16 skillIndex, uint32 curTime, bool bActivate)
+void CUser::ManaRegen(uint32 curTime)
 {
-	if (skillIndex >= USER_SKILL_SLOT_COUNT)
+	m_mp += m_mpRegenPerSec;
+
+	uint16 maxmp = GetMaxMP(curTime);
+
+	if (m_mp > maxmp)
+		m_mp = maxmp;
+}
+
+void CUser::Damage(uint16 damage)
+{
+	m_hp -= damage;
+	
+	if (m_hp < 0)
+		m_hp = 0;
+}
+
+void CUser::UseSkill(uint32 curTime, uint8 skillIndex)
+{
+	if (skillIndex >= USER_SKILL_SLOT_COUNT || skillIndex < 0)
 		return;
 
-	m_skillInfo[skillIndex].m_skillActivate = bActivate;
-	m_skillInfo[skillIndex].m_skillLastRecvTime = timeGetTime();
-
-	switch (skillIndex)
+	if (skillIndex < USER_BUFF_SKILL_SLOT_COUNT)
 	{
-	case 0:
+		m_skillInfo[skillIndex].m_skillActivate = true;
+		m_skillInfo[skillIndex].m_skillLastRecvTime = curTime;
+		m_skillInfo[skillIndex].m_skillExpiredTime = curTime + g_skillData[skillIndex].Duration;
+		return;
+	}
 
-		DefUpdate();
+	m_skillInfo[skillIndex].m_skillLastRecvTime = curTime;
+}
 
-		m_skillInfo[skillIndex].m_skillExpiredTime = curTime + ClientAttack::DEFENCE_BUFF_DURATION;
-		m_mp -= ClientAttack::DEFENCE_BUFF_REQUIRED_MANA;
-		m_def += ClientAttack::DEFENCE_BUFF_ADD_AMOUNT;
-		break;
+void CUser::SectorFind(SectorAround& pAround)
+{
+	m_secPos.SectorFind(pAround, m_secPos);
+}
 
-	case 1:
-		break;
+void CUser::CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, const SectorPos& newSecPos, SectorAround& outDeleteSector, SectorAround& outCreateSector)
+{
+	m_secPos.CalSectorTransitionMessageTargets(oldSecPos, newSecPos, outDeleteSector, outCreateSector);
+}
 
-	case 2:
-		break;
+bool CUser::CanUseSkill(uint32 curTime, uint8 skillIndex)
+{
+	if (skillIndex >= USER_SKILL_SLOT_COUNT )
+		return false;
 
-	case 3:
+	// mp 및 쿨타임 체크
+	if (m_mp < g_skillData[skillIndex].RequiredMana
+		|| (g_skillData[skillIndex].CoolTime + m_skillInfo[skillIndex].m_skillLastRecvTime) < curTime)
+		return false;
+
+	return true;
+}
+
+bool CUser::Move()
+{
+	if (m_moveFlag == false)
+		return false;
+
+
+	float rad = m_movementYaw * FieldConst::Pi / 180.0f;
+	float dirX = cosf(rad);
+	float dirY = sinf(rad);
+
+	m_location.xpos += dirX * m_moveSpeed;
+	m_location.ypos += dirY * m_moveSpeed;
+
+	return true;
+}
+
+bool CUser::CanSwing(uint32 curTime, uint8 swingidx)
+{
+	if (m_swingInfo.m_lastSwingIdx == 0 || m_swingInfo.m_lastSwingIdx == 4)
+	{
+		m_swingInfo.m_lastSwingIdx = 1;
+	}
+	else
+	{
+		m_swingInfo.m_lastSwingIdx++;
+	}
+
+	// 유저 swingindex랑 패킷으로 받은 swingindex가 다르면 연결 끊기
+	if (m_swingInfo.m_lastSwingIdx != swingidx)
+		return false;
+
+	if (curTime - m_swingInfo.m_lastSwingRecvTime <= ClientAttack::LEFTATTACK_SWING_INTERVAL)
+		return false;
+
+	m_swingInfo.m_lastSwingRecvTime = curTime;
+
+	return true;
+}
+
+uint32 CUser::CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime)
+{
+	if (skillIndex >= USER_SKILL_SLOT_COUNT || target == nullptr)
+		return 0;
+
+	const SkillData& skillData = g_skillData[skillIndex];
+
+	uint16 atk = GetAtk(curTime);
+	uint32 damage = skillData.BaseDamage + static_cast<uint32>(atk * skillData.AttackRatio);
+	
+	switch (skillData.DamageType)
+	{
+	case ESkillDamageType::Physical:
+	{
+		uint16 targetDef = target->GetDef(curTime);
+
+		// 데미지 낮아도 1딜 들어감.
+		if (damage <= targetDef)
+			damage = 1;
+		else
+			damage -= targetDef;
+
 		break;
 	}
 
-	m_skillInfo[skillIndex].m_skillActivate = bActivate;
-	m_skillInfo[skillIndex].m_skillLastRecvTime = timeGetTime();
+	case ESkillDamageType::Magic:
+	{
+		uint16 targetDef = target->GetDef(curTime);
+
+		if (damage <= targetDef)
+			damage = 1;
+		else
+			damage -= targetDef;
+
+		break;
+	}
+
+	case ESkillDamageType::TrueDamage:
+		// 방어력 무시
+		break;
+	}
+
+	return damage;
 }
 
-uint16 CUser::GetDef()
+uint32 CUser::CalBaseAttackDamage(CUser* target, uint32 curTime)
 {
-	DefUpdate();
+	if (target == nullptr)
+		return 0;
 
-	return m_def;
+	uint16 atk = GetAtk(curTime);
+
+	// if swing index마다 데미지 배율 다르게 하고 싶으면 ratio 수정
+
+	float ratio = 1.0f;
+
+	uint32 damage = static_cast<uint32>(atk * ratio);
+	uint16 targetDef = target->GetDef(curTime);
+
+	if (damage <= targetDef)
+		return 1;
+
+	return damage - targetDef;
+}
+
+uint16 CUser::GetDef(uint32 curTime)
+{
+	uint16 def = m_baseStat.m_def + m_equipBonusStat.m_def;
+
+	// 버프 유효성 체크
+	// 버프 아직 켜져있으면서 만료시간이 안되었으면 def 증가
+
+	for (int i = 0; i < USER_BUFF_SKILL_SLOT_COUNT; i++)
+	{
+		if (m_skillInfo[i].m_skillActivate && m_skillInfo[i].m_skillExpiredTime > curTime)
+			def += ClientAttack::BUFF_DEF_ADD_AMOUNT;
+	}
+
+	// 디버프 유효성
+
+	return def;
+}
+
+uint16 CUser::GetAtk(uint32 curTime)
+{
+	uint16 atk = m_baseStat.m_atk + m_equipBonusStat.m_atk;
+
+	// 버프 유효성 체크
+	// 버프 아직 켜져있으면서 만료시간이 안되었으면 def 증가
+
+	for (int i = 0; i < USER_BUFF_SKILL_SLOT_COUNT; i++)
+	{
+		if (m_skillInfo[i].m_skillActivate && m_skillInfo[i].m_skillExpiredTime > curTime)
+			atk += ClientAttack::BUFF_ATK_ADD_AMOUNT;
+	}
+
+	// 디버프 유효성
+
+	return atk;
+}
+
+uint16 CUser::GetMaxHP(uint32 curTime)
+{
+	uint16 maxhp = m_baseStat.m_maxHP + m_equipBonusStat.m_maxHP;
+
+	// 버프 유효성 체크
+	// 버프 아직 켜져있으면서 만료시간이 안되었으면 def 증가
+
+
+	// 디버프 유효성
+
+	return maxhp;
+}
+
+uint16 CUser::GetMaxMP(uint32 curTime)
+{
+	uint16 maxmp = m_baseStat.m_maxMP + m_equipBonusStat.m_maxMP;
+
+	// 버프 유효성 체크
+	// 버프 아직 켜져있으면서 만료시간이 안되었으면 def 증가
+
+
+	// 디버프 유효성
+
+	return maxmp;
 }
 
 CUser* CUser::Alloc()
@@ -102,24 +280,8 @@ CUser* CUser::Alloc()
 	return m_userPool.Alloc();
 }
 
-
 void CUser::Free(CUser* pUser)
 {
 	m_userPool.Free(pUser);
 }
 
-void CUser::DefUpdate()
-{
-	// 자 버프 만료 시간 체크
-	SkillInfo& defenceBuff = m_skillInfo[0];
-
-	if (defenceBuff.m_skillActivate && timeGetTime() >= defenceBuff.m_skillExpiredTime)
-	{
-		m_def -= ClientAttack::DEFENCE_BUFF_ADD_AMOUNT;
-		defenceBuff.m_skillActivate = false;
-	}
-
-	// 아이템 버프 체크
-
-	// 타 버프 만료 시간 체크
-}

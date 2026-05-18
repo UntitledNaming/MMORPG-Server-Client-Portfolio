@@ -22,6 +22,8 @@ namespace FieldConst
 	constexpr float   SYNC_X_RANGE              = 500;                         // Sync Range : 5m
 	constexpr float   SYNC_Y_RANGE              = 500;
 	constexpr float   Pi                        = 3.1415926535f;
+	constexpr uint16  MAX_SECTOR_USER_COUNT     = 30;
+	constexpr uint16  MAX_SECTOR_MONSTER_COUNT  = 30;
 }
 
 namespace UserConst
@@ -30,7 +32,10 @@ namespace UserConst
 	constexpr float   WALK_SPEED = 600.0; // 600 cm/s
 	constexpr float   RUN_SPEED = 1200.0; // 1200 cm/s
 	constexpr float   JUMP_ANIMATION_TIME = 0.0f;
+	constexpr uint16  WARRIOR_MANA_REGEN = 5;
 	constexpr uint16  USER_SKILL_SLOT_COUNT = 4;
+	constexpr uint16  USER_BUFF_SKILL_SLOT_COUNT = 1;
+	constexpr uint16  USER_ACTIVE_SKILL_SLOT_COUNT = 3;
 }
 
 namespace ClientMovement
@@ -49,28 +54,32 @@ namespace SnapShotProc
 
 namespace ClientAttack
 {
+	constexpr uint16  MaxUserCount = 32;
+	constexpr uint16  MaxMonsterCount = 32;
+
 	///////////////////////////////////////////////
 	//  평타
 	///////////////////////////////////////////////
 	constexpr float  LEFATTACK_HALF_ANGLE = 60.0f;
 	constexpr float  LEFTATTACK_RANGE = 250.0f;
-	constexpr uint32 LEFTATTACK_MAX_HIT_COUNT = 8;
+	constexpr uint32 LEFTATTACK_MAX_HIT_COUNT = 2;
 	constexpr uint32 LEFTATTACK_SWING_INTERVAL = 600;
 
 	////////////////////////////////////////////////
 	//  1번 스킬
 	////////////////////////////////////////////////
-	constexpr uint16 DEFENCE_BUFF_REQUIRED_MANA = 25;
-	constexpr uint32 DEFENCE_BUFF_COOLTIME_SEC  = 15000;
-	constexpr uint32 DEFENCE_BUFF_DURATION      = 7000;
-	constexpr uint16 DEFENCE_BUFF_ADD_AMOUNT    = 2;
+	constexpr uint16 BUFF_REQUIRED_MANA = 25;
+	constexpr uint32 BUFF_COOLTIME_SEC  = 15000;
+	constexpr uint32 BUFF_DURATION      = 7000;
+	constexpr uint16 BUFF_DEF_ADD_AMOUNT    = 2;
+	constexpr uint16 BUFF_ATK_ADD_AMOUNT    = 5;
 
 	////////////////////////////////////////////////
     //  2번 스킬
     ////////////////////////////////////////////////
 	constexpr uint16 SPINSLASH_REQUIRED_MANA = 10;
 	constexpr uint32 SPINSLASH_COOLTIME_SEC = 7000;
-	constexpr float  SPINSLASH_HALF_ANGLE = 180.0f;
+	constexpr uint32 SPINSLASH_MAX_HIT_COUNT = 4;
 	constexpr float  SPINSLASH_RANGE = 550.0f;
 
 
@@ -79,6 +88,14 @@ namespace ClientAttack
     ////////////////////////////////////////////////
 	constexpr uint16 GROUNDSMASH_REQUIRED_MANA = 30;
 	constexpr uint32 GROUNDSMASH_COOLTIME_SEC = 20000;
-	constexpr float  GROUNDSMASH_HALF_ANGLE = 90.0f;
+	constexpr uint32 GROUNDSMASH_MAX_HIT_COUNT = 8;
 	constexpr float  GROUNDSMASH_RANGE = 600.0f;
+
+	////////////////////////////////////////////////
+	//  4번 스킬
+	////////////////////////////////////////////////
+	constexpr uint16 ULTIMATE_REQUIRED_MANA = 80;
+	constexpr uint32 ULTIMATE_COOLTIME_SEC = 120000;
+	constexpr uint32 ULTIMATE_MAX_HIT_COUNT = 8;
+	constexpr float  ULTIMATE_RANGE = 1200.0f;
 }

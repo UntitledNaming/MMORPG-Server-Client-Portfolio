@@ -253,9 +253,6 @@ public:
 
 		InterlockedIncrement(&m_iUseCnt);
 		
-		if (&real->s_data == nullptr)
-			__debugbreak();
-
 		return &(real->s_data);
 	}
 

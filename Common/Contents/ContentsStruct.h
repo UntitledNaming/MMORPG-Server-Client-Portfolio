@@ -1,51 +1,20 @@
 #pragma once
+#include <vector>
 #include "ContentsType.h"
 #include "ContentsEnum.h"
+#include "ContentsDefine.h"
 
-struct st_Position
-{
-	float m_xpos;
-	float m_ypos;
-	float m_zpos;
-}typedef Position;
-
-struct st_Stats
-{
-	uint16 m_hp;
-	uint16 m_maxHP;
-	uint16 m_mp;
-	uint16 m_maxMP;
-};
-
-struct st_Movement
-{
-	bool m_moveFlag;
-	bool m_isFalling;
-	EM1MoveMode m_moveMode;
-	float m_movementYaw;
-	float m_maxWalkSpeed;
-	float m_moveSpeed;
-};
-
-struct st_Sector
-{
-	uint16 m_sectorXpos;
-	uint16 m_sectorYpos;
-	uint16 m_arrayIdx;
-}typedef SectorInfo;
-
-struct st_SyncInfo
+struct SyncInfo
 {
 	uint16 m_syncCount;
 	uint32 m_lastSyncCheckTime;
-}typedef SyncInfo;
+};
 
-struct st_SwingInfo
+struct SwingInfo
 {
 	uint8  m_lastSwingIdx;
 	uint32 m_lastSwingRecvTime;
-}typedef SwingInfo;
-
+};
 
 struct st_Vector2
 {
@@ -53,16 +22,42 @@ struct st_Vector2
 	float m_ypos;
 }typedef Vec2;
 
-struct st_SecPos
-{
-	uint16 m_secXpos;
-	uint16 m_secYpos;
-}typedef SecPos;
-
-struct st_SkillInfo
+struct SkillInfo
 {
 	bool   m_skillActivate;     // skill Activate Flag
 	uint32 m_skillLastRecvTime; // skill Coll Time
 	uint32 m_skillExpiredTime;  // skill Expired Time
 
-}typedef SkillInfo;
+};
+
+struct UserStat
+{
+	uint16 m_atk;
+	uint16 m_def;
+	uint16 m_maxHP;
+	uint16 m_maxMP;
+};
+
+struct SkillData
+{
+	uint16           MaxUserCount;    // 타격시 최대 피격 유저수
+	uint16           MaxMonsterCount; // 타격시 최대 피격 몬스터수
+	uint16           RequiredMana;    // 필요 마나
+	uint32           CoolTime;        // 쿨 타임
+	uint32           Duration;        // 지속 시간
+	uint16           BaseDamage;      // 고정 데미지
+	float            Range ;          // 공격 거리
+	float            AttackRatio;     // 공격력 계수
+	float            HalfAngleDegree; // 공격 범위 절반 각도
+	bool             bHitUser;        // 유저 피격 할지 말지
+	bool             bHitMonster;     // 몬스터 피격 할지 말지
+	ESkillDamageType DamageType;      
+	EHitShape        HitShape;        // 공격 모양
+};
+
+struct Location
+{
+	float xpos;
+	float ypos;
+	float zpos;
+};
