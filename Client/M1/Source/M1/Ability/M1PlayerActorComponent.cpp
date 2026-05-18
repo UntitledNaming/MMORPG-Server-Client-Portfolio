@@ -57,6 +57,12 @@ void UM1PlayerActorComponent::TriggerAbilityFX(EAbilitySlot Slot)
         Ability->OnRemoteActivate(GetOwnerCharacter());
 }
 
+void UM1PlayerActorComponent::TriggerImpactFX(EAbilitySlot Slot)
+{
+    if (UM1AbilityBase* Ability = AbilityInstances.FindRef(Slot))
+        Ability->TriggerImpactFX(GetOwnerCharacter());
+}
+
 bool UM1PlayerActorComponent::IsBasicAttackPendingStop() const
 {
     UM1AbilityBase* Ability = AbilityInstances.FindRef(EAbilitySlot::BasicAttack);

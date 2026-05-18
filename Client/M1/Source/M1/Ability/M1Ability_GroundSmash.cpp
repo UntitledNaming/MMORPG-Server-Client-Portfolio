@@ -8,6 +8,7 @@ UM1Ability_GroundSmash::UM1Ability_GroundSmash()
 {
 	CoolTime = ClientAttack::GROUNDSMASH_COOLTIME_SEC / 1000;
 	RequiredMP = ClientAttack::GROUNDSMASH_REQUIRED_MANA;
+	FXData.CastEffectRadius = ClientAttack::GROUNDSMASH_RANGE;
 }
 
 void UM1Ability_GroundSmash::OnActivate(AM1Character* Owner)
@@ -23,8 +24,7 @@ void UM1Ability_GroundSmash::OnActivate(AM1Character* Owner)
 	if (!PC)
 		return;
 
-	PC->SendUseSkillPacket(static_cast<uint8>(EAbilitySlot::Skill3));
-
+	PC->SendUseSkillPacket(static_cast<uint8>(EAbilitySlot::Skill3) - 1);
 }
 
 void UM1Ability_GroundSmash::OnServerConfirmed(AM1Character* Owner)
@@ -33,9 +33,11 @@ void UM1Ability_GroundSmash::OnServerConfirmed(AM1Character* Owner)
 	if (Player == nullptr)
 		return;
 
+	Player->SetUseUpperBodyWhenMovingFlag(false);
+
 	PlayCastFX(Player);
 
-	int mana = Player->GetCurrentMana();
+	uint16 mana = Player->GetCurrentMana();
 	mana -= RequiredMP;
 
 	Player->SetCurrentMana(mana);

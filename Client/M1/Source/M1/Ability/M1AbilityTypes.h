@@ -34,14 +34,43 @@ struct FAbilityFXData
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
     UAnimMontage* CastMontage = nullptr;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+    float CastMontagePlayRate = 1.f;
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FX")
     UParticleSystem* CastEffect = nullptr;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FX|Cast")
+    FVector CastEffectOffset = FVector(0.f, 0.f, 100.f);
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FX|Cast")
+    FRotator CastEffectRotation = FRotator::ZeroRotator;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FX|Cast")
+    FVector CastEffectScale = FVector(2.f, 2.f, 2.f);
+
+    // 0 이상이면 CastEffectScale 무시하고 Radius / BaseRadius 로 스케일 자동 계산
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FX|Cast")
+    float CastEffectRadius = 0.f;
+
+    // 이 파티클이 스케일 (1,1,1)일 때 커버하는 반경(cm) — BP에서 파티클별로 캘리브레이션
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FX|Cast")
+    float CastEffectBaseRadius = 0.f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FX")
     UParticleSystem* HitEffect = nullptr;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FX|Hit")
+    FName HitEffectSocket = TEXT("spine_01");
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FX")
     UParticleSystem* ImpactEffect = nullptr;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FX|Impact")
+    FVector ImpactEffectOffset = FVector::ZeroVector;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FX|Impact")
+    FVector ImpactEffectScale = FVector(1.f, 1.f, 1.f);
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
     USoundBase* CastSound = nullptr;

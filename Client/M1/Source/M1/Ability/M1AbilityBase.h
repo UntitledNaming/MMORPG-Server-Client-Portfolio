@@ -38,6 +38,8 @@ public:
 
     FORCEINLINE float GetCoolTime() { return CoolTime; }
 
+    void TriggerImpactFX(AM1Character* Owner) { PlayImpactFX(Owner); }
+
 protected:
     // FX는 스킬 마다 위치 다를 수 있으니 스킬 마다 다르게 처리
     virtual void PlayCastFX(AM1Character* Owner);

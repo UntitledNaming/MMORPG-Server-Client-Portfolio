@@ -26,6 +26,7 @@ public:
     void DeactivateAbility(EAbilitySlot Slot);
     void OnSkillResponse(EAbilitySlot Slot, bool bSuccess);
     void TriggerAbilityFX(EAbilitySlot Slot);
+    void TriggerImpactFX(EAbilitySlot Slot);
     bool IsBasicAttackPendingStop() const;
 
 private:

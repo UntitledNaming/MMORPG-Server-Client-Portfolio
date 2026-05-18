@@ -14,6 +14,8 @@ class M1_API UM1Ability_BasicAttack : public UM1AbilityBase
 	GENERATED_BODY()
 
 public:
+    UM1Ability_BasicAttack();
+
     virtual void OnActivate(AM1Character* Owner) override;
     virtual void OnDeactivate(AM1Character* Owner) override;
 

@@ -9,8 +9,8 @@
 
 UM1Ability_Buff::UM1Ability_Buff()
 {
-	CoolTime = ClientAttack::DEFENCE_BUFF_COOLTIME_SEC / 1000;
-	RequiredMP = ClientAttack::DEFENCE_BUFF_REQUIRED_MANA;
+	CoolTime = ClientAttack::BUFF_COOLTIME_SEC / 1000;
+	RequiredMP = ClientAttack::BUFF_REQUIRED_MANA;
 }
 
 void UM1Ability_Buff::OnActivate(AM1Character* Owner)
@@ -26,7 +26,7 @@ void UM1Ability_Buff::OnActivate(AM1Character* Owner)
 	if (!PC) 
 		return;
 
-	PC->SendUseSkillPacket(static_cast<uint8>(EAbilitySlot::Skill1));
+	PC->SendUseSkillPacket(static_cast<uint8>(EAbilitySlot::Skill1) - 1);
 
 }
 
@@ -40,7 +40,7 @@ void UM1Ability_Buff::OnServerConfirmed(AM1Character* Owner)
 
 	PlayCastFX(Player);
 
-	int mana = Player->GetCurrentMana();
+	uint16 mana = Player->GetCurrentMana();
 	mana -= RequiredMP;
 
 	Player->SetCurrentMana(mana);

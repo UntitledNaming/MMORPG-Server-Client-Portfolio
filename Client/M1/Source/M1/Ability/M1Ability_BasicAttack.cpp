@@ -2,10 +2,16 @@
 
 
 #include "Ability/M1Ability_BasicAttack.h"
+#include "ContentsDefine.h"
 #include "Character\M1Character.h"
 #include "Controller\M1PlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/AnimInstance.h"
+
+UM1Ability_BasicAttack::UM1Ability_BasicAttack()
+{
+    FXData.CastEffectRadius = ClientAttack::LEFTATTACK_RANGE;
+}
 
 void UM1Ability_BasicAttack::OnActivate(AM1Character* Owner)
 {

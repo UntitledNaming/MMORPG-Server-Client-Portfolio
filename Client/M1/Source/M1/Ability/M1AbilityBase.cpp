@@ -18,7 +18,7 @@ void UM1AbilityBase::PlayCastFX(AM1Character* Owner)
 
         // 이미 재생 중이면 스킵
         if (AnimInst && !AnimInst->Montage_IsPlaying(FXData.CastMontage))
-            Owner->PlayAnimMontage(FXData.CastMontage);
+            Owner->PlayAnimMontage(FXData.CastMontage, FXData.CastMontagePlayRate);
     }
 
     USkeletalMeshComponent* MeshComp = Owner->GetMesh();
@@ -27,19 +27,23 @@ void UM1AbilityBase::PlayCastFX(AM1Character* Owner)
 
     if (FXData.CastEffect)
     {
-        FVector SpawnLocation =
-            Owner->GetActorLocation()
-            + FVector(0.f, 0.f, 100.f);
+        FVector EffectScale = FXData.CastEffectScale;
+        if (FXData.CastEffectRadius > 0.f && FXData.CastEffectBaseRadius > 0.f)
+        {
+            float s = FXData.CastEffectRadius / FXData.CastEffectBaseRadius;
+            EffectScale = FVector(s, s, s);
+        }
 
-        UParticleSystemComponent* PSC =
-            UGameplayStatics::SpawnEmitterAtLocation(
-                Owner->GetWorld(),
-                FXData.CastEffect,
-                SpawnLocation,
-                FRotator::ZeroRotator,
-                FVector(3.f, 3.f, 3.f),
-                true
-            );
+        UGameplayStatics::SpawnEmitterAttached(
+            FXData.CastEffect,
+            MeshComp,
+            NAME_None,
+            FXData.CastEffectOffset,
+            FXData.CastEffectRotation,
+            EffectScale,
+            EAttachLocation::KeepRelativeOffset,
+            true
+        );
     }
 
     if (FXData.CastSound)
@@ -57,7 +61,7 @@ void UM1AbilityBase::PlayHitFX(AM1Character* Target)
 
     if (FXData.HitEffect)
     {
-        UGameplayStatics::SpawnEmitterAttached(FXData.HitEffect, MeshComp, TEXT("spine_01"), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true);
+        UGameplayStatics::SpawnEmitterAttached(FXData.HitEffect, MeshComp, FXData.HitEffectSocket, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true);
     }
 
 
@@ -74,8 +78,15 @@ void UM1AbilityBase::PlayImpactFX(AM1Character* Owner)
     if (!MeshComp) return;
 
     if (FXData.ImpactEffect)
-        UGameplayStatics::SpawnEmitterAtLocation(
-            Owner, FXData.ImpactEffect, Owner->GetActorLocation(), FRotator::ZeroRotator, true);
+        UGameplayStatics::SpawnEmitterAttached(
+            FXData.ImpactEffect,
+            MeshComp,
+            NAME_None,
+            FXData.ImpactEffectOffset,
+            FRotator::ZeroRotator,
+            FXData.ImpactEffectScale,
+            EAttachLocation::KeepRelativeOffset,
+            true);
 }
 
 UM1NetworkManager* UM1AbilityBase::GetNetworkManager(AM1Character* Owner) const

@@ -35,7 +35,7 @@ public:
 	FORCEINLINE float GetRequiredExp() const { return RequiredExp; }
 	FORCEINLINE float GetExpPercent() const { return RequiredExp > 0 ? CurrentExp / RequiredExp : 0.0f; }
 	FORCEINLINE int32 GetLevel() const { return Level; }
-	FORCEINLINE void  SetCurrentMana(uint16 Mana);
+	void SetCurrentMana(uint16 Mana);
 private:
 	void LevelUp();
 

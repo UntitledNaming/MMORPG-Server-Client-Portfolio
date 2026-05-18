@@ -397,13 +397,6 @@ void AM1SpawnManager::GetRTTEchoMsg(uint64 ServerStampMs)
 
     GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green,
         FString::Printf(TEXT("RTT : %lld"), RTT_ms));
-
-    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green,
-        FString::Printf(TEXT("ClockOffsetMs : %lld"), ClockOffsetMs));
-
-    GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green,
-        FString::Printf(TEXT("TargetOffsetMs : %lld"), TargetOffsetMs));
-
 }
 
 void AM1SpawnManager::TickClock(float DeltaTime)

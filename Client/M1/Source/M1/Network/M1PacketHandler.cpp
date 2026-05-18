@@ -247,7 +247,7 @@ void M1PacketHandler::Handle_SC_USE_SKILL_RES(CMessage* pMessage, UM1NetworkMana
 	*pMessage >> SlotID >> bSuccess;
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
-	SpawnManager->OnMyPlayerSkillResponse(static_cast<EAbilitySlot>(SlotID), bSuccess != 0);
+	SpawnManager->OnMyPlayerSkillResponse(static_cast<EAbilitySlot>(SlotID + 1), bSuccess != 0);
 }
 
 void M1PacketHandler::Handle_SC_USE_SKILL_BROADCAST(CMessage* pMessage, UM1NetworkManager* NetworkManager)
@@ -257,5 +257,5 @@ void M1PacketHandler::Handle_SC_USE_SKILL_BROADCAST(CMessage* pMessage, UM1Netwo
 	*pMessage >> CharacterID >> SlotID;
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
-	SpawnManager->OnOtherCharacterUseSkill(CharacterID, static_cast<EAbilitySlot>(SlotID));
+	SpawnManager->OnOtherCharacterUseSkill(CharacterID, static_cast<EAbilitySlot>(SlotID + 1));
 }

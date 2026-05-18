@@ -4,12 +4,15 @@
 #include "Character\M1Character.h"
 #include "Character\M1BasePlayer.h"
 #include "Controller\M1PlayerController.h"
+#include "Network\M1NetworkManager.h"
+#include "System\M1SpawnManager.h"
 
 
 UM1Ability_SpinSmash::UM1Ability_SpinSmash()
 {
 	CoolTime = ClientAttack::SPINSLASH_COOLTIME_SEC / 1000;
-	RequiredMP = ClientAttack::DEFENCE_BUFF_REQUIRED_MANA;
+	RequiredMP = ClientAttack::SPINSLASH_REQUIRED_MANA;
+	FXData.CastEffectRadius = ClientAttack::SPINSLASH_RANGE;
 }
 
 void UM1Ability_SpinSmash::OnActivate(AM1Character* Owner)
@@ -25,7 +28,7 @@ void UM1Ability_SpinSmash::OnActivate(AM1Character* Owner)
 	if (!PC)
 		return;
 
-	PC->SendUseSkillPacket(static_cast<uint8>(EAbilitySlot::Skill2));
+	PC->SendUseSkillPacket(static_cast<uint8>(EAbilitySlot::Skill2) - 1);
 
 }
 
@@ -39,7 +42,13 @@ void UM1Ability_SpinSmash::OnServerConfirmed(AM1Character* Owner)
 
 	PlayCastFX(Player);
 
-	int mana = Player->GetCurrentMana();
+	if (UM1NetworkManager* NM = GetNetworkManager(Owner))
+	{
+		if (AM1SpawnManager* SM = NM->GetSpawnManager())
+			SM->ProcessClientAttackHit(Owner->GetActorLocation(), Owner->GetActorForwardVector(), ClientAttack::SPINSLASH_RANGE, 180.f);
+	}
+
+	uint16 mana = Player->GetCurrentMana();
 	mana -= RequiredMP;
 
 	Player->SetCurrentMana(mana);
