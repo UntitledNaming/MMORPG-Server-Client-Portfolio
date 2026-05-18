@@ -70,7 +70,7 @@ void FieldGroup::OnClientLeave(UINT64 sessionID)
 	// 본인 캐릭터에 대한 삭제 메세지를 각 섹터에 있는 유저에게 보내기
 	CUser* pUser = it->second;
 
-	CMessage* pMessage = PacketBuilder::CreateMyCharacter(pUser);
+	CMessage* pMessage = PacketBuilder::DeleteCharacter(pUser);
 	SendPacket_SectorAround(pMessage, pUser);
 	CMessage::Free(pMessage);
 
