@@ -206,9 +206,8 @@ namespace FieldProtocol
     //---------------------------------------------------------------
     //  Attack Hit Result Broadcast           Server -> Client
     //
-    //  1   -   PlayerHitCount  (uint8)
-    //  1   -   MonsterHitCount (uint8)
-    // 
+    //  1   -   PlayerHitCount    (uint8)
+    //  1   -   MonsterHitCount   (uint8)
     //  per hit:
     //  8   -   CharacterID       (uint64)
     //  2   -   NewHP             (uint16)

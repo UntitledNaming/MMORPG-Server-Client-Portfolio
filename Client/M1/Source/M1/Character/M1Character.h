@@ -59,7 +59,7 @@ protected:
     FTimerHandle HitReactTimerHandle;
 
     UPROPERTY(EditDefaultsOnly, Category = "Combat")
-    float HitReactDuration = 0.8f;
+    float HitReactDuration = 0.5f;
 
 protected:
 

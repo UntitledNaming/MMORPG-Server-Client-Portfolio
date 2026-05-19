@@ -3,6 +3,7 @@
 
 #include "Animation/M1GroundSmash_AnimNotify.h"
 #include "Character\M1LocalPlayer.h"
+#include "Character\M1BasePlayer.h"
 #include "Controller\M1PlayerController.h"
 #include "System\M1SpawnManager.h"
 #include "Network\M1NetworkManager.h"
@@ -12,7 +13,7 @@
 
 void UM1GroundSmash_AnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
-    AM1LocalPlayer* Character = Cast<AM1LocalPlayer>(MeshComp->GetOwner());
+    AM1BasePlayer* Character = Cast<AM1BasePlayer>(MeshComp->GetOwner());
     if (!Character) return;
 
     UGameInstance* GI = Character->GetGameInstance();
@@ -22,7 +23,8 @@ void UM1GroundSmash_AnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
     AM1SpawnManager* SM = NetworkManager->GetSpawnManager();
     if (!SM) return;
 
-    SM->ProcessClientAttackHit(Character->GetActorLocation(), Character->GetActorForwardVector(), ClientAttack::GROUNDSMASH_RANGE, 180.f);
     UM1PlayerActorComponent* Comp = Character->GetAbilityComponent();
     Comp->TriggerImpactFX(EAbilitySlot::Skill3);
+
+    SM->ProcessClientAttackHit(Character->GetActorLocation(), Character->GetActorForwardVector(), ClientAttack::GROUNDSMASH_RANGE, 180.f);
 }

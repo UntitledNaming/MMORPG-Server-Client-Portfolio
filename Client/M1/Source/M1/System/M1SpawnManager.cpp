@@ -287,16 +287,17 @@ void AM1SpawnManager::ProcessClientAttackHit(FVector Origin, FVector Forward, fl
 
 void AM1SpawnManager::ApplyPlayerHitResult(uint64 EntityID, int32 NewHP)
 {
-    // 피격자가 나면 
     if (EntityID == MyID)
     {
         MyPlayer->SetHP(NewHP);
+        MyPlayer->TriggerHitReact(0.f);  // 서버 패킷에 공격자 정보 없으므로 정면(0°) 기본값
         return;
     }
 
-    else if (AM1Character* Character = FindPlayer(EntityID))
+    if (AM1Character* Character = FindPlayer(EntityID))
     {
         Character->SetHP(NewHP);
+
         return;
     }
 }
