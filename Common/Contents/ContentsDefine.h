@@ -84,7 +84,7 @@ namespace ClientAttack
 	constexpr uint16 SPINSLASH_REQUIRED_MANA = 10;
 	constexpr uint32 SPINSLASH_COOLTIME_SEC = 7000;
 	constexpr uint32 SPINSLASH_MAX_HIT_COUNT = 4;
-	constexpr float  SPINSLASH_RANGE = 450.0f;
+	constexpr float  SPINSLASH_RANGE = 400.0f;
 
 
 	////////////////////////////////////////////////

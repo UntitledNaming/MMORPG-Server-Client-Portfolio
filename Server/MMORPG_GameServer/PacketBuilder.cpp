@@ -188,6 +188,7 @@ CMessage* PacketBuilder::UseSkillBroadCast(uint64 id, uint8 skillSlot)
 	CMessage* pMessage = CMessage::Alloc();
 	pMessage->Clear(1);
 
+	*pMessage << FieldProtocol::PACKET_SC_USE_SKILL_BROADCAST;
 	*pMessage << id;
 	*pMessage << skillSlot;
 

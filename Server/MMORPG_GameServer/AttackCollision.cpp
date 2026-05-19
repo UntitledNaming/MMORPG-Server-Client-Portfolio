@@ -33,11 +33,11 @@ bool AttackCollision::IsInCone(const Location& attackerLocation, const Location&
 	if (distSq <= 0.0001f)
 		return false;
 
-	float halfAngleRad = halfAngleDegree * FieldConst::Pi / 180.0f;
+	float halfattackRad = attackYaw * FieldConst::Pi / 180.0f;
 
 	Vec2 forward;
-	forward.m_xpos = cosf(halfAngleRad);
-	forward.m_ypos = sinf(halfAngleRad);
+	forward.m_xpos = cosf(halfattackRad);
+	forward.m_ypos = sinf(halfattackRad);
 
 	// 공격 방향 단위 벡터와 내 위치에서 타겟 방향으로의 위치벡터의 내적
 	// 다른 말로 내 위치에서 타겟 방향으로의 벡터를 공격 방향 단위 벡터 위로 투영시킨값
@@ -58,7 +58,7 @@ bool AttackCollision::IsInCone(const Location& attackerLocation, const Location&
 	// dot / sqrt(distSq) >= cosHalfAngle 인데 양변 제곱하면
 	// dot * dot / distSq >= cosHalfAngle * cosHalfAngle
 	// dot * dot >= distSq * cosHalfAngle * cosHalfAngle
-	float cosHalfAngle = cosf(halfAngleRad);
+	float cosHalfAngle = cosf(halfAngleDegree * FieldConst::Pi / 180.0f);
 
 	return dot * dot >= distSq * cosHalfAngle * cosHalfAngle;
 }
