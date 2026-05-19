@@ -108,7 +108,7 @@ bool CUser::CanUseSkill(uint32 curTime, uint8 skillIndex)
 
 	// mp 및 쿨타임 체크
 	if (m_mp < g_skillData[skillIndex].RequiredMana
-		|| (g_skillData[skillIndex].CoolTime + m_skillInfo[skillIndex].m_skillLastRecvTime) < curTime)
+		|| (g_skillData[skillIndex].CoolTime > curTime - m_skillInfo[skillIndex].m_skillLastRecvTime))
 		return false;
 
 	return true;
