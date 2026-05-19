@@ -236,7 +236,7 @@ void FieldGroup::CollectHitTarget(CUser* attacker, HitSearchInfo& hitInfo, HitRe
 				{
 					CUser* targetPlayer = m_sectors[sy][sx].GetUser(i);
 
-					if (targetPlayer == attacker)
+					if (targetPlayer == attacker || targetPlayer->GetHP() <= 0 || targetPlayer->GetDisconnectFlag())
 						continue;
 
 					switch (hitInfo.shape)
@@ -451,6 +451,11 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 	{
 		uint32 damage = pUser->CalBaseAttackDamage(result.HitUserArray[i], curTime);
 		result.HitUserArray[i]->Damage(damage);
+		if (result.HitUserArray[i]->GetHP() <= 0 && result.HitUserArray[i]->GetDisconnectFlag())
+		{
+			Disconnect(sessionID);
+			result.HitUserArray[i]->SetDisconnectFlag(true);
+		}
 	}
 
 	// 공격자 swing 메세지 뿌리기 

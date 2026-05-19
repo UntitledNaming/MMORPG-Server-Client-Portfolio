@@ -41,6 +41,7 @@ public:
 	float  GetZ() const { return m_location.zpos; }
 	float  GetMoveYaw() const { return m_movementYaw; }
 	bool   GetMoveFlag() const { return m_moveFlag; }
+	bool   GetDisconnectFlag() const { return m_disconnectFlag; }
 
 	const SectorPos& GetSectorPos() const { return m_secPos; }
 	const Location& GetLocation() const { return m_location; }
@@ -48,11 +49,7 @@ public:
 	void SetMoveYaw(float moveYaw) { m_movementYaw = moveYaw; }
 	void SetSectorArrayIdx(uint16 idx) { m_arrayIdx = idx; }
 	void SetMoveFlag(bool flag) { m_moveFlag = flag; }
-	void   SkillInfoUpdate(uint16 skillIndex, uint32 curTime, bool bActivate);
-	uint16 GetDef();
-	uint16 GetAtk();
-	uint16 GetMaxHP();
-	uint16 GetMaxMP();
+	void SetDisconnectFlag(bool flag) { m_disconnectFlag = flag; }
 
 	static CUser* Alloc();
 	static void Free(CUser* pUser);
@@ -77,6 +74,7 @@ private:
 	UserStat            m_equipBonusStat;                                                  // 유저 장비 보너스 스탯
 	uint16              m_mpRegenPerSec;
 
+	bool                m_disconnectFlag;                                                  // 죽으면 연결 끊는 플래그
 	bool                m_moveFlag;
 	float               m_movementYaw;                                                     // 캐릭터 이동 방향, 이동 처리시 사용
 	float               m_maxWalkSpeed;                                                    // 캐릭터 최대 이동 속도(이벤트 발생시 변화 값)

@@ -28,7 +28,7 @@ void CUser::Init(uint64 sessionID)
 	m_moveSpeed = m_maxWalkSpeed / FieldConst::UPDATE_FRAME;
 	m_recvTime = timeGetTime();
 	m_lastSyncCheckTime = timeGetTime();
-
+	m_disconnectFlag = false;
 
 	// SwingInfo √ ±‚»≠
 	m_swingInfo.m_lastSwingIdx = 0;
@@ -69,10 +69,14 @@ void CUser::ManaRegen(uint32 curTime)
 
 void CUser::Damage(uint16 damage)
 {
+	if (m_disconnectFlag == true)
+		return;
+
 	m_hp -= damage;
 	
 	if (m_hp < 0)
 		m_hp = 0;
+	
 }
 
 void CUser::UseSkill(uint32 curTime, uint8 skillIndex)
@@ -155,7 +159,7 @@ bool CUser::CanSwing(uint32 curTime, uint8 swingidx)
 
 uint32 CUser::CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime)
 {
-	if (skillIndex >= USER_SKILL_SLOT_COUNT || target == nullptr)
+	if (skillIndex >= USER_SKILL_SLOT_COUNT || target == nullptr || target->m_disconnectFlag == true)
 		return 0;
 
 	const SkillData& skillData = g_skillData[skillIndex];
@@ -200,7 +204,7 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime)
 
 uint32 CUser::CalBaseAttackDamage(CUser* target, uint32 curTime)
 {
-	if (target == nullptr)
+	if (target == nullptr || target->m_disconnectFlag == true)
 		return 0;
 
 	uint16 atk = GetAtk(curTime);
