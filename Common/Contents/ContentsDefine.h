@@ -108,7 +108,7 @@ namespace ClientAttack
 
 namespace MonsterConst
 {
-	constexpr uint16  BASE_MAXHP = 100;
-	constexpr uint16  BASE_MAXMP = 100;
-	constexpr float   WALK_SPEED = 400.0; // 400 cm/s
+	constexpr uint16  BASE_HP    = 50;
+	constexpr uint16  BASE_MAXHP = 50;
+	constexpr float   WALK_SPEED = 500.0; // 500 cm/s
 }

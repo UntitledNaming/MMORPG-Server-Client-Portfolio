@@ -61,7 +61,6 @@ enum class EMonsterState : uint8
 	Idle,           // 대기
 	Patrol,         // 주변 순찰
 	Chase,          // 추격
-	Attack,         // 공격
 	Return,         // 스폰 위치로 복귀
 	Dead            // 사망, 리젠 대기
 };

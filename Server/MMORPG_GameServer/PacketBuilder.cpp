@@ -192,3 +192,23 @@ CMessage* PacketBuilder::UseSkillBroadCast(uint64 id, uint8 skillSlot)
 
 	return pMessage;
 }
+
+CMessage* PacketBuilder::CreateMonster(CMonster* pMonster)
+{
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+
+	*pMessage << FieldProtocol::PACKET_SC_CREATE_MONSTER;
+	*pMessage << pMonster->GetMosnterID();
+	*pMessage << pMonster->GetX();
+	*pMessage << pMonster->GetY();
+	*pMessage << pMonster->GetZ();
+	*pMessage << pMonster->GetMoveYaw();
+	*pMessage << pMonster->GetMonsterType();
+	*pMessage << pMonster->GetHP();
+	*pMessage << pMonster->GetMaxHP();
+	*pMessage << static_cast<uint8>(pMonster->GetMonsterState());
+	*pMessage << pMonster->GetMoveFlag();
+
+	return pMessage;
+}

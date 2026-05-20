@@ -163,6 +163,15 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 			SendPacket(pOnUser->GetSessionID(), pCreateOtherChrToMeMsg);
 			CMessage::Free(pCreateOtherChrToMeMsg);
 		}
+
+		// 섹터 주변 몬스터에 대한 생성 메세지 전송
+		uint16 curMonsterCount = m_sectors[curSecYpos][curSecXpos].GetMonsterCount();
+		for (int monstercount = 0; monstercount < curMonsterCount; monstercount++)
+		{
+			CMessage* pCreateMonsterMsg = PacketBuilder::CreateMonster(m_sectors[curSecYpos][curSecXpos].GetMonster(monstercount));
+			SendPacket(pOnUser->GetSessionID(), pCreateMonsterMsg);
+			CMessage::Free(pCreateMonsterMsg);
+		}
 	}
 }
 
@@ -275,22 +284,22 @@ void FieldGroup::CollectHitTarget(CUser* attacker, HitSearchInfo& hitInfo, HitRe
 				{
 					CMonster* targetMonster = m_sectors[sy][sx].GetMonster(i);
 
-					//switch (hitInfo.shape)
-					//{
-					//case EHitShape::Cone:
-					//	if (AttackCollision::IsInCone(attacker->GetLocation(), targetPlayer->GetLocation(), hitInfo.range, hitInfo.attackYaw, hitInfo.halfAngleDegree))
-					//	{
-					//		hitResult.HitUserArray[hitplayerCount++] = targetPlayer;
-					//	}
-					//	break;
+					switch (hitInfo.shape)
+					{
+					case EHitShape::Cone:
+						if (AttackCollision::IsInCone(attacker->GetLocation(), targetMonster->GetLocation(), hitInfo.range, hitInfo.attackYaw, hitInfo.halfAngleDegree))
+						{
+							hitResult.HitMonsterArray[hitmonsterCount++] = targetMonster;
+						}
+						break;
 
-					//case EHitShape::Circle:
-					//	if (AttackCollision::IsInCircle(attacker->GetLocation(), targetPlayer->GetLocation(), hitInfo.range))
-					//	{
-					//		hitResult.HitUserArray[hitplayerCount++] = targetPlayer;
-					//	}
-					//	break;
-					//}
+					case EHitShape::Circle:
+						if (AttackCollision::IsInCircle(attacker->GetLocation(), targetMonster->GetLocation(), hitInfo.range))
+						{
+							hitResult.HitMonsterArray[hitmonsterCount++] = targetMonster;
+						}
+						break;
+					}
 				}
 
 				if (hitInfo.MaxMonsterCount <= hitmonsterCount || hitmonsterCount >= ClientAttack::MaxMonsterCount)
@@ -673,16 +682,37 @@ void FieldGroup::UserManaRegen()
 
 void FieldGroup::MonsterSpawnInit()
 {
-
+	GrossMonsterSpawnInit();
 }
 
-void FieldGroup::GrossMonsterSpawnInfoInit()
+void FieldGroup::GrossMonsterSpawnInit()
 {
-	m_grossMonsterSpawnInfos.resize(MAX_GROSS_FIELD_MONSTER_COUNT);
+	// 최소 섹터당 몬스터 1마리 배치
+	if (MAX_GROSS_FIELD_MONSTER_COUNT < GROSS_FIELD_SECTOR_COUNT)
+		return;
 
-	for (int i = 0; i < MAX_GROSS_FIELD_MONSTER_COUNT; i++)
+	int monstrSpawnCount = 0;
+	for (int i = 0; i < 3; i++)
 	{
-		m_grossMonsterSpawnInfos[i].
-	}
+		for (uint16 sy = m_grossFieldSpawnArea[i].minSectorY; sy <= m_grossFieldSpawnArea[i].maxSectorY; sy++)
+		{
+			for (uint16 sx = m_grossFieldSpawnArea[i].minSectorX; sx <= m_grossFieldSpawnArea[i].maxSectorX; sx++)
+			{
+				for (int count = 0; count < MAX_GROSS_FIELD_MONSTER_COUNT / GROSS_FIELD_SECTOR_COUNT; count++)
+				{
+					if (monstrSpawnCount >= MAX_GROSS_FIELD_MONSTER_COUNT)
+						return;
 
+					CMonster& monster = m_grossMonsterPoolArray[monstrSpawnCount++];
+					Location loc{ MAP_WORLD_OFFSET_X + (sx + 0.5f) * SECTOR_SIZE,MAP_WORLD_OFFSET_Y + (sy + 0.5f) * SECTOR_SIZE };
+					monster.Init(m_monsterAllocID, 0, loc);
+					m_monsterAllocID++;
+
+					m_sectors[sy][sx].AddMonster(&monster);
+
+				}
+			}
+		}
+	}
 }
+

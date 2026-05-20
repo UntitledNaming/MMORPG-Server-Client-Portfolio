@@ -21,5 +21,7 @@ public:
 	static CMessage* HitTarget(uint8 hitPlayerCount, uint8 hitMonsterCount, std::vector<CUser*>& hitPlayerArray, std::vector<CMonster*>& hitMonsterArray);
 	static CMessage* UseSkillRes(uint8 skillSlot, bool success);
 	static CMessage* UseSkillBroadCast(uint64 id, uint8 skillSlot);
+
+	static CMessage* CreateMonster(CMonster* pMonster);
 };
 

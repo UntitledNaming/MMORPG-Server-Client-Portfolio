@@ -83,15 +83,13 @@ private:
     // 몬스터 관련 함수
     //////////////////////////////////////////////////////////////////////////////////
 	void MonsterSpawnInit();
-	void GrossMonsterSpawnInfoInit();
-
+	void GrossMonsterSpawnInit();
 private:
 	std::unordered_map<uint64, CUser*>            m_userLookUpTable;
-	std::vector<GrossField_MonsterSpawnInfo>      m_grossMonsterSpawnInfos;
 	FieldSector                                   m_sectors[FieldConst::SECTOR_Y_MAX][FieldConst::SECTOR_X_MAX];
 	CMonster                                      m_grossMonsterPoolArray[FieldConst::MAX_GROSS_FIELD_MONSTER_COUNT];
 									              
-	GrossMonsterSpawnSectorArea                   m_fieldSpawnArea[3] = { {81,110,51,100}, {42,75,54,92}, {49,95,86,109} };
+	GrossMonsterSpawnSectorArea                   m_grossFieldSpawnArea[3] = { {81,110,51,100}, {42,75,54,92}, {49,95,86,109} };
 
 	uint32                                        m_ManaRegenOldTime = 0;
 	uint64                                        m_monsterAllocID   = 0;
