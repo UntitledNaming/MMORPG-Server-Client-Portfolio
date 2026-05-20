@@ -79,7 +79,7 @@ void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
 
     // 플레이어 생성하면 플래그 키고 플레이어 초기화 후 PlayerMap에 넣기
     MyID = Data.EntityID;
-    Data.CurrentEXP = 50.f;
+    Data.CurrentEXP = 0;
     Data.RequiredEXP = 100.f;
     Data.Level = 1;
     NewPlayer->ApplySpawnData(Data);
@@ -102,7 +102,7 @@ void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
 
 }
 
-void AM1SpawnManager::SpawnOtehrPlayer(FM1SpawnData& Data)
+void AM1SpawnManager::SpawnOtherPlayer(FM1SpawnData& Data)
 {
     if (PlayerMap.Contains(Data.EntityID))
         return;
@@ -140,7 +140,39 @@ void AM1SpawnManager::SpawnOtehrPlayer(FM1SpawnData& Data)
 
 void AM1SpawnManager::SpawnMonster(FM1SpawnData& Data)
 {
+    if (PlayerMap.Contains(Data.EntityID))
+        return;
 
+    if (OtherPlayerCharacterClass == nullptr)
+        return;
+
+    UWorld* World = GetWorld();
+    if (World == nullptr)
+        return;
+
+    FActorSpawnParameters Params;
+    Params.SpawnCollisionHandlingOverride =
+        ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+    AM1Monster* NewMonster =
+        World->SpawnActor<AM1Monster>(
+            OtherPlayerCharacterClass,
+            Data.Location,
+            Data.Rotation,
+            Params);
+
+
+    if (NewMonster == nullptr)
+        return;
+
+    NewMonster->ApplySpawnData(Data);
+    NewMonster->SetSpawnFlag(true);
+
+    FString Name = TEXT("Khaimera");
+    NewMonster->InitOverheadStatus(Name, Data.HP, Data.MaxHP);
+    NewMonster->SetOverheadVisible(true);
+
+    MonsterMap.Add(Data.EntityID, NewMonster);
 }
 
 void AM1SpawnManager::DespawnPlayer(uint64 EntityID)

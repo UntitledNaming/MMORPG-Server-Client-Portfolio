@@ -40,7 +40,7 @@ protected:
 
 public:
 	void SpawnMyPlayer(FM1SpawnData& Data);
-	void SpawnOtehrPlayer(FM1SpawnData& Data);
+	void SpawnOtherPlayer(FM1SpawnData& Data);
 	void SpawnMonster(FM1SpawnData& Data);
 	void DespawnPlayer(uint64 EntityID);
 	void DespawnMonster(uint64 EntityID);

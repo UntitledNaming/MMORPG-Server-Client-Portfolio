@@ -112,7 +112,7 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
     UWidgetComponent* OverheadStatusComponent = nullptr;
 
-    UPROPERTY()
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     UM1OverheadStatusWidget* OverheadStatusWidget = nullptr;
 
 };
