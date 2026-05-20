@@ -140,7 +140,7 @@ void AM1SpawnManager::SpawnOtherPlayer(FM1SpawnData& Data)
 
 void AM1SpawnManager::SpawnMonster(FM1SpawnData& Data)
 {
-    if (MonsterMap.Contains(Data.EntityID))
+    if (PlayerMap.Contains(Data.EntityID))
         return;
 
     if (MonsterCharacterClass == nullptr)
