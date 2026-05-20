@@ -710,7 +710,7 @@ void FieldGroup::GrossMonsterSpawnInit()
 
 
 					CMonster& monster = m_grossMonsterPoolArray[monstrSpawnCount++];
-					Location loc{ MAP_WORLD_OFFSET_X + (sx + 0.5f) * SECTOR_SIZE,MAP_WORLD_OFFSET_Y + (sy + 0.5f) * SECTOR_SIZE ,-38690.f };
+					Location loc{ MAP_WORLD_OFFSET_X + (sx + 0.5f) * SECTOR_SIZE,MAP_WORLD_OFFSET_Y + (sy + 0.5f) * SECTOR_SIZE ,-38775.f };
 					monster.Init(m_monsterAllocID, 0, loc);
 					m_monsterAllocID++;
 
