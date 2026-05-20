@@ -10,20 +10,22 @@ namespace FieldConst
 {
 	constexpr uint32  UPDATE_LOOP_TIME          = 25;                          // 25ms Update Thread loop
 	constexpr uint32  UPDATE_FRAME              = 1000 / UPDATE_LOOP_TIME;     // Frame Loop Count per sec
-	constexpr uint32  USER_TIMEOUT              = 40000;
-	constexpr uint32  MAP_WORLD_OFFSET_X        = 200000;                      // (0,0) Sector Position X
-	constexpr uint32  MAP_WORLD_OFFSET_Y        = 200000;                      // (0,0) Sector Position Y
-	constexpr uint16  SECTOR_SIZE               = 2500;                        // Sector Size : 25m
-	constexpr uint16  SECTOR_USER_DEFAULT_COUNT = 100;
-	constexpr uint16  SECTOR_X_MAX              = 160; 
-	constexpr uint16  SECTOR_Y_MAX              = 160;
-	constexpr uint16  SYNC_MAX_COUNT            = 15;                          // Max Sync Count per SYNC_COUNT_WINDOW_MS
-	constexpr uint32  SYNC_COUNT_WINDOW_MS      = 10000;                       // Sync Time Window
-	constexpr float   SYNC_X_RANGE              = 500;                         // Sync Range : 5m
-	constexpr float   SYNC_Y_RANGE              = 500;
-	constexpr float   Pi                        = 3.1415926535f;
-	constexpr uint16  MAX_SECTOR_USER_COUNT     = 30;
-	constexpr uint16  MAX_SECTOR_MONSTER_COUNT  = 30;
+	constexpr uint32  USER_TIMEOUT                    = 40000;
+	constexpr uint32  MAP_WORLD_OFFSET_X              = 200000;                      // (0,0) Sector Position X
+	constexpr uint32  MAP_WORLD_OFFSET_Y              = 200000;                      // (0,0) Sector Position Y
+	constexpr uint16  SECTOR_SIZE                     = 2500;                        // Sector Size : 25m
+	constexpr uint16  SECTOR_USER_DEFAULT_COUNT       = 100;
+	constexpr uint16  SECTOR_X_MAX                    = 160; 
+	constexpr uint16  SECTOR_Y_MAX                    = 160;
+	constexpr uint16  SYNC_MAX_COUNT                  = 15;                          // Max Sync Count per SYNC_COUNT_WINDOW_MS
+	constexpr uint32  SYNC_COUNT_WINDOW_MS            = 10000;                       // Sync Time Window
+	constexpr float   SYNC_X_RANGE                    = 500;                         // Sync Range : 5m
+	constexpr float   SYNC_Y_RANGE                    = 500;
+	constexpr float   Pi                              = 3.1415926535f;
+	constexpr uint16  MAX_SECTOR_USER_COUNT           = 30;
+	constexpr uint16  MAX_SECTOR_MONSTER_COUNT        = 30;
+	constexpr uint32  MAX_GROSS_FIELD_MONSTER_COUNT   = 2500;
+	constexpr uint32  GROSS_FIELD_SECTOR_COUNT        = 2500;
 }
 
 namespace UserConst
@@ -102,4 +104,11 @@ namespace ClientAttack
 	constexpr uint32 ULTIMATE_COOLTIME_SEC = 120000;
 	constexpr uint32 ULTIMATE_MAX_HIT_COUNT = 8;
 	constexpr float  ULTIMATE_RANGE = 1200.0f;
+}
+
+namespace MonsterConst
+{
+	constexpr uint16  BASE_MAXHP = 100;
+	constexpr uint16  BASE_MAXMP = 100;
+	constexpr float   WALK_SPEED = 400.0; // 400 cm/s
 }

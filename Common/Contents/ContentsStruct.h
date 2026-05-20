@@ -4,37 +4,10 @@
 #include "ContentsEnum.h"
 #include "ContentsDefine.h"
 
-struct SyncInfo
-{
-	uint16 m_syncCount;
-	uint32 m_lastSyncCheckTime;
-};
-
-struct SwingInfo
-{
-	uint8  m_lastSwingIdx;
-	uint32 m_lastSwingRecvTime;
-};
-
 struct Vec2
 {
 	float m_xpos;
 	float m_ypos;
-};
-
-struct SkillInfo
-{
-	bool   m_skillActivate;     // skill Activate Flag
-	uint32 m_skillLastRecvTime; // skill Coll Time
-	uint32 m_skillExpiredTime;  // skill Expired Time
-};
-
-struct UserStat
-{
-	uint16 m_atk;
-	uint16 m_def;
-	uint16 m_maxHP;
-	uint16 m_maxMP;
 };
 
 struct SkillData
@@ -60,3 +33,4 @@ struct Location
 	float ypos;
 	float zpos;
 };
+

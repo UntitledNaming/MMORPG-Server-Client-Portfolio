@@ -48,6 +48,9 @@ void FieldGroup::Init(CGameLibrary* p)
 			m_sectors[y][x].Init();
 		}
 	}
+
+	// 섹터에 몬스터 배치하기
+	MonsterSpawnInit();
 }
 
 void FieldGroup::Destroy()
@@ -77,6 +80,7 @@ void FieldGroup::OnClientLeave(UINT64 sessionID)
 	FieldSector& sec = m_sectors[pUser->GetSectorYpos()][pUser->GetSectorXpos()];
 	sec.RemoveUser(pUser);
 
+	pUser->Destroy();
 	CUser::Free(pUser);
 	m_userLookUpTable.erase(it);
 }
@@ -665,4 +669,20 @@ void FieldGroup::UserManaRegen()
 	{
 		it->second->ManaRegen(curTime);
 	}
+}
+
+void FieldGroup::MonsterSpawnInit()
+{
+
+}
+
+void FieldGroup::GrossMonsterSpawnInfoInit()
+{
+	m_grossMonsterSpawnInfos.resize(MAX_GROSS_FIELD_MONSTER_COUNT);
+
+	for (int i = 0; i < MAX_GROSS_FIELD_MONSTER_COUNT; i++)
+	{
+		m_grossMonsterSpawnInfos[i].
+	}
+
 }

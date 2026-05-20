@@ -41,8 +41,6 @@ CMessage* PacketBuilder::CreateOtherCharacter(CUser* pUser)
 	*pMessage << pUser->GetMoveYaw();
 	*pMessage << pUser->GetHP();
 	*pMessage << pUser->GetMaxHP(timeGetTime());
-	*pMessage << pUser->GetMP();
-	*pMessage << pUser->GetMaxMP(timeGetTime());
 	*pMessage << pUser->GetMoveFlag();
 
 	return pMessage;

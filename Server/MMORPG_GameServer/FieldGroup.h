@@ -7,6 +7,20 @@ class SectorPos;
 struct HitSearchInfo;
 struct HitResult;
 
+struct SyncInfo
+{
+	uint16 m_syncCount;
+	uint32 m_lastSyncCheckTime;
+};
+
+struct GrossMonsterSpawnSectorArea
+{
+	uint16 minSectorX;
+	uint16 maxSectorX;
+	uint16 minSectorY;
+	uint16 maxSectorY;
+};
+
 class FieldGroup : public CGroup
 {
 public:
@@ -14,6 +28,8 @@ public:
 	~FieldGroup() = default;
 
 	size_t UserCount();
+
+private:
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// 그룹 콜백 함수
@@ -62,10 +78,23 @@ public:
 	void SectorUpdate(CUser* pUser, const SectorPos& newSec);
 	void UserManaRegen();
 
+
+	//////////////////////////////////////////////////////////////////////////////////
+    // 몬스터 관련 함수
+    //////////////////////////////////////////////////////////////////////////////////
+	void MonsterSpawnInit();
+	void GrossMonsterSpawnInfoInit();
+
 private:
-	std::unordered_map<uint64, CUser*> m_userLookUpTable;
-	FieldSector                        m_sectors[FieldConst::SECTOR_Y_MAX][FieldConst::SECTOR_X_MAX];
-	uint32                             m_ManaRegenOldTime = 0;
+	std::unordered_map<uint64, CUser*>            m_userLookUpTable;
+	std::vector<GrossField_MonsterSpawnInfo>      m_grossMonsterSpawnInfos;
+	FieldSector                                   m_sectors[FieldConst::SECTOR_Y_MAX][FieldConst::SECTOR_X_MAX];
+	CMonster                                      m_grossMonsterPoolArray[FieldConst::MAX_GROSS_FIELD_MONSTER_COUNT];
+									              
+	GrossMonsterSpawnSectorArea                   m_fieldSpawnArea[3] = { {81,110,51,100}, {42,75,54,92}, {49,95,86,109} };
+
+	uint32                                        m_ManaRegenOldTime = 0;
+	uint64                                        m_monsterAllocID   = 0;
 
 public:
 	uint64 fieldframe = 0;

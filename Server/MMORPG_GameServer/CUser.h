@@ -5,6 +5,27 @@
 #include "ContentsDefine.h"
 #include "MemoryPoolTLS.h"
 
+struct SwingInfo
+{
+	uint8  m_lastSwingIdx;
+	uint32 m_lastSwingRecvTime;
+};
+
+struct UserStat
+{
+	uint16 m_atk;
+	uint16 m_def;
+	uint16 m_maxHP;
+	uint16 m_maxMP;
+};
+
+struct SkillInfo
+{
+	bool   m_skillActivate;     // skill Activate Flag
+	uint32 m_skillLastRecvTime; // skill Coll Time
+	uint32 m_skillExpiredTime;  // skill Expired Time
+};
+
 class CUser : public IUser
 {
 public:
@@ -12,6 +33,7 @@ public:
 	~CUser() = default;
 	
 	void   Init(uint64 sessionID);
+	void   Destroy();
 	void   ManaRegen(uint32 curTime);
 	void   Damage(uint16 damage);
 	void   UseSkill(uint32 curTime, uint8 skillIndex);

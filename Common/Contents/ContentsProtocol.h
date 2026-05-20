@@ -61,8 +61,6 @@ namespace FieldProtocol
     //  4   -   MoveYaw         (float)  
     //  2   -   HP              (uint16) 
     //  2   -   MaxHP           (uint16) 
-    //  2   -   MP              (uint16) 
-    //  2   -   MaxMP           (uint16) 
     //  1   -   MoveFlag        (bool)
     //
     //---------------------------------------------------------------
@@ -183,7 +181,7 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_SWING_LEFT_ATTACK = 1014;
+    constexpr uint16 PACKET_SC_SWING_LEFT_ATTACK = 1013;
     //---------------------------------------------------------------
     //  Attack Start Broadcast                Server -> Client
     //
@@ -193,7 +191,7 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_STOP_LEFT_ATTACK = 1015;
+    constexpr uint16 PACKET_SC_STOP_LEFT_ATTACK = 1014;
     //---------------------------------------------------------------
     //  Attack Stop Broadcast                 Server -> Client
     //
@@ -202,7 +200,7 @@ namespace FieldProtocol
     //---------------------------------------------------------------
 
 
-    constexpr uint16 PACKET_SC_ATTACK_HIT_RESULT = 1017;
+    constexpr uint16 PACKET_SC_ATTACK_HIT_RESULT = 1015;
     //---------------------------------------------------------------
     //  Attack Hit Result Broadcast           Server -> Client
     //
@@ -218,7 +216,7 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_CS_USE_SKILL = 1018;
+    constexpr uint16 PACKET_CS_USE_SKILL = 1016;
     //---------------------------------------------------------------
     //  Skill Use Request                     Client -> Server
     //
@@ -226,7 +224,7 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_USE_SKILL_RES = 1019;
+    constexpr uint16 PACKET_SC_USE_SKILL_RES = 1017;
     //---------------------------------------------------------------
     //  Skill Use Response                    Server -> Client
     //
@@ -235,13 +233,29 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_USE_SKILL_BROADCAST = 1020;
+    constexpr uint16 PACKET_SC_USE_SKILL_BROADCAST = 1018;
     //---------------------------------------------------------------
     //  Skill Use Broadcast                   Server -> Client
     //
     //  8   -   CharacterID     (uint64)
     //  1   -   SkillSlot       (uint8)
     //
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_CREATE_MONSTER = 1019;
+    //---------------------------------------------------------------
+    // 	Monster Create Msg      			   Server -> Client
+    //
+    //	8	-	MonsterID		(uint64)
+    //	4	-	Xpos			(float)
+    //	4	-	Ypos			(float)
+    //	4	-	Zpos			(float)
+    //  4   -   MoveYaw         (float)  
+    //  2   -   MonsterType     (uint16)
+    //  2   -   HP              (uint16) 
+    //  2   -   MaxHP           (uint16) 
+    //  1   -   MonsterState    (uint8)
+    //  1   -   MoveFlag        (bool)
     //---------------------------------------------------------------
 }
 
