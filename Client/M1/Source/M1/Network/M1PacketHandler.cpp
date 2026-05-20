@@ -10,6 +10,8 @@
 #include "ClientCore/MemoryPoolTLS.h"
 #include "ClientCore/CMessage.h"
 #include "Kismet/GameplayStatics.h"
+#include "ContentsEnum.h"
+
 
 M1PacketHandler::M1PacketHandler()
 {
@@ -102,7 +104,7 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 	Data.MP = mp;
 	Data.MaxMP = maxmp;
 	Data.MoveFlag = moveflag;
-	SpawnManager->SpawnOtehrPlayer(Data);
+	SpawnManager->SpawnOtherPlayer(Data);
 }
 
 void M1PacketHandler::Handle_SC_DELETE_CHARACTER(CMessage* pMessage, UM1NetworkManager* NetworkManager)
@@ -258,4 +260,45 @@ void M1PacketHandler::Handle_SC_USE_SKILL_BROADCAST(CMessage* pMessage, UM1Netwo
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
 	SpawnManager->OnOtherCharacterUseSkill(CharacterID, static_cast<EAbilitySlot>(SlotID + 1));
+}
+
+// 서버가 보낸 "몬스터 생성" 처리
+void M1PacketHandler::Handle_SC_CREATE_MONSTER(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint64 monsterID;
+
+	float xpos;
+	float ypos;
+	float zpos;
+	float yaw;
+	uint16 monsterType;
+	uint16 hp;
+	uint16 maxhp;
+	uint8 state;
+	bool moveflag;
+
+	*pMessage >> monsterID;
+	*pMessage >> xpos;
+	*pMessage >> ypos;
+	*pMessage >> zpos;
+	*pMessage >> yaw;
+	*pMessage >> monsterType;
+	*pMessage >> hp;
+	*pMessage >> maxhp;
+	*pMessage >> state;
+	*pMessage >> moveflag;
+
+	FVector Location(xpos, ypos, zpos);
+	FRotator Rotator(0, yaw, 0);
+
+	FM1SpawnData spawnData;
+	spawnData.EntityID = monsterID;
+	spawnData.HP = hp;
+	spawnData.MaxHP = maxhp;
+	spawnData.Location = Location;
+	spawnData.Rotation = Rotator;
+	spawnData.MoveFlag = moveflag;
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	SpawnManager->SpawnMonster(spawnData);
 }

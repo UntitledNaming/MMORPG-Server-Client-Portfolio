@@ -3,15 +3,6 @@
 #include "CoreMinimal.h"
 #include "ContentsEnum.h"
 
-namespace Client_InputMask
-{
-    constexpr uint16 None = 1 << 0;
-    constexpr uint16 North = 1 << 1;
-    constexpr uint16 South = 1 << 2;
-    constexpr uint16 East = 1 << 3;
-    constexpr uint16 West = 1 << 4;
-}
-
 struct FM1SpawnData
 {
     uint64   EntityID = 0; 

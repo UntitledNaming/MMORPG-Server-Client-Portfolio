@@ -53,4 +53,7 @@ public:
 
 	// 서버가 보낸 "스킬 사용 브로드캐스트 (타 캐릭터)" 처리
 	static void Handle_SC_USE_SKILL_BROADCAST(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "몬스터 생성" 처리
+	static void Handle_SC_CREATE_MONSTER(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 };
