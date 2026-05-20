@@ -15,6 +15,8 @@
 #include "CUserDirectory.h"
 #include "CDBManager.h"
 #include "FieldSector.h"
+#include "SectorPos.h"
+#include "CMonster.h"
 #include "FieldGroup.h"
 #include "AuthGroup.h"
 #include "CGameLibrary.h"

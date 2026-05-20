@@ -12,6 +12,8 @@
 #include "CGameLibrary.h"
 #include "AuthGroup.h"
 #include "FieldSector.h"
+#include "SectorPos.h"
+#include "CMonster.h"
 #include "FieldGroup.h"
 #include "ChatService.h"
 #include "CDBManager.h"

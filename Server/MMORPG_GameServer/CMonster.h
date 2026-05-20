@@ -17,20 +17,20 @@ public:
 	void Destroy();
 	void Regen();
 
-	uint64 GetMonsterID() const { m_monsterID; }
-	uint16 GetMonsterType() const { m_monsterType; }
-	uint16 GetSectorIdx() const { m_sectorIdx; }
-	uint16 GetHP() const { m_hp; }
-	uint16 GetMaxHP() const { m_maxHP; }
-	EMonsterState GetMonsterState() const { m_state; }
-	SectorPos& GetSectorPos() const { m_secPos; }
-	Location& GetLocation() const { m_location; }
-	Location& GetSpawnLocation() const { m_spawnLocation; }
-	float     GetX() const { m_location.xpos; }
-	float     GetY() const { m_location.ypos; }
-	float     GetZ() const { m_location.zpos; }
-	float     GetMoveYaw() const { m_moveYaw; }
-	bool      GetMoveFlag() const { m_moveFlag; }
+	const uint64 GetMonsterID() const { return m_monsterID; }
+	const uint16 GetMonsterType() const { return m_monsterType; }
+	const uint16 GetSectorIdx() const { return m_sectorIdx; }
+	const uint16 GetHP() const { return m_hp; }
+	const uint16 GetMaxHP() const { return m_maxHP; }
+	const EMonsterState GetMonsterState() const { return m_state; }
+	const SectorPos& GetSectorPos() const { return m_secPos; }
+	const Location& GetLocation() const { return m_location; }
+	const Location& GetSpawnLocation() const { return m_spawnLocation; }
+	const float     GetX() const { return m_location.xpos; }
+	const float     GetY() const { return m_location.ypos; }
+	const float     GetZ() const { return m_location.zpos; }
+	const float     GetMoveYaw() const { return m_moveYaw; }
+	const bool      GetMoveFlag() const { return m_moveFlag; }
 
 	void SetSectorIdx(uint16 idx) { m_sectorIdx = idx; }
 	void SetHP(uint16 hp) { m_hp = hp; }

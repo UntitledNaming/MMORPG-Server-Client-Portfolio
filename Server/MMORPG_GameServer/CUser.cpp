@@ -14,7 +14,7 @@ void CUser::Init(uint64 sessionID)
 	// todo : 추후 DB에서 데이터 긁어와서 초기화 하기
 
 	m_sessionID = sessionID;
-	m_location = Location{ 201370.0f , 263120.0f ,-38690.f };
+	m_location = Location{ 381250.0f , 443750.0f ,-38690.f };
 	m_moveFlag = false;
 	m_hp = 100;
 	m_mp = 100;
