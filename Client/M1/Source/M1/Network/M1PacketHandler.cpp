@@ -262,7 +262,6 @@ void M1PacketHandler::Handle_SC_USE_SKILL_BROADCAST(CMessage* pMessage, UM1Netwo
 	SpawnManager->OnOtherCharacterUseSkill(CharacterID, static_cast<EAbilitySlot>(SlotID + 1));
 }
 
-// 서버가 보낸 "몬스터 생성" 처리
 void M1PacketHandler::Handle_SC_CREATE_MONSTER(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
 	uint64 monsterID;
@@ -301,4 +300,15 @@ void M1PacketHandler::Handle_SC_CREATE_MONSTER(CMessage* pMessage, UM1NetworkMan
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
 	SpawnManager->SpawnMonster(spawnData);
+}
+
+void M1PacketHandler::Handle_SC_DELETE_MONSTER(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint64 id;
+
+	*pMessage >> id;
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+
+	SpawnManager->DespawnMonster(id);
 }

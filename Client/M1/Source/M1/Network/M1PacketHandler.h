@@ -56,4 +56,7 @@ public:
 
 	// 서버가 보낸 "몬스터 생성" 처리
 	static void Handle_SC_CREATE_MONSTER(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "몬스터 삭제" 처리
+	static void Handle_SC_DELETE_MONSTER(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 };
