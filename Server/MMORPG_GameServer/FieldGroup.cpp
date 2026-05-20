@@ -705,8 +705,8 @@ void FieldGroup::GrossMonsterSpawnInit()
 					if (monstrSpawnCount >= MAX_GROSS_FIELD_MONSTER_COUNT)
 						return;
 
-					float xpos = MAP_WORLD_OFFSET_X + sx * SECTOR_SIZE + (rand() / SECTOR_SIZE + 10);
-					float ypos = MAP_WORLD_OFFSET_Y + sy * SECTOR_SIZE + (rand() / SECTOR_SIZE + 10);
+					float xpos = MAP_WORLD_OFFSET_X + sx * SECTOR_SIZE + (rand() % SECTOR_SIZE + 10);
+					float ypos = MAP_WORLD_OFFSET_Y + sy * SECTOR_SIZE + (rand() % SECTOR_SIZE + 10);
 
 
 					CMonster& monster = m_grossMonsterPoolArray[monstrSpawnCount++];

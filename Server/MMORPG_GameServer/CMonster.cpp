@@ -5,7 +5,7 @@ void CMonster::Init(uint64 monsterID,  uint16 monsterType, const Location& spawn
 	m_monsterID = monsterID;
 	m_monsterType = monsterType;
 	m_location = spawnLocation;
-	m_moveYaw = rand() / 360;
+	m_moveYaw = rand() % 360;
 	m_spawnLocation = spawnLocation;
 	m_moveSpeed = MonsterConst::WALK_SPEED;
 	m_state = EMonsterState::Idle;
