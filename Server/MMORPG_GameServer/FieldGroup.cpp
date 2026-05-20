@@ -31,6 +31,8 @@ size_t FieldGroup::UserCount()
 
 void FieldGroup::Init(CGameLibrary* p)
 {
+	srand(time(NULL));
+
 	m_pGameLib = p;
 	m_GroupFrameTime = UPDATE_LOOP_TIME;
 	m_OldTime = timeGetTime();
@@ -692,19 +694,23 @@ void FieldGroup::GrossMonsterSpawnInit()
 		return;
 
 	int monstrSpawnCount = 0;
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < GROSS_FIELD_AREA_ARRAY_COUNT; i++)
 	{
-		for (uint16 sy = m_grossFieldSpawnArea[i].minSectorY; sy <= m_grossFieldSpawnArea[i].maxSectorY; sy++)
+		for (uint16 sy = GROSS_FIELD_MONSTER_SPAWN_AREAS[i].minSectorY; sy <= GROSS_FIELD_MONSTER_SPAWN_AREAS[i].maxSectorY; sy++)
 		{
-			for (uint16 sx = m_grossFieldSpawnArea[i].minSectorX; sx <= m_grossFieldSpawnArea[i].maxSectorX; sx++)
+			for (uint16 sx = GROSS_FIELD_MONSTER_SPAWN_AREAS[i].minSectorX; sx <= GROSS_FIELD_MONSTER_SPAWN_AREAS[i].maxSectorX; sx++)
 			{
 				for (int count = 0; count < MAX_GROSS_FIELD_MONSTER_COUNT / GROSS_FIELD_SECTOR_COUNT; count++)
 				{
 					if (monstrSpawnCount >= MAX_GROSS_FIELD_MONSTER_COUNT)
 						return;
 
+					float xpos = MAP_WORLD_OFFSET_X + sx * SECTOR_SIZE + (rand() / SECTOR_SIZE + 10);
+					float ypos = MAP_WORLD_OFFSET_Y + sy * SECTOR_SIZE + (rand() / SECTOR_SIZE + 10);
+
+
 					CMonster& monster = m_grossMonsterPoolArray[monstrSpawnCount++];
-					Location loc{ MAP_WORLD_OFFSET_X + (sx + 0.5f) * SECTOR_SIZE,MAP_WORLD_OFFSET_Y + (sy + 0.5f) * SECTOR_SIZE };
+					Location loc{ MAP_WORLD_OFFSET_X + (sx + 0.5f) * SECTOR_SIZE,MAP_WORLD_OFFSET_Y + (sy + 0.5f) * SECTOR_SIZE ,0 };
 					monster.Init(m_monsterAllocID, 0, loc);
 					m_monsterAllocID++;
 

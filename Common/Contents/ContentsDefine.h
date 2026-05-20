@@ -24,8 +24,9 @@ namespace FieldConst
 	constexpr float   Pi                              = 3.1415926535f;
 	constexpr uint16  MAX_SECTOR_USER_COUNT           = 30;
 	constexpr uint16  MAX_SECTOR_MONSTER_COUNT        = 30;
-	constexpr uint32  MAX_GROSS_FIELD_MONSTER_COUNT   = 5000;
-	constexpr uint32  GROSS_FIELD_SECTOR_COUNT        = 2500;
+	constexpr uint32  MAX_GROSS_FIELD_MONSTER_COUNT   = 6000;
+	constexpr uint32  GROSS_FIELD_SECTOR_COUNT        = 2533;
+	constexpr uint32  GROSS_FIELD_AREA_ARRAY_COUNT    = 115;
 }
 
 namespace UserConst
