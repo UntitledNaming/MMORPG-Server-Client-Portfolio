@@ -17,7 +17,7 @@ public:
 	void Destroy();
 	void Regen();
 
-	uint64 GetMosnterID() const { m_monsterID; }
+	uint64 GetMonsterID() const { m_monsterID; }
 	uint16 GetMonsterType() const { m_monsterType; }
 	uint16 GetSectorIdx() const { m_sectorIdx; }
 	uint16 GetHP() const { m_hp; }

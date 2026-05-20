@@ -257,5 +257,14 @@ namespace FieldProtocol
     //  1   -   MonsterState    (uint8)
     //  1   -   MoveFlag        (bool)
     //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_DELETE_MONSTER = 1020;
+    //---------------------------------------------------------------
+    // Character Delete Msg 					Server -> Client
+    //
+    //
+    //	8	-	MonsterID		(uint64)
+    //
+    //---------------------------------------------------------------
 }
 

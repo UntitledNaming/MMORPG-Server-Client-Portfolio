@@ -23,5 +23,6 @@ public:
 	static CMessage* UseSkillBroadCast(uint64 id, uint8 skillSlot);
 
 	static CMessage* CreateMonster(CMonster* pMonster);
+	static CMessage* DeleteMonster(CMonster* pMonster);
 };
 

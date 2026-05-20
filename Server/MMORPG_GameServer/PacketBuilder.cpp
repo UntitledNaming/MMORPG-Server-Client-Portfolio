@@ -199,7 +199,7 @@ CMessage* PacketBuilder::CreateMonster(CMonster* pMonster)
 	pMessage->Clear(1);
 
 	*pMessage << FieldProtocol::PACKET_SC_CREATE_MONSTER;
-	*pMessage << pMonster->GetMosnterID();
+	*pMessage << pMonster->GetMonsterID();
 	*pMessage << pMonster->GetX();
 	*pMessage << pMonster->GetY();
 	*pMessage << pMonster->GetZ();
@@ -209,6 +209,17 @@ CMessage* PacketBuilder::CreateMonster(CMonster* pMonster)
 	*pMessage << pMonster->GetMaxHP();
 	*pMessage << static_cast<uint8>(pMonster->GetMonsterState());
 	*pMessage << pMonster->GetMoveFlag();
+
+	return pMessage;
+}
+
+CMessage* PacketBuilder::DeleteMonster(CMonster* pMonster)
+{
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+
+	*pMessage << FieldProtocol::PACKET_SC_DELETE_MONSTER;
+	*pMessage << pMonster->GetMonsterID();
 
 	return pMessage;
 }
