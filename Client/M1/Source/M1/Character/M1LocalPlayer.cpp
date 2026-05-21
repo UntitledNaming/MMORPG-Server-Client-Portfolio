@@ -26,7 +26,7 @@ AM1LocalPlayer::AM1LocalPlayer()
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	SpringArmComponent->SetupAttachment(RootComponent);
-	SpringArmComponent->TargetArmLength = 1000.0f;
+	SpringArmComponent->TargetArmLength = 600.0f;
 	SpringArmComponent->bUsePawnControlRotation = true;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));

@@ -4,7 +4,8 @@
       "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\sdj53\\\\Documents\\\\GitHub\\\\MMO-Server-Portfolio\\\\Server\\\\MMORPG_GameServer\" -Recurse | Where-Object {$_.Extension -in '.h', '.hpp'} | Select-Object -First 30 FullName)",
       "PowerShell(head *)",
       "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\sdj53\\\\Documents\\\\GitHub\\\\MMO-Server-Portfolio\\\\Server\\\\MMORPG_GameServer\" | Where-Object { $_.Extension -match '\\\\.\\(h|cpp\\)$' } | Select-Object -ExpandProperty Name)",
-      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\sdj53\\\\Documents\\\\GitHub\\\\MMO-Server-Portfolio\\\\Server\" -Recurse | Where-Object { $_.Name -match '\\(Define|Enum|Struct\\)' } | Select-Object -ExpandProperty FullName)"
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\sdj53\\\\Documents\\\\GitHub\\\\MMO-Server-Portfolio\\\\Server\" -Recurse | Where-Object { $_.Name -match '\\(Define|Enum|Struct\\)' } | Select-Object -ExpandProperty FullName)",
+      "PowerShell(ls \"C:\\\\Users\\\\sdj53\\\\Documents\\\\GitHub\\\\MMO-Server-Portfolio\\\\Server\\\\MMORPG_GameServer\" | Where-Object { $_.Extension -match '\\\\.\\(h|cpp\\)$' })"
     ]
   }
 }
