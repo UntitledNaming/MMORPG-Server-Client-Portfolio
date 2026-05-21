@@ -111,5 +111,17 @@ namespace MonsterConst
 {
 	constexpr uint16  BASE_HP    = 50;
 	constexpr uint16  BASE_MAXHP = 50;
-	constexpr float   WALK_SPEED = 500.0; // 500 cm/s
+	constexpr float   PATROL_SPEED = 300.0f;
+	constexpr float   CHASE_SPEED = 550.0f;
+	constexpr float   RETURN_SPEED = 350.0f;
+	constexpr float   DETECT_RANGE = 1500.0f;
+	constexpr float   ATTACK_RANGE = 200.0f;
+	constexpr float   PATROL_DISTANCE = 800.0f;
+	constexpr uint32  ATTACK_COOLDOWN_MS = 1500;
+	constexpr uint32  PATROL_PAUSE_MS    = 1000;
+	constexpr uint32  IDLE_MIN_DURATION_MS = 2000;
+	constexpr uint32  IDLE_MAX_DURATION_MS = 6000;
+	constexpr float   CHASE_ANGLE_THRESHOLD = 15.0f;
+	constexpr uint32  CHASE_UPDATE_MIN_MS = 200;
+	constexpr uint32  MOVE_SYNC_INTERVAL_MS = 1000;
 }

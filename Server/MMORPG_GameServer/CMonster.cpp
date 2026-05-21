@@ -1,24 +1,43 @@
+#include "MonsterAI.h"
 #include "CMonster.h"
 
-void CMonster::Init(uint64 monsterID,  uint16 monsterType, const Location& spawnLocation)
+void CMonster::Init(uint64 monsterID,  uint16 monsterType, const Location& spawnLocation, FieldGroup* fieldGroupPtr)
 {
 	m_monsterID = monsterID;
 	m_monsterType = monsterType;
 	m_location = spawnLocation;
 	m_moveYaw = rand() % 360;
-	m_spawnLocation = spawnLocation;
-	m_moveSpeed = MonsterConst::WALK_SPEED;
 	m_state = EMonsterState::Idle;
 	m_secPos.SetPos(SectorPos((m_location.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (m_location.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE));
+
+	// AI의 초기화
+	m_pMonsterAIComp = new MonsterAI;
+	m_pMonsterAIComp->Init(this, fieldGroupPtr, spawnLocation);
+}
+
+void CMonster::Destroy()
+{
+	delete m_pMonsterAIComp;
+	m_pMonsterAIComp = nullptr;
 }
 
 void CMonster::Regen()
 {
 	m_hp = MonsterConst::BASE_HP;
-	m_moveSpeed = MonsterConst::WALK_SPEED;
-	m_moveYaw = 0.f;
-	m_moveFlag = false;
+	m_moveYaw = rand() % 360;
 	m_state = EMonsterState::Idle;
-	m_location = m_spawnLocation;
 	m_secPos.SetPos(SectorPos((m_location.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (m_location.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE));
+
+	m_pMonsterAIComp->Reset();
+}
+
+void CMonster::Move()
+{
+	float rad = m_moveYaw * FieldConst::Pi / 180.0f;
+	float dirX = cosf(rad);
+	float dirY = sinf(rad);
+
+	m_location.xpos += dirX * m_moveSpeed;
+	m_location.ypos += dirY * m_moveSpeed;
+
 }

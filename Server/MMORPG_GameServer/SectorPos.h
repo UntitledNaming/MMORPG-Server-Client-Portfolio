@@ -10,7 +10,7 @@ public:
 	SectorPos(uint16 xpos, uint16 ypos) : m_secX(xpos), m_secY(ypos) {}
 
 public:
-	void SetPos(const SectorPos& sec) { m_secX = sec.m_secX; m_secY = sec.m_secY; }
+	void   SetPos(const SectorPos& sec) { m_secX = sec.m_secX; m_secY = sec.m_secY; }
 	uint16 GetX() const { return m_secX; }
 	uint16 GetY() const { return m_secY; }
 
@@ -21,14 +21,14 @@ public:
 	static bool SameSector(const SectorPos& oldSec, const SectorPos& newSec);
 
 private:
-	uint16 m_secX;
-	uint16 m_secY;
+	uint16 m_secX = 0;
+	uint16 m_secY = 0;
 };
 
 struct SectorAround
 {
 	SectorAround() = default;
 
-	uint16 m_count;
-	SectorPos m_Around[9];
+	uint16    m_count = 0;
+	SectorPos m_Around[9] = {};
 };

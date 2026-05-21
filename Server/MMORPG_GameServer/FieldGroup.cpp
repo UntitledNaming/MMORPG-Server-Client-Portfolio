@@ -57,7 +57,10 @@ void FieldGroup::Init(CGameLibrary* p)
 
 void FieldGroup::Destroy()
 {
-
+	for (int i = 0; i < MAX_GROSS_FIELD_MONSTER_COUNT; i++)
+	{
+		m_grossMonsterPoolArray[i].Destroy();
+	}
 }
 
 void FieldGroup::OnClientJoin(UINT64 sessionID)
@@ -173,6 +176,8 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 			CMessage* pCreateMonsterMsg = PacketBuilder::CreateMonster(m_sectors[curSecYpos][curSecXpos].GetMonster(monstercount));
 			SendPacket(pOnUser->GetSessionID(), pCreateMonsterMsg);
 			CMessage::Free(pCreateMonsterMsg);
+
+			// todo : 해당 몬스터 상태 체크해서 move 패킷 보내야 하면 보내기
 		}
 	}
 }
@@ -613,7 +618,7 @@ void FieldGroup::MovementProc()
 	{
 		CUser* pUser = it->second;
 
-		if (pUser->Move())
+		if (!pUser->Move())
 			continue;
 
 
@@ -708,10 +713,9 @@ void FieldGroup::GrossMonsterSpawnInit()
 					float xpos = MAP_WORLD_OFFSET_X + sx * SECTOR_SIZE + (rand() % SECTOR_SIZE + 10);
 					float ypos = MAP_WORLD_OFFSET_Y + sy * SECTOR_SIZE + (rand() % SECTOR_SIZE + 10);
 
-
 					CMonster& monster = m_grossMonsterPoolArray[monstrSpawnCount++];
-					Location loc{ MAP_WORLD_OFFSET_X + (sx + 0.5f) * SECTOR_SIZE,MAP_WORLD_OFFSET_Y + (sy + 0.5f) * SECTOR_SIZE ,-38775.f };
-					monster.Init(m_monsterAllocID, 0, loc);
+					Location loc{ xpos,ypos ,-38775.f };
+					monster.Init(m_monsterAllocID, 0, loc, this);
 					m_monsterAllocID++;
 
 					m_sectors[sy][sx].AddMonster(&monster);

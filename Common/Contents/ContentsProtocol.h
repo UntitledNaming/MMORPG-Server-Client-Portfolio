@@ -250,12 +250,10 @@ namespace FieldProtocol
     //	4	-	Xpos			(float)
     //	4	-	Ypos			(float)
     //	4	-	Zpos			(float)
-    //  4   -   MoveYaw         (float)  
+    //  4   -   Yaw             (float)  
     //  2   -   MonsterType     (uint16)
     //  2   -   HP              (uint16) 
     //  2   -   MaxHP           (uint16) 
-    //  1   -   MonsterState    (uint8)
-    //  1   -   MoveFlag        (bool)
     //---------------------------------------------------------------
 
     constexpr uint16 PACKET_SC_DELETE_MONSTER = 1020;
@@ -264,6 +262,32 @@ namespace FieldProtocol
     //
     //
     //	8	-	MonsterID		(uint64)
+    //
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_MOVE_MONSTER = 1021;
+    //---------------------------------------------------------------
+    // Character Delete Msg 					Server -> Client
+    //
+    //
+    //	8	-	MonsterID		(uint64)
+    //	4	-	Xpos    		(float)
+    //	4	-	Ypos    		(float)
+    //	4	-	Zpos    		(float)
+    //	4	-	MoveYaw 		(float)
+    //	4	-	DesXpos  		(float)
+    //	4	-	DesYpos 		(float)
+    //
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_HIT_TOPLAYER = 1022;
+    //---------------------------------------------------------------
+    // Character Delete Msg 					Server -> Client
+    //
+    //
+    //	8	-	MonsterID		(uint64)
+    //	8	-	TargetID	 	(uint64)
+    //	2	-	TargetNewHP 	(uint16)
     //
     //---------------------------------------------------------------
 }

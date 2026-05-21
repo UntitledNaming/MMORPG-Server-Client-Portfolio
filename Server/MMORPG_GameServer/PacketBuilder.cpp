@@ -207,8 +207,6 @@ CMessage* PacketBuilder::CreateMonster(CMonster* pMonster)
 	*pMessage << pMonster->GetMonsterType();
 	*pMessage << pMonster->GetHP();
 	*pMessage << pMonster->GetMaxHP();
-	*pMessage << static_cast<uint8>(pMonster->GetMonsterState());
-	*pMessage << pMonster->GetMoveFlag();
 
 	return pMessage;
 }
@@ -220,6 +218,35 @@ CMessage* PacketBuilder::DeleteMonster(CMonster* pMonster)
 
 	*pMessage << FieldProtocol::PACKET_SC_DELETE_MONSTER;
 	*pMessage << pMonster->GetMonsterID();
+
+	return pMessage;
+}
+
+CMessage* PacketBuilder::MoveMonster(CMonster* pMonster, Location& DesLocation)
+{
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+
+	*pMessage << FieldProtocol::PACKET_SC_MOVE_MONSTER;
+	*pMessage << pMonster->GetX();
+	*pMessage << pMonster->GetY();
+	*pMessage << pMonster->GetZ();
+	*pMessage << pMonster->GetMoveYaw();
+	*pMessage << DesLocation.xpos;
+	*pMessage << DesLocation.ypos;
+
+	return pMessage;
+}
+
+CMessage* PacketBuilder::AttackMonster(CMonster* pMonster, uint64 TargetID, uint16 newHP)
+{
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+
+	*pMessage << FieldProtocol::PACKET_SC_HIT_TOPLAYER;
+	*pMessage << pMonster->GetMonsterID();
+	*pMessage << TargetID;
+	*pMessage << newHP;
 
 	return pMessage;
 }

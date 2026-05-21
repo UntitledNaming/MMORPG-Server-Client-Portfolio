@@ -87,6 +87,9 @@
     <ClCompile Include="HitSearchBuilder.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="MonsterAI.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameServer.h">
@@ -132,6 +135,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="HitSearchBuilder.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MonsterAI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

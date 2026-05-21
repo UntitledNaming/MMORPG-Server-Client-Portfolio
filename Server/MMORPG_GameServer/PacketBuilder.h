@@ -24,5 +24,7 @@ public:
 
 	static CMessage* CreateMonster(CMonster* pMonster);
 	static CMessage* DeleteMonster(CMonster* pMonster);
+	static CMessage* MoveMonster(CMonster* pMonster, Location& DesLocation);
+	static CMessage* AttackMonster(CMonster* pMonster, uint64 TargetID, uint16 newHP);
 };
 

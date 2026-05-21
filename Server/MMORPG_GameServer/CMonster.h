@@ -6,6 +6,8 @@
 #include "ContentsStruct.h"
 #include "ContentsDefine.h"
 
+class MonsterAI;
+class FieldGroup;
 
 class CMonster
 {
@@ -13,29 +15,32 @@ public:
 	CMonster() = default;
 	~CMonster() = default;
 
-	void Init(uint64 monsterID, uint16 monsterType, const Location& spawnLocation);
+	void Init(uint64 monsterID, uint16 monsterType, const Location& spawnLocation, FieldGroup* fieldGroupPtr);
 	void Destroy();
 	void Regen();
+	void Move();
 
-	const uint64 GetMonsterID() const { return m_monsterID; }
-	const uint16 GetMonsterType() const { return m_monsterType; }
-	const uint16 GetSectorIdx() const { return m_sectorIdx; }
-	const uint16 GetHP() const { return m_hp; }
-	const uint16 GetMaxHP() const { return m_maxHP; }
-	const EMonsterState GetMonsterState() const { return m_state; }
+    uint64 GetMonsterID() const { return m_monsterID; }
+    uint16 GetMonsterType() const { return m_monsterType; }
+    uint16 GetSectorIdx() const { return m_sectorIdx; }
+    uint16 GetHP() const { return m_hp; }
+    uint16 GetMaxHP() const { return m_maxHP; }
+	EMonsterState GetMonsterState() const { return m_state; }
 	const SectorPos& GetSectorPos() const { return m_secPos; }
 	const Location& GetLocation() const { return m_location; }
-	const Location& GetSpawnLocation() const { return m_spawnLocation; }
-	const float     GetX() const { return m_location.xpos; }
-	const float     GetY() const { return m_location.ypos; }
-	const float     GetZ() const { return m_location.zpos; }
-	const float     GetMoveYaw() const { return m_moveYaw; }
-	const bool      GetMoveFlag() const { return m_moveFlag; }
+	float     GetX() const { return m_location.xpos; }
+	float     GetY() const { return m_location.ypos; }
+	float     GetZ() const { return m_location.zpos; }
+	float     GetMoveYaw() const { return m_moveYaw; }
+	float     GetMoveSpeed() const { return m_moveSpeed; }
 
+	void SetMoveYaw(float moveYaw) { m_moveYaw = moveYaw; }
 	void SetSectorIdx(uint16 idx) { m_sectorIdx = idx; }
 	void SetHP(uint16 hp) { m_hp = hp; }
 	void SetLocation(const Location& location) { m_location = location; }
-
+	void SetMoveSpeed(float moveSpeed) { m_moveSpeed = moveSpeed; }
+	void ChangeMonsterState(EMonsterState state) { m_state = state; }
+	
 private:
 	uint64        m_monsterID      = 0;
 	uint16        m_monsterType    = 0;     // 0 : Khaimera
@@ -43,20 +48,16 @@ private:
 	uint16        m_hp             = 50;
 	uint16        m_maxHP          = 50;
 
-	float         m_patrolRadius   = 500.0f;
-	float         m_leashRange     = 1500.0f;
-
 	float         m_moveYaw        = 0.f;
 	float         m_moveSpeed      = 0.f;
-	bool          m_moveFlag       = false;
 
 	EMonsterState m_state;                  // Monster State
 	SectorPos     m_secPos;     		    
 	Location      m_location;               // Current Position
-	Location      m_spawnLocation;
 
 	uint32        m_respawnDelay   = 10000;
 	uint32        m_respawnTime    = 0;
 
+	MonsterAI*    m_pMonsterAIComp = nullptr;
 };
 
