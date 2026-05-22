@@ -957,19 +957,9 @@ void FieldGroup::SectorUpdate(CUser* pUser, const SectorPos& newSec)
 
 		for (int count = 0; count < sector.GetMonsterCount(); count++)
 		{
-			CMonster* pMonster = sector.GetMonster(count);
-
-			CMessage* pCreateMonster = PacketBuilder::CreateMonster(pMonster);
+			CMessage* pCreateMonster = PacketBuilder::CreateMonster(sector.GetMonster(count));
 			SendPacket(pUser->GetSessionID(), pCreateMonster);
 			CMessage::Free(pCreateMonster);
-
-			if (pMonster->GetMonsterState() == EMonsterState::Patrol || pMonster->GetMonsterState() == EMonsterState::Chase || pMonster->GetMonsterState() == EMonsterState::Return)
-			{
-				CMessage* pMoveMonster = PacketBuilder::MoveMonster(pMonster, pMonster->GetMonsterAITargetLocation());
-				SendPacket(pUser->GetSessionID(), pMoveMonster);
-				CMessage::Free(pMoveMonster);
-			}
-
 		}
 	}
 
