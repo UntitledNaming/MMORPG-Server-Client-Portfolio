@@ -39,11 +39,12 @@ public:
     FORCEINLINE UM1PlayerActorComponent* GetAbilityComponent() const { return AbilityComponent; }
 
     FORCEINLINE void SetUseUpperBodyWhenMovingFlag(bool InUseUpperBodyWhenMoving) { bUseUpperBodyWhenMoving = InUseUpperBodyWhenMoving; }
+    FORCEINLINE void SetMoveDirection(float Angle) { MoveDirectionAngle = Angle; }
 
     virtual void  ApplySpawnData(const FM1SpawnData& Data);
     virtual float GetMoveSpeed() { return 0.f; }
     virtual bool  GetMoveFlag() { return false; }
-    virtual void SetHP(int32 NewHP);
+    virtual void  SetHP(int32 NewHP);
 
     // 피격 방향 각도로 피격 리액션 트리거 (0=정면, ±90=측면, ±180=후면)
     void TriggerHitReact(float HitAngle);
@@ -99,10 +100,11 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability")
     UM1PlayerActorComponent*      AbilityComponent;
 
+public:
     //////////////////////////////////////////////////////////////////////////////////
     // UI 처리
     //////////////////////////////////////////////////////////////////////////////////
-public:
+
     void InitOverheadStatus(const FString& InName, int32 InCurrentHP, int32 InMaxHP);
     void SetOverheadHP(int32 InCurrentHP, int32 InMaxHP);
     void SetOverheadVisible(bool bVisible);

@@ -37,6 +37,7 @@ void AM1Monster::OnReceiveMoveTarget(FMonsterMove& Data)
 
 	// 현재 몬스터 위치랑 서버의 몬스터 위치와 크게 차이나면 위치 맞추기
 	SetActorRotation(FRotator(0, m_MoveYaw, 0));
+	
 
 	float Dist = FVector::Dist2D(GetActorLocation(), Data.MonsterLocation);
 	if (Dist >= MonsterConst::POS_SNAP_DIST_CM)
@@ -80,5 +81,5 @@ void AM1Monster::Move(float DeltaTime)
 	FVector MoveDir = FRotator(0.f, m_MoveYaw, 0.f).Vector();
 	FVector NewPos = Current + MoveDir * GetCharacterMovement()->MaxWalkSpeed * DeltaTime;
 
-	SetActorLocation(NewPos, false, nullptr, ETeleportType::TeleportPhysics);
+	SetActorLocation(NewPos);
 }
