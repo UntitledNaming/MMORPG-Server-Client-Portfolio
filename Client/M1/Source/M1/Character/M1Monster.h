@@ -6,12 +6,36 @@
 #include "M1Character.h"
 #include "M1Monster.generated.h"
 
-/**
- * 
- */
+struct FMonsterMove;
+
 UCLASS()
 class M1_API AM1Monster : public AM1Character
 {
 	GENERATED_BODY()
-	
+
+public:
+	AM1Monster();
+
+	virtual float GetMoveSpeed() override;
+	virtual bool  GetMoveFlag()  override;
+	virtual void  SetHP(int32 NewHP) override;
+
+
+	void OnReceiveMoveTarget(FMonsterMove& Data);
+	void OnReceiveAttackTarget();
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+
+	void Move(float DeltaTime);
+
+private:
+	bool     bIsAttacking     = false;
+	bool     isMoving         = false;
+	float    m_MoveYaw          = 0.f;
+	FVector  m_TargetLocation = FVector::ZeroVector;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	TObjectPtr<class UAnimMontage> AttackMontage;
 };

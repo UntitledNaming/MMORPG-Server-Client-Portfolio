@@ -39,6 +39,13 @@ struct FMovementSnapshot
     bool     bMoving = false;
 };
 
+struct FMonsterMove
+{
+    FVector MonsterLocation;
+    FVector TargetLocation;
+    float   MoveYaw;
+    float   MoveSpeed;
+};
 
 template<typename T, int32 Size>
 struct TCircularSnapBuffer

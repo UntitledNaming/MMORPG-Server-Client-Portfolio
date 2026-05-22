@@ -189,6 +189,8 @@ void UM1NetworkManager::InitFunctorArray()
 	M1FunctorArray[FieldProtocol::PACKET_SC_USE_SKILL_BROADCAST]      = &M1PacketHandler::Handle_SC_USE_SKILL_BROADCAST;
 	M1FunctorArray[FieldProtocol::PACKET_SC_CREATE_MONSTER]           = &M1PacketHandler::Handle_SC_CREATE_MONSTER;
 	M1FunctorArray[FieldProtocol::PACKET_SC_DELETE_MONSTER]           = &M1PacketHandler::Handle_SC_DELETE_MONSTER;
+	M1FunctorArray[FieldProtocol::PACKET_SC_MOVE_MONSTER]           = &M1PacketHandler::Handle_SC_MOVE_MONSTER;
+	M1FunctorArray[FieldProtocol::PACKET_SC_HIT_TOPLAYER]           = &M1PacketHandler::Handle_SC_HIT_TOPLAYER;
 }
 
 void UM1NetworkManager::LoadServerConfig()

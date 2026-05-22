@@ -47,17 +47,6 @@ void AM1OtherPlayer::Tick(float DeltaTime)
 	if (bNeedStopCorrection)
 		UpdateStopCorrection(DeltaTime);
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			(int32)EntityID + 20000,
-			0.f,
-			FColor::Cyan,
-			FString::Printf(
-				TEXT("[OP %llu] MoveFlag=%d StopCorr=%d Attacking=%d"),
-				EntityID,
-				(int32)bMoving, (int32)bNeedStopCorrection, (int32)bIsAttacking));
-	}
 
 	DbgLogTimer += DeltaTime;
 	if (DbgLogTimer >= 2.f)

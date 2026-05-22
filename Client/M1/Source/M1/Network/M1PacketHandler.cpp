@@ -273,8 +273,6 @@ void M1PacketHandler::Handle_SC_CREATE_MONSTER(CMessage* pMessage, UM1NetworkMan
 	uint16 monsterType;
 	uint16 hp;
 	uint16 maxhp;
-	uint8 state;
-	bool moveflag;
 
 	*pMessage >> monsterID;
 	*pMessage >> xpos;
@@ -284,8 +282,6 @@ void M1PacketHandler::Handle_SC_CREATE_MONSTER(CMessage* pMessage, UM1NetworkMan
 	*pMessage >> monsterType;
 	*pMessage >> hp;
 	*pMessage >> maxhp;
-	*pMessage >> state;
-	*pMessage >> moveflag;
 
 	FVector Location(xpos, ypos, zpos);
 	FRotator Rotator(0, yaw, 0);
@@ -296,7 +292,6 @@ void M1PacketHandler::Handle_SC_CREATE_MONSTER(CMessage* pMessage, UM1NetworkMan
 	spawnData.MaxHP = maxhp;
 	spawnData.Location = Location;
 	spawnData.Rotation = Rotator;
-	spawnData.MoveFlag = moveflag;
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
 	SpawnManager->SpawnMonster(spawnData);
@@ -311,4 +306,47 @@ void M1PacketHandler::Handle_SC_DELETE_MONSTER(CMessage* pMessage, UM1NetworkMan
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
 
 	SpawnManager->DespawnMonster(id);
+}
+
+void M1PacketHandler::Handle_SC_MOVE_MONSTER(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint64 monsterID;
+
+	float xpos;
+	float ypos;
+	float zpos;
+	float yaw;
+	float speed;
+	float desxpos;
+	float desypos;
+
+	*pMessage >> monsterID;
+	*pMessage >> xpos;
+	*pMessage >> ypos;
+	*pMessage >> zpos;
+	*pMessage >> yaw;
+	*pMessage >> speed;
+	*pMessage >> desxpos;
+	*pMessage >> desypos;
+
+	FMonsterMove Data;
+	Data.MonsterLocation = FVector(xpos, ypos, zpos);
+	Data.MoveSpeed = speed;
+	Data.MoveYaw = yaw;
+	Data.TargetLocation = FVector(desxpos, desypos, zpos);
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	SpawnManager->OnMonsterMove(monsterID, Data);
+}
+
+void M1PacketHandler::Handle_SC_HIT_TOPLAYER(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint64 monsterid;
+	uint64 targetid;
+	uint16 newhp;
+
+	*pMessage >> monsterid;
+	*pMessage >> targetid;
+	*pMessage >> newhp;
+
 }

@@ -55,6 +55,7 @@ public:
 	void ApplyMonsterHitResult(uint64 EntityID, int32 NewHP);
 	void OnMyPlayerSkillResponse(EAbilitySlot Slot, bool bSuccess);
 	void OnOtherCharacterUseSkill(uint64 EntityID, EAbilitySlot Slot);
+	void OnMonsterMove(uint64 EntityID, FMonsterMove& Data);
 
 	class AM1Character* FindPlayer(uint64 EntityID) const;
 	class AM1Character* FindMonster(uint64 EntityID) const;

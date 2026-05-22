@@ -113,6 +113,7 @@ namespace MonsterConst
 	constexpr uint16  BASE_DEF   = 1;
 	constexpr uint16  BASE_HP    = 50;
 	constexpr uint16  BASE_MAXHP = 50;
+	constexpr float   POS_SNAP_DIST_CM = 300.0f;
 	constexpr float   PATROL_SPEED = 300.0f;
 	constexpr float   CHASE_SPEED = 550.0f;
 	constexpr float   RETURN_SPEED = 350.0f;
