@@ -210,7 +210,7 @@ private:
 	void MovementProc();
 	void SectorUpdate(CUser* pUser, const SectorPos& newSec);
 	void UserManaRegen();
-
+    void MonsterAIUpdate();
 
 	//////////////////////////////////////////////////////////////////////////////////
     // 몬스터 관련 함수

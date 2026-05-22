@@ -70,6 +70,11 @@ void CMonster::Damage(uint16 damage)
 	}
 }
 
+void CMonster::AIUpdate()
+{
+	m_pMonsterAIComp->Update();
+}
+
 uint32 CMonster::CalBaseAttackDamage(CUser* target, uint32 curTime)
 {
 	if (target == nullptr || !target->IsAlive())

@@ -21,6 +21,7 @@ public:
 	void Regen();
 	void Move();
 	void Damage(uint16 damage);
+	void AIUpdate();
 	uint32 CalBaseAttackDamage(CUser* target, uint32 curTime);
 
 
@@ -46,6 +47,7 @@ public:
 	float     GetMoveYaw() const { return m_moveYaw; }
 	float     GetMoveSpeed() const { return m_moveSpeed; }
 
+	void SetSectorPos(const SectorPos& secPos) { m_secPos = secPos; }
 	void SetMoveYaw(float moveYaw) { m_moveYaw = moveYaw; }
 	void SetSectorIdx(uint16 idx) { m_sectorIdx = idx; }
 	void SetHP(uint16 hp) { m_hp = hp; }

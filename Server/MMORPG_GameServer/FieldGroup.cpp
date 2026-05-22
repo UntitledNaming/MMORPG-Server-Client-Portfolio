@@ -287,7 +287,7 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 		uint16 curMonsterCount = m_sectors[curSecYpos][curSecXpos].GetMonsterCount();
 		for (int monstercount = 0; monstercount < curMonsterCount; monstercount++)
 		{
-			CMonster* pMonster = m_sectors[curSecXpos][curSecXpos].GetMonster(monstercount);
+			CMonster* pMonster = m_sectors[curSecYpos][curSecXpos].GetMonster(monstercount);
 
 			// 죽은 몬스터면 생성 Pass
 			if (pMonster->GetMonsterState() == EMonsterState::Dead)
@@ -314,6 +314,7 @@ void FieldGroup::OnUpdate()
 	MovementProc();
 	UserManaRegen();
 	MonsterRegen();
+	MonsterAIUpdate();
 	fieldframe++;
 }
 
@@ -978,6 +979,17 @@ void FieldGroup::UserManaRegen()
 	for (it = m_userLookUpTable.begin(); it != m_userLookUpTable.end(); ++it)
 	{
 		it->second->ManaRegen(curTime);
+	}
+}
+
+void FieldGroup::MonsterAIUpdate()
+{
+	for (int i = 0; i < MAX_GROSS_FIELD_MONSTER_COUNT; i++)
+	{
+		if (m_grossMonsterPoolArray[i].GetMonsterState() == EMonsterState::Dead)
+			continue;
+
+		m_grossMonsterPoolArray[i].AIUpdate();
 	}
 }
 

@@ -50,8 +50,10 @@ bool FieldSector::AddMonster(CMonster* monster)
 
 void FieldSector::RemoveMonster(CMonster* monster)
 {
+
 	CMonster* pOther = m_monsters[m_monsterCount - 1];
 	m_monsters[monster->GetSectorIdx()] = pOther;
 	pOther->SetSectorIdx(monster->GetSectorIdx());
 	m_monsterCount--;
+
 }

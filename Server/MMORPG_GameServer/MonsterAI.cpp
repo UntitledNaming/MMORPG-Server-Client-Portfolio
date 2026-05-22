@@ -148,6 +148,8 @@ void MonsterAI::UpdateChase()
 	// 타겟 방향으로 이동
 	m_pOwner->Move();
 
+	UpdateSector();
+
 	// 범위 안에 들어오면 공격
 	if (!IsAttackRange())
 		return;
@@ -327,6 +329,8 @@ void MonsterAI::UpdateSector()
 
 	// 새로운 섹터에 몬스터 삽입
 	m_pField->AddMonsterToSector(m_pOwner, newSec.GetX(), newSec.GetY());
+
+	m_pOwner->SetSectorPos(newSec);
 }
 
 void MonsterAI::TargetUpdate()
