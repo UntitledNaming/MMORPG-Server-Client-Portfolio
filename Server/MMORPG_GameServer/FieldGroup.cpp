@@ -12,7 +12,7 @@
 #include "CMessage.h"
 #include "CGroup.h"
 #include "PacketBuilder.h"
-#include "AttackCollision.h"
+#include "CollisionCheck.h"
 #include "FieldSector.h"
 #include "SectorPos.h"
 #include "IUser.h"
@@ -27,6 +27,117 @@ using namespace FieldProtocol;
 size_t FieldGroup::UserCount()
 {
 	return m_userLookUpTable.size();
+}
+
+void FieldGroup::SendMonsterCreateToSector(CMonster* pMonster, uint16 secX, uint16 secY)
+{
+	// 섹터에 있는 유저들에게 몬스터 생성 및 필요하면 Move 패킷 보내기
+	int count = m_sectors[secY][secX].GetUserCount();
+	for (int i = 0; count; i++)
+	{
+		CUser* pUser = m_sectors[secY][secX].GetUser(i);
+
+		CMessage* pCreateMonster = PacketBuilder::CreateMonster(pMonster);
+		SendPacket(pUser->GetSessionID(), pCreateMonster);
+		CMessage::Free(pCreateMonster);
+
+		// 순찰, 추격, 복귀 중일 때 Move 패킷 보내기.
+		if (pMonster->GetMonsterState() == EMonsterState::Patrol || pMonster->GetMonsterState() == EMonsterState::Chase || pMonster->GetMonsterState() == EMonsterState::Return)
+		{
+			CMessage* pMonsterMove = PacketBuilder::MoveMonster(pMonster, pMonster->GetMonsterAITargetLocation());
+			SendPacket(pUser->GetSessionID(), pMonsterMove);
+			CMessage::Free(pMonsterMove);
+		}
+
+	}
+}
+
+void FieldGroup::SendMonsterDeleteToSector(CMonster* pMonster, uint16 secX, uint16 secY)
+{
+	int count = m_sectors[secY][secX].GetUserCount();
+	for (int i = 0; count; i++)
+	{
+		CUser* pUser = m_sectors[secY][secX].GetUser(i);
+
+		CMessage* pDeleteMonster = PacketBuilder::DeleteMonster(pMonster);
+		SendPacket(pUser->GetSessionID(), pDeleteMonster);
+		CMessage::Free(pDeleteMonster);
+	}
+}
+
+void FieldGroup::SendMonsterTargetUpdateToSector(CMonster* pMonster, uint16 secX, uint16 secY)
+{
+	// 섹터에 있는 유저들에게 Move 패킷 보내기
+	int count = m_sectors[secY][secX].GetUserCount();
+	for (int i = 0; count; i++)
+	{
+		CUser* pUser = m_sectors[secY][secX].GetUser(i);
+		
+		CMessage* pMoveMonster = PacketBuilder::MoveMonster(pMonster, pMonster->GetMonsterAITargetLocation());
+		SendPacket(pUser->GetSessionID(), pMoveMonster);
+		CMessage::Free(pMoveMonster);
+	}
+}
+
+void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, uint16 newHP)
+{
+	CMessage* pAttackMonster = PacketBuilder::AttackMonster(pMonster, pTarget->GetSessionID(), newHP);
+
+	// 몬스터와 타겟 주변 섹터에 해당 메세지 뿌리기
+	SectorPos sendflagArray[20];
+	int pushCount = 0;
+
+	// 몬스터와 타겟 주변 섹터 찾기
+	SectorAround monsterAround;
+	SectorAround targetAround;
+	SectorPos::SectorFind(monsterAround, pMonster->GetSectorPos());
+	SectorPos::SectorFind(targetAround, pTarget->GetSectorPos());
+
+	for (int i = 0; i < monsterAround.m_count; i++)
+	{
+		uint16 secX = monsterAround.m_Around[i].GetX();
+		uint16 secY = monsterAround.m_Around[i].GetY();
+
+		SendPacket_SectorOne(pAttackMonster, secX, secY, nullptr);
+		sendflagArray[pushCount++] = SectorPos{ secX , secY };
+	}
+
+	for (int i = 0; i < targetAround.m_count; i++)
+	{
+		uint16 secX = targetAround.m_Around[i].GetX();
+		uint16 secY = targetAround.m_Around[i].GetY();
+
+		// 이미 메세지 넣은 섹터 좌표면 pass
+		if (SectorPos::IsAlreadyPushed(sendflagArray, pushCount, secX, secY))
+			continue;
+
+		SendPacket_SectorOne(pAttackMonster, secX, secY, nullptr);
+		sendflagArray[pushCount++] = SectorPos{ secX , secY };
+	}
+
+}
+
+void FieldGroup::AddMonsterToSector(CMonster* pMonster, uint16 secX, uint16 secY)
+{
+	m_sectors[secY][secX].AddMonster(pMonster);
+}
+
+void FieldGroup::RemoveMonsterToSector(CMonster* pMonster, uint16 secX, uint16 secY)
+{
+	m_sectors[secY][secX].RemoveMonster(pMonster);
+}
+
+CUser* FieldGroup::GetUser(uint64 sessionID)
+{
+	CUser* pUser = nullptr;
+	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.begin();
+	it = m_userLookUpTable.find(sessionID);
+
+	if (it == m_userLookUpTable.end())
+		return nullptr;
+	
+	pUser = it->second;
+	return pUser;
 }
 
 void FieldGroup::Init(CGameLibrary* p)
@@ -117,6 +228,9 @@ void FieldGroup::OnRecv(UINT64 sessionID, CMessage* pMessage)
 		HandleSkillUse(sessionID, pMessage);
 		break;
 
+	case PACKET_CS_RESPAWN_PLAYER:
+		HandleRespawn(sessionID, pMessage);
+		break;
 	}
 }
 
@@ -155,7 +269,7 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 		// 해당 섹터의 유저 생성 메세지를 만들어 본인 캐릭터에게 전송
 		uint16 curUserCount = m_sectors[curSecYpos][curSecXpos].GetUserCount();
 
-		// 섹터에 있는 유저 순회
+		// 섹터에 있는  타 유저 순회
 		for (int j = 0; j < curUserCount; j++)
 		{
 			CUser* pSecUser = m_sectors[curSecYpos][curSecXpos].GetUser(j);
@@ -173,11 +287,24 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 		uint16 curMonsterCount = m_sectors[curSecYpos][curSecXpos].GetMonsterCount();
 		for (int monstercount = 0; monstercount < curMonsterCount; monstercount++)
 		{
-			CMessage* pCreateMonsterMsg = PacketBuilder::CreateMonster(m_sectors[curSecYpos][curSecXpos].GetMonster(monstercount));
+			CMonster* pMonster = m_sectors[curSecXpos][curSecXpos].GetMonster(monstercount);
+
+			// 죽은 몬스터면 생성 Pass
+			if (pMonster->GetMonsterState() == EMonsterState::Dead)
+				continue;
+
+			CMessage* pCreateMonsterMsg = PacketBuilder::CreateMonster(pMonster);
 			SendPacket(pOnUser->GetSessionID(), pCreateMonsterMsg);
 			CMessage::Free(pCreateMonsterMsg);
 
-			// todo : 해당 몬스터 상태 체크해서 move 패킷 보내야 하면 보내기
+
+			// 순찰, 추격, 복귀 중일 때 Move 패킷 보내기.
+			if (pMonster->GetMonsterState() == EMonsterState::Patrol || pMonster->GetMonsterState() == EMonsterState::Chase || pMonster->GetMonsterState() == EMonsterState::Return)
+			{
+				CMessage* pMonsterMove = PacketBuilder::MoveMonster(pMonster, pMonster->GetMonsterAITargetLocation());
+				SendPacket(pOnUser->GetSessionID(), pMonsterMove);
+				CMessage::Free(pMonsterMove);
+			}
 		}
 	}
 }
@@ -186,6 +313,7 @@ void FieldGroup::OnUpdate()
 {
 	MovementProc();
 	UserManaRegen();
+	MonsterRegen();
 	fieldframe++;
 }
 
@@ -226,6 +354,67 @@ void FieldGroup::SendPacket_SectorAround(CMessage* pMessage, CUser* pUser, bool 
 	}
 }
 
+void FieldGroup::SendPacket_HitSectors(HitResult& result)
+{
+	// 피격자 피격 메세지 뿌리기
+	CMessage* pHitMsg = PacketBuilder::HitTarget(result.HitUserCount, result.HitMonsterCount, result.HitUserArray, result.HitMonsterArray);
+
+	SectorPos sendflagArray[20];
+	int pushCount = 0;
+
+	// 피격자 들 순회하면서 피격자 섹터에 있는 사람들에게 피격 메세지 전달하기
+	for (int i = 0; i < result.HitUserCount; i++)
+	{
+		uint16 secX = result.HitUserArray[i]->GetSectorXpos();
+		uint16 secY = result.HitUserArray[i]->GetSectorYpos();
+
+		// 피격자 주변 섹터 좌표 찾기
+		SectorAround HitAround;
+		SectorPos::SectorFind(HitAround, result.HitUserArray[i]->GetSectorPos());
+
+		for (int count = 0; count < HitAround.m_count; count++)
+		{
+			uint16 hitSecX = HitAround.m_Around[count].GetX();
+			uint16 hitSecY = HitAround.m_Around[count].GetY();
+
+			// 이미 메세지 넣은 섹터 좌표면 pass
+			if (SectorPos::IsAlreadyPushed(sendflagArray, pushCount, hitSecX, hitSecY))
+				continue;
+
+			SendPacket_SectorOne(pHitMsg, hitSecX, hitSecY, nullptr);
+
+			sendflagArray[pushCount++] = SectorPos{ hitSecX , hitSecY };
+		}
+
+
+	}
+
+	// 피격몬스터들 주변 섹터에 메세지 뿌리기
+	for (int i = 0; i < result.HitMonsterCount; i++)
+	{
+		SectorAround HitAround;
+
+		// 피격 몬스터 주변 섹터 찾기
+		SectorPos::SectorFind(HitAround, result.HitMonsterArray[i]->GetSectorPos());
+
+		for (int count = 0; count < HitAround.m_count; count++)
+		{
+			// 피격 몬스터 주변 섹터 좌표 얻기
+			uint16 hitSecX = HitAround.m_Around[count].GetX();
+			uint16 hitSecY = HitAround.m_Around[count].GetY();
+
+			// 이미 메세지 넣은 섹터 좌표면 pass
+			if (SectorPos::IsAlreadyPushed(sendflagArray, pushCount, hitSecX, hitSecY))
+				continue;
+
+			SendPacket_SectorOne(pHitMsg, hitSecX, hitSecY, nullptr);
+
+			sendflagArray[pushCount++] = SectorPos{ hitSecX , hitSecY };
+		}
+	}
+	CMessage::Free(pHitMsg);
+}
+
 void FieldGroup::CollectHitTarget(CUser* attacker, HitSearchInfo& hitInfo, HitResult& hitResult)
 {
 	// 공격 방향으로 캐릭터 위치에서 직사각형 그려서 공격범위에 들어오는 섹터 좌표 찾기
@@ -256,20 +445,20 @@ void FieldGroup::CollectHitTarget(CUser* attacker, HitSearchInfo& hitInfo, HitRe
 				{
 					CUser* targetPlayer = m_sectors[sy][sx].GetUser(i);
 
-					if (targetPlayer == attacker || targetPlayer->GetHP() <= 0 || targetPlayer->GetDisconnectFlag())
+					if (targetPlayer == attacker || targetPlayer->GetHP() <= 0 )
 						continue;
 
 					switch (hitInfo.shape)
 					{
 					case EHitShape::Cone:
-						if (AttackCollision::IsInCone(attacker->GetLocation(), targetPlayer->GetLocation(), hitInfo.range, hitInfo.attackYaw, hitInfo.halfAngleDegree))
+						if (CollisionCheck::IsInCone(attacker->GetLocation(), targetPlayer->GetLocation(), hitInfo.range, hitInfo.attackYaw, hitInfo.halfAngleDegree))
 						{
 							hitResult.HitUserArray[hitplayerCount++] = targetPlayer;
 						}
 						break;
 
 					case EHitShape::Circle:
-						if (AttackCollision::IsInCircle(attacker->GetLocation(), targetPlayer->GetLocation(), hitInfo.range))
+						if (CollisionCheck::IsInCircle(attacker->GetLocation(), targetPlayer->GetLocation(), hitInfo.range))
 						{
 							hitResult.HitUserArray[hitplayerCount++] = targetPlayer;
 						}
@@ -291,17 +480,20 @@ void FieldGroup::CollectHitTarget(CUser* attacker, HitSearchInfo& hitInfo, HitRe
 				{
 					CMonster* targetMonster = m_sectors[sy][sx].GetMonster(i);
 
+					if (targetMonster->GetMonsterState() == EMonsterState::Dead)
+						continue;
+
 					switch (hitInfo.shape)
 					{
 					case EHitShape::Cone:
-						if (AttackCollision::IsInCone(attacker->GetLocation(), targetMonster->GetLocation(), hitInfo.range, hitInfo.attackYaw, hitInfo.halfAngleDegree))
+						if (CollisionCheck::IsInCone(attacker->GetLocation(), targetMonster->GetLocation(), hitInfo.range, hitInfo.attackYaw, hitInfo.halfAngleDegree))
 						{
 							hitResult.HitMonsterArray[hitmonsterCount++] = targetMonster;
 						}
 						break;
 
 					case EHitShape::Circle:
-						if (AttackCollision::IsInCircle(attacker->GetLocation(), targetMonster->GetLocation(), hitInfo.range))
+						if (CollisionCheck::IsInCircle(attacker->GetLocation(), targetMonster->GetLocation(), hitInfo.range))
 						{
 							hitResult.HitMonsterArray[hitmonsterCount++] = targetMonster;
 						}
@@ -471,11 +663,14 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 	{
 		uint32 damage = pUser->CalBaseAttackDamage(result.HitUserArray[i], curTime);
 		result.HitUserArray[i]->Damage(damage);
-		if (result.HitUserArray[i]->GetHP() <= 0 && result.HitUserArray[i]->GetDisconnectFlag())
-		{
-			Disconnect(sessionID);
-			result.HitUserArray[i]->SetDisconnectFlag(true);
-		}
+
+	}
+
+	// 데미지 계산 및 hp 수정
+	for (int i = 0; i < result.HitMonsterCount; i++)
+	{
+		uint32 damage = pUser->CalBaseAttackDamage(result.HitMonsterArray[i], curTime);
+		result.HitMonsterArray[i]->Damage(damage);
 	}
 
 	// 공격자 swing 메세지 뿌리기 
@@ -484,26 +679,32 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 	CMessage::Free(pSwingMsg);
 
 
-	// 피격자 피격 메세지 뿌리기
-	CMessage* pHitMsg = PacketBuilder::HitTarget(result.HitUserCount, result.HitMonsterCount,result.HitUserArray, result.HitMonsterArray);
+	SendPacket_HitSectors(result);
 
-	SectorPos sendflagArray[5];
-	int pushCount = 0;
 
-	for (int i = 0; i < result.HitUserCount; i++)
+	// 피격 몬스터들 중에 죽었으면 삭제 메세지 뿌리기
+	for (int i = 0; i < result.HitMonsterCount; i++)
 	{
-		uint16 secX = result.HitUserArray[i]->GetSectorXpos();
-		uint16 secY = result.HitUserArray[i]->GetSectorYpos();
+		CMonster* pHitMonster = result.HitMonsterArray[i];
 
-		// 이미 메세지 넣은 섹터 좌표면 pass
-		if (SectorPos::IsAlreadyPushed(sendflagArray, pushCount, secX, secY))
+		if (pHitMonster->GetMonsterState() != EMonsterState::Dead)
 			continue;
 
-		SendPacket_SectorAround(pHitMsg, result.HitUserArray[i], true);
-		sendflagArray[pushCount++] = SectorPos{ secX , secY };
+		SectorAround DeleteSector;
+
+		// 피격 몬스터 주변 섹터 찾기
+		SectorPos::SectorFind(DeleteSector, pHitMonster->GetSectorPos());
+
+		CMessage* pDeleteMonster = PacketBuilder::DeleteMonster(pHitMonster);
+
+		for (int count = 0; count < DeleteSector.m_count; count++)
+		{
+			SendPacket_SectorOne(pDeleteMonster, pHitMonster->GetSectorX(), pHitMonster->GetSectorY(), nullptr);
+		}
+
+		CMessage::Free(pDeleteMonster);
 	}
 
-	CMessage::Free(pHitMsg);
 }
 
 void FieldGroup::HandleLeftAttackStop(uint64 sessionID, CMessage* pMessage)
@@ -584,30 +785,80 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 	// 데미지 계산 및 hp 수정
 	for (int i = 0; i < result.HitUserCount; i++)
 	{
-		uint32 damage = pUser->CalBaseAttackDamage(result.HitUserArray[i], curTime);
+		uint32 damage = pUser->CalSkillDamage(skillslot, result.HitUserArray[i], curTime);
 		result.HitUserArray[i]->Damage(damage);
 	}
 
-	// 피격자 피격 메세지 뿌리기
-	CMessage* pHitMsg = PacketBuilder::HitTarget(result.HitUserCount, result.HitMonsterCount, result.HitUserArray, result.HitMonsterArray);
-
-	SectorPos sendflagArray[5];
-	int pushCount = 0;
-
-	for (int i = 0; i < result.HitUserCount; i++)
+	// 데미지 계산 및 hp 수정
+	for (int i = 0; i < result.HitMonsterCount; i++)
 	{
-		uint16 secX = result.HitUserArray[i]->GetSectorXpos();
-		uint16 secY = result.HitUserArray[i]->GetSectorYpos();
-
-		// 이미 메세지 넣은 섹터 좌표면 pass
-		if (SectorPos::IsAlreadyPushed(sendflagArray, pushCount, secX, secY))
-			continue;
-
-		SendPacket_SectorAround(pHitMsg, result.HitUserArray[i], true);
-		sendflagArray[pushCount++] = SectorPos{ secX , secY };
+		uint32 damage = pUser->CalSkillDamage(skillslot, result.HitMonsterArray[i], curTime);
+		result.HitMonsterArray[i]->Damage(damage);
 	}
 
-	CMessage::Free(pHitMsg);
+
+	SendPacket_HitSectors(result);
+
+	// 피격 몬스터들 중에 죽었으면 삭제 메세지 뿌리기
+	for (int i = 0; i < result.HitMonsterCount; i++)
+	{
+		CMonster* pHitMonster = result.HitMonsterArray[i];
+
+		if (pHitMonster->GetMonsterState() != EMonsterState::Dead)
+			continue;
+
+		SectorAround DeleteSector;
+
+		// 피격 몬스터 주변 섹터 찾기
+		SectorPos::SectorFind(DeleteSector, pHitMonster->GetSectorPos());
+		
+		CMessage* pDeleteMonster = PacketBuilder::DeleteMonster(pHitMonster);
+
+		for (int count = 0; count < DeleteSector.m_count; count++)
+		{
+			SendPacket_SectorOne(pDeleteMonster, pHitMonster->GetSectorX(), pHitMonster->GetSectorY(), nullptr);
+		}
+
+		CMessage::Free(pDeleteMonster);
+	}
+
+}
+
+void FieldGroup::HandleRespawn(uint64 sessionID, CMessage* pMessage)
+{
+	// 현재 위치에서 본인 캐릭터 리스폰 
+
+	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
+	if (it == m_userLookUpTable.end())
+		return;
+
+
+	CUser* pUser = it->second;
+
+	// 현재 섹터에 내 캐릭터 삭제 메세지 보내기(본인 포함)
+	FieldSector& oldSec = m_sectors[pUser->GetSectorYpos()][pUser->GetSectorXpos()];
+	SectorAround DeleteAround;
+	SectorPos::SectorFind(DeleteAround, pUser->GetSectorPos());
+
+	CMessage* pDeleteMyCharacter = PacketBuilder::DeleteCharacter(pUser);
+	for (int i = 0; i < DeleteAround.m_count; i++)
+	{
+		SendPacket_SectorOne(pDeleteMyCharacter, pUser->GetSectorXpos(), pUser->GetSectorYpos(), nullptr);
+	}
+	CMessage::Free(pDeleteMyCharacter);
+
+	// 캐릭터 리스폰
+	pUser->ResPawn();
+
+	// 나에게 내 캐릭 생성 메세지와 주위 섹터 유저들에게 내 캐릭 생성 메세지 보내기
+	// 본인 캐릭터 생성 메세지 만들고 보내기
+	CMessage* pCreateMyChrToMeMsg = PacketBuilder::CreateMyCharacter(pUser);
+	SendPacket(pUser->GetSessionID(), pCreateMyChrToMeMsg);
+	CMessage::Free(pCreateMyChrToMeMsg);
+
+	CMessage* pCreateMyChrToOther = PacketBuilder::CreateOtherCharacter(pUser);
+	SendPacket_SectorAround(pCreateMyChrToOther, pUser, false);
+	CMessage::Free(pCreateMyChrToOther);
 }
 
 void FieldGroup::MovementProc()
@@ -644,29 +895,72 @@ void FieldGroup::SectorUpdate(CUser* pUser, const SectorPos& newSec)
 	FieldSector& newSector = m_sectors[newSec.GetY()][newSec.GetX()];
 	newSector.AddUser(pUser);
 
-
-	// 새롭게 보이는 섹터에 캐릭터 생성 메세지, 안보이는 섹터에 캐릭터 삭제 메세지 보내기
 	SectorAround DeleteSector;
 	SectorAround CreateSector;
 	SectorPos::CalSectorTransitionMessageTargets(pUser->GetSectorPos(), newSec, DeleteSector, CreateSector);
 
-	// 캐릭터 삭제 메세지 보내기
+	// 시야에 사라진 섹터에 있는 캐릭터들에게 내 캐릭터 삭제 메세지 보내기
 	CMessage* pDeleteMsg = PacketBuilder::DeleteCharacter(pUser);
-
 	for (int i = 0; i < DeleteSector.m_count; i++)
 	{
 		SendPacket_SectorOne(pDeleteMsg, DeleteSector.m_Around[i].GetX(), DeleteSector.m_Around[i].GetY(), pUser);
 	}
 	CMessage::Free(pDeleteMsg);
 
-
-	// 캐릭터 생성 메세지 보내기
+	// 새로 시야에 들어온 섹터에 있는 캐릭터들에게 내 캐릭터 생성 메세지 보내기
 	CMessage* pCreateMsg = PacketBuilder::CreateOtherCharacter(pUser);
 	for (int i = 0; i < CreateSector.m_count; i++)
 	{
 		SendPacket_SectorOne(pCreateMsg, CreateSector.m_Around[i].GetX(), CreateSector.m_Around[i].GetY(), pUser);
 	}
 	CMessage::Free(pCreateMsg);
+
+
+	// 시야에 사라진 캐릭터들 및 몬스터에 대한 삭제 메세지를 내 캐릭터에게 보내기
+	for (int i = 0; i < DeleteSector.m_count; i++)
+	{
+		uint16 secX = DeleteSector.m_Around[i].GetX();
+		uint16 secY = DeleteSector.m_Around[i].GetY();
+
+		FieldSector& sector = m_sectors[secY][secX];
+		for (int count = 0; count < sector.GetUserCount(); count++)
+		{
+			CMessage* pDeletePlayer = PacketBuilder::DeleteCharacter(sector.GetUser(count));
+			SendPacket(pUser->GetSessionID(), pDeletePlayer);
+			CMessage::Free(pDeletePlayer);
+		}
+
+		for (int count = 0; count < sector.GetMonsterCount(); count++)
+		{
+			CMessage* pDeleteMonster = PacketBuilder::DeleteMonster(sector.GetMonster(count));
+			SendPacket(pUser->GetSessionID(), pDeleteMonster);
+			CMessage::Free(pDeleteMonster);
+		}
+
+	}
+
+	// 새롭게 시야에 들어온 캐릭터들 및 몬스터에 대한 생성 메세지를 내 캐릭터에게 보내기
+	for (int i = 0; i < CreateSector.m_count; i++)
+	{
+		uint16 secX = CreateSector.m_Around[i].GetX();
+		uint16 secY = CreateSector.m_Around[i].GetY();
+
+		FieldSector& sector = m_sectors[secY][secX];
+		for (int count = 0; count < sector.GetUserCount(); count++)
+		{
+			CMessage* pCreatePlayer = PacketBuilder::CreateOtherCharacter(sector.GetUser(count));
+			SendPacket(pUser->GetSessionID(), pCreatePlayer);
+			CMessage::Free(pCreatePlayer);
+		}
+
+		for (int count = 0; count < sector.GetMonsterCount(); count++)
+		{
+			CMessage* pCreateMonster = PacketBuilder::CreateMonster(sector.GetMonster(count));
+			SendPacket(pUser->GetSessionID(), pCreateMonster);
+			CMessage::Free(pCreateMonster);
+		}
+	}
+
 
 	pUser->SetNewSectorPos(newSec);
 }
@@ -723,6 +1017,29 @@ void FieldGroup::GrossMonsterSpawnInit()
 				}
 			}
 		}
+	}
+}
+
+void FieldGroup::MonsterRegen()
+{
+	for (int i = 0; i < MAX_GROSS_FIELD_MONSTER_COUNT; i++)
+	{
+		if (m_grossMonsterPoolArray[i].GetMonsterState() != EMonsterState::Dead)
+			continue;
+
+		m_grossMonsterPoolArray[i].IncRespawnTime();
+
+		// 리스폰 시간 지났으면 Idle 상태로 생성
+		if (m_grossMonsterPoolArray[i].GetRespawnTime() >= m_grossMonsterPoolArray[i].GetRespawnDelay())
+		{
+			m_grossMonsterPoolArray[i].Regen();
+
+			SectorAround Create;
+			SectorPos::SectorFind(Create, m_grossMonsterPoolArray[i].GetSectorPos());
+
+			SendMonsterCreateToSector(&m_grossMonsterPoolArray[i], m_grossMonsterPoolArray[i].GetSectorX(), m_grossMonsterPoolArray[i].GetSectorY());
+		}
+
 	}
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-class AttackCollision
+class CollisionCheck
 {
 public:
 	static bool IsInCircle(const Location& attackerLocation, const Location& targetLocation, float range);

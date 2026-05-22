@@ -232,6 +232,7 @@ CMessage* PacketBuilder::MoveMonster(CMonster* pMonster, Location& DesLocation)
 	*pMessage << pMonster->GetY();
 	*pMessage << pMonster->GetZ();
 	*pMessage << pMonster->GetMoveYaw();
+	*pMessage << pMonster->GetMoveSpeed();
 	*pMessage << DesLocation.xpos;
 	*pMessage << DesLocation.ypos;
 

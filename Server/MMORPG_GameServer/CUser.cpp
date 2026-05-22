@@ -2,6 +2,7 @@
 #include <windows.h>
 #include "ContentsEnum.h"
 #include "SkillTable.h"
+#include "CMonster.h"
 #include "IUser.h"
 #include "CUser.h"
 
@@ -12,7 +13,6 @@ using namespace UserConst;
 void CUser::Init(uint64 sessionID)
 {
 	// todo : 추후 DB에서 데이터 긁어와서 초기화 하기
-
 	m_sessionID = sessionID;
 	m_location = Location{ 381250.0f , 443750.0f ,-38690.f };
 	m_moveFlag = false;
@@ -21,16 +21,13 @@ void CUser::Init(uint64 sessionID)
 	m_mpRegenPerSec = WARRIOR_MANA_REGEN;
 	m_secPos.SetPos(SectorPos((m_location.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (m_location.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE));
 	m_arrayIdx = 0;
-	m_mpRegenPerSec = 5;
 	m_syncCount = 0;
 	m_movementYaw = 0.0f;
 	m_maxWalkSpeed = WALK_SPEED;
 	m_moveSpeed = m_maxWalkSpeed / FieldConst::UPDATE_FRAME;
 	m_recvTime = timeGetTime();
 	m_lastSyncCheckTime = timeGetTime();
-	m_disconnectFlag = false;
 
-	// SwingInfo 초기화
 	m_swingInfo.m_lastSwingIdx = 0;
 	m_swingInfo.m_lastSwingRecvTime = 0;
 
@@ -62,6 +59,31 @@ void CUser::Destroy()
 
 }
 
+void CUser::ResPawn()
+{
+	uint32 curTime = timeGetTime();
+
+	m_moveFlag = false;
+	m_arrayIdx = 0;
+	m_syncCount = 0;
+	m_movementYaw = 0.0f;
+	m_recvTime = curTime;
+	m_lastSyncCheckTime = curTime;
+
+	m_swingInfo.m_lastSwingIdx = 0;
+	m_swingInfo.m_lastSwingRecvTime = 0;
+
+	for (int i = 0; i < USER_SKILL_SLOT_COUNT; i++)
+	{
+		m_skillInfo[i].m_skillActivate = false;
+		m_skillInfo[i].m_skillExpiredTime = 0;
+		m_skillInfo[i].m_skillLastRecvTime = 0;
+	}
+
+	m_hp = GetMaxHP(curTime);
+	m_mp = GetMaxMP(curTime);
+}
+
 void CUser::ManaRegen(uint32 curTime)
 {
 	m_mp += m_mpRegenPerSec;
@@ -74,7 +96,7 @@ void CUser::ManaRegen(uint32 curTime)
 
 void CUser::Damage(uint16 damage)
 {
-	if (m_disconnectFlag == true)
+	if (m_hp <= 0)
 		return;
 
 	m_hp -= damage;
@@ -162,9 +184,17 @@ bool CUser::CanSwing(uint32 curTime, uint8 swingidx)
 	return true;
 }
 
+bool CUser::IsAlive()
+{
+	if (m_hp <= 0)
+		return false;
+
+	return true;
+}
+
 uint32 CUser::CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime)
 {
-	if (skillIndex >= USER_SKILL_SLOT_COUNT || target == nullptr || target->m_disconnectFlag == true)
+	if (skillIndex >= USER_SKILL_SLOT_COUNT || target == nullptr || !target->IsAlive())
 		return 0;
 
 	const SkillData& skillData = g_skillData[skillIndex];
@@ -207,9 +237,54 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime)
 	return damage;
 }
 
+uint32 CUser::CalSkillDamage(uint16 skillIndex, CMonster* target, uint32 curTime)
+{
+	if (skillIndex >= USER_SKILL_SLOT_COUNT || target == nullptr || target->GetMonsterState() == EMonsterState::Dead)
+		return 0;
+
+	const SkillData& skillData = g_skillData[skillIndex];
+
+	uint16 atk = GetAtk(curTime);
+	uint32 damage = skillData.BaseDamage + static_cast<uint32>(atk * skillData.AttackRatio);
+
+	switch (skillData.DamageType)
+	{
+	case ESkillDamageType::Physical:
+	{
+		uint16 targetDef = target->GetDef();
+
+		// 데미지 낮아도 1딜 들어감.
+		if (damage <= targetDef)
+			damage = 1;
+		else
+			damage -= targetDef;
+
+		break;
+	}
+
+	case ESkillDamageType::Magic:
+	{
+		uint16 targetDef = target->GetDef();
+
+		if (damage <= targetDef)
+			damage = 1;
+		else
+			damage -= targetDef;
+
+		break;
+	}
+
+	case ESkillDamageType::TrueDamage:
+		// 방어력 무시
+		break;
+	}
+
+	return damage;
+}
+
 uint32 CUser::CalBaseAttackDamage(CUser* target, uint32 curTime)
 {
-	if (target == nullptr || target->m_disconnectFlag == true)
+	if (target == nullptr || !target->IsAlive())
 		return 0;
 
 	uint16 atk = GetAtk(curTime);
@@ -220,6 +295,26 @@ uint32 CUser::CalBaseAttackDamage(CUser* target, uint32 curTime)
 
 	uint32 damage = static_cast<uint32>(atk * ratio);
 	uint16 targetDef = target->GetDef(curTime);
+
+	if (damage <= targetDef)
+		return 1;
+
+	return damage - targetDef;
+}
+
+uint32 CUser::CalBaseAttackDamage(CMonster* target, uint32 curTime)
+{
+	if (target == nullptr || target->GetMonsterState() == EMonsterState::Dead)
+		return 0;
+
+	uint16 atk = GetAtk(curTime);
+
+	// if swing index마다 데미지 배율 다르게 하고 싶으면 ratio 수정
+
+	float ratio = 1.0f;
+
+	uint32 damage = static_cast<uint32>(atk * ratio);
+	uint16 targetDef = target->GetDef();
 
 	if (damage <= targetDef)
 		return 1;

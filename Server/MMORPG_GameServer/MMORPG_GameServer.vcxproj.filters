@@ -75,7 +75,7 @@
     <ClCompile Include="PacketBuilder.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="AttackCollision.cpp">
+    <ClCompile Include="CollisionCheck.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="SectorPos.cpp">
@@ -125,7 +125,7 @@
     <ClInclude Include="PacketBuilder.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="AttackCollision.h">
+    <ClInclude Include="CollisionCheck.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="SectorPos.h">

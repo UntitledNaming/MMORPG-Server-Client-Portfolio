@@ -1,4 +1,7 @@
+#include <windows.h>
 #include "MonsterAI.h"
+#include "IUser.h"
+#include "CUser.h"
 #include "CMonster.h"
 
 void CMonster::Init(uint64 monsterID,  uint16 monsterType, const Location& spawnLocation, FieldGroup* fieldGroupPtr)
@@ -9,6 +12,11 @@ void CMonster::Init(uint64 monsterID,  uint16 monsterType, const Location& spawn
 	m_moveYaw = rand() % 360;
 	m_state = EMonsterState::Idle;
 	m_secPos.SetPos(SectorPos((m_location.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (m_location.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE));
+	m_atk = MonsterConst::BASE_ATK;
+	m_def = MonsterConst::BASE_DEF;
+	m_hp = MonsterConst::BASE_HP;
+	m_maxHP = MonsterConst::BASE_MAXHP;
+
 
 	// AI의 초기화
 	m_pMonsterAIComp = new MonsterAI;
@@ -23,16 +31,22 @@ void CMonster::Destroy()
 
 void CMonster::Regen()
 {
-	m_hp = MonsterConst::BASE_HP;
 	m_moveYaw = rand() % 360;
 	m_state = EMonsterState::Idle;
 	m_secPos.SetPos(SectorPos((m_location.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (m_location.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE));
-
+	m_atk = MonsterConst::BASE_ATK;
+	m_def = MonsterConst::BASE_DEF;
+	m_respawnTime = 0;
 	m_pMonsterAIComp->Reset();
+	m_hp = MonsterConst::BASE_HP;
+	m_maxHP = MonsterConst::BASE_MAXHP;
 }
 
 void CMonster::Move()
 {
+	if (m_state == EMonsterState::Dead)
+		return;
+
 	float rad = m_moveYaw * FieldConst::Pi / 180.0f;
 	float dirX = cosf(rad);
 	float dirY = sinf(rad);
@@ -40,4 +54,41 @@ void CMonster::Move()
 	m_location.xpos += dirX * m_moveSpeed;
 	m_location.ypos += dirY * m_moveSpeed;
 
+}
+
+void CMonster::Damage(uint16 damage)
+{
+	if (m_state == EMonsterState::Dead)
+		return;
+
+	m_hp -= damage;
+	if (m_hp <= 0)
+	{
+		m_hp == 0;
+		m_state = EMonsterState::Dead;
+		m_respawnTime = timeGetTime();
+	}
+}
+
+uint32 CMonster::CalBaseAttackDamage(CUser* target, uint32 curTime)
+{
+	if (target == nullptr || !target->IsAlive())
+		return 0;
+
+	uint16 atk = GetAtk();
+
+	float ratio = 1.0f;
+
+	uint32 damage = static_cast<uint32>(atk * ratio);
+	uint16 targetDef = target->GetDef(curTime);
+
+	if (damage <= targetDef)
+		return 1;
+
+	return damage - targetDef;
+}
+
+Location& CMonster::GetMonsterAITargetLocation() const
+{
+	return m_pMonsterAIComp->GetTargetLocation();
 }

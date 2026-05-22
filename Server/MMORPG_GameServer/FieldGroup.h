@@ -149,6 +149,15 @@ public:
 
 	size_t UserCount();
 
+    void SendMonsterCreateToSector(CMonster* pMonster, uint16 secX, uint16 secY);
+    void SendMonsterDeleteToSector(CMonster* pMonster, uint16 secX, uint16 secY);
+    void SendMonsterTargetUpdateToSector(CMonster* pMonster, uint16 secX, uint16 secY);
+    void SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, uint16 newHP);
+    void AddMonsterToSector(CMonster* pMonster, uint16 secX, uint16 secY);
+    void RemoveMonsterToSector(CMonster* pMonster, uint16 secX, uint16 secY);
+    FieldSector& GetFieldSector(uint16 secX, uint16 secY) { return m_sectors[secY][secX]; }
+    CUser* GetUser(uint64 sessionID);
+
 private:
 
 	//////////////////////////////////////////////////////////////////////////////////
@@ -162,12 +171,15 @@ private:
 	virtual void  OnIUserMove(UINT64 sessionID, IUser* pUser) override;
 	virtual void  OnUpdate() override;
 
+public:
 	//////////////////////////////////////////////////////////////////////////////////
-	// 섹터 관련 함수
+	// 메세지 송신 관련 함수
 	//////////////////////////////////////////////////////////////////////////////////
 	void SendPacket_SectorOne(CMessage* pMessage, uint16 xpos, uint16 ypos, CUser* pUser);     // 해당 섹터에 있는 유저들에게 메세지 보내기
 	void SendPacket_SectorAround(CMessage* pMessage, CUser* pUser, bool userSend = false);     // 해당 섹터에 있는 유저들에게 메세지 보내기
+    void SendPacket_HitSectors(HitResult& result);
 
+private:
 	///////////////////////////////////
     // Degree 변환 함수              //
     ///////////////////////////////////
@@ -190,6 +202,7 @@ private:
 	void HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage);
 	void HandleLeftAttackStop(uint64 sessionID, CMessage* pMessage);
 	void HandleSkillUse(uint64 sessionID, CMessage* pMessage);
+    void HandleRespawn(uint64 sessionID, CMessage* pMessage);
 
 	///////////////////////////////////
     // 프레임 로직 처리 함수         //
@@ -204,6 +217,9 @@ private:
     //////////////////////////////////////////////////////////////////////////////////
 	void MonsterSpawnInit();
 	void GrossMonsterSpawnInit();
+    void MonsterRegen();
+
+
 private:
 	std::unordered_map<uint64, CUser*>            m_userLookUpTable;
 	FieldSector                                   m_sectors[FieldConst::SECTOR_Y_MAX][FieldConst::SECTOR_X_MAX];

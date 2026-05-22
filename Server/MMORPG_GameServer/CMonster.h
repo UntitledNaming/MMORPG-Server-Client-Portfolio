@@ -8,6 +8,7 @@
 
 class MonsterAI;
 class FieldGroup;
+class CUser;
 
 class CMonster
 {
@@ -19,12 +20,23 @@ public:
 	void Destroy();
 	void Regen();
 	void Move();
+	void Damage(uint16 damage);
+	uint32 CalBaseAttackDamage(CUser* target, uint32 curTime);
+
+
+	Location& GetMonsterAITargetLocation() const;
 
     uint64 GetMonsterID() const { return m_monsterID; }
+	uint32 GetRespawnTime() const { return m_respawnTime; }
+	uint32 GetRespawnDelay() const { return m_respawnDelay; }
     uint16 GetMonsterType() const { return m_monsterType; }
     uint16 GetSectorIdx() const { return m_sectorIdx; }
     uint16 GetHP() const { return m_hp; }
     uint16 GetMaxHP() const { return m_maxHP; }
+	uint16 GetSectorX() const { return m_secPos.GetX(); }
+	uint16 GetSectorY() const { return m_secPos.GetY(); }
+	uint16 GetAtk() const { return m_atk; }
+	uint16 GetDef() const { return m_def; }
 	EMonsterState GetMonsterState() const { return m_state; }
 	const SectorPos& GetSectorPos() const { return m_secPos; }
 	const Location& GetLocation() const { return m_location; }
@@ -40,14 +52,16 @@ public:
 	void SetLocation(const Location& location) { m_location = location; }
 	void SetMoveSpeed(float moveSpeed) { m_moveSpeed = moveSpeed; }
 	void ChangeMonsterState(EMonsterState state) { m_state = state; }
-	
+	void IncRespawnTime() { m_respawnTime += FieldConst::UPDATE_LOOP_TIME; }
+
 private:
 	uint64        m_monsterID      = 0;
 	uint16        m_monsterType    = 0;     // 0 : Khaimera
 	uint16        m_sectorIdx      = 0;
 	uint16        m_hp             = 50;
 	uint16        m_maxHP          = 50;
-
+	uint16        m_atk            = 5;
+	uint16        m_def            = 1;
 	float         m_moveYaw        = 0.f;
 	float         m_moveSpeed      = 0.f;
 

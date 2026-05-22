@@ -1,8 +1,8 @@
 #include <cmath>
 #include "ContentsStruct.h"
-#include "AttackCollision.h"
+#include "CollisionCheck.h"
 
-bool AttackCollision::IsInCircle(const Location& attackerLocation, const Location& targetLocation, float range)
+bool CollisionCheck::IsInCircle(const Location& attackerLocation, const Location& targetLocation, float range)
 {
 	float dx = targetLocation.xpos - attackerLocation.xpos;
 	float dy = targetLocation.ypos - attackerLocation.ypos;
@@ -17,7 +17,7 @@ bool AttackCollision::IsInCircle(const Location& attackerLocation, const Locatio
 	return true;
 }
 
-bool AttackCollision::IsInCone(const Location& attackerLocation, const Location& targetLocation, float range, float attackYaw, float halfAngleDegree)
+bool CollisionCheck::IsInCone(const Location& attackerLocation, const Location& targetLocation, float range, float attackYaw, float halfAngleDegree)
 {
 	float dx = targetLocation.xpos - attackerLocation.xpos;
 	float dy = targetLocation.ypos - attackerLocation.ypos;
@@ -63,7 +63,7 @@ bool AttackCollision::IsInCone(const Location& attackerLocation, const Location&
 	return dot * dot >= distSq * cosHalfAngle * cosHalfAngle;
 }
 
-bool AttackCollision::IsInBox(const Location& attackerLocation, const Location& targetLocation, float halfwidth, float attackYaw, float length)
+bool CollisionCheck::IsInBox(const Location& attackerLocation, const Location& targetLocation, float halfwidth, float attackYaw, float length)
 {
 	float dx = targetLocation.xpos - attackerLocation.xpos;
 	float dy = targetLocation.ypos - attackerLocation.ypos;

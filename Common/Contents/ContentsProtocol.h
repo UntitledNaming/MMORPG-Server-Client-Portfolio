@@ -275,6 +275,7 @@ namespace FieldProtocol
     //	4	-	Ypos    		(float)
     //	4	-	Zpos    		(float)
     //	4	-	MoveYaw 		(float)
+    //	4	-	MoveSpeed 		(float)
     //	4	-	DesXpos  		(float)
     //	4	-	DesYpos 		(float)
     //
@@ -289,6 +290,14 @@ namespace FieldProtocol
     //	8	-	TargetID	 	(uint64)
     //	2	-	TargetNewHP 	(uint16)
     //
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_CS_RESPAWN_PLAYER = 1023;
+    //---------------------------------------------------------------
+    // Character Delete Msg 					Client -> Server
+    //
+    //  (no payload)
+    // 
     //---------------------------------------------------------------
 }
 

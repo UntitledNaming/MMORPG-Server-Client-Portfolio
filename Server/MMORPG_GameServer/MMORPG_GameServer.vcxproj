@@ -140,7 +140,7 @@
     <ClCompile Include="..\..\NetworkLib\game_library\src\CGameLibrary.cpp" />
     <ClCompile Include="..\..\NetworkLib\game_library\src\CGroup.cpp" />
     <ClCompile Include="..\..\NetworkLib\game_library\src\GameSession.cpp" />
-    <ClCompile Include="AttackCollision.cpp" />
+    <ClCompile Include="CollisionCheck.cpp" />
     <ClCompile Include="AuthGroup.cpp" />
     <ClCompile Include="CDBManager.cpp" />
     <ClCompile Include="ChatService.cpp" />
@@ -157,7 +157,7 @@
     <ClCompile Include="SectorPos.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AttackCollision.h" />
+    <ClInclude Include="CollisionCheck.h" />
     <ClInclude Include="AuthGroup.h" />
     <ClInclude Include="CDBManager.h" />
     <ClInclude Include="ChatService.h" />
