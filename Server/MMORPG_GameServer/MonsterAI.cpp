@@ -67,12 +67,12 @@ void MonsterAI::Reset()
 
 void MonsterAI::UpdateIdle()
 {
-	CUser* pTarget = FindNearestPlayer(DETECT_RANGE);
-	if (pTarget)
-	{
-		EnterChase(pTarget);
-		return;
-	}
+	//CUser* pTarget = FindNearestPlayer(DETECT_RANGE);
+	//if (pTarget)
+	//{
+	//	EnterChase(pTarget);
+	//	return;
+	//}
 
 	m_idleElapsed += UPDATE_LOOP_TIME;
 	if (m_idleElapsed >= m_idleDuration)
@@ -81,12 +81,12 @@ void MonsterAI::UpdateIdle()
 
 void MonsterAI::UpdatePatrol()
 {
-	CUser* pTarget = FindNearestPlayer(DETECT_RANGE);
-	if (pTarget)
-	{
-		EnterChase(pTarget);
-		return;
-	}
+	//CUser* pTarget = FindNearestPlayer(DETECT_RANGE);
+	//if (pTarget)
+	//{
+	//	EnterChase(pTarget);
+	//	return;
+	//}
 
 	// 타겟 없고 목적지 도착후 잠깐 정지한 상태가 아닌 경우 목적지로 이동
 	if (!m_patrolPausing)
@@ -150,9 +150,16 @@ void MonsterAI::UpdateChase()
 
 	UpdateSector();
 
-	// 범위 안에 들어오면 공격
+	// 공격 주기 시간 증가
+	m_attackAccum += UPDATE_LOOP_TIME;
+
+	// 범위 안에 없거나 애초에 공격 주기가 안되었으면
 	if (!IsAttackRange())
 		return;
+
+	if (m_attackAccum < ATTACK_COOLDOWN_MS)
+		return;
+
 
 	// 타겟에게 데미지 주기
 	uint32 damage = m_pOwner->CalBaseAttackDamage(m_pTarget, timeGetTime());
@@ -160,6 +167,7 @@ void MonsterAI::UpdateChase()
 
 	// 공격 및 데미지 패킷 보내기
 	m_pField->SendMonsterAttackTarget(m_pOwner, m_pTarget, m_pTarget->GetHP());
+	m_attackAccum = 0;
 }
 
 void MonsterAI::UpdateReturn()
@@ -182,6 +190,7 @@ void MonsterAI::EnterPatrol()
 {
 	m_pOwner->ChangeMonsterState(EMonsterState::Patrol);
 	m_pOwner->SetMoveSpeed(PATROL_SPEED / UPDATE_LOOP_TIME);
+	m_pOwner->SetMoveSpeedPerSec(PATROL_SPEED );
 
 	m_patrolPausing = false;
 
@@ -196,12 +205,21 @@ void MonsterAI::EnterPatrol()
 	m_targetLocation.ypos = m_spawnLocation.ypos + sinf(rad) * PATROL_DISTANCE;
 	m_targetLocation.zpos = m_spawnLocation.zpos;
 
+	// 타겟 목적지 변경 되었으니 Move 패킷 주변에 뿌리기
+	SectorAround MoveAround;
+	SectorPos::SectorFind(MoveAround, m_pOwner->GetSectorPos());
+
+	for (int i = 0; i < MoveAround.m_count; i++)
+	{
+		m_pField->SendMonsterTargetUpdateToSector(m_pOwner, MoveAround.m_Around[i].GetX(), MoveAround.m_Around[i].GetY());
+	}
 }
 
 void MonsterAI::EnterChase(CUser* targetPlayer)
 {
 	m_pOwner->ChangeMonsterState(EMonsterState::Chase);
 	m_pOwner->SetMoveSpeed(CHASE_SPEED / UPDATE_LOOP_TIME);
+	m_pOwner->SetMoveSpeedPerSec(CHASE_SPEED );
 	m_pTarget = targetPlayer;
 
 	// 타겟 설정
@@ -224,6 +242,8 @@ void MonsterAI::EnterReturn()
 	// 리턴 상태로 변경
 	m_pOwner->ChangeMonsterState(EMonsterState::Return);
 	m_pOwner->SetMoveSpeed(RETURN_SPEED / UPDATE_LOOP_TIME);
+	m_pOwner->SetMoveSpeedPerSec(RETURN_SPEED );
+	m_pTarget = nullptr;
 
 	// 타겟 설정
 	m_targetLocation.xpos = m_spawnLocation.xpos;
@@ -236,12 +256,21 @@ void MonsterAI::EnterReturn()
 	float rad = atan2f(dy, dx);
 
 	m_pOwner->SetMoveYaw(rad * 180.0f / FieldConst::Pi);
+
+	SectorAround MoveAround;
+	SectorPos::SectorFind(MoveAround, m_pOwner->GetSectorPos());
+
+	for (int i = 0; i < MoveAround.m_count; i++)
+	{
+		m_pField->SendMonsterTargetUpdateToSector(m_pOwner, MoveAround.m_Around[i].GetX(), MoveAround.m_Around[i].GetY());
+	}
 }
 
 void MonsterAI::EnterIdle()
 {
 	m_pOwner->ChangeMonsterState(EMonsterState::Idle);
 	m_pOwner->SetMoveSpeed(0);
+	m_pOwner->SetMoveSpeedPerSec(0);
 	m_idleElapsed = 0;
 }
 

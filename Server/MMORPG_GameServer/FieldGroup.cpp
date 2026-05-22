@@ -33,7 +33,7 @@ void FieldGroup::SendMonsterCreateToSector(CMonster* pMonster, uint16 secX, uint
 {
 	// 섹터에 있는 유저들에게 몬스터 생성 및 필요하면 Move 패킷 보내기
 	int count = m_sectors[secY][secX].GetUserCount();
-	for (int i = 0; count; i++)
+	for (int i = 0; i < count; i++)
 	{
 		CUser* pUser = m_sectors[secY][secX].GetUser(i);
 
@@ -55,7 +55,7 @@ void FieldGroup::SendMonsterCreateToSector(CMonster* pMonster, uint16 secX, uint
 void FieldGroup::SendMonsterDeleteToSector(CMonster* pMonster, uint16 secX, uint16 secY)
 {
 	int count = m_sectors[secY][secX].GetUserCount();
-	for (int i = 0; count; i++)
+	for (int i = 0; i < count; i++)
 	{
 		CUser* pUser = m_sectors[secY][secX].GetUser(i);
 
@@ -69,7 +69,7 @@ void FieldGroup::SendMonsterTargetUpdateToSector(CMonster* pMonster, uint16 secX
 {
 	// 섹터에 있는 유저들에게 Move 패킷 보내기
 	int count = m_sectors[secY][secX].GetUserCount();
-	for (int i = 0; count; i++)
+	for (int i = 0; i < count; i++)
 	{
 		CUser* pUser = m_sectors[secY][secX].GetUser(i);
 		
@@ -115,6 +115,7 @@ void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, uin
 		sendflagArray[pushCount++] = SectorPos{ secX , secY };
 	}
 
+	CMessage::Free(pAttackMonster);
 }
 
 void FieldGroup::AddMonsterToSector(CMonster* pMonster, uint16 secX, uint16 secY)
@@ -984,7 +985,7 @@ void FieldGroup::UserManaRegen()
 
 void FieldGroup::MonsterAIUpdate()
 {
-	for (int i = 0; i < MAX_GROSS_FIELD_MONSTER_COUNT; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		if (m_grossMonsterPoolArray[i].GetMonsterState() == EMonsterState::Dead)
 			continue;
@@ -1005,31 +1006,38 @@ void FieldGroup::GrossMonsterSpawnInit()
 		return;
 
 	int monstrSpawnCount = 0;
-	for (int i = 0; i < GROSS_FIELD_AREA_ARRAY_COUNT; i++)
-	{
-		for (uint16 sy = GROSS_FIELD_MONSTER_SPAWN_AREAS[i].minSectorY; sy <= GROSS_FIELD_MONSTER_SPAWN_AREAS[i].maxSectorY; sy++)
-		{
-			for (uint16 sx = GROSS_FIELD_MONSTER_SPAWN_AREAS[i].minSectorX; sx <= GROSS_FIELD_MONSTER_SPAWN_AREAS[i].maxSectorX; sx++)
-			{
-				for (int count = 0; count < MAX_GROSS_FIELD_MONSTER_COUNT / GROSS_FIELD_SECTOR_COUNT; count++)
-				{
-					if (monstrSpawnCount >= MAX_GROSS_FIELD_MONSTER_COUNT)
-						return;
+	//for (int i = 0; i < GROSS_FIELD_AREA_ARRAY_COUNT; i++)
+	//{
+	//	for (uint16 sy = GROSS_FIELD_MONSTER_SPAWN_AREAS[i].minSectorY; sy <= GROSS_FIELD_MONSTER_SPAWN_AREAS[i].maxSectorY; sy++)
+	//	{
+	//		for (uint16 sx = GROSS_FIELD_MONSTER_SPAWN_AREAS[i].minSectorX; sx <= GROSS_FIELD_MONSTER_SPAWN_AREAS[i].maxSectorX; sx++)
+	//		{
+	//			for (int count = 0; count < MAX_GROSS_FIELD_MONSTER_COUNT / GROSS_FIELD_SECTOR_COUNT; count++)
+	//			{
+	//				if (monstrSpawnCount >= MAX_GROSS_FIELD_MONSTER_COUNT)
+	//					return;
 
-					float xpos = MAP_WORLD_OFFSET_X + sx * SECTOR_SIZE + (rand() % SECTOR_SIZE + 10);
-					float ypos = MAP_WORLD_OFFSET_Y + sy * SECTOR_SIZE + (rand() % SECTOR_SIZE + 10);
+	//				float xpos = MAP_WORLD_OFFSET_X + sx * SECTOR_SIZE + (rand() % SECTOR_SIZE + 10);
+	//				float ypos = MAP_WORLD_OFFSET_Y + sy * SECTOR_SIZE + (rand() % SECTOR_SIZE + 10);
 
-					CMonster& monster = m_grossMonsterPoolArray[monstrSpawnCount++];
-					Location loc{ xpos,ypos ,-38775.f };
-					monster.Init(m_monsterAllocID, 0, loc, this);
-					m_monsterAllocID++;
+	//				CMonster& monster = m_grossMonsterPoolArray[monstrSpawnCount++];
+	//				Location loc{ xpos,ypos ,-38775.f };
+	//				monster.Init(m_monsterAllocID, 0, loc, this);
+	//				m_monsterAllocID++;
 
-					m_sectors[sy][sx].AddMonster(&monster);
+	//				m_sectors[sy][sx].AddMonster(&monster);
 
-				}
-			}
-		}
-	}
+	//			}
+	//		}
+	//	}
+	//}
+
+
+	CMonster& monster = m_grossMonsterPoolArray[monstrSpawnCount++];
+	monster.Init(m_monsterAllocID, 0, Location{ 381250.0f , 443750.0f ,-38775.f }, this);
+	m_monsterAllocID++;
+
+	m_sectors[monster.GetSectorY()][monster.GetSectorX()].AddMonster(&monster);
 }
 
 void FieldGroup::MonsterRegen()

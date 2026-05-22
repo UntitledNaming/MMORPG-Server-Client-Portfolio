@@ -46,6 +46,7 @@ public:
 	float     GetZ() const { return m_location.zpos; }
 	float     GetMoveYaw() const { return m_moveYaw; }
 	float     GetMoveSpeed() const { return m_moveSpeed; }
+	float     GetMoveSpeedPerSec() const { return m_moveSpeedperSec; }
 
 	void SetSectorPos(const SectorPos& secPos) { m_secPos = secPos; }
 	void SetMoveYaw(float moveYaw) { m_moveYaw = moveYaw; }
@@ -53,6 +54,7 @@ public:
 	void SetHP(uint16 hp) { m_hp = hp; }
 	void SetLocation(const Location& location) { m_location = location; }
 	void SetMoveSpeed(float moveSpeed) { m_moveSpeed = moveSpeed; }
+	void SetMoveSpeedPerSec(float moveSpeed) { m_moveSpeedperSec = moveSpeed; }
 	void ChangeMonsterState(EMonsterState state) { m_state = state; }
 	void IncRespawnTime() { m_respawnTime += FieldConst::UPDATE_LOOP_TIME; }
 
@@ -66,6 +68,7 @@ private:
 	uint16        m_def            = 1;
 	float         m_moveYaw        = 0.f;
 	float         m_moveSpeed      = 0.f;
+	float         m_moveSpeedperSec = 0.f;
 
 	EMonsterState m_state;                  // Monster State
 	SectorPos     m_secPos;     		    

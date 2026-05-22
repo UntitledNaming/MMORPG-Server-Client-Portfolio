@@ -121,9 +121,9 @@ namespace MonsterConst
 	constexpr float   ATTACK_RANGE = 200.0f;
 	constexpr float   ATTACK_HALF_ANGLE = 60.0f;
 	constexpr float   RETURN_RANGE = 1200.0f;
-	constexpr float   PATROL_DISTANCE = 800.0f;
+	constexpr float   PATROL_DISTANCE = 1500.0f;
 	constexpr uint32  ATTACK_COOLDOWN_MS = 1500;
-	constexpr uint32  PATROL_PAUSE_MS    = 1000;
+	constexpr uint32  PATROL_PAUSE_MS    = 3000;
 	constexpr uint32  IDLE_MIN_DURATION_MS = 2000;
 	constexpr uint32  IDLE_MAX_DURATION_MS = 6000;
 	constexpr float   CHASE_ANGLE_THRESHOLD = 15.0f;
