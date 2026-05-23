@@ -30,6 +30,8 @@ protected:
 
 	void Move(float DeltaTime);
 	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	bool IsNear(const FVector& cur, const FVector& target);
+
 
 private:
 	bool     bIsAttacking     = false;

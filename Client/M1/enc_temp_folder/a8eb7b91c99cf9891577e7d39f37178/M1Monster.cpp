@@ -47,12 +47,23 @@ void AM1Monster::OnReceiveMoveTarget(FMonsterMove& Data)
 
 void AM1Monster::OnReceiveAttackTarget()
 {
-	// 몽타주 재생
-	UAnimInstance* AnimInst =GetMesh()->GetAnimInstance();
+	SetUseUpperBodyWhenMovingFlag(true);
 
-	// 이미 재생 중이면 스킵
+	UAnimInstance* AnimInst = GetMesh()->GetAnimInstance();
+
 	if (AnimInst && !AnimInst->Montage_IsPlaying(AttackMontage))
+	{
 		PlayAnimMontage(AttackMontage, MontagePlayRate);
+
+		FOnMontageEnded EndDelegate;
+		EndDelegate.BindUObject(this, &AM1Monster::OnAttackMontageEnded);
+		AnimInst->Montage_SetEndDelegate(EndDelegate, AttackMontage);
+	}
+}
+
+void AM1Monster::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	SetUseUpperBodyWhenMovingFlag(false);
 }
 
 

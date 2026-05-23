@@ -38,10 +38,15 @@ void AM1Monster::OnReceiveMoveTarget(FMonsterMove& Data)
 	// 현재 몬스터 위치랑 서버의 몬스터 위치와 크게 차이나면 위치 맞추기
 	SetActorRotation(FRotator(0, m_MoveYaw, 0));
 	
-
 	float Dist = FVector::Dist2D(GetActorLocation(), Data.MonsterLocation);
 	if (Dist >= MonsterConst::POS_SNAP_DIST_CM)
 		SetActorLocation(Data.MonsterLocation);
+
+	if (IsNear(GetActorLocation(), Data.TargetLocation))
+	{
+		isMoving = false;
+		SetUseUpperBodyWhenMovingFlag(false);
+	}
 
 }
 
@@ -98,4 +103,19 @@ void AM1Monster::Move(float DeltaTime)
 	FVector NewPos = Current + MoveDir * GetCharacterMovement()->MaxWalkSpeed * DeltaTime;
 
 	SetActorLocation(NewPos);
+}
+
+bool AM1Monster::IsNear(const FVector& cur, const FVector& target)
+{
+	float dx = std::abs(cur.X - target.X);
+	float dy = std::abs(cur.Y - target.Y);
+	float distSq = dx * dx + dy * dy;
+	float oneTickDist = GetCharacterMovement()->MaxWalkSpeed / FieldConst::UPDATE_LOOP_TIME;
+
+	float arriveMinDistSq = oneTickDist * oneTickDist;
+
+	if (distSq <= arriveMinDistSq)
+		return true;
+
+	return false;
 }
