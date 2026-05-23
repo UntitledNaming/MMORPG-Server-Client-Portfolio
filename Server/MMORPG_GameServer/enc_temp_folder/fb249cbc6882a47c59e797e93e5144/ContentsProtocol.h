@@ -274,6 +274,7 @@ namespace FieldProtocol
     //	4	-	Xpos    		(float)
     //	4	-	Ypos    		(float)
     //	4	-	Zpos    		(float)
+    //	4	-	MoveYaw 		(float)
     //	4	-	MoveSpeed 		(float)
     //	4	-	DesXpos  		(float)
     //	4	-	DesYpos 		(float)
