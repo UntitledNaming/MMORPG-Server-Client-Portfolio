@@ -117,7 +117,7 @@ namespace MonsterConst
 	constexpr float   PATROL_SPEED = 300.0f;
 	constexpr float   CHASE_SPEED = 550.0f;
 	constexpr float   RETURN_SPEED = 350.0f;
-	constexpr float   DETECT_RANGE = 500.0f;
+	constexpr float   DETECT_RANGE = 1500.0f;
 	constexpr float   ATTACK_RANGE = 200.0f;
 	constexpr float   ATTACK_HALF_ANGLE = 60.0f;
 	constexpr float   RETURN_RANGE = 1200.0f;
