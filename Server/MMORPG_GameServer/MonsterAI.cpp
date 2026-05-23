@@ -67,12 +67,12 @@ void MonsterAI::Reset()
 
 void MonsterAI::UpdateIdle()
 {
-	//CUser* pTarget = FindNearestPlayer(DETECT_RANGE);
-	//if (pTarget)
-	//{
-	//	EnterChase(pTarget);
-	//	return;
-	//}
+	CUser* pTarget = FindNearestPlayer(DETECT_RANGE);
+	if (pTarget)
+	{
+		EnterChase(pTarget);
+		return;
+	}
 
 	m_idleElapsed += UPDATE_LOOP_TIME;
 	if (m_idleElapsed >= m_idleDuration)
@@ -81,12 +81,12 @@ void MonsterAI::UpdateIdle()
 
 void MonsterAI::UpdatePatrol()
 {
-	//CUser* pTarget = FindNearestPlayer(DETECT_RANGE);
-	//if (pTarget)
-	//{
-	//	EnterChase(pTarget);
-	//	return;
-	//}
+	CUser* pTarget = FindNearestPlayer(DETECT_RANGE);
+	if (pTarget)
+	{
+		EnterChase(pTarget);
+		return;
+	}
 
 	// 타겟 없고 목적지 도착후 잠깐 정지한 상태가 아닌 경우 목적지로 이동
 	if (!m_patrolPausing)
@@ -144,7 +144,6 @@ void MonsterAI::UpdateChase()
 	// 타겟 좌표 업데이트(타겟과의 방향이 틀어지거나 일정 시간 지났으면)
 	TargetUpdate();
 
-
 	// 타겟 방향으로 이동
 	m_pOwner->Move();
 
@@ -154,10 +153,7 @@ void MonsterAI::UpdateChase()
 	m_attackAccum += UPDATE_LOOP_TIME;
 
 	// 범위 안에 없거나 애초에 공격 주기가 안되었으면
-	if (!IsAttackRange())
-		return;
-
-	if (m_attackAccum < ATTACK_COOLDOWN_MS)
+	if (!(IsAttackRange() && m_attackAccum >= ATTACK_COOLDOWN_MS))
 		return;
 
 
@@ -235,6 +231,16 @@ void MonsterAI::EnterChase(CUser* targetPlayer)
 	m_lastChaseYaw = targetYaw;
 	m_chaseUpdateAccum = 0;
 	m_attackAccum = 0;
+
+
+	// 타겟 목적지 변경 되었으니 Move 패킷 주변에 뿌리기
+	SectorAround MoveAround;
+	SectorPos::SectorFind(MoveAround, m_pOwner->GetSectorPos());
+
+	for (int i = 0; i < MoveAround.m_count; i++)
+	{
+		m_pField->SendMonsterTargetUpdateToSector(m_pOwner, MoveAround.m_Around[i].GetX(), MoveAround.m_Around[i].GetY());
+	}
 }
 
 void MonsterAI::EnterReturn()
