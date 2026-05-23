@@ -248,6 +248,7 @@ CMessage* PacketBuilder::AttackMonster(CMonster* pMonster, uint64 TargetID, uint
 	*pMessage << FieldProtocol::PACKET_SC_HIT_TOPLAYER;
 	*pMessage << pMonster->GetMonsterID();
 	*pMessage << TargetID;
+	*pMessage << pMonster->GetMoveYaw();
 	*pMessage << newHP;
 
 	return pMessage;

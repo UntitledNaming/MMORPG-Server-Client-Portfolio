@@ -147,7 +147,13 @@ void MonsterAI::UpdateChase()
 		m_pOwner->Move();
 		UpdateSector();
 	}
-
+	else
+	{
+		// 타겟 근처에 있어도 방향 갱신하여 공격 가능하게
+		float tdx = m_pTarget->GetLocation().xpos - m_pOwner->GetX();
+		float tdy = m_pTarget->GetLocation().ypos - m_pOwner->GetY();
+		m_pOwner->SetMoveYaw(atan2f(tdx, tdy) * 180.0f / FieldConst::Pi);
+	}
 
 	// 공격 주기 시간 증가
 	m_attackAccum += UPDATE_LOOP_TIME;

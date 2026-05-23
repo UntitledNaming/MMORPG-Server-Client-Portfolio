@@ -288,6 +288,7 @@ namespace FieldProtocol
     //
     //	8	-	MonsterID		(uint64)
     //	8	-	TargetID	 	(uint64)
+    //  4   -   AttackYaw       (float)
     //	2	-	TargetNewHP 	(uint16)
     //
     //---------------------------------------------------------------
