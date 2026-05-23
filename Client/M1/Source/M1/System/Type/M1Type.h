@@ -43,7 +43,6 @@ struct FMonsterMove
 {
     FVector MonsterLocation;
     FVector TargetLocation;
-    float   MoveYaw;
     float   MoveSpeed;
 };
 

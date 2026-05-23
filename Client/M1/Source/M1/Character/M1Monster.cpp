@@ -29,19 +29,13 @@ void  AM1Monster::SetHP(int32 NewHP)
 
 void AM1Monster::OnReceiveMoveTarget(FMonsterMove& Data)
 {
-	// 타겟 수정
-	m_TargetLocation = Data.TargetLocation;
-	m_MoveYaw = Data.MoveYaw;
-	isMoving = true;
-	GetCharacterMovement()->MaxWalkSpeed = Data.MoveSpeed;
-
-	// 현재 몬스터 위치랑 서버의 몬스터 위치와 크게 차이나면 위치 맞추기
-	SetActorRotation(FRotator(0, m_MoveYaw, 0));
-	
 	float Dist = FVector::Dist2D(GetActorLocation(), Data.MonsterLocation);
 	if (Dist >= MonsterConst::POS_SNAP_DIST_CM)
 		SetActorLocation(Data.MonsterLocation);
 
+	m_TargetLocation = Data.TargetLocation;
+	isMoving = true;
+	GetCharacterMovement()->MaxWalkSpeed = Data.MoveSpeed;
 }
 
 void AM1Monster::OnReceiveAttackTarget(float AttackYaw)
@@ -64,7 +58,6 @@ void AM1Monster::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	SetUseUpperBodyWhenMovingFlag(false);
 }
-
 
 void AM1Monster::BeginPlay()
 {
@@ -96,6 +89,7 @@ void AM1Monster::Move(float DeltaTime)
 		return;
 	}
 
-	FVector MoveDir = FRotator(0.f, m_MoveYaw, 0.f).Vector();
-	SetActorLocation(Current + MoveDir * Step);
+	FVector Dir = FVector(m_TargetLocation.X - Current.X, m_TargetLocation.Y - Current.Y, 0.f).GetSafeNormal();
+	SetActorRotation(Dir.ToOrientationRotator());
+	SetActorLocation(Current + Dir * Step);
 }

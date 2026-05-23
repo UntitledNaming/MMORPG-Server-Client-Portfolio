@@ -315,7 +315,6 @@ void M1PacketHandler::Handle_SC_MOVE_MONSTER(CMessage* pMessage, UM1NetworkManag
 	float xpos;
 	float ypos;
 	float zpos;
-	float yaw;
 	float speed;
 	float desxpos;
 	float desypos;
@@ -324,7 +323,6 @@ void M1PacketHandler::Handle_SC_MOVE_MONSTER(CMessage* pMessage, UM1NetworkManag
 	*pMessage >> xpos;
 	*pMessage >> ypos;
 	*pMessage >> zpos;
-	*pMessage >> yaw;
 	*pMessage >> speed;
 	*pMessage >> desxpos;
 	*pMessage >> desypos;
@@ -332,7 +330,6 @@ void M1PacketHandler::Handle_SC_MOVE_MONSTER(CMessage* pMessage, UM1NetworkManag
 	FMonsterMove Data;
 	Data.MonsterLocation = FVector(xpos, ypos, zpos);
 	Data.MoveSpeed = speed;
-	Data.MoveYaw = yaw;
 	Data.TargetLocation = FVector(desxpos, desypos, zpos);
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();

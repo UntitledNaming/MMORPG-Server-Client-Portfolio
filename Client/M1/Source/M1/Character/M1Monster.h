@@ -35,7 +35,6 @@ protected:
 private:
 	bool     bIsAttacking     = false;
 	bool     isMoving         = false;
-	float    m_MoveYaw          = 0.f;
 	FVector  m_TargetLocation = FVector::ZeroVector;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
