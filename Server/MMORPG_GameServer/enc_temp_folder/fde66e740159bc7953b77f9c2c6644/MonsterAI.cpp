@@ -401,7 +401,6 @@ void MonsterAI::TargetUpdate()
 
 	if (!update)
 		return;
-
 	m_pField->targetupdatePacketCount++;
 	// 몬스터 이동 방향 및 타겟 좌표 업데이트
 	m_pOwner->SetMoveYaw(targetYaw);

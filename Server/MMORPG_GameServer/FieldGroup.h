@@ -233,5 +233,7 @@ private:
 public:
 	uint64 fieldframe = 0;
 	uint64 syncCount = 0;
+    uint64 attackCount = 0;
+    uint64 targetupdatePacketCount = 0;
 };
 

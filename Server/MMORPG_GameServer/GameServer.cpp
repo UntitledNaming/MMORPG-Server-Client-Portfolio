@@ -90,6 +90,8 @@ void GameServer::Monitoring()
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
 		wprintf(L" User Count  : %d \n", m_pFieldGroup->UserCount());
 		wprintf(L" Sync Count  : %d \n", m_pFieldGroup->syncCount);
+		wprintf(L" Attack Count  : %d \n", m_pFieldGroup->attackCount);
+		wprintf(L" TargetUpdate Count  : %d \n", m_pFieldGroup->targetupdatePacketCount);
 		wprintf(L" Field Frame : %lld \n", m_pFieldGroup->fieldframe);
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
 		wprintf(L" CMessage Pool Usage Count  : %d \n", CMessage::m_pMessagePool->GetUseCnt());
@@ -102,5 +104,7 @@ void GameServer::Monitoring()
 		m_pGameLib->m_RecvIOTPS = 0;
 		m_pGameLib->m_SendIOTPS = 0;
 		m_pFieldGroup->fieldframe = 0;
+		m_pFieldGroup->attackCount = 0;
+		m_pFieldGroup->targetupdatePacketCount = 0;
 	}
 }
