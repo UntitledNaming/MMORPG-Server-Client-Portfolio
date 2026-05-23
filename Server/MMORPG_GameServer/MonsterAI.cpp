@@ -144,14 +144,11 @@ void MonsterAI::UpdateChase()
 	// 타겟 좌표 업데이트(타겟과의 방향이 틀어지거나 일정 시간 지났으면)
 	TargetUpdate();
 
-	float tdx = m_targetLocation.xpos - m_pOwner->GetX();
-	float tdy = m_targetLocation.ypos - m_pOwner->GetY();
 
-	// 공격 범위 바깥일때만 몬스터는 타겟 방향으로 이동 후 섹터 업데이트
-	if (tdx * tdx + tdy * tdy >= ATTACK_RANGE * ATTACK_RANGE)
+	// 타겟 근처면 이동x
+	if (!IsNear(m_pOwner->GetLocation(), m_targetLocation))
 	{
 		m_pOwner->Move();
-
 		UpdateSector();
 	}
 
@@ -162,7 +159,6 @@ void MonsterAI::UpdateChase()
 	// 범위 안에 없거나 애초에 공격 주기가 안되었으면
 	if (!(IsAttackRange() && m_attackAccum >= ATTACK_COOLDOWN_MS))
 		return;
-
 
 	// 타겟에게 데미지 주기
 	uint32 damage = m_pOwner->CalBaseAttackDamage(m_pTarget, timeGetTime());
@@ -235,8 +231,8 @@ void MonsterAI::EnterChase(CUser* targetPlayer)
 	float dirX = cosf(rad);
 	float dirY = sinf(rad);
 
-	m_targetLocation.xpos = m_pTarget->GetLocation().xpos - dirX * ATTACK_RANGE;
-	m_targetLocation.ypos = m_pTarget->GetLocation().ypos - dirY * ATTACK_RANGE;
+	m_targetLocation.xpos = m_pTarget->GetLocation().xpos - dirX * CHASE_STOP_DISTANCE;
+	m_targetLocation.ypos = m_pTarget->GetLocation().ypos - dirY * CHASE_STOP_DISTANCE;
 	m_targetLocation.zpos = m_pTarget->GetLocation().zpos;
 
 	m_pOwner->SetMoveYaw(targetYaw);
@@ -413,8 +409,8 @@ void MonsterAI::TargetUpdate()
 	float dirX = cosf(rad);
 	float dirY = sinf(rad);
 
-	m_targetLocation.xpos = m_pTarget->GetLocation().xpos - dirX * ATTACK_RANGE;
-	m_targetLocation.ypos = m_pTarget->GetLocation().ypos - dirY * ATTACK_RANGE;
+	m_targetLocation.xpos = m_pTarget->GetLocation().xpos - dirX * CHASE_STOP_DISTANCE;
+	m_targetLocation.ypos = m_pTarget->GetLocation().ypos - dirY * CHASE_STOP_DISTANCE;
 	m_targetLocation.zpos = m_pTarget->GetLocation().zpos;
 
 	m_pOwner->SetMoveYaw(targetYaw);
