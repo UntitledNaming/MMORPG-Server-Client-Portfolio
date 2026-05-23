@@ -198,6 +198,7 @@ void FieldGroup::OnClientLeave(UINT64 sessionID)
 	sec.RemoveUser(pUser);
 
 	pUser->Destroy();
+	pUser->SetDisconnectFlag(true);
 	CUser::Free(pUser);
 	m_userLookUpTable.erase(it);
 }

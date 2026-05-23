@@ -144,10 +144,17 @@ void MonsterAI::UpdateChase()
 	// 타겟 좌표 업데이트(타겟과의 방향이 틀어지거나 일정 시간 지났으면)
 	TargetUpdate();
 
-	// 타겟 방향으로 이동
-	m_pOwner->Move();
+	float tdx = m_targetLocation.xpos - m_pOwner->GetX();
+	float tdy = m_targetLocation.ypos - m_pOwner->GetY();
 
-	UpdateSector();
+	// 공격 범위 바깥일때만 몬스터는 타겟 방향으로 이동 후 섹터 업데이트
+	if (tdx * tdx + tdy * tdy >= ATTACK_RANGE * ATTACK_RANGE)
+	{
+		m_pOwner->Move();
+
+		UpdateSector();
+	}
+
 
 	// 공격 주기 시간 증가
 	m_attackAccum += UPDATE_LOOP_TIME;
@@ -219,14 +226,18 @@ void MonsterAI::EnterChase(CUser* targetPlayer)
 	m_pOwner->SetMoveSpeedPerSec(CHASE_SPEED );
 	m_pTarget = targetPlayer;
 
-	// 타겟 설정
-	m_targetLocation = m_pTarget->GetLocation();
 
 	// 방향 변경
-	float dx = m_targetLocation.xpos - m_pOwner->GetX();
-	float dy = m_targetLocation.ypos - m_pOwner->GetY();
+	float dx = m_pTarget->GetLocation().xpos - m_pOwner->GetX();
+	float dy = m_pTarget->GetLocation().ypos - m_pOwner->GetY();
 	float rad = atan2f(dy, dx);
 	float targetYaw = rad * 180.0f / FieldConst::Pi;
+	float dirX = cosf(rad);
+	float dirY = sinf(rad);
+
+	m_targetLocation.xpos = m_pTarget->GetLocation().xpos - dirX * ATTACK_RANGE;
+	m_targetLocation.ypos = m_pTarget->GetLocation().ypos - dirY * ATTACK_RANGE;
+	m_targetLocation.zpos = m_pTarget->GetLocation().zpos;
 
 	m_pOwner->SetMoveYaw(targetYaw);
 	m_lastChaseYaw = targetYaw;
@@ -395,13 +406,16 @@ void MonsterAI::TargetUpdate()
 	m_pField->targetupdatePacketCount++;
 
 	// 타겟 위치 업데이트
-	m_targetLocation = m_pTarget->GetLocation();           
-
-	// 
-	float dx = m_targetLocation.xpos - m_pOwner->GetX();
-	float dy = m_targetLocation.ypos - m_pOwner->GetY();
+	float dx = m_pTarget->GetLocation().xpos - m_pOwner->GetX();
+	float dy = m_pTarget->GetLocation().ypos - m_pOwner->GetY();
 	float rad = atan2f(dy, dx);
 	float targetYaw = rad * 180.0f / FieldConst::Pi;
+	float dirX = cosf(rad);
+	float dirY = sinf(rad);
+
+	m_targetLocation.xpos = m_pTarget->GetLocation().xpos - dirX * ATTACK_RANGE;
+	m_targetLocation.ypos = m_pTarget->GetLocation().ypos - dirY * ATTACK_RANGE;
+	m_targetLocation.zpos = m_pTarget->GetLocation().zpos;
 
 	m_pOwner->SetMoveYaw(targetYaw);
 	m_lastChaseYaw = targetYaw;

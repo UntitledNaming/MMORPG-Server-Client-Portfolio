@@ -16,6 +16,7 @@ void CUser::Init(uint64 sessionID)
 	m_sessionID = sessionID;
 	m_location = Location{ 381250.0f , 443750.0f ,-38775.f };
 	m_moveFlag = false;
+	m_disconnectFlag = false;
 	m_hp = 100;
 	m_mp = 100;
 	m_mpRegenPerSec = WARRIOR_MANA_REGEN;
@@ -63,6 +64,7 @@ void CUser::ResPawn()
 {
 	uint32 curTime = timeGetTime();
 
+	m_disconnectFlag = false;
 	m_moveFlag = false;
 	m_arrayIdx = 0;
 	m_syncCount = 0;
@@ -186,7 +188,7 @@ bool CUser::CanSwing(uint32 curTime, uint8 swingidx)
 
 bool CUser::IsAlive()
 {
-	if (m_hp <= 0)
+	if (m_hp <= 0 || m_disconnectFlag == true)
 		return false;
 
 	return true;

@@ -258,7 +258,7 @@ namespace FieldProtocol
 
     constexpr uint16 PACKET_SC_DELETE_MONSTER = 1020;
     //---------------------------------------------------------------
-    // Character Delete Msg 					Server -> Client
+    //  Monster Delete Msg 					Server -> Client
     //
     //
     //	8	-	MonsterID		(uint64)
@@ -267,7 +267,7 @@ namespace FieldProtocol
 
     constexpr uint16 PACKET_SC_MOVE_MONSTER = 1021;
     //---------------------------------------------------------------
-    // Character Delete Msg 					Server -> Client
+    // Monster Move Msg 					Server -> Client
     //
     //
     //	8	-	MonsterID		(uint64)
@@ -283,7 +283,7 @@ namespace FieldProtocol
 
     constexpr uint16 PACKET_SC_HIT_TOPLAYER = 1022;
     //---------------------------------------------------------------
-    // Character Delete Msg 					Server -> Client
+    //  Monster Attack Msg 					Server -> Client
     //
     //
     //	8	-	MonsterID		(uint64)
