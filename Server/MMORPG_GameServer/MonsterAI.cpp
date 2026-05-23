@@ -376,21 +376,13 @@ void MonsterAI::UpdateSector()
 
 void MonsterAI::TargetUpdate()
 {
-	bool update = false;
-	float dx = m_targetLocation.xpos - m_pOwner->GetX();
-	float dy = m_targetLocation.ypos - m_pOwner->GetY();
-	float rad = atan2f(dy, dx);
-	float targetYaw = rad * 180.0f / FieldConst::Pi;
-
-
 	// 타겟과의 방향이 크게 틀어지거나 특정 시간 지났으면 Target 위치 찾아서 업데이트
 	m_chaseUpdateAccum += UPDATE_LOOP_TIME;
 
-	if (m_chaseUpdateAccum >= CHASE_UPDATE_MIN_MS )
-	{
-		update = true;
-		m_chaseUpdateAccum = 0;
-	}
+	if (m_chaseUpdateAccum < CHASE_UPDATE_MIN_MS)
+		return;
+
+	m_chaseUpdateAccum = 0;
 
 	//if (std::abs(m_lastChaseYaw - targetYaw) >= CHASE_ANGLE_THRESHOLD)
 	//{
@@ -399,21 +391,27 @@ void MonsterAI::TargetUpdate()
 	//	m_pField->targetupdatePacketCount++;
 	//}
 
-	if (!update)
-		return;
-
-	m_pField->targetupdatePacketCount++;
 	// 몬스터 이동 방향 및 타겟 좌표 업데이트
+	m_pField->targetupdatePacketCount++;
+
+	// 타겟 위치 업데이트
+	m_targetLocation = m_pTarget->GetLocation();           
+
+	// 
+	float dx = m_targetLocation.xpos - m_pOwner->GetX();
+	float dy = m_targetLocation.ypos - m_pOwner->GetY();
+	float rad = atan2f(dy, dx);
+	float targetYaw = rad * 180.0f / FieldConst::Pi;
+
 	m_pOwner->SetMoveYaw(targetYaw);
 	m_lastChaseYaw = targetYaw;
-	m_targetLocation = m_pTarget->GetLocation();
 
 	// Move 패킷 몬스터 주변에 뿌리기
 	SectorAround MoveAround;
 	SectorPos::SectorFind(MoveAround, m_pOwner->GetSectorPos());
 	for (int i = 0; i < MoveAround.m_count; i++)
 	{
-		m_pField->SendMonsterTargetUpdateToSector(m_pOwner, m_pOwner->GetSectorX(), m_pOwner->GetSectorY());
+		m_pField->SendMonsterTargetUpdateToSector(m_pOwner, MoveAround.m_Around[i].GetX(), MoveAround.m_Around[i].GetY());
 	}
 }
 
