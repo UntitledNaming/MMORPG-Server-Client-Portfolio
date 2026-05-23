@@ -92,9 +92,6 @@ void UM1NetworkManager::Tick(float DeltaTime)
 	if (ClientInstance == nullptr)
 		return;
 
-	if (SpawnManager == nullptr)
-		return;
-
 	if (!ClientInstance->ConnectAlive())
 	{
 		UWorld* World = GetGameInstance()->GetWorld();
@@ -110,7 +107,11 @@ void UM1NetworkManager::Tick(float DeltaTime)
 			EQuitPreference::Quit,
 			false
 		);
+		return;
 	}
+
+	if (SpawnManager == nullptr)
+		return;
 
 
 	CMessage* pMessage = nullptr;

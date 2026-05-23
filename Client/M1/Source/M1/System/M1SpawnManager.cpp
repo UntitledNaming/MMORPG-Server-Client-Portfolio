@@ -248,13 +248,13 @@ void AM1SpawnManager::OnMonsterMove(uint64 EntityID, FMonsterMove& Data)
     (*Found)->OnReceiveMoveTarget(Data);
 }
 
-void AM1SpawnManager::OnMonsterAttack(uint64 EntityID)
+void AM1SpawnManager::OnMonsterAttack(uint64 EntityID, float AttackYaw)
 {
     AM1Monster** Found = MonsterMap.Find(EntityID);
     if (Found == nullptr || *Found == nullptr)
         return;
 
-    (*Found)->OnReceiveAttackTarget();
+    (*Found)->OnReceiveAttackTarget(AttackYaw);
 }
 
 void AM1SpawnManager::ProcessClientAttackHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg)

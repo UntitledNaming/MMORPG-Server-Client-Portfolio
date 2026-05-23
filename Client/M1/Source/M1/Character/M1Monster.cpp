@@ -42,18 +42,12 @@ void AM1Monster::OnReceiveMoveTarget(FMonsterMove& Data)
 	if (Dist >= MonsterConst::POS_SNAP_DIST_CM)
 		SetActorLocation(Data.MonsterLocation);
 
-	if (IsNear(GetActorLocation(), Data.TargetLocation))
-	{
-		isMoving = false;
-		SetUseUpperBodyWhenMovingFlag(false);
-	}
-
 }
 
-void AM1Monster::OnReceiveAttackTarget()
+void AM1Monster::OnReceiveAttackTarget(float AttackYaw)
 {
 	SetUseUpperBodyWhenMovingFlag(true);
-
+	SetActorRotation(FRotator(0, AttackYaw, 0));
 	UAnimInstance* AnimInst = GetMesh()->GetAnimInstance();
 
 	if (AnimInst && !AnimInst->Montage_IsPlaying(AttackMontage))
@@ -90,32 +84,18 @@ void AM1Monster::Move(float DeltaTime)
 	if (!isMoving)
 		return;
 
-	FVector Current = GetActorLocation();
+	FVector Current  = GetActorLocation();
+	float   Dist     = FVector::Dist2D(Current, m_TargetLocation);
+	float   Step     = GetCharacterMovement()->MaxWalkSpeed * DeltaTime;
 
-	if (FVector::Dist2D(Current, m_TargetLocation) < 50.0f)
+	if (Dist <= Step || Dist < 50.0f)
 	{
-		isMoving = false;
+		SetActorLocation(FVector(m_TargetLocation.X, m_TargetLocation.Y, Current.Z));
 		GetCharacterMovement()->MaxWalkSpeed = 0;
+		isMoving = false;
 		return;
 	}
 
 	FVector MoveDir = FRotator(0.f, m_MoveYaw, 0.f).Vector();
-	FVector NewPos = Current + MoveDir * GetCharacterMovement()->MaxWalkSpeed * DeltaTime;
-
-	SetActorLocation(NewPos);
-}
-
-bool AM1Monster::IsNear(const FVector& cur, const FVector& target)
-{
-	float dx = std::abs(cur.X - target.X);
-	float dy = std::abs(cur.Y - target.Y);
-	float distSq = dx * dx + dy * dy;
-	float oneTickDist = GetCharacterMovement()->MaxWalkSpeed / FieldConst::UPDATE_LOOP_TIME;
-
-	float arriveMinDistSq = oneTickDist * oneTickDist;
-
-	if (distSq <= arriveMinDistSq)
-		return true;
-
-	return false;
+	SetActorLocation(Current + MoveDir * Step);
 }

@@ -22,7 +22,7 @@ public:
 
 
 	void OnReceiveMoveTarget(FMonsterMove& Data);
-	void OnReceiveAttackTarget();
+	void OnReceiveAttackTarget(float AttackYaw);
 
 protected:
 	virtual void BeginPlay() override;
@@ -30,7 +30,6 @@ protected:
 
 	void Move(float DeltaTime);
 	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-	bool IsNear(const FVector& cur, const FVector& target);
 
 
 private:
