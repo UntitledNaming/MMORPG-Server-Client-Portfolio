@@ -7,7 +7,7 @@
 void UM1MonsterAnimInstance::NativeInitializeAnimation()
 {
     Super::NativeInitializeAnimation();
-    OwnerCharacter = Cast<AM1Character>(GetOwningActor());
+
 }
 
 

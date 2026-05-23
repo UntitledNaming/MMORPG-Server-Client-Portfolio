@@ -248,6 +248,15 @@ void AM1SpawnManager::OnMonsterMove(uint64 EntityID, FMonsterMove& Data)
     (*Found)->OnReceiveMoveTarget(Data);
 }
 
+void AM1SpawnManager::OnMonsterAttack(uint64 EntityID)
+{
+    AM1Monster** Found = MonsterMap.Find(EntityID);
+    if (Found == nullptr || *Found == nullptr)
+        return;
+
+    (*Found)->OnReceiveAttackTarget();
+}
+
 void AM1SpawnManager::ProcessClientAttackHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg)
 {
     float CosHalfAngle = FMath::Cos(FMath::DegreesToRadians(HalfAngleDeg));
