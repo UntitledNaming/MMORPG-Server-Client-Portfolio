@@ -42,4 +42,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	float MontagePlayRate = 1.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float RotationInterpSpeed = 10.0f;
 };
