@@ -123,6 +123,7 @@ namespace MonsterConst
 	constexpr float   RETURN_RANGE = 1200.0f;
 	constexpr float   PATROL_DISTANCE = 1000.0f;
 	constexpr float   CHASE_STOP_DISTANCE = ATTACK_RANGE * 0.75f;
+	constexpr float   TARGET_UPDATE_CM = 40.0f;
 	constexpr uint32  ATTACK_COOLDOWN_MS = 1500;
 	constexpr uint32  PATROL_PAUSE_MS    = 3000;
 	constexpr uint32  IDLE_MIN_DURATION_MS = 2000;

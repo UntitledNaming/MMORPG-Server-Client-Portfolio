@@ -46,10 +46,8 @@ private:
 	bool        m_patrolPausing = false;
 	uint32      m_pauseElapsed = 0;
 			    
-	float       m_lastChaseYaw = 0.f;
 	uint32      m_chaseUpdateAccum = 0;       // 추격 시 누적시간
 	uint32      m_attackAccum = 0;            // 공격 시 누적시간
 			    						      
-	uint32      m_syncAccum = 0;              // 위치 싱크 맞출 때 사용할 누적시간
 };
 

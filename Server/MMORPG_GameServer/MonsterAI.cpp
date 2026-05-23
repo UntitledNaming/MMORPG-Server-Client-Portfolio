@@ -57,10 +57,8 @@ void MonsterAI::Reset()
 	m_targetLocation = {};
 	m_patrolPausing = false;
 	m_pauseElapsed = 0;
-	m_lastChaseYaw = 0.f;
 	m_chaseUpdateAccum = 0;
 	m_attackAccum = 0;
-	m_syncAccum = 0;
 
 	EnterIdle();
 }
@@ -141,13 +139,11 @@ void MonsterAI::UpdateChase()
 		return;
 	}
 
-	// 타겟 좌표 업데이트(타겟과의 방향이 틀어지거나 일정 시간 지났으면)
-	TargetUpdate();
 
-
-	// 타겟 근처면 이동x
-	if (!IsNear(m_pOwner->GetLocation(), m_targetLocation))
+	// 타겟 근처면 이동x 및 이동중일때만 TargetUpdate
+	if (!IsNear(m_pOwner->GetLocation(), m_pTarget->GetLocation()))
 	{
+		TargetUpdate();
 		m_pOwner->Move();
 		UpdateSector();
 	}
@@ -236,7 +232,6 @@ void MonsterAI::EnterChase(CUser* targetPlayer)
 	m_targetLocation.zpos = m_pTarget->GetLocation().zpos;
 
 	m_pOwner->SetMoveYaw(targetYaw);
-	m_lastChaseYaw = targetYaw;
 	m_chaseUpdateAccum = 0;
 	m_attackAccum = 0;
 
@@ -260,7 +255,6 @@ void MonsterAI::EnterReturn()
 	m_pTarget = nullptr;
 	m_attackAccum = 0;
 	m_chaseUpdateAccum = 0;
-	m_lastChaseYaw = 0.f;
 	m_patrolPausing = false;
 	m_pauseElapsed = 0;
 
@@ -383,7 +377,7 @@ void MonsterAI::UpdateSector()
 
 void MonsterAI::TargetUpdate()
 {
-	// 타겟과의 방향이 크게 틀어지거나 특정 시간 지났으면 Target 위치 찾아서 업데이트
+	// 타겟 업데이트 시간 쳌,
 	m_chaseUpdateAccum += UPDATE_LOOP_TIME;
 
 	if (m_chaseUpdateAccum < CHASE_UPDATE_MIN_MS)
@@ -391,13 +385,7 @@ void MonsterAI::TargetUpdate()
 
 	m_chaseUpdateAccum = 0;
 
-	//if (std::abs(m_lastChaseYaw - targetYaw) >= CHASE_ANGLE_THRESHOLD)
-	//{
-	//	update = true;
-	//	m_chaseUpdateAccum = 0;
-	//	m_pField->targetupdatePacketCount++;
-	//}
-
+	// 타겟 업데이트 해야 할 때  새로운 목표 위치 
 	// 몬스터 이동 방향 및 타겟 좌표 업데이트
 	m_pField->targetupdatePacketCount++;
 
@@ -409,12 +397,21 @@ void MonsterAI::TargetUpdate()
 	float dirX = cosf(rad);
 	float dirY = sinf(rad);
 
-	m_targetLocation.xpos = m_pTarget->GetLocation().xpos - dirX * CHASE_STOP_DISTANCE;
-	m_targetLocation.ypos = m_pTarget->GetLocation().ypos - dirY * CHASE_STOP_DISTANCE;
+	// 새 위치와 기존 목표위치 차이가 임계값 이하면 패킷 생략
+	float newX = m_pTarget->GetLocation().xpos - dirX * CHASE_STOP_DISTANCE;
+	float newY = m_pTarget->GetLocation().ypos - dirY * CHASE_STOP_DISTANCE;
+
+	float diffX = newX - m_targetLocation.xpos;
+	float diffY = newY - m_targetLocation.ypos;
+
+	if (diffX * diffX + diffY * diffY < TARGET_UPDATE_CM * TARGET_UPDATE_CM)
+		return;
+
+	m_targetLocation.xpos = newX;
+	m_targetLocation.ypos = newY;
 	m_targetLocation.zpos = m_pTarget->GetLocation().zpos;
 
 	m_pOwner->SetMoveYaw(targetYaw);
-	m_lastChaseYaw = targetYaw;
 
 	// Move 패킷 몬스터 주변에 뿌리기
 	SectorAround MoveAround;
