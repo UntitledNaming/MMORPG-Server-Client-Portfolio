@@ -31,7 +31,7 @@ bool CollisionCheck::IsInCone(const Location& attackerLocation, const Location& 
 
 	// 공격자와 거리가 매우 가까우면 방향상관없이 맞는 처리
 	if (distSq <= 0.0001f)
-		return false;
+		return true;
 
 	float halfattackRad = attackYaw * FieldConst::Pi / 180.0f;
 

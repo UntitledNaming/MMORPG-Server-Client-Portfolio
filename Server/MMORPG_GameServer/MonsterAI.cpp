@@ -203,7 +203,7 @@ void MonsterAI::UpdateCombat()
 	// 타겟 근처에 있어도 방향 갱신하고 나서 Cone으로 피격 판단
 	float tdx = m_pTarget->GetLocation().xpos - m_pOwner->GetX();
 	float tdy = m_pTarget->GetLocation().ypos - m_pOwner->GetY();
-	m_pOwner->SetMoveYaw(atan2f(tdx, tdy) * 180.0f / FieldConst::Pi);
+	m_pOwner->SetMoveYaw(atan2f(tdy, tdx) * 180.0f / FieldConst::Pi);
 
 	if (!CollisionCheck::IsInCone(m_pOwner->GetLocation(), m_pTarget->GetLocation(), ATTACK_RANGE, m_pOwner->GetMoveYaw(), ATTACK_HALF_ANGLE))
 		return;
