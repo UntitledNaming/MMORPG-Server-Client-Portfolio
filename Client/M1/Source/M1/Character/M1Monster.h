@@ -36,6 +36,8 @@ private:
 	bool     bIsAttacking     = false;
 	bool     isMoving         = false;
 	FVector  m_TargetLocation = FVector::ZeroVector;
+	FVector  m_MoveDir        = FVector::ZeroVector;
+	int32    SnapCount        = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TObjectPtr<class UAnimMontage> AttackMontage;

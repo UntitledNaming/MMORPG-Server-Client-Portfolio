@@ -31,9 +31,16 @@ void AM1Monster::OnReceiveMoveTarget(FMonsterMove& Data)
 {
 	float Dist = FVector::Dist2D(GetActorLocation(), Data.MonsterLocation);
 	if (Dist >= MonsterConst::POS_SNAP_DIST_CM)
+	{
 		SetActorLocation(Data.MonsterLocation);
+		SnapCount++;
+		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red,
+			FString::Printf(TEXT("Monster PosSnap: %d (dist: %.0fcm)"), SnapCount, Dist));
+	}
 
 	m_TargetLocation = Data.TargetLocation;
+	m_MoveDir = FVector(m_TargetLocation.X - GetActorLocation().X,
+	                    m_TargetLocation.Y - GetActorLocation().Y, 0.f).GetSafeNormal();
 	isMoving = true;
 	GetCharacterMovement()->MaxWalkSpeed = Data.MoveSpeed;
 }
@@ -89,9 +96,11 @@ void AM1Monster::Move(float DeltaTime)
 		return;
 	}
 
-	FVector Dir = FVector(m_TargetLocation.X - Current.X, m_TargetLocation.Y - Current.Y, 0.f).GetSafeNormal();
-	FRotator TargetRot = Dir.ToOrientationRotator();
-	FRotator NewRot    = FMath::RInterpTo(GetActorRotation(), TargetRot, DeltaTime, RotationInterpSpeed);
-	SetActorRotation(NewRot);
-	SetActorLocation(Current + Dir * Step);
+	if (!GetUseUpperBodyWhenMovingFlag())
+	{
+		FRotator TargetRot = m_MoveDir.ToOrientationRotator();
+		FRotator NewRot    = FMath::RInterpTo(GetActorRotation(), TargetRot, DeltaTime, RotationInterpSpeed);
+		SetActorRotation(NewRot);
+	}
+	SetActorLocation(Current + m_MoveDir * Step);
 }
