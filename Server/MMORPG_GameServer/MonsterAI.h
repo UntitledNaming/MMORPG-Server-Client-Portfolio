@@ -20,11 +20,13 @@ private:
 	void UpdatePatrol();
 	void UpdateChase();
 	void UpdateReturn();
+	void UpdateCombat();
 
 	void EnterPatrol();
 	void EnterChase(CUser* targetPlayer);
 	void EnterReturn();
 	void EnterIdle();
+	void EnterCombat();
 
 	CUser* FindNearestPlayer(float range);
 	void UpdateSector();
