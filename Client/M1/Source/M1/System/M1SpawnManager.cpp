@@ -248,13 +248,36 @@ void AM1SpawnManager::OnMonsterMove(uint64 EntityID, FMonsterMove& Data)
     (*Found)->OnReceiveMoveTarget(Data);
 }
 
-void AM1SpawnManager::OnMonsterAttack(uint64 EntityID, float AttackYaw)
+void AM1SpawnManager::OnMonsterStop(uint64 EntityID, FVector& StopLocation)
 {
     AM1Monster** Found = MonsterMap.Find(EntityID);
     if (Found == nullptr || *Found == nullptr)
         return;
 
-    (*Found)->OnReceiveAttackTarget(AttackYaw);
+    (*Found)->OnReceiveStop(StopLocation);
+}
+
+void AM1SpawnManager::OnMonsterAttack(uint64 MonsterID, uint64 TargetID)
+{
+    AM1Monster** Found = MonsterMap.Find(MonsterID);
+    if (Found == nullptr || *Found == nullptr)
+        return;
+
+    AM1Monster* Monster = *Found;
+
+    AM1Character* Target = nullptr;
+    if (TargetID == MyID)
+        Target = MyPlayer;
+    else
+        Target = FindPlayer(TargetID);
+
+    if (Target == nullptr)
+        return;
+
+    FVector ToTarget = Target->GetActorLocation() - Monster->GetActorLocation();
+    float AttackYaw = FMath::RadiansToDegrees(FMath::Atan2(ToTarget.Y, ToTarget.X));
+
+    Monster->OnReceiveAttackTarget(AttackYaw);
 }
 
 void AM1SpawnManager::ProcessClientAttackHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg)

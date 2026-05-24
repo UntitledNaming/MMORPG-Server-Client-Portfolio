@@ -56,7 +56,8 @@ public:
 	void OnMyPlayerSkillResponse(EAbilitySlot Slot, bool bSuccess);
 	void OnOtherCharacterUseSkill(uint64 EntityID, EAbilitySlot Slot);
 	void OnMonsterMove(uint64 EntityID, FMonsterMove& Data);
-	void OnMonsterAttack(uint64 EntityID, float AttackYaw);
+	void OnMonsterStop(uint64 EntityID, FVector& StopLocation);
+	void OnMonsterAttack(uint64 MonsterID, uint64 TargetID);
 
 	class AM1Character* FindPlayer(uint64 EntityID) const;
 	class AM1Character* FindMonster(uint64 EntityID) const;

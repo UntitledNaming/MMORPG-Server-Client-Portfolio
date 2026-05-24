@@ -191,6 +191,7 @@ void UM1NetworkManager::InitFunctorArray()
 	M1FunctorArray[FieldProtocol::PACKET_SC_CREATE_MONSTER]           = &M1PacketHandler::Handle_SC_CREATE_MONSTER;
 	M1FunctorArray[FieldProtocol::PACKET_SC_DELETE_MONSTER]           = &M1PacketHandler::Handle_SC_DELETE_MONSTER;
 	M1FunctorArray[FieldProtocol::PACKET_SC_MOVE_MONSTER]           = &M1PacketHandler::Handle_SC_MOVE_MONSTER;
+	M1FunctorArray[FieldProtocol::PACKET_SC_STOP_MONSTER]           = &M1PacketHandler::Handle_SC_STOP_MONSTER;
 	M1FunctorArray[FieldProtocol::PACKET_SC_HIT_TOPLAYER]           = &M1PacketHandler::Handle_SC_HIT_TOPLAYER;
 }
 

@@ -61,6 +61,16 @@ void AM1Monster::OnReceiveAttackTarget(float AttackYaw)
 	}
 }
 
+void AM1Monster::OnReceiveStop(FVector& StopLocation)
+{
+	float Dist = FVector::Dist2D(GetActorLocation(), StopLocation);
+	if (Dist >= MonsterConst::POS_SNAP_DIST_CM)
+		SetActorLocation(FVector(StopLocation.X, StopLocation.Y, GetActorLocation().Z));
+
+	isMoving = false;
+	GetCharacterMovement()->MaxWalkSpeed = 0.f;
+}
+
 void AM1Monster::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	SetUseUpperBodyWhenMovingFlag(false);

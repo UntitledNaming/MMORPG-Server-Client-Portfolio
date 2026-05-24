@@ -60,9 +60,12 @@ public:
 	// 서버가 보낸 "몬스터 삭제" 처리
 	static void Handle_SC_DELETE_MONSTER(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 
-	// 서버가 보낸 "몬스터 삭제" 처리
+	// 서버가 보낸 "몬스터 이동" 처리
 	static void Handle_SC_MOVE_MONSTER(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 
-	// 서버가 보낸 "몬스터 삭제" 처리
+	// 서버가 보낸 "몬스터 정지" 처리
+	static void Handle_SC_STOP_MONSTER(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "몬스터 공격" 처리
 	static void Handle_SC_HIT_TOPLAYER(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 };

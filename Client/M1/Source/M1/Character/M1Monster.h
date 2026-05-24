@@ -23,6 +23,7 @@ public:
 
 	void OnReceiveMoveTarget(FMonsterMove& Data);
 	void OnReceiveAttackTarget(float AttackYaw);
+	void OnReceiveStop(FVector& StopLocation);
 
 protected:
 	virtual void BeginPlay() override;

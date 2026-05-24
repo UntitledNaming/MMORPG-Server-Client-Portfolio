@@ -336,19 +336,36 @@ void M1PacketHandler::Handle_SC_MOVE_MONSTER(CMessage* pMessage, UM1NetworkManag
 	SpawnManager->OnMonsterMove(monsterID, Data);
 }
 
+void M1PacketHandler::Handle_SC_STOP_MONSTER(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint64 monsterID;
+
+	float xpos;
+	float ypos;
+	float zpos;
+
+	*pMessage >> monsterID;
+	*pMessage >> xpos;
+	*pMessage >> ypos;
+	*pMessage >> zpos;
+
+
+	FVector Location(xpos, ypos, zpos);
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	SpawnManager->OnMonsterStop(monsterID, Location);
+}
+
 void M1PacketHandler::Handle_SC_HIT_TOPLAYER(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
 	uint64 monsterid;
 	uint64 targetid;
 	uint16 newhp;
-	float yaw;
 
 	*pMessage >> monsterid;
 	*pMessage >> targetid;
-	*pMessage >> yaw;
 	*pMessage >> newhp;
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
-	SpawnManager->OnMonsterAttack(monsterid, yaw);
-	//SpawnManager->ApplyPlayerHitResult(targetid, newhp);
+	SpawnManager->OnMonsterAttack(monsterid, targetid);
+	SpawnManager->ApplyPlayerHitResult(targetid, (int32)newhp);
 }
