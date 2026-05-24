@@ -153,6 +153,7 @@ public:
     void SendMonsterDeleteToSector(CMonster* pMonster, uint16 secX, uint16 secY);
     void SendMonsterTargetUpdateToSector(CMonster* pMonster, uint16 secX, uint16 secY);
     void SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, uint16 newHP);
+    void SendMonsterStop(CMonster* pMonster);
     void AddMonsterToSector(CMonster* pMonster, uint16 secX, uint16 secY);
     void RemoveMonsterToSector(CMonster* pMonster, uint16 secX, uint16 secY);
     FieldSector& GetFieldSector(uint16 secX, uint16 secY) { return m_sectors[secY][secX]; }

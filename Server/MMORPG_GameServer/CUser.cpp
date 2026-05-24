@@ -103,9 +103,10 @@ void CUser::Damage(uint16 damage)
 
 	m_hp -= damage;
 	
-	if (m_hp < 0)
+	if (m_hp <= 0)
+	{
 		m_hp = 0;
-	
+	}
 }
 
 void CUser::UseSkill(uint32 curTime, uint8 skillIndex)

@@ -118,6 +118,20 @@ void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, uin
 	CMessage::Free(pAttackMonster);
 }
 
+void FieldGroup::SendMonsterStop(CMonster* pMonster)
+{
+	CMessage* pStopMonster = PacketBuilder::StopMonster(pMonster, pMonster->GetLocation());
+
+	SectorAround StopAround;
+	SectorPos::SectorFind(StopAround, pMonster->GetSectorPos());
+
+	for (int i = 0; i < StopAround.m_count; i++)
+	{
+		SendPacket_SectorOne(pStopMonster, StopAround.m_Around[i].GetX(), StopAround.m_Around[i].GetY(), nullptr);
+	}
+	CMessage::Free(pStopMonster);
+}
+
 void FieldGroup::AddMonsterToSector(CMonster* pMonster, uint16 secX, uint16 secY)
 {
 	m_sectors[secY][secX].AddMonster(pMonster);

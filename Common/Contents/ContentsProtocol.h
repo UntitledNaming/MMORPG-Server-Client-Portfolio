@@ -280,19 +280,31 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_HIT_TOPLAYER = 1022;
+    constexpr uint16 PACKET_SC_STOP_MONSTER = 1022;
+    //---------------------------------------------------------------
+    //  Monster Stop Msg 					Server -> Client
+    //
+    //
+    //	8	-	MonsterID		(uint64)
+    //  4   -   Xpos            (float)
+    //  4   -   Ypos            (float)
+    //  4   -   Zpos            (float)
+    // 
+    //
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_HIT_TOPLAYER = 1023;
     //---------------------------------------------------------------
     //  Monster Attack Msg 					Server -> Client
     //
     //
     //	8	-	MonsterID		(uint64)
     //	8	-	TargetID	 	(uint64)
-    //  4   -   AttackYaw       (float)
     //	2	-	TargetNewHP 	(uint16)
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_CS_RESPAWN_PLAYER = 1023;
+    constexpr uint16 PACKET_CS_RESPAWN_PLAYER = 1024;
     //---------------------------------------------------------------
     // Character Delete Msg 					Client -> Server
     //

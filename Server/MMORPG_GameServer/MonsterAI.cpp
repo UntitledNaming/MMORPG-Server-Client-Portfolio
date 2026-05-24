@@ -143,16 +143,21 @@ void MonsterAI::UpdateChase()
 		return;
 	}
 
-	TargetUpdate();
 
 	// 타겟 근처면 이동x 
 	if (!IsNear(m_pOwner->GetLocation(), m_pTarget->GetLocation()))
 	{
+		TargetUpdate();
 		m_pOwner->Move();
 		UpdateSector();
 	}
 
-	// 
+
+	// 공격 범위 안에 들어오면 Combat 진입.
+	if (IsAttackRange())
+	{
+		EnterCombat();
+	}
 }
 
 void MonsterAI::UpdateReturn()
@@ -173,18 +178,36 @@ void MonsterAI::UpdateReturn()
 
 void MonsterAI::UpdateCombat()
 {
+	if (!m_pTarget->IsAlive())
+	{
+		EnterReturn();
+		return;
+	}
 
-			// 타겟 근처에 있어도 방향 갱신하여 공격 가능하게
-			float tdx = m_pTarget->GetLocation().xpos - m_pOwner->GetX();
-			float tdy = m_pTarget->GetLocation().ypos - m_pOwner->GetY();
-			m_pOwner->SetMoveYaw(atan2f(tdx, tdy) * 180.0f / FieldConst::Pi);
+	// 범위 벗어나면 다시 추격
+	if (!IsAttackRange())
+	{
+		EnterChase(m_pTarget);
+		return;
+	}
 
+	// 범위 안이면 
+	
 	// 공격 주기 시간 증가
 	m_attackAccum += UPDATE_LOOP_TIME;
 
-	// 범위 안에 없거나 애초에 공격 주기가 안되었으면
-	if (!(IsAttackRange() && m_attackAccum >= ATTACK_COOLDOWN_MS))
+	// 공격 주기가 안되었으면 리턴
+	if (m_attackAccum >= ATTACK_COOLDOWN_MS)
 		return;
+
+	// 타겟 근처에 있어도 방향 갱신하고 나서 Cone으로 피격 판단
+	float tdx = m_pTarget->GetLocation().xpos - m_pOwner->GetX();
+	float tdy = m_pTarget->GetLocation().ypos - m_pOwner->GetY();
+	m_pOwner->SetMoveYaw(atan2f(tdx, tdy) * 180.0f / FieldConst::Pi);
+
+	if (!CollisionCheck::IsInCone(m_pOwner->GetLocation(), m_pTarget->GetLocation(), ATTACK_RANGE, m_pOwner->GetMoveYaw(), ATTACK_HALF_ANGLE))
+		return;
+
 
 	// 타겟에게 데미지 주기
 	uint32 damage = m_pOwner->CalBaseAttackDamage(m_pTarget, timeGetTime());
@@ -302,9 +325,15 @@ void MonsterAI::EnterIdle()
 
 void MonsterAI::EnterCombat()
 {
-	m_pOwner->ChangeMonsterState(EMonsterState::Patrol);
+	m_pOwner->ChangeMonsterState(EMonsterState::Combat);
 	m_pOwner->SetMoveSpeed(0);
 	m_pOwner->SetMoveSpeedPerSec(0);
+
+	// 공격 시간 세팅
+	m_attackAccum = ATTACK_COOLDOWN_MS / 2;
+
+	// 정지 패킷 뿌리기
+	m_pField->SendMonsterStop(m_pOwner);
 }
 
 CUser* MonsterAI::FindNearestPlayer(float range)
@@ -459,7 +488,7 @@ bool MonsterAI::IsNear(const Location& cur, const Location& target)
 
 bool MonsterAI::IsAttackRange()
 {
-	if (!CollisionCheck::IsInCone(m_pOwner->GetLocation(), m_pTarget->GetLocation(), ATTACK_RANGE, m_pOwner->GetMoveYaw(), ATTACK_HALF_ANGLE))
+	if (!CollisionCheck::IsInCircle(m_pOwner->GetLocation(), m_pTarget->GetLocation(), ATTACK_RANGE))
 		return false;
 
 	return true;

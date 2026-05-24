@@ -222,7 +222,7 @@ CMessage* PacketBuilder::DeleteMonster(CMonster* pMonster)
 	return pMessage;
 }
 
-CMessage* PacketBuilder::MoveMonster(CMonster* pMonster, Location& DesLocation)
+CMessage* PacketBuilder::MoveMonster(CMonster* pMonster, const Location& DesLocation)
 {
 	CMessage* pMessage = CMessage::Alloc();
 	pMessage->Clear(1);
@@ -239,6 +239,20 @@ CMessage* PacketBuilder::MoveMonster(CMonster* pMonster, Location& DesLocation)
 	return pMessage;
 }
 
+CMessage* PacketBuilder::StopMonster(CMonster* pMonster, const Location& StopLocation)
+{
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+
+	*pMessage << FieldProtocol::PACKET_SC_STOP_MONSTER;
+	*pMessage << pMonster->GetMonsterID();
+	*pMessage << StopLocation.xpos;
+	*pMessage << StopLocation.ypos;
+	*pMessage << StopLocation.zpos;
+
+	return pMessage;
+}
+
 CMessage* PacketBuilder::AttackMonster(CMonster* pMonster, uint64 TargetID, uint16 newHP)
 {
 	CMessage* pMessage = CMessage::Alloc();
@@ -247,7 +261,6 @@ CMessage* PacketBuilder::AttackMonster(CMonster* pMonster, uint64 TargetID, uint
 	*pMessage << FieldProtocol::PACKET_SC_HIT_TOPLAYER;
 	*pMessage << pMonster->GetMonsterID();
 	*pMessage << TargetID;
-	*pMessage << pMonster->GetMoveYaw();
 	*pMessage << newHP;
 
 	return pMessage;

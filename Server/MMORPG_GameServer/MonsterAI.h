@@ -49,6 +49,7 @@ private:
 	uint32      m_pauseElapsed = 0;
 			    
 	uint32      m_chaseUpdateAccum = 0;       // 추격 시 누적시간
+
 	uint32      m_attackAccum = 0;            // 공격 시 누적시간
 			    						      
 };
