@@ -62,10 +62,10 @@ private:
 	uint64        m_monsterID      = 0;
 	uint16        m_monsterType    = 0;     // 0 : Khaimera
 	uint16        m_sectorIdx      = 0;
-	uint16        m_hp             = 50;
-	uint16        m_maxHP          = 50;
-	uint16        m_atk            = 5;
-	uint16        m_def            = 1;
+	int16         m_hp             = 50;
+	int16         m_maxHP          = 50;
+	int16         m_atk            = 1;
+	int16         m_def            = 1;
 	float         m_moveYaw        = 0.f;
 	float         m_moveSpeed      = 0.f;
 	float         m_moveSpeedperSec = 0.f;

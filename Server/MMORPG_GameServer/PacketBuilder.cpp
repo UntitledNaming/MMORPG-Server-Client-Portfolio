@@ -163,7 +163,8 @@ CMessage* PacketBuilder::HitTarget(uint8 hitPlayerCount, uint8 hitMonsterCount, 
 
 	for (int i = 0; i < hitMonsterCount; i++)
 	{
-		// todo : 몬스터 넣기
+		*pMessage << hitMonsterArray[i]->GetMonsterID();
+		*pMessage << hitMonsterArray[i]->GetHP();
 	}
 
 	return pMessage;
@@ -235,6 +236,7 @@ CMessage* PacketBuilder::MoveMonster(CMonster* pMonster, const Location& DesLoca
 	*pMessage << pMonster->GetMoveSpeedPerSec();
 	*pMessage << DesLocation.xpos;
 	*pMessage << DesLocation.ypos;
+	*pMessage << static_cast<uint8>(pMonster->GetMonsterState());
 
 	return pMessage;
 }

@@ -1075,6 +1075,7 @@ void FieldGroup::MonsterRegen()
 		m_grossMonsterPoolArray[i].IncRespawnTime();
 
 		// 리스폰 시간 지났으면 Idle 상태로 생성
+		uint32 curTime = timeGetTime();
 		if (m_grossMonsterPoolArray[i].GetRespawnTime() >= m_grossMonsterPoolArray[i].GetRespawnDelay())
 		{
 			m_grossMonsterPoolArray[i].Regen();

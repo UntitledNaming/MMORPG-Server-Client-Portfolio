@@ -13,10 +13,10 @@ struct SwingInfo
 
 struct UserStat
 {
-	uint16 m_atk;
-	uint16 m_def;
-	uint16 m_maxHP;
-	uint16 m_maxMP;
+	int16 m_atk;
+	int16 m_def;
+	int16 m_maxHP;
+	int16 m_maxMP;
 };
 
 struct SkillInfo
@@ -96,8 +96,8 @@ private:
 	Location            m_location;                                                        // 캐릭터 위치
 	SectorPos           m_secPos;           
 	uint16              m_arrayIdx;     
-	uint16              m_hp;                                                              // 캐릭터 HP
-	uint16              m_mp;                                                              // 캐릭터 MP
+	int16               m_hp;                                                              // 캐릭터 HP
+	int16               m_mp;                                                              // 캐릭터 MP
 	UserStat            m_baseStat;                                                        // 유저 기본 스탯(클래스, 레벨 기반)
 	UserStat            m_equipBonusStat;                                                  // 유저 장비 보너스 스탯
 	uint16              m_mpRegenPerSec;

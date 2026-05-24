@@ -89,7 +89,7 @@ public:
 	static bool                 m_netHderFlag;       // 네트워크 헤더 사용 플래그
 
 private:
-	CHAR*                       m_iAllocPtr;           // 직렬화 버퍼 할당 메모리 포인터
+	CHAR*                       m_iAllocPtr;         // 직렬화 버퍼 할당 메모리 포인터
 	CHAR*                       m_iReadPos;
 	CHAR*                       m_iWritePos;
 		                        

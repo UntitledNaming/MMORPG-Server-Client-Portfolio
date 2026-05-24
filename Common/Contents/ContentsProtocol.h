@@ -277,7 +277,7 @@ namespace FieldProtocol
     //	4	-	MoveSpeed 		(float)
     //	4	-	DesXpos  		(float)
     //	4	-	DesYpos 		(float)
-    //
+    //  1   -   State           (uint8)
     //---------------------------------------------------------------
 
     constexpr uint16 PACKET_SC_STOP_MONSTER = 1022;

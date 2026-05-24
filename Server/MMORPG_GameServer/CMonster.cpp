@@ -66,7 +66,7 @@ void CMonster::Damage(uint16 damage)
 	{
 		m_hp == 0;
 		m_state = EMonsterState::Dead;
-		m_respawnTime = timeGetTime();
+		m_respawnTime = 0;
 	}
 }
 

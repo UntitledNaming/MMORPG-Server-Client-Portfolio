@@ -359,10 +359,17 @@ CUser* MonsterAI::FindNearestPlayer(float range)
 			FieldSector& sector = m_pField->GetFieldSector(sx, sy);
 
 			int userCount = sector.GetUserCount();
+			CUser* pUser = nullptr;
+
 			for (int i = 0; i < userCount; i++)
 			{
-				float dx = sector.GetUser(i)->GetX() - m_pOwner->GetX();
-				float dy = sector.GetUser(i)->GetY() - m_pOwner->GetY();
+				pUser = sector.GetUser(i);
+
+				if (!pUser->IsAlive())
+					continue;
+
+				float dx = pUser->GetX() - m_pOwner->GetX();
+				float dy = pUser->GetY() - m_pOwner->GetY();
 
 				float distSq = dx * dx + dy * dy; // 芭府 力蚌
 				float rangeSq = range * range;    // 荤芭府 力蚌
@@ -376,7 +383,7 @@ CUser* MonsterAI::FindNearestPlayer(float range)
 					continue;
 
 				nearestDistSq = distSq;
-				nearestUser = sector.GetUser(i);
+				nearestUser = pUser;
 			}
 		}
 	}
