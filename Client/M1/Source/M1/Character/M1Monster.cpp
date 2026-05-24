@@ -29,6 +29,8 @@ void  AM1Monster::SetHP(int32 NewHP)
 
 void AM1Monster::OnReceiveMoveTarget(FMonsterMove& Data)
 {
+	bMovingToStop = false;
+
 	float Dist = FVector::Dist2D(GetActorLocation(), Data.MonsterLocation);
 	if (Dist >= MonsterConst::POS_SNAP_DIST_CM)
 	{
@@ -39,8 +41,10 @@ void AM1Monster::OnReceiveMoveTarget(FMonsterMove& Data)
 	}
 
 	m_TargetLocation = Data.TargetLocation;
-	m_MoveDir = FVector(m_TargetLocation.X - GetActorLocation().X,
-	                    m_TargetLocation.Y - GetActorLocation().Y, 0.f).GetSafeNormal();
+
+	if (FVector::Dist2D(GetActorLocation(), Data.TargetLocation) <= MonsterConst::CHASE_STOP_DISTANCE)
+		return;
+
 	isMoving = true;
 	GetCharacterMovement()->MaxWalkSpeed = Data.MoveSpeed;
 }
@@ -64,11 +68,22 @@ void AM1Monster::OnReceiveAttackTarget(float AttackYaw)
 void AM1Monster::OnReceiveStop(FVector& StopLocation)
 {
 	float Dist = FVector::Dist2D(GetActorLocation(), StopLocation);
-	if (Dist >= MonsterConst::POS_SNAP_DIST_CM)
-		SetActorLocation(FVector(StopLocation.X, StopLocation.Y, GetActorLocation().Z));
 
-	isMoving = false;
-	GetCharacterMovement()->MaxWalkSpeed = 0.f;
+	if (Dist >= MonsterConst::POS_SNAP_DIST_CM)
+	{
+		SetActorLocation(FVector(StopLocation.X, StopLocation.Y, GetActorLocation().Z));
+		isMoving = false;
+		GetCharacterMovement()->MaxWalkSpeed = 0.f;
+		return;
+	}
+
+	m_TargetLocation = StopLocation;
+	bMovingToStop = true;
+	if (!isMoving)
+	{
+		isMoving = true;
+		GetCharacterMovement()->MaxWalkSpeed = MonsterConst::CHASE_SPEED;
+	}
 }
 
 void AM1Monster::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
@@ -94,23 +109,30 @@ void AM1Monster::Move(float DeltaTime)
 	if (!isMoving)
 		return;
 
-	FVector Current  = GetActorLocation();
-	float   Dist     = FVector::Dist2D(Current, m_TargetLocation);
-	float   Step     = GetCharacterMovement()->MaxWalkSpeed * DeltaTime;
+	FVector Current = GetActorLocation();
+	FVector Dir     = FVector(m_TargetLocation.X - Current.X, m_TargetLocation.Y - Current.Y, 0.f).GetSafeNormal();
+	float   Step    = GetCharacterMovement()->MaxWalkSpeed * DeltaTime;
 
-	if (Dist <= Step || Dist < 50.0f)
+	if (bMovingToStop && FVector::Dist2D(Current, m_TargetLocation) <= 50.f)
 	{
-		SetActorLocation(FVector(m_TargetLocation.X, m_TargetLocation.Y, Current.Z));
-		GetCharacterMovement()->MaxWalkSpeed = 0;
+		bMovingToStop = false;
 		isMoving = false;
+		GetCharacterMovement()->MaxWalkSpeed = 0.f;
 		return;
 	}
 
-	if (!GetUseUpperBodyWhenMovingFlag())
+	if (!bMovingToStop && FVector::Dist2D(Current, m_TargetLocation) <= 50.f)
 	{
-		FRotator TargetRot = m_MoveDir.ToOrientationRotator();
+		isMoving = false;
+		GetCharacterMovement()->MaxWalkSpeed = 0.f;
+		return;
+	}
+
+	if (!GetUseUpperBodyWhenMovingFlag() && !Dir.IsNearlyZero())
+	{
+		FRotator TargetRot = Dir.ToOrientationRotator();
 		FRotator NewRot    = FMath::RInterpTo(GetActorRotation(), TargetRot, DeltaTime, RotationInterpSpeed);
 		SetActorRotation(NewRot);
 	}
-	SetActorLocation(Current + m_MoveDir * Step);
+	SetActorLocation(Current + Dir * Step);
 }

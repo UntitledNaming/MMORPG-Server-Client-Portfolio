@@ -406,9 +406,10 @@ AM1Character* AM1SpawnManager::FindMonster(uint64 EntityID) const
 
 void AM1SpawnManager::SendRttPacket()
 {
-    if (NetworkManager == nullptr)
+    if (NetworkManager == nullptr || !NetworkManager->ConnectAlive())
         return;
 
+        
     CMessage* pMessage = CMessage::Alloc();
     pMessage->Clear(1);
 
