@@ -197,7 +197,7 @@ void MonsterAI::UpdateCombat()
 	m_attackAccum += UPDATE_LOOP_TIME;
 
 	// 공격 주기가 안되었으면 리턴
-	if (m_attackAccum >= ATTACK_COOLDOWN_MS)
+	if (m_attackAccum < ATTACK_COOLDOWN_MS)
 		return;
 
 	// 타겟 근처에 있어도 방향 갱신하고 나서 Cone으로 피격 판단
