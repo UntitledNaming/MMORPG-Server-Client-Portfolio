@@ -236,7 +236,6 @@ CMessage* PacketBuilder::MoveMonster(CMonster* pMonster, const Location& DesLoca
 	*pMessage << pMonster->GetMoveSpeedPerSec();
 	*pMessage << DesLocation.xpos;
 	*pMessage << DesLocation.ypos;
-	*pMessage << static_cast<uint8>(pMonster->GetMonsterState());
 
 	return pMessage;
 }
