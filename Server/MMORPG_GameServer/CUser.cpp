@@ -125,11 +125,6 @@ void CUser::UseSkill(uint32 curTime, uint8 skillIndex)
 	m_skillInfo[skillIndex].m_skillLastRecvTime = curTime;
 }
 
-void CUser::SectorFind(SectorAround& pAround)
-{
-	m_secPos.SectorFind(pAround, m_secPos);
-}
-
 void CUser::CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, const SectorPos& newSecPos, SectorAround& outDeleteSector, SectorAround& outCreateSector)
 {
 	m_secPos.CalSectorTransitionMessageTargets(oldSecPos, newSecPos, outDeleteSector, outCreateSector);

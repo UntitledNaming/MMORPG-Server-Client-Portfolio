@@ -9,6 +9,7 @@ void CMonster::Init(uint64 monsterID,  uint16 monsterType, const Location& spawn
 	m_monsterID = monsterID;
 	m_monsterType = monsterType;
 	m_location = spawnLocation;
+	m_spawnLocation = spawnLocation;
 	m_moveYaw = rand() % 360;
 	m_state = EMonsterState::Idle;
 	m_secPos.SetPos(SectorPos((m_location.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (m_location.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE));
@@ -31,15 +32,17 @@ void CMonster::Destroy()
 
 void CMonster::Regen()
 {
+	m_hp = MonsterConst::BASE_HP;
+	m_maxHP = MonsterConst::BASE_MAXHP;
 	m_moveYaw = rand() % 360;
+	m_location = m_spawnLocation;
 	m_state = EMonsterState::Idle;
 	m_secPos.SetPos(SectorPos((m_location.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (m_location.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE));
 	m_atk = MonsterConst::BASE_ATK;
 	m_def = MonsterConst::BASE_DEF;
 	m_respawnTime = 0;
 	m_pMonsterAIComp->Reset();
-	m_hp = MonsterConst::BASE_HP;
-	m_maxHP = MonsterConst::BASE_MAXHP;
+
 }
 
 void CMonster::Move()

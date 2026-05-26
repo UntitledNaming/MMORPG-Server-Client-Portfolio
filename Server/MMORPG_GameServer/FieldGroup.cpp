@@ -271,7 +271,7 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 
 	// 본인 캐릭터 주변 섹터 찾기
 	SectorAround sectAround;
-	pOnUser->SectorFind(sectAround);
+	SectorPos::SectorFind(sectAround, pOnUser->GetSectorPos());
 
 	// 섹터 순회하면서 캐릭터 생성 메세지 보내기
 	for (int i = 0; i < sectAround.m_count; i++)
@@ -359,7 +359,7 @@ void FieldGroup::SendPacket_SectorAround(CMessage* pMessage, CUser* pUser, bool 
 	uint32 secY = pUser->GetSectorYpos();
 
 	SectorAround around;
-	pUser->SectorFind(around);
+	SectorPos::SectorFind(around, pUser->GetSectorPos());
 
 	for (int i = 0; i < around.m_count; i++)
 	{
@@ -587,7 +587,6 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 		// 특정 시간동안 해당 유저의 싱크 패킷 횟수가 임계값을 넘을때 해당 유저 끊기
 		if (pUser->m_syncCount >= SYNC_MAX_COUNT)
 		{
-			// todo : 로그
 			Disconnect(sessionID);
 			return;
 		}
@@ -701,7 +700,7 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 	SendPacket_HitSectors(result);
 
 
-	// 피격 몬스터들 중에 죽었으면 삭제 메세지 뿌리기
+	// 피격 몬스터들 중에 죽었으면 삭제 메세지 뿌리고 섹터에서 제거
 	for (int i = 0; i < result.HitMonsterCount; i++)
 	{
 		CMonster* pHitMonster = result.HitMonsterArray[i];
@@ -718,11 +717,16 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 
 		for (int count = 0; count < DeleteSector.m_count; count++)
 		{
-			SendPacket_SectorOne(pDeleteMonster, pHitMonster->GetSectorX(), pHitMonster->GetSectorY(), nullptr);
+			SendPacket_SectorOne(pDeleteMonster, DeleteSector.m_Around[count].GetX(), DeleteSector.m_Around[count].GetY(), nullptr);
 		}
 
 		CMessage::Free(pDeleteMonster);
+
+
+		m_sectors[pHitMonster->GetSectorY()][pHitMonster->GetSectorX()].RemoveMonster(pHitMonster);
+
 	}
+
 
 }
 
@@ -1082,10 +1086,20 @@ void FieldGroup::MonsterRegen()
 		{
 			m_grossMonsterPoolArray[i].Regen();
 
-			SectorAround Create;
-			SectorPos::SectorFind(Create, m_grossMonsterPoolArray[i].GetSectorPos());
+			// 섹터에 삽입
+			const SectorPos& sectorPos = m_grossMonsterPoolArray[i].GetSectorPos();
 
-			SendMonsterCreateToSector(&m_grossMonsterPoolArray[i], m_grossMonsterPoolArray[i].GetSectorX(), m_grossMonsterPoolArray[i].GetSectorY());
+			m_sectors[sectorPos.GetY()][sectorPos.GetX()].AddMonster(&m_grossMonsterPoolArray[i]);
+
+			SectorAround Create;
+			SectorPos::SectorFind(Create, sectorPos);
+
+			for (int secCount = 0; secCount < Create.m_count; secCount++)
+			{
+				SendMonsterCreateToSector(&m_grossMonsterPoolArray[i], Create.m_Around[secCount].GetX(), Create.m_Around[secCount].GetY());
+			}
+
+		
 		}
 
 	}

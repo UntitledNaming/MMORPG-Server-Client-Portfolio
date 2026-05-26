@@ -40,7 +40,6 @@ public:
 	void   ManaRegen(uint32 curTime);
 	void   Damage(uint16 damage);
 	void   UseSkill(uint32 curTime, uint8 skillIndex);
-	void   SectorFind(SectorAround& pAround);
 	void   SetNewSectorPos(const SectorPos& newSec) { m_secPos = newSec; }
 	void   CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, const SectorPos& newSecPos, SectorAround& outDeleteSector, SectorAround& outCreateSector);
 	void   SwingStop() { m_swingInfo.m_lastSwingIdx = 0; }

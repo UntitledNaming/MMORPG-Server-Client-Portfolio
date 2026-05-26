@@ -73,7 +73,7 @@ private:
 	EMonsterState m_state;                  // Monster State
 	SectorPos     m_secPos;     		    
 	Location      m_location;               // Current Position
-
+	Location      m_spawnLocation;
 	uint32        m_respawnDelay   = 10000;
 	uint32        m_respawnTime    = 0;
 

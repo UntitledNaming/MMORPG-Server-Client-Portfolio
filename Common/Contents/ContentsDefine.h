@@ -109,7 +109,7 @@ namespace ClientAttack
 
 namespace MonsterConst
 {
-	constexpr uint16  BASE_ATK   = 15;
+	constexpr uint16  BASE_ATK   = 5;
 	constexpr uint16  BASE_DEF   = 1;
 	constexpr uint16  BASE_HP    = 50;
 	constexpr uint16  BASE_MAXHP = 50;
@@ -118,7 +118,7 @@ namespace MonsterConst
 	constexpr float   CHASE_SPEED = 550.0f;
 	constexpr float   RETURN_SPEED = 350.0f;
 	constexpr float   DETECT_RANGE = 800.0f;
-	constexpr float   ATTACK_RANGE = 180.0f;
+	constexpr float   ATTACK_RANGE = 200.0f;
 	constexpr float   ATTACK_HALF_ANGLE = 60.0f;
 	constexpr float   RETURN_RANGE = 1200.0f;
 	constexpr float   PATROL_DISTANCE = 1200.0f;
