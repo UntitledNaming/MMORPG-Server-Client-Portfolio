@@ -191,7 +191,7 @@ void AM1SpawnManager::DespawnMonster(uint64 EntityID)
     if (Found == nullptr || *Found == nullptr)
         return;
 
-    (*Found)->Destroy();
+    (*Found)->StartDeath();
     MonsterMap.Remove(EntityID);
 }
 

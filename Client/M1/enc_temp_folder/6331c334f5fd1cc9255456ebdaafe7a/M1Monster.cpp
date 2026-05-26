@@ -102,14 +102,12 @@ void AM1Monster::StartDeath()
 	else
 	{
 		Destroy();
-		bIsDying = false;
 	}
 }
 
 void AM1Monster::OnDeathMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	Destroy();
-	bIsDying = false;
 }
 
 void AM1Monster::BeginPlay()
