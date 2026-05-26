@@ -97,6 +97,7 @@ void AM1PlayerController::SetupInputComponent()
         EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AM1PlayerController::OnMove);
         EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AM1PlayerController::OnLook);
         EnhancedInputComponent->BindAction(LeftAttackAction, ETriggerEvent::Started, this, &AM1PlayerController::OnStartLeftAttack);
+        EnhancedInputComponent->BindAction(LeftAttackAction, ETriggerEvent::Triggered, this, &AM1PlayerController::OnLeftAttackHeld);
         EnhancedInputComponent->BindAction(LeftAttackAction, ETriggerEvent::Completed, this, &AM1PlayerController::OnStopLeftAttack);
         EnhancedInputComponent->BindAction(LeftAttackAction, ETriggerEvent::Canceled, this, &AM1PlayerController::OnStopLeftAttack);
         EnhancedInputComponent->BindAction(Skill1Action, ETriggerEvent::Started, this, &AM1PlayerController::OnUseSkill1);
@@ -193,19 +194,25 @@ void AM1PlayerController::OnStartLeftAttack()
     if (!M1Player)
         return;
 
-    if (M1Player && M1Player->GetAbilityComponent())
+    if (M1Player->GetAbilityComponent())
         M1Player->GetAbilityComponent()->ActivateAbility(EAbilitySlot::BasicAttack);
+}
 
+void AM1PlayerController::OnLeftAttackHeld()
+{
+    if (M1Player)
+        M1Player->SetUseUpperBodyWhenMovingFlag(true);
 }
 
 void AM1PlayerController::OnStopLeftAttack()
 {
-    if (!M1Player )
+    if (!M1Player)
         return;
 
-    if (M1Player && M1Player->GetAbilityComponent())
+    if (M1Player->GetAbilityComponent())
         M1Player->GetAbilityComponent()->DeactivateAbility(EAbilitySlot::BasicAttack);
 
+    M1Player->SetUseUpperBodyWhenMovingFlag(false);
 }
 
 void AM1PlayerController::OnUseSkill1()

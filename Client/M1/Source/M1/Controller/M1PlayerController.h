@@ -36,6 +36,7 @@ private:
 	void OnJumpStart();
 	void OnJumpEnd();
 	void OnStartLeftAttack();
+	void OnLeftAttackHeld();
 	void OnStopLeftAttack();
 	void OnUseSkill1();
 	void OnUseSkill2();

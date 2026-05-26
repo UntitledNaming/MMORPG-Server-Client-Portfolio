@@ -19,8 +19,6 @@ void UM1Ability_BasicAttack::OnActivate(AM1Character* Owner)
     bIsAttacking = true;
     CachedOwner  = Owner;
 
-    Owner->SetUseUpperBodyWhenMovingFlag(true);
-
     if (UCharacterMovementComponent* MoveComp = Owner->GetCharacterMovement())
         MoveComp->bOrientRotationToMovement = false;
     Owner->bUseControllerRotationYaw = true;
@@ -65,7 +63,6 @@ void UM1Ability_BasicAttack::OnMontageEnded(UAnimMontage* Montage, bool bInterru
 
         if (CachedOwner)
         {
-            CachedOwner->SetUseUpperBodyWhenMovingFlag(false);
             if (UCharacterMovementComponent* MoveComp = CachedOwner->GetCharacterMovement())
                 MoveComp->bOrientRotationToMovement = true;
             CachedOwner->bUseControllerRotationYaw = false;
