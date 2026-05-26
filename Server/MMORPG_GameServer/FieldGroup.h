@@ -151,7 +151,7 @@ public:
 
     void SendMonsterCreateToSector(CMonster* pMonster, uint16 secX, uint16 secY);
     void SendMonsterDeleteToSector(CMonster* pMonster, uint16 secX, uint16 secY);
-    void SendMonsterTargetUpdateToSector(CMonster* pMonster, uint16 secX, uint16 secY);
+    void SendMonsterTargetUpdate(CMonster* pMonster);
     void SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, uint16 newHP);
     void SendMonsterStop(CMonster* pMonster);
     void AddMonsterToSector(CMonster* pMonster, uint16 secX, uint16 secY);

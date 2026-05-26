@@ -194,8 +194,42 @@ void MonsterAI::UpdateCombat()
 		return;
 	}
 
-	// 범위 안이면 
-	
+	// 데드 존인 경우 이동 및 패킷 뿌리기
+	if (!IsAttackRange())
+	{
+		// 속도가 0이면 CHASE_SPEED로 전환 후 이동 시작하기
+		if (m_pOwner->GetMoveSpeedPerSec() == 0)
+		{
+			m_pOwner->SetMoveSpeed(CHASE_SPEED / UPDATE_FRAME);
+			m_pOwner->SetMoveSpeedPerSec(CHASE_SPEED);
+			m_chaseUpdateAccum = 0;
+
+			// 방향 변경
+			float dx = m_pTarget->GetLocation().xpos - m_pOwner->GetX();
+			float dy = m_pTarget->GetLocation().ypos - m_pOwner->GetY();
+			float rad = atan2f(dy, dx);
+			float targetYaw = rad * 180.0f / FieldConst::Pi;
+			float dirX = cosf(rad);
+			float dirY = sinf(rad);
+
+			m_targetLocation.xpos = m_pTarget->GetLocation().xpos - dirX * CHASE_STOP_DISTANCE;
+			m_targetLocation.ypos = m_pTarget->GetLocation().ypos - dirY * CHASE_STOP_DISTANCE;
+			m_targetLocation.zpos = m_pTarget->GetLocation().zpos;
+
+			m_pOwner->SetMoveYaw(targetYaw);
+
+			m_pField->SendMonsterTargetUpdate(m_pOwner);
+		}
+
+		// 속도가 0이아니면 타겟 업데이트 하고 이동 후 섹터 업데이트
+		TargetUpdate();
+		m_pOwner->Move();
+		UpdateSector();
+		return;
+	}
+
+	//
+
 	// 공격 주기 시간 증가
 	m_attackAccum += UPDATE_LOOP_TIME;
 
@@ -276,13 +310,7 @@ void MonsterAI::EnterChase(CUser* targetPlayer)
 
 
 	// 타겟 목적지 변경 되었으니 Move 패킷 주변에 뿌리기
-	SectorAround MoveAround;
-	SectorPos::SectorFind(MoveAround, m_pOwner->GetSectorPos());
-
-	for (int i = 0; i < MoveAround.m_count; i++)
-	{
-		m_pField->SendMonsterTargetUpdateToSector(m_pOwner, MoveAround.m_Around[i].GetX(), MoveAround.m_Around[i].GetY());
-	}
+	m_pField->SendMonsterTargetUpdate(m_pOwner);
 }
 
 void MonsterAI::EnterReturn()

@@ -67,18 +67,19 @@ void FieldGroup::SendMonsterDeleteToSector(CMonster* pMonster, uint16 secX, uint
 	}
 }
 
-void FieldGroup::SendMonsterTargetUpdateToSector(CMonster* pMonster, uint16 secX, uint16 secY)
+void FieldGroup::SendMonsterTargetUpdate(CMonster* pMonster)
 {
-	// 섹터에 있는 유저들에게 Move 패킷 보내기
-	int count = m_sectors[secY][secX].GetUserCount();
-	for (int i = 0; i < count; i++)
+	SectorAround MoveAround;
+	SectorPos::SectorFind(MoveAround, pMonster->GetSectorPos());
+	CMessage* pMoveMonster = PacketBuilder::MoveMonster(pMonster, pMonster->GetMonsterAITargetLocation());
+
+	for (int i = 0; i < MoveAround.m_count; i++)
 	{
-		CUser* pUser = m_sectors[secY][secX].GetUser(i);
-		
-		CMessage* pMoveMonster = PacketBuilder::MoveMonster(pMonster, pMonster->GetMonsterAITargetLocation());
-		SendPacket(pUser->GetSessionID(), pMoveMonster);
-		CMessage::Free(pMoveMonster);
+		SendPacket_SectorOne(pMoveMonster, MoveAround.m_Around[i].GetX(), MoveAround.m_Around[i].GetY(), nullptr);
+
 	}
+
+	CMessage::Free(pMoveMonster);
 }
 
 void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, uint16 newHP)
