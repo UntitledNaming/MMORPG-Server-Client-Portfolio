@@ -63,6 +63,9 @@ void MonsterAI::Reset()
 	m_pauseElapsed = 0;
 	m_chaseUpdateAccum = 0;
 	m_attackAccum = 0;
+	m_idleElapsed = 0;
+	m_idleDuration = 0;
+
 
 	EnterIdle();
 }
@@ -185,7 +188,7 @@ void MonsterAI::UpdateCombat()
 	}
 
 	// 범위 벗어나면 다시 추격
-	if (!IsAttackRange())
+	if (!IsChaseRange())
 	{
 		EnterChase(m_pTarget);
 		return;
