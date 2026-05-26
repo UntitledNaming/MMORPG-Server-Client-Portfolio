@@ -33,6 +33,7 @@ private:
 	void TargetUpdate();
 	bool IsNear(const Location& cur, const Location& target);
 	bool IsAttackRange();
+	bool IsChaseRange();
 
 private:
 	CMonster*   m_pOwner = nullptr;

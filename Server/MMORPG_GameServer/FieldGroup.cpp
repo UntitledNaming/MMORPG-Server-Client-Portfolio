@@ -20,6 +20,8 @@
 #include "HitSearchBuilder.h"
 #include "FieldGroup.h"
 
+uint64 FieldGroup::movePacketCount = 0;
+uint64 FieldGroup::stopPacketCount = 0;
 
 using namespace FieldConst;
 using namespace FieldProtocol;

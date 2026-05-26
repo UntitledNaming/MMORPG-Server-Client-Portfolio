@@ -236,5 +236,7 @@ public:
 	uint64 syncCount = 0;
     uint64 attackCount = 0;
     uint64 targetupdatePacketCount = 0;
+    static uint64 movePacketCount;
+    static uint64 stopPacketCount;
 };
 

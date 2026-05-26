@@ -7,6 +7,9 @@
 #include "CMonster.h"
 #include "MemoryPoolTLS.h"
 #include "CMessage.h"
+#include "FieldSector.h"
+#include "CGroup.h"
+#include "FieldGroup.h"
 #include "PacketBuilder.h"
 
 CMessage* PacketBuilder::CreateMyCharacter(CUser* pUser)
@@ -237,6 +240,8 @@ CMessage* PacketBuilder::MoveMonster(CMonster* pMonster, const Location& DesLoca
 	*pMessage << DesLocation.xpos;
 	*pMessage << DesLocation.ypos;
 
+	FieldGroup::movePacketCount++;
+
 	return pMessage;
 }
 
@@ -250,6 +255,9 @@ CMessage* PacketBuilder::StopMonster(CMonster* pMonster, const Location& StopLoc
 	*pMessage << StopLocation.xpos;
 	*pMessage << StopLocation.ypos;
 	*pMessage << StopLocation.zpos;
+
+
+	FieldGroup::stopPacketCount++;
 
 	return pMessage;
 }
