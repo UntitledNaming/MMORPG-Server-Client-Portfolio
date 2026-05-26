@@ -80,6 +80,36 @@ void AM1Monster::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	SetUseUpperBodyWhenMovingFlag(false);
 }
 
+void AM1Monster::StartDeath()
+{
+	if (bIsDying) return;
+	bIsDying = true;
+
+	isMoving = false;
+	GetCharacterMovement()->MaxWalkSpeed = 0.f;
+	SetUseUpperBodyWhenMovingFlag(false);
+	SetOverheadVisible(false);
+
+	UAnimInstance* AnimInst = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
+	if (AnimInst && DeathMontage)
+	{
+		float Result = PlayAnimMontage(DeathMontage, MontagePlayRate);
+
+		FOnMontageEnded EndDelegate;
+		EndDelegate.BindUObject(this, &AM1Monster::OnDeathMontageEnded);
+		AnimInst->Montage_SetEndDelegate(EndDelegate, DeathMontage);
+	}
+	else
+	{
+		Destroy();
+	}
+}
+
+void AM1Monster::OnDeathMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	Destroy();
+}
+
 void AM1Monster::BeginPlay()
 {
 	Super::BeginPlay();
@@ -95,7 +125,7 @@ void AM1Monster::Tick(float DeltaTime)
 
 void AM1Monster::Move(float DeltaTime)
 {
-	if (!isMoving)
+	if (!isMoving || bIsDying)
 		return;
 
 	FVector Current = GetActorLocation();

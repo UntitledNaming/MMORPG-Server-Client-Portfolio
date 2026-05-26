@@ -24,6 +24,7 @@ public:
 	void OnReceiveMoveTarget(FMonsterMove& Data);
 	void OnReceiveAttackTarget(float AttackYaw);
 	void OnReceiveStop(FVector& StopLocation);
+	void StartDeath();
 
 protected:
 	virtual void BeginPlay() override;
@@ -31,15 +32,20 @@ protected:
 
 	void Move(float DeltaTime);
 	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	void OnDeathMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 
 private:
 	bool     isMoving         = false;
+	bool     bIsDying         = false;
 	FVector  m_TargetLocation = FVector::ZeroVector;
 	int32    SnapCount        = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TObjectPtr<class UAnimMontage> AttackMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	TObjectPtr<class UAnimMontage> DeathMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	float MontagePlayRate = 1.0f;

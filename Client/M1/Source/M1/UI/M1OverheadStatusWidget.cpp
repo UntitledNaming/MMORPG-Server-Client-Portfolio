@@ -31,6 +31,12 @@ void UM1OverheadStatusWidget::SetOverheadHP(int32 InCurrentHP, int32 InMaxHP)
 
 	Percent = FMath::Clamp(Percent, 0.f, 1.f);
 
+	// 너무 작으면 아예 0으로 처리
+	if (Percent <= 0.02f)
+	{
+		Percent = 0.0f;
+	}
+
 	const float NewWidth = MaxBarWidth * Percent;
 	SizeBox_HPClip->SetWidthOverride(NewWidth);
 }

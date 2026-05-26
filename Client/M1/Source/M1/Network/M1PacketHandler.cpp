@@ -358,5 +358,5 @@ void M1PacketHandler::Handle_SC_HIT_TOPLAYER(CMessage* pMessage, UM1NetworkManag
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
 	SpawnManager->OnMonsterAttack(monsterid, targetid);
-	//SpawnManager->ApplyPlayerHitResult(targetid, (int32)newhp);
+	SpawnManager->ApplyPlayerHitResult(targetid, (int32)newhp);
 }

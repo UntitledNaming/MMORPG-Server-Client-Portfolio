@@ -191,7 +191,7 @@ void AM1SpawnManager::DespawnMonster(uint64 EntityID)
     if (Found == nullptr || *Found == nullptr)
         return;
 
-    (*Found)->Destroy();
+    (*Found)->StartDeath();
     MonsterMap.Remove(EntityID);
 }
 
@@ -324,8 +324,6 @@ void AM1SpawnManager::ProcessClientAttackHit(FVector Origin, FVector Forward, fl
                 FVector::DotProduct(TargetFwd, ToAttacker)
             ));
 
-        // 타겟에게 피격각도 전달해서 각도에 따른 피격 애니재생하기
-        Target->TriggerHitReact(HitAngle);
     }
 
     // MonsterMap 순회
@@ -342,19 +340,6 @@ void AM1SpawnManager::ProcessClientAttackHit(FVector Origin, FVector Forward, fl
         ToTarget.Normalize();
         if (FVector::DotProduct(Forward, ToTarget) < CosHalfAngle)
             continue;
-
-        // 피격 당한 캐릭터 기준으로 공격자가 어느 방향에 있는지 각도 계산
-        FVector ToAttacker = (Origin - Target->GetActorLocation()).GetSafeNormal2D();
-        FVector TargetFwd = Target->GetActorForwardVector().GetSafeNormal2D();
-        FVector TargetRight = Target->GetActorRightVector().GetSafeNormal2D();
-
-        float HitAngle = FMath::RadiansToDegrees(
-            FMath::Atan2(
-                FVector::DotProduct(TargetRight, ToAttacker),
-                FVector::DotProduct(TargetFwd, ToAttacker)
-            ));
-
-        Target->TriggerHitReact(HitAngle);
     }
 }
 
@@ -370,6 +355,7 @@ void AM1SpawnManager::ApplyPlayerHitResult(uint64 EntityID, int32 NewHP)
     if (AM1Character* Character = FindPlayer(EntityID))
     {
         Character->SetHP(NewHP);
+        Character->TriggerHitReact(0.f);
         return;
     }
 }
@@ -379,6 +365,7 @@ void AM1SpawnManager::ApplyMonsterHitResult(uint64 EntityID, int32 NewHP)
     if (AM1Character* Monster = FindMonster(EntityID))
     {
         Monster->SetHP(NewHP);
+        Monster->TriggerHitReact(0.f);
         return;
     }
 }

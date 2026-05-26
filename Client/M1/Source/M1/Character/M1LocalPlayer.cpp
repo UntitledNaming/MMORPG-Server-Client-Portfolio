@@ -4,6 +4,7 @@
 #include "Character/M1LocalPlayer.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PlayerController.h"
 #include "GameFramework//SpringArmComponent.h"
 #include "Camera//CameraComponent.h"
 
@@ -46,6 +47,12 @@ void AM1LocalPlayer::SetHP(int32 NewHP)
 {
 	Super::SetHP(NewHP);
 	OnHealthChanged.Broadcast(HP, MaxHP);
+
+	if (HP <= 0)
+	{
+		if (APlayerController* PC = Cast<APlayerController>(GetController()))
+			PC->DisableInput(PC);
+	}
 }
 
 void AM1LocalPlayer::Tick(float DeltaTime)
