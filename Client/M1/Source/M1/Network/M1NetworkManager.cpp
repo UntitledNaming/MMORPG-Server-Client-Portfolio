@@ -23,8 +23,6 @@ void UM1NetworkManager::Initialize(FSubsystemCollectionBase& Collection)
 
 	LoadServerConfig();
 
-	//DisableBackgroundIdle();
-
 	// 배열 초기화
 	InitFunctorArray();
 
@@ -89,7 +87,7 @@ void UM1NetworkManager::Deinitialize()
 
 void UM1NetworkManager::Tick(float DeltaTime)
 {
-	if (ClientInstance == nullptr)
+	if (ClientInstance == nullptr || SpawnManager == nullptr)
 		return;
 
 	if (!ClientInstance->ConnectAlive())
@@ -109,9 +107,6 @@ void UM1NetworkManager::Tick(float DeltaTime)
 		);
 		return;
 	}
-
-	if (SpawnManager == nullptr)
-		return;
 
 
 	CMessage* pMessage = nullptr;

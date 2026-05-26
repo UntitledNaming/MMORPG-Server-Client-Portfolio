@@ -51,6 +51,8 @@ bool CLanClient::Connect(const WCHAR* SERVERIP, uint32 SERVERPORT)
 	if (!ConnectTry(sock))
 	{
 		closesocket(sock);
+		m_pSession->s_DCFlag = 1;
+		m_pSession->s_RelFlag = 1;
 		return false;
 	}
 
@@ -310,10 +312,8 @@ bool CLanClient::RecvPost()
 
 	}
 
-	//wsarecv ���ϰ��� 0�ΰ� wsarecv�� ���������� ��ϵǾ��ų� ���������� �Ϸ�Ǿ��ٴ� ����.
 	else if (ret == 0)
 		return true;
-
 
 	return false;
 }
@@ -333,7 +333,6 @@ bool CLanClient::SendPost()
 	if (m_pSession->s_DCFlag == 1)
 		return false;
 
-	//���࿡ send flag�� �ٲٴµ� ���� send flag ���°� 1�̶�� io ��� �̹� ������ �ٷ� ������
 	while (1)
 	{
 		if (InterlockedExchange16(&m_pSession->s_SendFlag, 1) == 1)
@@ -345,24 +344,20 @@ bool CLanClient::SendPost()
 		{
 			InterlockedExchange16(&m_pSession->s_SendFlag, 0);
 
-			//size �ѹ��� üũ
 			if (m_pSession->s_SendQ.GetUseSize() == 0)
 			{
 				return false;
 			}
 
-			//2��° size�� 0�̾ƴϸ� ���� �־����� �ٽ� send flag ȹ�� �õ�
 			continue;
 		}
 
-		//ù��° size üũ�� 0�ƴϸ� Send�۾�
 		break;
 	}
 
 
 	WSABUF wsa[CLIENT_WSABUFSIZE];
 
-	//�۽� ������ť���� ������ ������(������ false ����)
 	int index;
 	for (index = 0; index < CLIENT_WSABUFSIZE; index++)
 	{
@@ -370,10 +365,8 @@ bool CLanClient::SendPost()
 			break;
 	}
 
-	//Dequeue �����ؼ� SendArray�� ������ ���� ����
 	m_pSession->s_SendMsgCnt = index;
 
-	//SendArray�� �ִ°��� wsaBuf�� ����
 	for (int i = 0; i < index; i++)
 	{
 		wsa[i].buf = m_pSession->s_SendArray[i]->GetAllocPos();
@@ -398,9 +391,9 @@ bool CLanClient::SendPost()
 		{
 			Disconnect();
 
-			//���������� ������ �α� �����
 			if (err != WSAECONNRESET && err != WSAECONNABORTED && err != WSAEINTR)
 			{
+
 			}
 
 			Release(FPlatformAtomics::InterlockedDecrement(&m_pSession->s_IORefCnt));

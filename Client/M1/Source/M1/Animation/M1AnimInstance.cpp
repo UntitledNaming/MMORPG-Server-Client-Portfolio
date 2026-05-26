@@ -26,7 +26,7 @@ void UM1AnimInstance::NativeUpdateAnimation(float DeltaSeconds)
     bIsJumping = OwnerCharacter->GetCharacterMovement()->IsFalling();
     bIsMoving  = OwnerCharacter->GetMoveFlag();
     bSpanwend  = OwnerCharacter->GetSpawnFlag();
-
+    bUseUpperBodyWhenMoving = OwnerCharacter->GetUseUpperBodyWhenMovingFlag();
     HitDirectionAngle = OwnerCharacter->GetHitDirectionAngle();
     bIsHit            = OwnerCharacter->IsHit();
 }

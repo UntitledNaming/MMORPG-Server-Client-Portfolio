@@ -311,26 +311,17 @@ void M1PacketHandler::Handle_SC_DELETE_MONSTER(CMessage* pMessage, UM1NetworkMan
 void M1PacketHandler::Handle_SC_MOVE_MONSTER(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
 	uint64 monsterID;
-
-	float xpos;
-	float ypos;
-	float zpos;
-	float speed;
-	float desxpos;
-	float desypos;
+	float  xpos, ypos, zpos, speed, desxpos, desypos;
 
 	*pMessage >> monsterID;
-	*pMessage >> xpos;
-	*pMessage >> ypos;
-	*pMessage >> zpos;
+	*pMessage >> xpos >> ypos >> zpos;
 	*pMessage >> speed;
-	*pMessage >> desxpos;
-	*pMessage >> desypos;
+	*pMessage >> desxpos >> desypos;
 
 	FMonsterMove Data;
 	Data.MonsterLocation = FVector(xpos, ypos, zpos);
-	Data.MoveSpeed = speed;
-	Data.TargetLocation = FVector(desxpos, desypos, zpos);
+	Data.MoveSpeed       = speed;
+	Data.TargetLocation  = FVector(desxpos, desypos, zpos);
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
 	SpawnManager->OnMonsterMove(monsterID, Data);

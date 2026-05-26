@@ -370,7 +370,6 @@ void AM1SpawnManager::ApplyPlayerHitResult(uint64 EntityID, int32 NewHP)
     if (AM1Character* Character = FindPlayer(EntityID))
     {
         Character->SetHP(NewHP);
-
         return;
     }
 }

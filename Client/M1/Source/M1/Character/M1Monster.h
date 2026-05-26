@@ -34,9 +34,7 @@ protected:
 
 
 private:
-	bool     bIsAttacking     = false;
 	bool     isMoving         = false;
-	bool     bMovingToStop    = false;
 	FVector  m_TargetLocation = FVector::ZeroVector;
 	int32    SnapCount        = 0;
 

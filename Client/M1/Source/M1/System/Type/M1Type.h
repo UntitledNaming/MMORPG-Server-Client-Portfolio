@@ -41,9 +41,9 @@ struct FMovementSnapshot
 
 struct FMonsterMove
 {
-    FVector MonsterLocation;
-    FVector TargetLocation;
-    float   MoveSpeed;
+    FVector       MonsterLocation;
+    FVector       TargetLocation;
+    float         MoveSpeed;
 };
 
 template<typename T, int32 Size>

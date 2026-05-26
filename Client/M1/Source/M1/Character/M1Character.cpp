@@ -42,6 +42,7 @@ void AM1Character::TriggerHitReact(float HitAngle)
 {
     HitDirectionAngle = HitAngle;
     bIsHit            = true;
+	bUseUpperBodyWhenMoving = true;
 
     GetWorldTimerManager().ClearTimer(HitReactTimerHandle);
     GetWorldTimerManager().SetTimer(HitReactTimerHandle, this, &AM1Character::ResetHitReact, HitReactDuration, false);
@@ -50,6 +51,7 @@ void AM1Character::TriggerHitReact(float HitAngle)
 void AM1Character::ResetHitReact()
 {
     bIsHit = false;
+	bUseUpperBodyWhenMoving = false;
 }
 
 void AM1Character::UpdateMoveDirection()
