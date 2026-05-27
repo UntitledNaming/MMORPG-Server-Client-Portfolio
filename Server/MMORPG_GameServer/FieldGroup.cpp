@@ -844,6 +844,8 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 		}
 
 		CMessage::Free(pDeleteMonster);
+
+		m_sectors[pHitMonster->GetSectorY()][pHitMonster->GetSectorX()].RemoveMonster(pHitMonster);
 	}
 
 }
