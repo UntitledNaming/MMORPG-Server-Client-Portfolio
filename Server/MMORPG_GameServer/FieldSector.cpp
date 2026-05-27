@@ -45,6 +45,8 @@ bool FieldSector::AddMonster(CMonster* monster)
 	monster->SetSectorIdx(m_monsterCount);
 	m_monsterCount++;
 
+	monster->addcount++;
+
 	return true;
 }
 
@@ -56,4 +58,5 @@ void FieldSector::RemoveMonster(CMonster* monster)
 	pOther->SetSectorIdx(monster->GetSectorIdx());
 	m_monsterCount--;
 
+	pOther->removecount++;
 }

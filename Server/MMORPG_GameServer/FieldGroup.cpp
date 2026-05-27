@@ -98,8 +98,8 @@ void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, uin
 
 	for (int i = 0; i < monsterAround.m_count; i++)
 	{
-		uint16 secX = monsterAround.m_Around[i].GetX();
-		uint16 secY = monsterAround.m_Around[i].GetY();
+		int16 secX = monsterAround.m_Around[i].GetX();
+		int16 secY = monsterAround.m_Around[i].GetY();
 
 		SendPacket_SectorOne(pAttackMonster, secX, secY, nullptr);
 		sendflagArray[pushCount++] = SectorPos{ secX , secY };
@@ -107,8 +107,8 @@ void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, uin
 
 	for (int i = 0; i < targetAround.m_count; i++)
 	{
-		uint16 secX = targetAround.m_Around[i].GetX();
-		uint16 secY = targetAround.m_Around[i].GetY();
+		int16 secX = targetAround.m_Around[i].GetX();
+		int16 secY = targetAround.m_Around[i].GetY();
 
 		// 이미 메세지 넣은 섹터 좌표면 pass
 		if (SectorPos::IsAlreadyPushed(sendflagArray, pushCount, secX, secY))
@@ -385,8 +385,8 @@ void FieldGroup::SendPacket_HitSectors(HitResult& result)
 	// 피격자 들 순회하면서 피격자 섹터에 있는 사람들에게 피격 메세지 전달하기
 	for (int i = 0; i < result.HitUserCount; i++)
 	{
-		uint16 secX = result.HitUserArray[i]->GetSectorXpos();
-		uint16 secY = result.HitUserArray[i]->GetSectorYpos();
+		int16 secX = result.HitUserArray[i]->GetSectorXpos();
+		int16 secY = result.HitUserArray[i]->GetSectorYpos();
 
 		// 피격자 주변 섹터 좌표 찾기
 		SectorAround HitAround;
@@ -394,8 +394,8 @@ void FieldGroup::SendPacket_HitSectors(HitResult& result)
 
 		for (int count = 0; count < HitAround.m_count; count++)
 		{
-			uint16 hitSecX = HitAround.m_Around[count].GetX();
-			uint16 hitSecY = HitAround.m_Around[count].GetY();
+			int16 hitSecX = HitAround.m_Around[count].GetX();
+			int16 hitSecY = HitAround.m_Around[count].GetY();
 
 			// 이미 메세지 넣은 섹터 좌표면 pass
 			if (SectorPos::IsAlreadyPushed(sendflagArray, pushCount, hitSecX, hitSecY))
@@ -420,8 +420,8 @@ void FieldGroup::SendPacket_HitSectors(HitResult& result)
 		for (int count = 0; count < HitAround.m_count; count++)
 		{
 			// 피격 몬스터 주변 섹터 좌표 얻기
-			uint16 hitSecX = HitAround.m_Around[count].GetX();
-			uint16 hitSecY = HitAround.m_Around[count].GetY();
+			int16 hitSecX = HitAround.m_Around[count].GetX();
+			int16 hitSecY = HitAround.m_Around[count].GetY();
 
 			// 이미 메세지 넣은 섹터 좌표면 pass
 			if (SectorPos::IsAlreadyPushed(sendflagArray, pushCount, hitSecX, hitSecY))
@@ -899,8 +899,8 @@ void FieldGroup::MovementProc()
 			continue;
 
 
-		uint16 newSectorXpos = (pUser->GetX() - MAP_WORLD_OFFSET_X) / SECTOR_SIZE;
-		uint16 newSectorYpos = (pUser->GetY() - MAP_WORLD_OFFSET_Y) / SECTOR_SIZE;
+		int16 newSectorXpos = (pUser->GetX() - MAP_WORLD_OFFSET_X) / SECTOR_SIZE;
+		int16 newSectorYpos = (pUser->GetY() - MAP_WORLD_OFFSET_Y) / SECTOR_SIZE;
 
 		const SectorPos& newSec{ newSectorXpos, newSectorYpos };
 
@@ -1019,7 +1019,7 @@ void FieldGroup::UserManaRegen()
 
 void FieldGroup::MonsterAIUpdate()
 {
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < MAX_GROSS_FIELD_MONSTER_COUNT; i++)
 	{
 		if (m_grossMonsterPoolArray[i].GetMonsterState() == EMonsterState::Dead)
 			continue;
@@ -1051,8 +1051,8 @@ void FieldGroup::GrossMonsterSpawnInit()
 					if (monstrSpawnCount >= MAX_GROSS_FIELD_MONSTER_COUNT)
 						return;
 
-					float xpos = MAP_WORLD_OFFSET_X + sx * SECTOR_SIZE + (rand() % SECTOR_SIZE + 10);
-					float ypos = MAP_WORLD_OFFSET_Y + sy * SECTOR_SIZE + (rand() % SECTOR_SIZE + 10);
+					float xpos = MAP_WORLD_OFFSET_X + sx * SECTOR_SIZE + SECTOR_SPAWN_OFFSETX + rand() % (SECTOR_SIZE - SECTOR_SPAWN_OFFSETX - SECTOR_SPAWN_OFFSETX);
+					float ypos = MAP_WORLD_OFFSET_Y + sy * SECTOR_SIZE + SECTOR_SPAWN_OFFSETY + rand() % (SECTOR_SIZE - SECTOR_SPAWN_OFFSETY - SECTOR_SPAWN_OFFSETY);
 
 					CMonster& monster = m_grossMonsterPoolArray[monstrSpawnCount++];
 					Location loc{ xpos,ypos ,-38775.f };

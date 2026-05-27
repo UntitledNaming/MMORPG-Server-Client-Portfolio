@@ -78,5 +78,9 @@ private:
 	uint32        m_respawnTime    = 0;
 
 	MonsterAI*    m_pMonsterAIComp = nullptr;
+
+public:
+	int addcount = 0;
+	int removecount = 0;
 };
 

@@ -187,12 +187,26 @@ void MonsterAI::UpdateCombat()
 		return;
 	}
 
+	// 스폰 위치와 거리가 멀어지면 Return
+	float dx = m_spawnLocation.xpos - m_pOwner->GetX();
+	float dy = m_spawnLocation.ypos - m_pOwner->GetY();
+	float distSq = dx * dx + dy * dy;
+
+	if (distSq >= RETURN_RANGE * RETURN_RANGE)
+	{
+		EnterReturn();
+		return;
+	}
+
 	// 범위 벗어나면 다시 추격
 	if (!IsChaseRange())
 	{
 		EnterChase(m_pTarget);
 		return;
 	}
+
+
+
 
 	// 데드 존인 경우 이동 및 패킷 뿌리기
 	if (!IsAttackRange())
@@ -418,8 +432,8 @@ CUser* MonsterAI::FindNearestPlayer(float range)
 
 void MonsterAI::UpdateSector()
 {
-	uint16 newX = (m_pOwner->GetX() - MAP_WORLD_OFFSET_X) / SECTOR_SIZE;
-	uint16 newY = (m_pOwner->GetY() - MAP_WORLD_OFFSET_Y) / SECTOR_SIZE;
+	int16 newX = (m_pOwner->GetX() - MAP_WORLD_OFFSET_X) / SECTOR_SIZE;
+	int16 newY = (m_pOwner->GetY() - MAP_WORLD_OFFSET_Y) / SECTOR_SIZE;
 	SectorPos newSec(newX, newY);
 
 	// 범위 벗어나면 리턴

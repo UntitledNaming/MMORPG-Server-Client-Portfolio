@@ -27,6 +27,8 @@ namespace FieldConst
 	constexpr uint32  MAX_GROSS_FIELD_MONSTER_COUNT   = 2533;
 	constexpr uint32  GROSS_FIELD_SECTOR_COUNT        = 2533;
 	constexpr uint32  GROSS_FIELD_AREA_ARRAY_COUNT    = 115;
+	constexpr uint16  SECTOR_SPAWN_OFFSETX            = 10;
+	constexpr uint16  SECTOR_SPAWN_OFFSETY            = 10;
 }
 
 namespace UserConst
@@ -70,7 +72,7 @@ namespace ClientAttack
 	constexpr float  LEFATTACK_HALF_ANGLE = 60.0f;
 	constexpr float  LEFTATTACK_RANGE = 250.0f;
 	constexpr uint32 LEFTATTACK_MAX_HIT_COUNT = 2;
-	constexpr uint32 LEFTATTACK_SWING_INTERVAL = 600;
+	constexpr uint32 LEFTATTACK_SWING_INTERVAL = 700;
 
 	////////////////////////////////////////////////
 	//  1번 스킬
@@ -117,7 +119,7 @@ namespace MonsterConst
 	constexpr float   PATROL_SPEED = 300.0f;
 	constexpr float   CHASE_SPEED = 550.0f;
 	constexpr float   RETURN_SPEED = 350.0f;
-	constexpr float   DETECT_RANGE = 800.0f;
+	constexpr float   DETECT_RANGE = 1000.0f;
 	constexpr float   ATTACK_RANGE = 200.0f;
 	constexpr float   ATTACK_HALF_ANGLE = 60.0f;
 	constexpr float   RETURN_RANGE = 1200.0f;

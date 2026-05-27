@@ -89,7 +89,7 @@ bool SectorPos::SectorRangeCheck(const SectorPos& sec)
 	return true;
 }
 
-bool SectorPos::IsAlreadyPushed(const SectorPos* arr, int count, uint16 sx, uint16 sy)
+bool SectorPos::IsAlreadyPushed(const SectorPos* arr, int count, int16 sx, int16 sy)
 {
 	for (int i = 0; i < count; ++i)
 	{
