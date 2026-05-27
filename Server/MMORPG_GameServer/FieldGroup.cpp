@@ -1040,38 +1040,31 @@ void FieldGroup::GrossMonsterSpawnInit()
 		return;
 
 	int monstrSpawnCount = 0;
-	//for (int i = 0; i < GROSS_FIELD_AREA_ARRAY_COUNT; i++)
-	//{
-	//	for (uint16 sy = GROSS_FIELD_MONSTER_SPAWN_AREAS[i].minSectorY; sy <= GROSS_FIELD_MONSTER_SPAWN_AREAS[i].maxSectorY; sy++)
-	//	{
-	//		for (uint16 sx = GROSS_FIELD_MONSTER_SPAWN_AREAS[i].minSectorX; sx <= GROSS_FIELD_MONSTER_SPAWN_AREAS[i].maxSectorX; sx++)
-	//		{
-	//			for (int count = 0; count < MAX_GROSS_FIELD_MONSTER_COUNT / GROSS_FIELD_SECTOR_COUNT; count++)
-	//			{
-	//				if (monstrSpawnCount >= MAX_GROSS_FIELD_MONSTER_COUNT)
-	//					return;
+	for (int i = 0; i < GROSS_FIELD_AREA_ARRAY_COUNT; i++)
+	{
+		for (uint16 sy = GROSS_FIELD_MONSTER_SPAWN_AREAS[i].minSectorY; sy <= GROSS_FIELD_MONSTER_SPAWN_AREAS[i].maxSectorY; sy++)
+		{
+			for (uint16 sx = GROSS_FIELD_MONSTER_SPAWN_AREAS[i].minSectorX; sx <= GROSS_FIELD_MONSTER_SPAWN_AREAS[i].maxSectorX; sx++)
+			{
+				for (int count = 0; count < MAX_GROSS_FIELD_MONSTER_COUNT / GROSS_FIELD_SECTOR_COUNT; count++)
+				{
+					if (monstrSpawnCount >= MAX_GROSS_FIELD_MONSTER_COUNT)
+						return;
 
-	//				float xpos = MAP_WORLD_OFFSET_X + sx * SECTOR_SIZE + (rand() % SECTOR_SIZE + 10);
-	//				float ypos = MAP_WORLD_OFFSET_Y + sy * SECTOR_SIZE + (rand() % SECTOR_SIZE + 10);
+					float xpos = MAP_WORLD_OFFSET_X + sx * SECTOR_SIZE + (rand() % SECTOR_SIZE + 10);
+					float ypos = MAP_WORLD_OFFSET_Y + sy * SECTOR_SIZE + (rand() % SECTOR_SIZE + 10);
 
-	//				CMonster& monster = m_grossMonsterPoolArray[monstrSpawnCount++];
-	//				Location loc{ xpos,ypos ,-38775.f };
-	//				monster.Init(m_monsterAllocID, 0, loc, this);
-	//				m_monsterAllocID++;
+					CMonster& monster = m_grossMonsterPoolArray[monstrSpawnCount++];
+					Location loc{ xpos,ypos ,-38775.f };
+					monster.Init(m_monsterAllocID, 0, loc, this);
+					m_monsterAllocID++;
 
-	//				m_sectors[sy][sx].AddMonster(&monster);
+					m_sectors[sy][sx].AddMonster(&monster);
 
-	//			}
-	//		}
-	//	}
-	//}
-
-
-	CMonster& monster = m_grossMonsterPoolArray[monstrSpawnCount++];
-	monster.Init(m_monsterAllocID, 0, Location{ 381250.0f , 443750.0f ,-38775.f }, this);
-	m_monsterAllocID++;
-
-	m_sectors[monster.GetSectorY()][monster.GetSectorX()].AddMonster(&monster);
+				}
+			}
+		}
+	}
 }
 
 void FieldGroup::MonsterRegen()
