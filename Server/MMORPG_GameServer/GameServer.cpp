@@ -11,8 +11,6 @@
 #include "CMessage.h"
 #include "CService.h"
 #include "CGroup.h"
-#include "ChatService.h"
-#include "CUserDirectory.h"
 #include "CDBManager.h"
 #include "FieldSector.h"
 #include "SectorPos.h"
@@ -20,7 +18,10 @@
 #include "FieldGroup.h"
 #include "AuthGroup.h"
 #include "CGameLibrary.h"
+#include "CUserItemStorage.h"
 #include "GameServer.h"
+
+CMPoolTLS<UserItem>* m_itemPool = nullptr;
 
 GameServer::GameServer()
 {
@@ -32,11 +33,9 @@ GameServer::GameServer()
 	// 그룹, 서비스 Attach
 	m_pGameLib->AttachGroup((CGroup*)m_pAuthGroup, auth);
 	m_pGameLib->AttachGroup((CGroup*)m_pFieldGroup, field);
-	//m_gameLib.AttachService((CService*)&m_chatService);
 
 	// 그 이외 객체 초기화
 	m_pDBManager->Init();
-	m_pUserDirectory->Init();
 
 	// 게임라이브러리 작동
 	m_pGameLib->Run();
@@ -46,7 +45,6 @@ GameServer::~GameServer()
 {
 	// 객체 파괴자 호출
 	m_pDBManager->Destroy();
-	m_pUserDirectory->Destroy();
 
 	m_endFlag = true;
 	if (m_monitorThread.joinable())
@@ -56,17 +54,19 @@ GameServer::~GameServer()
 
 	// 게임 라이브러리 종료(각 객체에서 직렬화 버퍼 사용하기 때문에 게임 라이브러리 먼저 종료하면 직렬화 버퍼 TLS 풀 파괴되어 버림)
 	m_pGameLib->Stop();
+
+	CUserItemStorage::ItemPoolDestory();
 }
 
 void GameServer::Init()
 {
 	m_pGameLib = new CGameLibrary;
-	m_pUserDirectory = new CUserDirectory;
 	m_pDBManager = new CDBManager;
 	m_pAuthGroup = new AuthGroup;
 	m_pFieldGroup = new FieldGroup;
-
 	m_endFlag = false;
+
+	CUserItemStorage::ItemPoolInit();
 	m_monitorThread = std::thread(&GameServer::Monitoring, this);
 }
 
@@ -98,8 +98,6 @@ void GameServer::Monitoring()
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
 		wprintf(L" CMessage Pool Usage Count  : %lld \n", CMessage::m_pMessagePool->GetUseCnt());
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
-
-
 
 
 		m_pGameLib->m_AcceptTPS = 0;

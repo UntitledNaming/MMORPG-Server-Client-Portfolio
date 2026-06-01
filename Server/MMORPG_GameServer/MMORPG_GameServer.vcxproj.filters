@@ -48,12 +48,6 @@
     <ClCompile Include="..\..\NetworkLib\common_files\src\buffer\CMessage.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="CUserDirectory.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ChatService.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="FieldGroup.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -90,15 +84,24 @@
     <ClCompile Include="MonsterAI.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Inventory.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Equipment.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CUserItemStorage.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemTable.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemUIDAllocator.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameServer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CUserDirectory.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ChatService.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="FieldGroup.h">
@@ -138,6 +141,21 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="MonsterAI.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Inventory.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Equipment.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CUserItemStorage.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemTable.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemUIDAllocator.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

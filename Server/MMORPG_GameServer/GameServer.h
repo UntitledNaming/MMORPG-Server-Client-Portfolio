@@ -17,12 +17,12 @@ public:
 
 private:
 	CGameLibrary*   m_pGameLib;
-	CUserDirectory* m_pUserDirectory;
 	CDBManager*     m_pDBManager;
 	AuthGroup*      m_pAuthGroup;
 	FieldGroup*     m_pFieldGroup;
 
 	std::thread     m_monitorThread;
 	BOOL            m_endFlag;
+
 };
 

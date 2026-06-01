@@ -34,3 +34,62 @@ struct Location
 	float zpos;
 };
 
+struct ItemStat
+{
+	int16 atk = 0;
+	int16 def = 0;
+	int16 maxHP = 0;
+	int16 maxMP = 0;
+	uint16 hpRegenPerSec = 0;
+	uint16 mpRegenPerSec = 0;
+};
+
+struct ItemData
+{
+	uint32           itemID = 0;
+			         
+	ITEM_TYPE        itemType = ITEM_TYPE::NONE;
+	EQUIP_SLOT       euipSlot = EQUIP_SLOT::NONE;
+				     
+	ITEM_RARITY      itemRarity = ITEM_RARITY::NORMAL;
+				     
+	uint16           maxStack = 1;
+	uint16           recoverHP = 0;
+	uint16           recoverMP = 0;
+				     
+	ItemStat         baseStat;
+};
+
+
+struct UserItem
+{
+	uint64           m_itemUID = 0;
+	uint32           m_itemID = 0;
+		             
+	uint16           m_count = 0;
+				     
+	ITEM_RARITY      m_rarity = ITEM_RARITY::NORMAL;
+				     
+	ItemStat         m_randomStat;
+
+};
+
+struct ItemCreateInfo
+{
+	uint32      itemID = 0;
+	uint16      count = 0;
+	ITEM_RARITY rarity = ITEM_RARITY::NORMAL;
+	ItemStat    randomStat;
+};
+
+struct DBItemInfo
+{
+	uint64      itemUID = 0;
+	uint32      itemID = 0;
+		        
+	uint16      count = 0;
+
+	ITEM_RARITY rarity = ITEM_RARITY::NORMAL;
+
+	ItemStat    randomStat;
+};

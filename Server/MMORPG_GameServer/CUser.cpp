@@ -14,12 +14,14 @@ void CUser::Init(uint64 sessionID)
 {
 	// todo : 추후 DB에서 데이터 긁어와서 초기화 하기
 	m_sessionID = sessionID;
+	m_level = 1;
+	m_currentExp = 0;
+	m_requiredExp = 100;
 	m_location = Location{ 381250.0f , 443750.0f ,-38775.f };
 	m_moveFlag = false;
 	m_disconnectFlag = false;
 	m_hp = 100;
 	m_mp = 100;
-	m_mpRegenPerSec = WARRIOR_MANA_REGEN;
 	m_secPos.SetPos(SectorPos((m_location.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (m_location.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE));
 	m_arrayIdx = 0;
 	m_syncCount = 0;
@@ -48,11 +50,9 @@ void CUser::Init(uint64 sessionID)
 	m_baseStat.m_def = BASE_DEF;
 	m_baseStat.m_maxHP = BASE_MAXHP;
 	m_baseStat.m_maxMP = BASE_MAXMP;
+	m_baseStat.m_hpRegenPerSec = WARRIOR_HP_REGEN;
+	m_baseStat.m_mpRegenPerSec = WARRIOR_MANA_REGEN;
 
-	m_equipBonusStat.m_atk = 0;
-	m_equipBonusStat.m_def = 0;
-	m_equipBonusStat.m_maxHP = 0;
-	m_equipBonusStat.m_maxMP = 0;
 }
 
 void CUser::Destroy()
@@ -88,7 +88,7 @@ void CUser::ResPawn()
 
 void CUser::ManaRegen(uint32 curTime)
 {
-	m_mp += m_mpRegenPerSec;
+	m_mp += GetMPRegenSec();
 
 	uint16 maxmp = GetMaxMP(curTime);
 
@@ -172,9 +172,6 @@ bool CUser::CanSwing(uint32 curTime, uint8 swingidx)
 
 	// 유저 swingindex랑 패킷으로 받은 swingindex가 다르면 연결 끊기
 	if (m_swingInfo.m_lastSwingIdx != swingidx)
-		return false;
-
-	if (curTime - m_swingInfo.m_lastSwingRecvTime <= ClientAttack::LEFTATTACK_SWING_INTERVAL)
 		return false;
 
 	m_swingInfo.m_lastSwingRecvTime = curTime;
@@ -322,7 +319,7 @@ uint32 CUser::CalBaseAttackDamage(CMonster* target, uint32 curTime)
 
 uint16 CUser::GetDef(uint32 curTime)
 {
-	uint16 def = m_baseStat.m_def + m_equipBonusStat.m_def;
+	uint16 def = m_baseStat.m_def;
 
 	// 버프 유효성 체크
 	// 버프 아직 켜져있으면서 만료시간이 안되었으면 def 증가
@@ -340,7 +337,7 @@ uint16 CUser::GetDef(uint32 curTime)
 
 uint16 CUser::GetAtk(uint32 curTime)
 {
-	uint16 atk = m_baseStat.m_atk + m_equipBonusStat.m_atk;
+	uint16 atk = m_baseStat.m_atk;
 
 	// 버프 유효성 체크
 	// 버프 아직 켜져있으면서 만료시간이 안되었으면 def 증가
@@ -358,14 +355,14 @@ uint16 CUser::GetAtk(uint32 curTime)
 
 uint16 CUser::GetMaxHP(uint32 curTime)
 {
-	uint16 maxhp = m_baseStat.m_maxHP + m_equipBonusStat.m_maxHP;
+	uint16 maxhp = m_baseStat.m_maxHP;
 
 	return maxhp;
 }
 
 uint16 CUser::GetMaxMP(uint32 curTime)
 {
-	uint16 maxmp = m_baseStat.m_maxMP + m_equipBonusStat.m_maxMP;
+	uint16 maxmp = m_baseStat.m_maxMP;
 
 	// 버프 유효성 체크
 	// 버프 아직 켜져있으면서 만료시간이 안되었으면 def 증가
@@ -373,6 +370,20 @@ uint16 CUser::GetMaxMP(uint32 curTime)
 
 	// 디버프 유효성
 	return maxmp;
+}
+
+uint16 CUser::GetHPRegenSec() const
+{
+	uint16 HPRegenSec = m_baseStat.m_hpRegenPerSec;
+
+	return HPRegenSec;
+}
+
+uint16 CUser::GetMPRegenSec() const
+{
+	uint16 MPRegenSec = m_baseStat.m_mpRegenPerSec;
+
+	return MPRegenSec;
 }
 
 CUser* CUser::Alloc()

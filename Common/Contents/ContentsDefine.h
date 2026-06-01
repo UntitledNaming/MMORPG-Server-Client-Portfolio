@@ -8,8 +8,8 @@ namespace AuthConst
 
 namespace FieldConst
 {
-	constexpr uint32  UPDATE_LOOP_TIME          = 25;                          // 25ms Update Thread loop
-	constexpr uint32  UPDATE_FRAME              = 1000 / UPDATE_LOOP_TIME;     // Frame Loop Count per sec
+	constexpr uint32  UPDATE_LOOP_TIME          = 25;                                // 25ms Update Thread loop
+	constexpr uint32  UPDATE_FRAME              = 1000 / UPDATE_LOOP_TIME;           // Frame Loop Count per sec
 	constexpr uint32  USER_TIMEOUT                    = 40000;
 	constexpr uint32  MAP_WORLD_OFFSET_X              = 200000;                      // (0,0) Sector Position X
 	constexpr uint32  MAP_WORLD_OFFSET_Y              = 200000;                      // (0,0) Sector Position Y
@@ -38,6 +38,7 @@ namespace UserConst
 	constexpr float   RUN_SPEED = 1200.0; // 1200 cm/s
 	constexpr float   JUMP_ANIMATION_TIME = 0.0f;
 	constexpr uint16  WARRIOR_MANA_REGEN = 5;
+	constexpr uint16  WARRIOR_HP_REGEN   = 5;
 	constexpr uint16  USER_SKILL_SLOT_COUNT = 4;
 	constexpr uint16  USER_BUFF_SKILL_SLOT_COUNT = 1;
 	constexpr uint16  USER_ACTIVE_SKILL_SLOT_COUNT = 3;
@@ -67,7 +68,7 @@ namespace ClientAttack
 	constexpr uint16  MaxMonsterCount = 32;
 
 	///////////////////////////////////////////////
-	//  평타
+	//  Base Attack
 	///////////////////////////////////////////////
 	constexpr float  LEFATTACK_HALF_ANGLE = 60.0f;
 	constexpr float  LEFTATTACK_RANGE = 250.0f;
@@ -75,7 +76,7 @@ namespace ClientAttack
 	constexpr uint32 LEFTATTACK_SWING_INTERVAL = 700;
 
 	////////////////////////////////////////////////
-	//  1번 스킬
+	//  1 Skill
 	////////////////////////////////////////////////
 	constexpr uint16 BUFF_REQUIRED_MANA = 25;
 	constexpr uint32 BUFF_COOLTIME_SEC  = 15000;
@@ -84,7 +85,7 @@ namespace ClientAttack
 	constexpr uint16 BUFF_ATK_ADD_AMOUNT    = 5;
 
 	////////////////////////////////////////////////
-    //  2번 스킬
+    //  2 Skill
     ////////////////////////////////////////////////
 	constexpr uint16 SPINSLASH_REQUIRED_MANA = 10;
 	constexpr uint32 SPINSLASH_COOLTIME_SEC = 7000;
@@ -93,7 +94,7 @@ namespace ClientAttack
 
 
 	////////////////////////////////////////////////
-    //  3번 스킬
+    //  3 Skill
     ////////////////////////////////////////////////
 	constexpr uint16 GROUNDSMASH_REQUIRED_MANA = 30;
 	constexpr uint32 GROUNDSMASH_COOLTIME_SEC = 20000;
@@ -101,7 +102,7 @@ namespace ClientAttack
 	constexpr float  GROUNDSMASH_RANGE = 600.0f;
 
 	////////////////////////////////////////////////
-	//  4번 스킬
+	//  4 Skill
 	////////////////////////////////////////////////
 	constexpr uint16 ULTIMATE_REQUIRED_MANA = 80;
 	constexpr uint32 ULTIMATE_COOLTIME_SEC = 120000;
@@ -134,4 +135,20 @@ namespace MonsterConst
 	constexpr float   CHASE_REENTER_RANGE = 100;
 	constexpr uint32  CHASE_UPDATE_MIN_MS = 200;
 	constexpr uint32  MOVE_SYNC_INTERVAL_MS = 1000;
+}
+
+namespace UserInventory
+{
+	constexpr uint16 INVENTORY_SLOT_MAX = 40;
+}
+
+namespace UserEquipment
+{
+	
+}
+
+namespace ItemUIDAllocator
+{
+	constexpr uint64 ITEM_UID_INVALID_ID    = 0;
+	constexpr uint64 ITEM_UID_RESERVE_COUNT = 1000000;
 }

@@ -4,6 +4,9 @@
 #include "ContentsStruct.h"
 #include "ContentsDefine.h"
 #include "MemoryPoolTLS.h"
+#include "Inventory.h"
+#include "Equipment.h"
+#include "CUserItemStorage.h"
 
 struct SwingInfo
 {
@@ -13,10 +16,12 @@ struct SwingInfo
 
 struct UserStat
 {
-	int16 m_atk;
-	int16 m_def;
-	int16 m_maxHP;
-	int16 m_maxMP;
+	int16    m_atk;
+	int16    m_def;
+	int16    m_maxHP;
+	int16    m_maxMP;
+	uint16   m_hpRegenPerSec;
+	uint16   m_mpRegenPerSec;
 };
 
 struct SkillInfo
@@ -58,7 +63,8 @@ public:
 	uint16 GetMaxMP(uint32 curTime);
 	uint16 GetHP() const { return m_hp; }
 	uint16 GetMP() const { return m_mp; }
-	uint16 GetMPRegenSec() const{ return m_mpRegenPerSec; }
+	uint16 GetHPRegenSec() const;
+	uint16 GetMPRegenSec() const;
 	uint16 GetSectorArrayIdx() const { return m_arrayIdx; }
 	uint16 GetSectorXpos() const { return m_secPos.GetX(); }
 	uint16 GetSectorYpos() const { return m_secPos.GetY(); }
@@ -89,17 +95,20 @@ public:
 private:
 	static CMPoolTLS<CUser> m_userPool;
 
-	uint64              m_sessionID;      
+	uint64              m_sessionID;
+	uint64              m_currentExp;
+	uint64              m_requiredExp;
 	SwingInfo           m_swingInfo;                                                       // 좌 클릭 공격 처리 관련 구조체
 	SkillInfo           m_skillInfo[UserConst::USER_SKILL_SLOT_COUNT];
 	Location            m_location;                                                        // 캐릭터 위치
 	SectorPos           m_secPos;           
+	uint16              m_level;
 	uint16              m_arrayIdx;     
 	int16               m_hp;                                                              // 캐릭터 HP
 	int16               m_mp;                                                              // 캐릭터 MP
 	UserStat            m_baseStat;                                                        // 유저 기본 스탯(클래스, 레벨 기반)
-	UserStat            m_equipBonusStat;                                                  // 유저 장비 보너스 스탯
-	uint16              m_mpRegenPerSec;
+	Inventory           m_inventory;        // Inventory
+	Equipment           m_equipment;        // Currently Equipped Items
 
 	bool                m_disconnectFlag;
 	bool                m_moveFlag;

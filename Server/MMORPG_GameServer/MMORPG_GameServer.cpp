@@ -15,9 +15,7 @@
 #include "SectorPos.h"
 #include "CMonster.h"
 #include "FieldGroup.h"
-#include "ChatService.h"
 #include "CDBManager.h"
-#include "CUserDirectory.h"
 #include "GameServer.h"
 
 int main()

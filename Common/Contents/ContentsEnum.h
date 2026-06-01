@@ -65,3 +65,27 @@ enum class EMonsterState : uint8
 	Return,         // 스폰 위치로 복귀
 	Dead            // 사망, 리젠 대기
 };
+
+enum class ITEM_TYPE : uint8
+{
+	NONE,
+	CONSUMABLE,
+	EQUIPMENT,
+};
+
+enum class EQUIP_SLOT : uint8
+{
+	NONE,
+	HELMET,
+	CHEST,
+	PANTS,
+	BOOTS,
+	GLOVES,
+	MAX,
+};
+
+enum class ITEM_RARITY : uint8
+{
+	NORMAL,
+	MAGIC,
+};
