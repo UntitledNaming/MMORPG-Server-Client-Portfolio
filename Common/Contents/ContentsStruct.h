@@ -63,8 +63,8 @@ struct ItemData
 
 struct UserItem
 {
-	uint64           m_itemUID = 0;
-	uint32           m_itemID = 0;
+	ITEM_UID         m_itemUID = 0;
+	ITEM_ID          m_itemID = 0;
 		             
 	uint16           m_count = 0;
 				     
@@ -76,7 +76,7 @@ struct UserItem
 
 struct ItemCreateInfo
 {
-	uint32      itemID = 0;
+	ITEM_ID     itemID = 0;
 	uint16      count = 0;
 	ITEM_RARITY rarity = ITEM_RARITY::NORMAL;
 	ItemStat    randomStat;
@@ -84,12 +84,34 @@ struct ItemCreateInfo
 
 struct DBItemInfo
 {
-	uint64      itemUID = 0;
-	uint32      itemID = 0;
+	ITEM_UID    itemUID = 0;
+	ITEM_ID     itemID = 0;
 		        
 	uint16      count = 0;
 
 	ITEM_RARITY rarity = ITEM_RARITY::NORMAL;
 
 	ItemStat    randomStat;
+};
+
+struct UIDRange
+{
+	ITEM_UID allocID = 0;
+	ITEM_UID lastID = 0;
+};
+
+struct FieldDropItem
+{
+	uint64      dropUID = 0;
+	uint32      expiredTime = 0;
+	uint16      count = 0;
+	ITEM_ID     itemID = 0;
+	ITEM_RARITY rarity = ITEM_RARITY::NORMAL;
+	ITEM_TYPE   itemType = ITEM_TYPE::NONE;
+	EQUIP_SLOT  equipSlot = EQUIP_SLOT::NONE;
+	ItemStat    randomStat;
+
+	float       xpos = 0.f;
+	float       ypos = 0.f;
+	float       zpos = 0.f;
 };

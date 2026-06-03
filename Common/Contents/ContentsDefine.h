@@ -147,8 +147,9 @@ namespace UserEquipment
 	
 }
 
-namespace ItemUIDAllocator
+namespace ItemUID
 {
 	constexpr uint64 ITEM_UID_INVALID_ID    = 0;
 	constexpr uint64 ITEM_UID_RESERVE_COUNT = 1000000;
+	constexpr float  ITEM_RESERVE_PERCENT   = 80;
 }

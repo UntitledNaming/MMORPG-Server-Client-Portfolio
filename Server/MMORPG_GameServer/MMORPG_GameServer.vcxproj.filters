@@ -99,6 +99,9 @@
     <ClCompile Include="ItemUIDAllocator.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="FieldDropItemSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameServer.h">
@@ -156,6 +159,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ItemUIDAllocator.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="FieldDropItemSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

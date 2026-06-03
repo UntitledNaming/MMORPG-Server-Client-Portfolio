@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <cmath>
 #include <chrono>
+#include <stack>
 #include "CMonster.h"
 #include "ContentsDefine.h"
 #include "ContentsEnum.h"
@@ -15,6 +16,9 @@
 #include "CollisionCheck.h"
 #include "FieldSector.h"
 #include "SectorPos.h"
+#include "Inventory.h"
+#include "Equipment.h"
+#include "CUserItemStorage.h"
 #include "IUser.h"
 #include "CUser.h"
 #include "HitSearchBuilder.h"

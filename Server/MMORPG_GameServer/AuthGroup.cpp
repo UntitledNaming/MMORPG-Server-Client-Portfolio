@@ -1,11 +1,15 @@
 #include <windows.h>
 #include <string>
 #include <unordered_map>
+#include <stack>
 #include "ContentsEnum.h"
 #include "ContentsDefine.h"
 #include "ContentsProtocol.h"
 #include "MemoryPoolTLS.h"
 #include "CMessage.h"
+#include "Inventory.h"
+#include "Equipment.h"
+#include "CUserItemStorage.h"
 #include "IUser.h"
 #include "CUser.h"
 #include "CGroup.h"

@@ -7,6 +7,7 @@ public:
 	AuthGroup() = default;
 	~AuthGroup() = default;
 
+	size_t  GetNonUserCount() { return m_nonuserTable.size(); }
 	virtual void  Init(CGameLibrary* p) override;
 	virtual void  Destroy() override;
 	virtual void  OnClientJoin(UINT64 sessionID) override;

@@ -1,8 +1,12 @@
 #include <string>
 #include <windows.h>
+#include <stack>
 #include "ContentsEnum.h"
 #include "SkillTable.h"
 #include "CMonster.h"
+#include "Inventory.h"
+#include "Equipment.h"
+#include "CUserItemStorage.h"
 #include "IUser.h"
 #include "CUser.h"
 
@@ -57,7 +61,9 @@ void CUser::Init(uint64 sessionID)
 
 void CUser::Destroy()
 {
-
+	m_equipment.Destroy();
+	m_inventory.Destroy();
+	m_storage.StorageDestroy();
 }
 
 void CUser::ResPawn()
@@ -185,6 +191,70 @@ bool CUser::IsAlive()
 		return false;
 
 	return true;
+}
+
+// 필드에 있는 드랍 아이템 먹으려고 할 때 작동
+bool CUser::GetItem(FieldDropItem& dropItem)
+{
+	// Storage에 해당 item_id가 있고 stack과 count 확인
+
+	// 현재 count < stack이면 그냥 해당 아이템에 대한 count 만 올리기
+
+	// 새롭게 inventory에 자리를 만들어야 하는 경우 inventory 여유분 체크
+
+	// 부족하면 리턴
+
+	// 여유분 있으면 Storage에 CreateItem 하고 리턴된 UID를 Inventory에 세팅
+
+	return true;
+}
+
+// 아이템을 인벤토리 바깥으로 버릴 때 작동
+bool CUser::DeleteItem(uint16 inventorySlotIndex)
+{
+	// 해당 inventorySlitIndex에 아이템 없으면 false 리턴
+
+
+	// 아이템 있으면 Storage 및 Inventory에서 제거
+
+	return true;
+}
+
+// 해당 아이템 슬롯에 대해서 우클릭 할때 작동
+bool CUser::UseItem(uint16 inventorySlotIndex)
+{
+	// 해당 아이템 타입이 Consumable이면 아이템 사용해서 적용 후 Count 0 이면 아이템 삭제
+
+	// 장비 아이템이면 해당 슬롯에 장착 하기
+
+
+	return false;
+}
+
+// 인벤토리 내 아이템 위치 바꿀 때 작동
+bool CUser::InventoryItemSlotChange(uint16 fromIndex, uint16 toIndex)
+{
+	// 인벤토리의 아이템 슬롯 Change 
+
+	return true;
+}
+
+// 해당 인벤토리 슬롯에 있는 장비 장착하려고 할 때 작동
+bool CUser::EquippedItem(uint16 inventorySlotIndex)
+{
+	// 해당 슬롯의 아이템 타입 체크 Consumable을 false 리턴
+
+	// 해당 인벤토리 슬롯의 EQUIP_SLOT 체크 해서 해당 장비 슬롯에 장비 장착
+
+	return true;
+}
+
+// 해당 장비 슬롯에 있는 장비 해제하려고 할 때 작동
+bool CUser::UnEquippedItem(EQUIP_SLOT equipSlot)
+{
+
+
+	return false;
 }
 
 uint32 CUser::CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime)

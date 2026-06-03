@@ -1,12 +1,9 @@
 #pragma once
-#include "ContentsType.h"
 #include "SectorPos.h"
+#include "ContentsType.h"
 #include "ContentsStruct.h"
 #include "ContentsDefine.h"
 #include "MemoryPoolTLS.h"
-#include "Inventory.h"
-#include "Equipment.h"
-#include "CUserItemStorage.h"
 
 struct SwingInfo
 {
@@ -52,6 +49,14 @@ public:
 	bool   Move();
 	bool   CanSwing(uint32 curTime, uint8 swingidx);
 	bool   IsAlive();
+	bool   GetItem(FieldDropItem& dropItem);
+	bool   DeleteItem(uint16 inventorySlotIndex);
+	bool   UseItem(uint16 inventorySlotIndex);
+	bool   InventoryItemSlotChange(uint16 fromIndex, uint16 toIndex);
+	bool   EquippedItem(uint16 inventorySlotIndex);
+	bool   UnEquippedItem(EQUIP_SLOT equipSlot);
+
+
 	uint64 GetSessionID() const { return m_sessionID; }
 	uint32 CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime);
 	uint32 CalSkillDamage(uint16 skillIndex, CMonster* target, uint32 curTime);
@@ -69,6 +74,7 @@ public:
 	uint16 GetSectorXpos() const { return m_secPos.GetX(); }
 	uint16 GetSectorYpos() const { return m_secPos.GetY(); }
 	uint8  GetLastSwingIndex() const { return m_swingInfo.m_lastSwingIdx; }
+
 	float  GetX() const { return m_location.xpos; }
 	float  GetY() const { return m_location.ypos; }
 	float  GetZ() const { return m_location.zpos; }
@@ -109,12 +115,12 @@ private:
 	UserStat            m_baseStat;                                                        // 유저 기본 스탯(클래스, 레벨 기반)
 	Inventory           m_inventory;        // Inventory
 	Equipment           m_equipment;        // Currently Equipped Items
+	CUserItemStorage    m_storage;          // Item Storage
 
 	bool                m_disconnectFlag;
 	bool                m_moveFlag;
 	float               m_movementYaw;                                                     // 캐릭터 이동 방향, 이동 처리시 사용
 	float               m_maxWalkSpeed;                                                    // 캐릭터 최대 이동 속도(이벤트 발생시 변화 값)
 	float               m_moveSpeed;
-
 };
 

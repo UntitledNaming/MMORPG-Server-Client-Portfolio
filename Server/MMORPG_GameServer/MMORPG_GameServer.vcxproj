@@ -147,6 +147,7 @@
     <ClCompile Include="CUser.cpp" />
     <ClCompile Include="CUserItemStorage.cpp" />
     <ClCompile Include="Equipment.cpp" />
+    <ClCompile Include="FieldDropItemSystem.cpp" />
     <ClCompile Include="FieldGroup.cpp" />
     <ClCompile Include="FieldSector.cpp" />
     <ClCompile Include="GameServer.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="CUser.h" />
     <ClInclude Include="CUserItemStorage.h" />
     <ClInclude Include="Equipment.h" />
+    <ClInclude Include="FieldDropItemSystem.h" />
     <ClInclude Include="FieldGroup.h" />
     <ClInclude Include="FieldSector.h" />
     <ClInclude Include="GameServer.h" />
