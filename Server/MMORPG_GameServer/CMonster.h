@@ -16,18 +16,20 @@ public:
 	CMonster() = default;
 	~CMonster() = default;
 
-	void Init(uint64 monsterID, uint16 monsterType, const Location& spawnLocation, FieldGroup* fieldGroupPtr);
-	void Destroy();
-	void Regen();
-	void Move();
-	void Damage(uint16 damage);
-	void AIUpdate();
+	void   Init(uint64 monsterID, uint16 monsterType, const Location& spawnLocation, FieldGroup* fieldGroupPtr);
+	void   Destroy();
+	void   Regen();
+	void   Move();
+	void   Damage(uint16 damage);
+	void   AIUpdate();
+	bool   IsAlive();
 	uint32 CalBaseAttackDamage(CUser* target, uint32 curTime);
 
 
 	Location& GetMonsterAITargetLocation() const;
 
     uint64 GetMonsterID() const { return m_monsterID; }
+	uint64 GetExp() const { return m_exp; }
 	uint32 GetRespawnTime() const { return m_respawnTime; }
 	uint32 GetRespawnDelay() const { return m_respawnDelay; }
     uint16 GetMonsterType() const { return m_monsterType; }
@@ -60,6 +62,7 @@ public:
 
 private:
 	uint64        m_monsterID      = 0;
+	uint64        m_exp = 35;
 	uint16        m_monsterType    = 0;     // 0 : Khaimera
 	uint16        m_sectorIdx      = 0;
 	int16         m_hp             = 50;

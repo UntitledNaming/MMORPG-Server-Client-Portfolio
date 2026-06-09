@@ -147,7 +147,7 @@
     <ClCompile Include="CUser.cpp" />
     <ClCompile Include="CUserItemStorage.cpp" />
     <ClCompile Include="Equipment.cpp" />
-    <ClCompile Include="FieldDropItemSystem.cpp" />
+    <ClCompile Include="FieldDropItemPool.cpp" />
     <ClCompile Include="FieldGroup.cpp" />
     <ClCompile Include="FieldSector.cpp" />
     <ClCompile Include="GameServer.cpp" />
@@ -158,6 +158,7 @@
     <ClCompile Include="MMORPG_GameServer.cpp" />
     <ClCompile Include="MonsterAI.cpp" />
     <ClCompile Include="PacketBuilder.cpp" />
+    <ClCompile Include="QuickSlot.cpp" />
     <ClCompile Include="SectorPos.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -168,7 +169,7 @@
     <ClInclude Include="CUser.h" />
     <ClInclude Include="CUserItemStorage.h" />
     <ClInclude Include="Equipment.h" />
-    <ClInclude Include="FieldDropItemSystem.h" />
+    <ClInclude Include="FieldDropItemPool.h" />
     <ClInclude Include="FieldGroup.h" />
     <ClInclude Include="FieldSector.h" />
     <ClInclude Include="GameServer.h" />
@@ -178,6 +179,7 @@
     <ClInclude Include="ItemUIDAllocator.h" />
     <ClInclude Include="MonsterAI.h" />
     <ClInclude Include="PacketBuilder.h" />
+    <ClInclude Include="QuickSlot.h" />
     <ClInclude Include="SectorPos.h" />
     <ClInclude Include="SkillTable.h" />
     <ClInclude Include="TodoList.h" />

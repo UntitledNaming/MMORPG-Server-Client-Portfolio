@@ -3,6 +3,7 @@
 #include "ContentsType.h"
 #include "ContentsEnum.h"
 #include "ContentsDefine.h"
+#include "SectorPos.h"
 
 struct Vec2
 {
@@ -46,52 +47,49 @@ struct ItemStat
 
 struct ItemData
 {
-	uint32           itemID = 0;
-			         
-	ITEM_TYPE        itemType = ITEM_TYPE::NONE;
-	EQUIP_SLOT       euipSlot = EQUIP_SLOT::NONE;
-				     
-	ITEM_RARITY      itemRarity = ITEM_RARITY::NORMAL;
-				     
-	uint16           maxStack = 1;
-	uint16           recoverHP = 0;
-	uint16           recoverMP = 0;
-				     
-	ItemStat         baseStat;
+	ITEM_ID              itemID = 0;
+			             
+	ITEM_TYPE            itemType = ITEM_TYPE::NONE;
+	EQUIP_SLOT           equipSlot = EQUIP_SLOT::NONE;
+				         
+	ITEM_RARITY          itemRarity = ITEM_RARITY::NORMAL;
+				         
+	uint16               maxStack  = 1;
+	uint16               recoverHP = 0;
+	uint16               recoverMP = 0;
+	CONSUMABLE_ITEM_TYPE consumableType;
+	ItemStat             baseStat;
 };
 
-
-struct UserItem
+struct RandomStatResult
 {
-	ITEM_UID         m_itemUID = 0;
-	ITEM_ID          m_itemID = 0;
-		             
-	uint16           m_count = 0;
-				     
-	ITEM_RARITY      m_rarity = ITEM_RARITY::NORMAL;
-				     
-	ItemStat         m_randomStat;
-
+	RANDOM_STAT_TYPE randomStatType;
+	uint16           randomStatValue;
 };
+
+struct UpdateSlotResult
+{
+	int16           slotIndex;
+	uint16          newItemCount;
+};
+
 
 struct ItemCreateInfo
 {
-	ITEM_ID     itemID = 0;
-	uint16      count = 0;
-	ITEM_RARITY rarity = ITEM_RARITY::NORMAL;
-	ItemStat    randomStat;
+	ITEM_ID             itemID = 0;
+	uint16              count = 0;
+	uint8               randomStatCount = 0;
+	RandomStatResult    randomStat[FieldDropItemConst::FIELD_DROP_ITEM_RANDOM_STAT_MAX];
 };
 
-struct DBItemInfo
+struct UserItem : public ItemCreateInfo
 {
 	ITEM_UID    itemUID = 0;
-	ITEM_ID     itemID = 0;
-		        
-	uint16      count = 0;
+};
 
-	ITEM_RARITY rarity = ITEM_RARITY::NORMAL;
-
-	ItemStat    randomStat;
+struct DBItemInfo : public ItemCreateInfo
+{
+	ITEM_UID    itemUID = 0;
 };
 
 struct UIDRange
@@ -100,18 +98,132 @@ struct UIDRange
 	ITEM_UID lastID = 0;
 };
 
-struct FieldDropItem
+struct FieldDropItem : public ItemCreateInfo
 {
-	uint64      dropUID = 0;
+	uint64      dropUID     = 0;
 	uint32      expiredTime = 0;
-	uint16      count = 0;
-	ITEM_ID     itemID = 0;
-	ITEM_RARITY rarity = ITEM_RARITY::NORMAL;
-	ITEM_TYPE   itemType = ITEM_TYPE::NONE;
-	EQUIP_SLOT  equipSlot = EQUIP_SLOT::NONE;
-	ItemStat    randomStat;
+	uint16      sectorIdx   = 0;
+	Location    location;
+	SectorPos   sectorPos;
+};
 
-	float       xpos = 0.f;
-	float       ypos = 0.f;
-	float       zpos = 0.f;
+struct DropRate
+{
+	FIELD_DROP_TYPE type;
+	uint16          weight;
+};
+
+struct EquipSlotRate
+{
+	EQUIP_SLOT slot;
+	uint16     weight;
+};
+
+struct RandomStatRule
+{
+	RANDOM_STAT_TYPE type = RANDOM_STAT_TYPE::NONE;
+	uint16           minVal = 0;
+	uint16           maxVal = 0;
+};
+
+
+struct PickUpEquipResult
+{
+	ITEM_ID          itemID;
+	int16            slotIndex;
+	uint16           count;
+	uint8            randomStatCount;
+	RandomStatResult randomStatResult[FieldDropItemConst::FIELD_DROP_ITEM_RANDOM_STAT_MAX];
+};
+
+struct PickUpConsumableResult
+{
+	ITEM_ID          itemID;
+	uint16           updateSlotCount;
+
+	UpdateSlotResult consumableResult[UserInventory::INVENTORY_SLOT_MAX];
+};
+
+struct UPDATE_SLOT
+{
+	SLOT_STATE slotState;
+	SLOT_TYPE  slotType;
+	int16      slotIndex;
+	ITEM_ID    itemID;
+};
+
+struct EQUIP_ITEM_RESULT
+{
+	uint8       updateSlotCount;
+	UPDATE_SLOT resultSlot[2];    // 0 : Inventory , 1 : Equipment
+};
+
+struct UNEQUIP_ITEM_RESULT
+{
+	int16       inventorySlotIdx;
+};
+
+struct USE_CONSUMABLE_ITEM_RESULT
+{
+	SLOT_TYPE slotType;
+	uint16    newItenCount;
+	int16     slotIndex;
+};
+
+struct UseItemResult
+{
+	bool                       success          = false;
+	USE_ITEM_RESULT            resultType       = USE_ITEM_RESULT::NONE;
+	EQUIP_ITEM_RESULT          equipResult      = {};
+	UNEQUIP_ITEM_RESULT        unEquipResult    = {};
+	USE_CONSUMABLE_ITEM_RESULT consumableResult = {};
+};
+
+struct UserLevelStat
+{
+	uint16 level;
+	uint64 requiredExp;
+
+	int16  atk;
+	int16  def;
+	int16  maxHP;
+	int16  maxMP;
+
+	uint16 hpRegenPerSec;
+	uint16 mpRegenPerSec;
+};
+
+struct RecoveryInfo
+{
+	uint32 HP_accumulatedTimeMs = 0;
+	uint32 MP_accumulatedTimeMs = 0;
+
+	void Init() {
+		HP_accumulatedTimeMs = 0;  MP_accumulatedTimeMs
+			= 0;
+	}
+};
+
+struct ConsumableCooltimeInfo
+{
+	uint32 CooltimeStartTimeMs[(int)CONSUMABLE_ITEM_TYPE::MAX] = {};
+	uint32 CoolTimeMs[(int)CONSUMABLE_ITEM_TYPE::MAX] = {};
+
+	void Init() {
+		for (int i = 0; i < (int)CONSUMABLE_ITEM_TYPE::MAX; i++)
+		{
+			CooltimeStartTimeMs[i] = 0;
+
+			switch (static_cast<CONSUMABLE_ITEM_TYPE>(i))
+			{
+			case CONSUMABLE_ITEM_TYPE::SMALL_HP_POTION:
+				CoolTimeMs[i] = ConsumableConst::HP_POTION_USE_COOLTIME_MS;
+				break;
+
+			case CONSUMABLE_ITEM_TYPE::SMALL_MP_POTION:
+				CoolTimeMs[i] = ConsumableConst::MP_POTION_USE_COOLTIME_MS;
+				break;
+			}
+		}
+	}
 };

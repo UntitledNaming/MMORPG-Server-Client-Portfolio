@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <stack>
 #include "ContentsEnum.h"
 #include "ContentsDefine.h"
@@ -9,6 +10,7 @@
 #include "CMessage.h"
 #include "Inventory.h"
 #include "Equipment.h"
+#include "QuickSlot.h"
 #include "CUserItemStorage.h"
 #include "IUser.h"
 #include "CUser.h"

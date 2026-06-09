@@ -2,10 +2,16 @@
 #include "MemoryPoolTLS.h"
 #include "ItemUIDAllocator.h"
 #include "CUserItemStorage.h"
+#include "ItemTable.h"
 #include "Equipment.h"
 
 void Equipment::Init(CUserItemStorage* pStorage)
 {
+	for (int i = 0; i < (int)(EQUIP_SLOT::MAX)-1; i++)
+	{
+		m_equipment[i] = ItemUID::ITEM_UID_INVALID_ID;
+	}
+
 	m_pStorage = pStorage;
 
 	// DB에서 장착 장비 긁어와 세팅 및 캐시 데이터 세팅
@@ -26,22 +32,61 @@ void Equipment::Destroy()
 	m_pStorage = nullptr;
 }
 
-void Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& OutItemUID)
+bool Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& OutItemUID)
 {
+	if (!IndexRangeCheck(slotNum))
+		return false;
+
 	OutItemUID = m_equipment[(int)slotNum];
 
 	const UserItem* outitem = m_pStorage->FindItem(OutItemUID);
 	if (outitem)
 	{
-		// todo : ItemTable 찾아서 기본 스탯 찾아서 빼기
+		// ItemTable 찾아서 기본 스탯 찾아서 빼기
+		const ItemData* pData = ItemTable::GetItemData(outitem->itemID);
+		if (pData)
+		{
+			m_currentATK -= pData->baseStat.atk;
+			m_currentDEF -= pData->baseStat.def;
+			m_currentMaxHP -= pData->baseStat.maxHP;
+			m_currentMaxMP -= pData->baseStat.maxMP;
+			m_currentHPRegenPerSec -= pData->baseStat.hpRegenPerSec;
+			m_currentMPRegenPerSec -= pData->baseStat.mpRegenPerSec;
+		}
+
 
 		// 랜덤 스탯 빼기
-		m_currentATK -= outitem->m_randomStat.atk;
-		m_currentDEF -= outitem->m_randomStat.def;
-		m_currentMaxHP -= outitem->m_randomStat.maxHP;
-		m_currentMaxMP -= outitem->m_randomStat.maxMP;
-		m_currentHPRegenPerSec -= outitem->m_randomStat.hpRegenPerSec;
-		m_currentMPRegenPerSec -= outitem->m_randomStat.mpRegenPerSec;
+		uint8 statCount = outitem->randomStatCount;
+		for (int i = 0; i < statCount; i++)
+		{
+			const RandomStatResult& randStat = outitem->randomStat[i];
+			switch (randStat.randomStatType)
+			{
+			case RANDOM_STAT_TYPE::ATK:
+				m_currentATK -= randStat.randomStatValue;
+				break;
+
+			case RANDOM_STAT_TYPE::DEF:
+				m_currentDEF -= randStat.randomStatValue;
+				break;
+
+			case RANDOM_STAT_TYPE::MAX_HP:
+				m_currentMaxHP -= randStat.randomStatValue;
+				break;
+
+			case RANDOM_STAT_TYPE::MAX_MP:
+				m_currentMaxMP -= randStat.randomStatValue;
+				break;
+
+			case RANDOM_STAT_TYPE::HP_REGEN:
+				m_currentHPRegenPerSec -= randStat.randomStatValue;
+				break;
+
+			case RANDOM_STAT_TYPE::MP_REGEN:
+				m_currentMPRegenPerSec -= randStat.randomStatValue;
+				break;
+			}
+		}
 	}
 
 	// 새로운 아이템 장착 후 스탯 갱신하기
@@ -51,38 +96,128 @@ void Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& O
 	if (!initem)
 		return;
 
-	// todo : ItemTable에서 기본 스탯 찾아서 더하기
-	m_currentATK += initem->m_randomStat.atk;
-	m_currentDEF += initem->m_randomStat.def;
-	m_currentMaxHP += initem->m_randomStat.maxHP;
-	m_currentMaxMP += initem->m_randomStat.maxMP;
-	m_currentHPRegenPerSec += initem->m_randomStat.hpRegenPerSec;
-	m_currentMPRegenPerSec += initem->m_randomStat.mpRegenPerSec;
+	// ItemTable에서 기본 스탯 찾아서 더하기
+	const ItemData* pInItemData = ItemTable::GetItemData(initem->itemID);
+	if (pInItemData)
+	{
+		m_currentATK += pInItemData->baseStat.atk;
+		m_currentDEF += pInItemData->baseStat.def;
+		m_currentMaxHP += pInItemData->baseStat.maxHP;
+		m_currentMaxMP += pInItemData->baseStat.maxMP;
+		m_currentHPRegenPerSec += pInItemData->baseStat.hpRegenPerSec;
+		m_currentMPRegenPerSec += pInItemData->baseStat.mpRegenPerSec;
+	}
+
+
+	// 랜덤 스탯 더하기
+	uint8 statCount = outitem->randomStatCount;
+	for (int i = 0; i < statCount; i++)
+	{
+		const RandomStatResult& randStat = outitem->randomStat[i];
+		switch (randStat.randomStatType)
+		{
+		case RANDOM_STAT_TYPE::ATK:
+			m_currentATK += randStat.randomStatValue;
+			break;
+
+		case RANDOM_STAT_TYPE::DEF:
+			m_currentDEF += randStat.randomStatValue;
+			break;
+
+		case RANDOM_STAT_TYPE::MAX_HP:
+			m_currentMaxHP += randStat.randomStatValue;
+			break;
+
+		case RANDOM_STAT_TYPE::MAX_MP:
+			m_currentMaxMP += randStat.randomStatValue;
+			break;
+
+		case RANDOM_STAT_TYPE::HP_REGEN:
+			m_currentHPRegenPerSec += randStat.randomStatValue;
+			break;
+
+		case RANDOM_STAT_TYPE::MP_REGEN:
+			m_currentMPRegenPerSec += randStat.randomStatValue;
+			break;
+		}
+	}
+
+	return true;
 }
 
-void Equipment::UnEquippedItem(EQUIP_SLOT slotNum, ITEM_UID& OutItemUID)
+bool Equipment::UnEquippedItem(EQUIP_SLOT slotNum, ITEM_UID& OutItemUID)
 {
+	if (!IndexRangeCheck(slotNum))
+		return false;
+
 	OutItemUID = m_equipment[(int)slotNum];
 
 	// 캐시 스탯 갱신
 	const UserItem* outitem = m_pStorage->FindItem(OutItemUID);
 	if (outitem)
 	{
-		// todo : ItemTable 찾아서 기본 스탯 찾아서 빼기
+		// ItemTable 찾아서 기본 스탯 찾아서 빼기
+		const ItemData* pData = ItemTable::GetItemData(outitem->itemID);
+		if (pData)
+		{
+			m_currentATK -= pData->baseStat.atk;
+			m_currentDEF -= pData->baseStat.def;
+			m_currentMaxHP -= pData->baseStat.maxHP;
+			m_currentMaxMP -= pData->baseStat.maxMP;
+			m_currentHPRegenPerSec -= pData->baseStat.hpRegenPerSec;
+			m_currentMPRegenPerSec -= pData->baseStat.mpRegenPerSec;
+		}
+
 
 		// 랜덤 스탯 빼기
-		m_currentATK -= outitem->m_randomStat.atk;
-		m_currentDEF -= outitem->m_randomStat.def;
-		m_currentMaxHP -= outitem->m_randomStat.maxHP;
-		m_currentMaxMP -= outitem->m_randomStat.maxMP;
-		m_currentHPRegenPerSec -= outitem->m_randomStat.hpRegenPerSec;
-		m_currentMPRegenPerSec -= outitem->m_randomStat.mpRegenPerSec;
+		uint8 statCount = outitem->randomStatCount;
+		for (int i = 0; i < statCount; i++)
+		{
+			const RandomStatResult& randStat = outitem->randomStat[i];
+			switch (randStat.randomStatType)
+			{
+			case RANDOM_STAT_TYPE::ATK:
+				m_currentATK -= randStat.randomStatValue;
+				break;
+
+			case RANDOM_STAT_TYPE::DEF:
+				m_currentDEF -= randStat.randomStatValue;
+				break;
+
+			case RANDOM_STAT_TYPE::MAX_HP:
+				m_currentMaxHP -= randStat.randomStatValue;
+				break;
+
+			case RANDOM_STAT_TYPE::MAX_MP:
+				m_currentMaxMP -= randStat.randomStatValue;
+				break;
+
+			case RANDOM_STAT_TYPE::HP_REGEN:
+				m_currentHPRegenPerSec -= randStat.randomStatValue;
+				break;
+
+			case RANDOM_STAT_TYPE::MP_REGEN:
+				m_currentMPRegenPerSec -= randStat.randomStatValue;
+				break;
+			}
+		}
 	}
 
 	m_equipment[(int)slotNum] = ItemUID::ITEM_UID_INVALID_ID;
+
+	return true;
 }
 
-bool Equipment::EquipmentSlotRangeCheck(EQUIP_SLOT slot)
+ITEM_UID Equipment::GetEquippedItem(EQUIP_SLOT slotNum)
+{
+	if (!IndexRangeCheck(slotNum))
+		return ItemUID::ITEM_UID_INVALID_ID;
+
+	return m_equipment[(int)slotNum];
+}
+
+
+bool Equipment::IndexRangeCheck(EQUIP_SLOT slot)
 {
 	if ((int)slot < (int)EQUIP_SLOT::NONE || (int)slot >= (int)EQUIP_SLOT::MAX)
 		return false;

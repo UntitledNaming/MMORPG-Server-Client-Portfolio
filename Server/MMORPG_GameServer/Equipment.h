@@ -22,14 +22,15 @@ public:
 	uint16   GetHPRegen() const { return m_currentHPRegenPerSec; }
 	uint16   GetMPRegen()const { return m_currentMPRegenPerSec; }
 
-	void     EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& OutItemUID);
-	void     UnEquippedItem(EQUIP_SLOT slotNum, ITEM_UID& OutItemUID);
-	ITEM_UID GetEquippedItem(EQUIP_SLOT slotNum) { return m_equipment[(int)slotNum]; }
-
-	bool     EquipmentSlotRangeCheck(EQUIP_SLOT slot);
+	bool     EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& OutItemUID);
+	bool     UnEquippedItem(EQUIP_SLOT slotNum, ITEM_UID& OutItemUID);
+	ITEM_UID GetEquippedItem(EQUIP_SLOT slotNum);
 
 private:
-	ITEM_UID          m_equipment[(int)EQUIP_SLOT::MAX] = {ItemUID::ITEM_UID_INVALID_ID};     // Currently Equipped Items;
+	bool     IndexRangeCheck(EQUIP_SLOT slot);
+
+private:
+	ITEM_UID          m_equipment[(int)EQUIP_SLOT::MAX];     // Currently Equipped Items;
 	CUserItemStorage* m_pStorage = nullptr;
 
 	// Cache Data

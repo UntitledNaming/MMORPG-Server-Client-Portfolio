@@ -12,8 +12,10 @@ void FieldSector::Init()
 {
 	m_usersCount = 0;
 	m_monsterCount = 0;
+	m_itemCount = 0;
 	m_users.resize(FieldConst::MAX_SECTOR_USER_COUNT);
 	m_monsters.resize(FieldConst::MAX_SECTOR_MONSTER_COUNT);
+	m_items.resize(FieldConst::MAX_SECTOR_ITEM_COUNT);
 }
 
 bool FieldSector::AddUser(CUser* user)
@@ -52,11 +54,30 @@ bool FieldSector::AddMonster(CMonster* monster)
 
 void FieldSector::RemoveMonster(CMonster* monster)
 {
-
 	CMonster* pOther = m_monsters[m_monsterCount - 1];
 	m_monsters[monster->GetSectorIdx()] = pOther;
 	pOther->SetSectorIdx(monster->GetSectorIdx());
 	m_monsterCount--;
 
 	pOther->removecount++;
+}
+
+bool FieldSector::AddItem(FieldDropItem* item)
+{
+	if (m_itemCount >= FieldConst::MAX_SECTOR_ITEM_COUNT)
+		return false;
+
+	m_items[m_itemCount] = item;
+	item->sectorIdx = m_itemCount;
+	m_itemCount++;
+
+	return true;
+}
+
+void FieldSector::RemoveItem(FieldDropItem* item)
+{
+	FieldDropItem* pOtherItem = m_items[m_itemCount - 1];
+	m_items[item->sectorIdx] = pOtherItem;
+	pOtherItem->sectorIdx = item->sectorIdx;
+	m_itemCount--;
 }

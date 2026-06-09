@@ -18,7 +18,9 @@
 #include "FieldGroup.h"
 #include "AuthGroup.h"
 #include "CGameLibrary.h"
+#include "ItemTable.h"
 #include "CUserItemStorage.h"
+#include "FieldDropItemPool.h"
 #include "GameServer.h"
 
 CMPoolTLS<UserItem>* m_itemPool = nullptr;
@@ -55,7 +57,9 @@ GameServer::~GameServer()
 	// 게임 라이브러리 종료(각 객체에서 직렬화 버퍼 사용하기 때문에 게임 라이브러리 먼저 종료하면 직렬화 버퍼 TLS 풀 파괴되어 버림)
 	m_pGameLib->Stop();
 
-	CUserItemStorage::ItemPoolDestory();
+	CUserItemStorage::ItemPoolDestroy();
+	ItemTable::Destroy();
+	FieldDropItemPool::Destroy();
 }
 
 void GameServer::Init()
@@ -67,6 +71,8 @@ void GameServer::Init()
 	m_endFlag = false;
 
 	CUserItemStorage::ItemPoolInit();
+	ItemTable::Init();
+	FieldDropItemPool::Init();
 	m_monitorThread = std::thread(&GameServer::Monitoring, this);
 }
 

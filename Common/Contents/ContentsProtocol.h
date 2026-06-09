@@ -303,11 +303,160 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_CS_RESPAWN_PLAYER = 1024;
+    constexpr uint16 PACKET_SC_CREATE_FIELD_DROP_ITEM = 1024;
     //---------------------------------------------------------------
-    // Character Delete Msg 					Client -> Server
+    //  Create Drop Item Msg 					Server -> Client
     //
-    //  (no payload)
+    //	8	-	DropID	     	(uint64)
+    //  4   -   ItemID          (uint32)
+    //  4   -   Xpos            (float)
+    //  4   -   Ypos            (float)
+    //  4   -   Zpos            (float)
+    //  2   -   Count           (uint16)
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_DELETE_FIELD_DROP_ITEM = 1025;
+    //---------------------------------------------------------------
+    //  Delete Drop Item Msg 					Server -> Client
+    //
+    //	8	-	DropID	     	(uint64)
+    // 
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_CS_PICK_UP_ITEM = 1026;
+    //---------------------------------------------------------------
+    //  Pick Up Item Msg 					    Client -> Server
+    //
+    //  8   -  DropUID          (uint64)
+    // 
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_CS_USE_ITEM = 1027;
+    //---------------------------------------------------------------
+    //  Use Item Msg 					        Client -> Server
+    //
+    //  1   -  SlotType         (uint8)
+    //  2   -  SlotIndex        (int16)
+    // 
+    //---------------------------------------------------------------
+
+
+    constexpr uint16 PACKET_CS_DELETE_ITEM = 1028;
+    //---------------------------------------------------------------
+    //  Delete Slot Item Msg 					Client -> Server
+    //
+    //  1   -  SlotType         (uint8)
+    //  2   -  SlotIndex        (int16)
+    // 
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_CS_SWAP_SLOT = 1029;
+    //---------------------------------------------------------------
+    //  Swap Item Msg 					        Client -> Server
+    //
+    //  1   -  FromSlotType     (uint8)
+    //  2   -  FromSlotIndex    (int16)
+    //  1   -  ToSlotType       (uint8)
+    //  2   -  ToSlotIndex      (int16)
+    // 
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_PICKUP_EQUIPMENT_ITEMS = 1030;
+    //---------------------------------------------------------------
+    //  Pick Up Items Msg 					    Server -> Client
+    //
+    //  4   -  ItemID                  (uint32)
+    //  2   -  SlotIndex               (int16)
+    //  2   -  Count                   (uint16)
+    //  1   -  RandomStatCount         (uint8)
+    //  
+    //  per RandomStatCount
+    //  1   -  RandomStatType          (uint8)
+    //  2   -  RandomStatValue         (uint16)
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_PICKUP_CONSUMABLE_ITEMS = 1031;
+    //---------------------------------------------------------------
+    //  Pick Up Items Msg 					    Server -> Client
+    //
+    //  4   -  ItemID                  (uint32)
+    //  2   -  UpdateSlotCount         (uint16)
+    // 
+    //  per 
+    //  2   -  SlotIndex               (int16)
+    //  2   -  NewItemCount            (uint16)
+    //  
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_USE_CONSUMABLE_ITEM = 1032;
+    //---------------------------------------------------------------
+    //  Use Consumable Item Msg     		    Server -> Client
+    //
+    //  1   -  Success          (uint8)
+    // 
+    //  if Success
+    //  1   -  SlotType         (uint8)
+    //  2   -  NewItemCount     (uint16)
+    //  2   -  SlotIndex        (int16) 
+    // 
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_EQUIP_ITEM = 1032;
+    //---------------------------------------------------------------
+    //  Use EquipmentItem Msg     			    Server -> Client
+    //  
+    //  1   -  Success          (uint8)
+    // 
+    //  if Success
+    //  1   -  UpdateSlotCount  (uint8)
+    //  
+    //  per SlotCount
+    //  1   -  SlotState        (uint8) Exist or Empty
+    //  1   -  SlotType         (uint8)
+    //  2   -  SlotIndex        (int16)
+    //  4   -  ItemID           (uint32)
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_UNEQUIP_ITEM = 1032;
+    //---------------------------------------------------------------
+    //  Use Item Msg     					    Server -> Client
+    //
+    //  1   -  Success                   (uint8)
+    // 
+    //  if Success
+    //  2   -  InventorySlotIndex        (int16)
+    // 
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_DELETE_ITEM = 1033;
+    //---------------------------------------------------------------
+    //  Delete Item Msg 					    Server -> Client
+    //
+    //  1   -  Success                   (uint8) 
+    // 
+    //---------------------------------------------------------------
+
+
+    constexpr uint16 PACKET_SC_SWAP_SLOT = 1034;
+    //---------------------------------------------------------------
+    //  Swap Item Msg   					    Server -> Client
+    //
+    //  1   -  Success                   (uint8) 
+    // 
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_LEVEL_UP = 1034;
+    //---------------------------------------------------------------
+    //  Swap Item Msg   					    Server -> Client
+    //
+    //  2   -  Level                     (uint16) 
+    //  8   -  RequiredExp               (uint64) 
+    //  2   -  Atk                       (int16) 
+    //  2   -  Def                       (int16) 
+    //  2   -  MaxHP                     (int16) 
+    //  2   -  MaxMP                     (int16) 
+    //  2   -  HPRegen                   (uint16) 
+    //  2   -  MPRegen                   (uint16) 
     // 
     //---------------------------------------------------------------
 }

@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <cmath>
 #include <chrono>
 #include <stack>
@@ -18,10 +19,13 @@
 #include "SectorPos.h"
 #include "Inventory.h"
 #include "Equipment.h"
+#include "QuickSlot.h"
 #include "CUserItemStorage.h"
 #include "IUser.h"
 #include "CUser.h"
 #include "HitSearchBuilder.h"
+#include "ItemTable.h"
+#include "FieldDropItemPool.h"
 #include "FieldGroup.h"
 
 uint64 FieldGroup::movePacketCount = 0;
@@ -139,6 +143,36 @@ void FieldGroup::SendMonsterStop(CMonster* pMonster)
 	CMessage::Free(pStopMonster);
 }
 
+void FieldGroup::SendCreateFieldDropItem(FieldDropItem* pItem)
+{
+	CMessage* pCreateFieldDropItem = PacketBuilder::CreateFieldDropItem(pItem);
+
+	SectorAround CreateAround;
+	SectorPos::SectorFind(CreateAround, pItem->sectorPos);
+
+	for (int i = 0; i < CreateAround.m_count; i++)
+	{
+		SendPacket_SectorOne(pCreateFieldDropItem, CreateAround.m_Around[i].GetX(), CreateAround.m_Around[i].GetY(), nullptr);
+	}
+
+	CMessage(pCreateFieldDropItem);
+}
+
+void FieldGroup::SendDeleteFieldDropItem(FieldDropItem* pItem)
+{
+	CMessage* pDeleteFieldDropItem = PacketBuilder::DeleteFieldDropItem(pItem);
+
+	SectorAround DeleteAround;
+	SectorPos::SectorFind(DeleteAround, pItem->sectorPos);
+
+	for (int i = 0; i < DeleteAround.m_count; i++)
+	{
+		SendPacket_SectorOne(pDeleteFieldDropItem, DeleteAround.m_Around[i].GetX(), DeleteAround.m_Around[i].GetY(), nullptr);
+	}
+
+	CMessage(pDeleteFieldDropItem);
+}
+
 void FieldGroup::AddMonsterToSector(CMonster* pMonster, uint16 secX, uint16 secY)
 {
 	m_sectors[secY][secX].AddMonster(pMonster);
@@ -250,10 +284,6 @@ void FieldGroup::OnRecv(UINT64 sessionID, CMessage* pMessage)
 	case PACKET_CS_USE_SKILL:
 		HandleSkillUse(sessionID, pMessage);
 		break;
-
-	case PACKET_CS_RESPAWN_PLAYER:
-		HandleRespawn(sessionID, pMessage);
-		break;
 	}
 }
 
@@ -278,7 +308,7 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 	SectorAround sectAround;
 	SectorPos::SectorFind(sectAround, pOnUser->GetSectorPos());
 
-	// 섹터 순회하면서 캐릭터 생성 메세지 보내기
+	// 섹터 순회하면서 생성 관련 메세지 보내기
 	for (int i = 0; i < sectAround.m_count; i++)
 	{
 		uint16 curSecXpos = sectAround.m_Around[i].GetX();
@@ -329,15 +359,25 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 				CMessage::Free(pMonsterMove);
 			}
 		}
+
+		// 주변 섹터에 있는 아이템에 대한 생성 메세지 보내기
+		uint16 curItemCount = m_sectors[curSecYpos][curSecXpos].GetItemCount();
+		for (int itemcount = 0; itemcount < curItemCount; itemcount++)
+		{
+			CMessage* pCreateItemMsg = PacketBuilder::CreateFieldDropItem(m_sectors[curSecYpos][curSecXpos].GetFieldDropItem(itemcount));
+			SendPacket(pOnUser->GetSessionID(), pCreateItemMsg);
+			CMessage::Free(pCreateItemMsg);
+		}
 	}
 }
 
 void FieldGroup::OnUpdate()
 {
 	MovementProc();
-	UserManaRegen();
 	MonsterRegen();
 	MonsterAIUpdate();
+	FieldDropItemExpired();
+	UpdateUserRecovery();
 	fieldframe++;
 }
 
@@ -385,6 +425,7 @@ void FieldGroup::SendPacket_HitSectors(HitResult& result)
 
 	SectorPos sendflagArray[20];
 	int pushCount = 0;
+
 
 	// 피격자 들 순회하면서 피격자 섹터에 있는 사람들에게 피격 메세지 전달하기
 	for (int i = 0; i < result.HitUserCount; i++)
@@ -622,7 +663,6 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 		SectorUpdate(pUser, newSec);
 	}
 
-
 	// Movement Update 패킷 뿌리기
 	CMessage* pInputUpdateMsg = PacketBuilder::UpdateCharacterMovement(pUser);
 	SendPacket_SectorAround(pInputUpdateMsg, pUser);
@@ -690,10 +730,32 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 	}
 
 	// 데미지 계산 및 hp 수정
+	UserLevelStat resultStat = {};
+
 	for (int i = 0; i < result.HitMonsterCount; i++)
 	{
 		uint32 damage = pUser->CalBaseAttackDamage(result.HitMonsterArray[i], curTime);
 		result.HitMonsterArray[i]->Damage(damage);
+
+		if (result.HitMonsterArray[i]->IsAlive())
+			continue;
+
+		// 아이템 생성 실패시 다음
+		CreateFieldDropItem(*result.HitMonsterArray[i]);
+
+		// 레벨업 체크
+		resultStat.level = 0;
+		if (!pUser->GetExp(result.HitMonsterArray[i]->GetExp(), resultStat))
+			continue;
+
+	}
+
+	// 레벨업을 했으면 레벨업 패킷 유저에게 보내기
+	if (resultStat.level != 0)
+	{
+		CMessage* pLevelUp = PacketBuilder::LevelUp(resultStat);
+		SendPacket(sessionID, pLevelUp);
+		CMessage::Free(pLevelUp);
 	}
 
 	// 공격자 swing 메세지 뿌리기 
@@ -727,11 +789,9 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 
 		CMessage::Free(pDeleteMonster);
 
-
 		m_sectors[pHitMonster->GetSectorY()][pHitMonster->GetSectorX()].RemoveMonster(pHitMonster);
 
 	}
-
 
 }
 
@@ -818,12 +878,36 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 	}
 
 	// 데미지 계산 및 hp 수정
+	UserLevelStat resultStat = {};
+
 	for (int i = 0; i < result.HitMonsterCount; i++)
 	{
 		uint32 damage = pUser->CalSkillDamage(skillslot, result.HitMonsterArray[i], curTime);
 		result.HitMonsterArray[i]->Damage(damage);
+
+		// 살아있으면 Pass
+		if (result.HitMonsterArray[i]->IsAlive())
+			continue;
+
+		// 아이템 생성
+		CreateFieldDropItem(*result.HitMonsterArray[i]);
+
+		
+		// 레벨업 체크
+		resultStat.level = 0;
+		if (!pUser->GetExp(result.HitMonsterArray[i]->GetExp(), resultStat))
+			continue;
+
+		// 추후 몬스터 잡으면서 여러번 레벨업 할 수 있음. 레벨업 패킷은 최종 결과만 메세지 보냄. 
 	}
 
+	// 레벨업을 했으면 레벨업 패킷 유저에게 보내기
+	if (resultStat.level != 0)
+	{
+		CMessage* pLevelUp = PacketBuilder::LevelUp(resultStat);
+		SendPacket(sessionID, pLevelUp);
+		CMessage::Free(pLevelUp);
+	}
 
 	SendPacket_HitSectors(result);
 
@@ -854,41 +938,174 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 
 }
 
-void FieldGroup::HandleRespawn(uint64 sessionID, CMessage* pMessage)
+void FieldGroup::HandlePickUpItems(uint64 sessionID, CMessage* pMessage)
 {
-	// 현재 위치에서 본인 캐릭터 리스폰 
+	CUser* pUser = nullptr;
 
 	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
 	if (it == m_userLookUpTable.end())
 		return;
 
+	uint64 dropID;
+	*pMessage >> dropID;
+
+	std::unordered_map<uint64, FieldDropItem*>::iterator it2 = m_dropItemLookUpTable.find(sessionID);
+	if (it2 == m_dropItemLookUpTable.end())
+		return;
+
+	FieldDropItem* pItem = it2->second;
+
+	// 해당 아이템을 유저 인벤토리에 넣기 실패하면 그냥 리턴
+	const ItemData* itemData = ItemTable::GetItemData(pItem->itemID);
+	if (itemData == nullptr)
+		return;
+
+	PickUpConsumableResult resultConsume = {};
+	PickUpEquipResult      resultEquip = {};
+	CMessage* pPickUpMsg = nullptr;
+
+
+	switch (itemData->itemType)
+	{
+	case ITEM_TYPE::CONSUMABLE:
+	{
+		if (!pUser->GetConsumableItem(*pItem, resultConsume))
+			return;
+
+		pPickUpMsg = PacketBuilder::PickUpConsumableFieldDropItem(&resultConsume);
+
+		break;
+	}
+	case ITEM_TYPE::EQUIPMENT:
+	{
+		if (!pUser->GetEquipmentItem(*pItem, resultEquip))
+			return;
+
+		pPickUpMsg = PacketBuilder::PickUpEquipFieldDropItem(&resultEquip);
+
+		break;
+	}
+	}
+
+	if (pPickUpMsg == nullptr)
+		return;
+
+	// 인벤토리에 넣은 아이템의 DropUID 삭제 패킷 보내기
+	SendDeleteFieldDropItem(pItem);
+
+	// PickUp 결과 메세지 보내주기
+	SendPacket(sessionID, pPickUpMsg);
+
+	CMessage::Free(pPickUpMsg);
+
+	// 인벤토리에 넣었으니 자료구조에서 제거 후 풀에 반납
+	m_sectors[pItem->sectorPos.GetY()][pItem->sectorPos.GetX()].RemoveItem(pItem);
+	m_dropItemLookUpTable.erase(pItem->dropUID);
+	FieldDropItemPool::FreeItem(pItem);
+}
+
+void FieldGroup::HandleUseItem(uint64 sessionID, CMessage* pMessage)
+{
+	uint8 type;
+	int16 slotIndex;
+
+	*pMessage >> type;
+	*pMessage >> slotIndex;
+
+	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
+	if (it == m_userLookUpTable.end())
+		return;
 
 	CUser* pUser = it->second;
 
-	// 현재 섹터에 내 캐릭터 삭제 메세지 보내기(본인 포함)
-	FieldSector& oldSec = m_sectors[pUser->GetSectorYpos()][pUser->GetSectorXpos()];
-	SectorAround DeleteAround;
-	SectorPos::SectorFind(DeleteAround, pUser->GetSectorPos());
+	// 유저 함수 호출 및 결과 구조체 레퍼런스 전달
+	UseItemResult result;
+	result.success = false;
+	result.resultType = USE_ITEM_RESULT::NONE;
+	result.consumableResult = {};
+	result.unEquipResult = {};
+	result.consumableResult = {};
 
-	CMessage* pDeleteMyCharacter = PacketBuilder::DeleteCharacter(pUser);
-	for (int i = 0; i < DeleteAround.m_count; i++)
+	switch (static_cast<SLOT_TYPE>(type))
 	{
-		SendPacket_SectorOne(pDeleteMyCharacter, pUser->GetSectorXpos(), pUser->GetSectorYpos(), nullptr);
+	case SLOT_TYPE::EQUIPMENT:
+	{
+		result.success = pUser->UseEquipmentItem(slotIndex, result);
+		break;
 	}
-	CMessage::Free(pDeleteMyCharacter);
 
-	// 캐릭터 리스폰
-	pUser->ResPawn();
+	case SLOT_TYPE::INVENTORY:
+	{
+		result.success = pUser->UseInventoryItem(slotIndex, result);
+		break;
+	}
 
-	// 나에게 내 캐릭 생성 메세지와 주위 섹터 유저들에게 내 캐릭 생성 메세지 보내기
-	// 본인 캐릭터 생성 메세지 만들고 보내기
-	CMessage* pCreateMyChrToMeMsg = PacketBuilder::CreateMyCharacter(pUser);
-	SendPacket(pUser->GetSessionID(), pCreateMyChrToMeMsg);
-	CMessage::Free(pCreateMyChrToMeMsg);
+	case SLOT_TYPE::QUICKSLOT:
+	{
+		result.success = pUser->UseQuickSlotItem(slotIndex, result);
+		break;
+	}
 
-	CMessage* pCreateMyChrToOther = PacketBuilder::CreateOtherCharacter(pUser);
-	SendPacket_SectorAround(pCreateMyChrToOther, pUser, false);
-	CMessage::Free(pCreateMyChrToOther);
+	default:
+		Disconnect(sessionID);
+		return;
+	}
+
+	// 응답 패킷 보내기
+	CMessage* pUseItem = PacketBuilder::UseItem(result);
+	SendPacket(sessionID, pUseItem);
+	CMessage::Free(pUseItem);
+}
+
+void FieldGroup::HandleDeleteItem(uint64 sessionID, CMessage* pMessage)
+{
+	uint8 type;
+	int16 slotIndex;
+
+	*pMessage >> type;
+	*pMessage >> slotIndex;
+
+	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
+	if (it == m_userLookUpTable.end())
+		return;
+
+	CUser* pUser = it->second;
+
+	// 유저에 함수 호출
+	bool Success = false;
+	Success = pUser->DeleteItem(slotIndex, static_cast<SLOT_TYPE>(type));
+
+	// 응답 패킷 보내기
+	CMessage* pDeleteItemMsg = PacketBuilder::DeleteItem(Success);
+	SendPacket(sessionID, pDeleteItemMsg);
+	CMessage::Free(pDeleteItemMsg);
+}
+
+void FieldGroup::HandleSwapSlot(uint64 sessionID, CMessage* pMessage)
+{
+	uint8 fromtype;
+	uint8 totype;
+	int16 fromslotIndex;
+	int16 toslotIndex;
+
+	*pMessage >> fromtype;
+	*pMessage >> fromslotIndex;
+	*pMessage >> totype;
+	*pMessage >> toslotIndex;
+
+	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
+	if (it == m_userLookUpTable.end())
+		return;
+
+	CUser* pUser = it->second;
+
+	// 유저에 함수 호출
+	bool Success = pUser->ItemSlotChange(static_cast<SLOT_TYPE>(fromtype), fromslotIndex, static_cast<SLOT_TYPE>(totype), toslotIndex);
+
+	// 응답 패킷 보내기
+	CMessage* pSwapItem = PacketBuilder::SwapSlot(Success);
+	SendPacket(sessionID, pSwapItem);
+	CMessage::Free(pSwapItem);
 }
 
 void FieldGroup::MovementProc()
@@ -967,6 +1184,13 @@ void FieldGroup::SectorUpdate(CUser* pUser, const SectorPos& newSec)
 			CMessage::Free(pDeleteMonster);
 		}
 
+		for (int count = 0; count < sector.GetItemCount(); count++)
+		{
+			CMessage* pDeleteItem = PacketBuilder::DeleteFieldDropItem(sector.GetFieldDropItem(count));
+			SendPacket(pUser->GetSessionID(), pDeleteItem);
+			CMessage::Free(pDeleteItem);
+		}
+
 	}
 
 	// 새롭게 시야에 들어온 캐릭터들 및 몬스터에 대한 생성 메세지를 내 캐릭터에게 보내기
@@ -999,26 +1223,19 @@ void FieldGroup::SectorUpdate(CUser* pUser, const SectorPos& newSec)
 			}
 
 		}
-	}
 
+		for (int count = 0; count > sector.GetItemCount(); count++)
+		{
+			FieldDropItem* pItem = sector.GetFieldDropItem(count);
+
+			CMessage* pCreateItem = PacketBuilder::CreateFieldDropItem(pItem);
+			SendPacket(pUser->GetSessionID(), pCreateItem);
+			CMessage::Free(pCreateItem);
+		}
+
+	}
 
 	pUser->SetNewSectorPos(newSec);
-}
-
-void FieldGroup::UserManaRegen()
-{
-	uint32 curTime = timeGetTime();
-
-	if (curTime - m_ManaRegenOldTime < 1000)
-		return;
-
-	CUser* targetUser = nullptr;
-	std::unordered_map<uint64, CUser*>::iterator it;
-
-	for (it = m_userLookUpTable.begin(); it != m_userLookUpTable.end(); ++it)
-	{
-		it->second->ManaRegen(curTime);
-	}
 }
 
 void FieldGroup::MonsterAIUpdate()
@@ -1030,6 +1247,56 @@ void FieldGroup::MonsterAIUpdate()
 
 		m_grossMonsterPoolArray[i].AIUpdate();
 	}
+}
+
+void FieldGroup::FieldDropItemExpired()
+{
+	// 전체 자료구조 순회하면서 기간 만료된거 지우기
+	FieldDropItem* pItem = nullptr;
+	std::unordered_map<uint64, FieldDropItem*>::iterator it = m_dropItemLookUpTable.begin();
+
+	while (it != m_dropItemLookUpTable.end())
+	{
+		pItem = it->second;
+
+		// 유효 기간 안지났으면 시간만 올리고 pass
+		if (pItem->expiredTime < FieldDropItemConst::FIELD_DROP_ITEM_EXPIRED_TIME)
+		{
+			pItem->expiredTime += FieldConst::UPDATE_LOOP_TIME;
+			++it;
+			continue;
+		}
+
+		// 주변 섹터들에게 아이템 삭제 메세지 보내기
+		SendDeleteFieldDropItem(pItem);
+
+		// 섹터에서 아이템 제거
+		m_sectors[pItem->sectorPos.GetY()][pItem->sectorPos.GetX()].RemoveItem(pItem);
+
+		// 전체 자료구조에서 제거
+		m_dropItemLookUpTable.erase(it);
+
+		// 메모리 풀에 반납
+		FieldDropItemPool::FreeItem(pItem);
+	}
+
+}
+
+void FieldGroup::UpdateUserRecovery()
+{
+	uint32 curTime = timeGetTime();
+	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.begin();
+	for (; it != m_userLookUpTable.end(); ++it)
+	{
+		CUser* pUser = it->second;
+
+		// 죽었으면 리커버리 안함.
+		if (!pUser->IsAlive())
+			continue;
+
+		pUser->UpdateRecovery(curTime);
+	}
+
 }
 
 void FieldGroup::MonsterSpawnInit()
@@ -1103,5 +1370,30 @@ void FieldGroup::MonsterRegen()
 		}
 
 	}
+}
+
+void FieldGroup::CreateFieldDropItem(CMonster& monster)
+{
+	// 만약 죽었으면 필드 드랍 아이템 생성하기
+	if (monster.IsAlive())
+		return;
+
+	FieldDropItem* pItem = FieldDropItemPool::CreateItem(monster.GetLocation());
+	if (pItem == nullptr)
+		return;
+
+	// 섹터 및 관리 자료구조에 넣기
+	m_dropItemLookUpTable.insert(std::pair<uint64, FieldDropItem*>(pItem->dropUID, pItem));
+	if (!m_sectors[pItem->sectorPos.GetY()][pItem->sectorPos.GetX()].AddItem(pItem))
+	{
+		// 섹터에 못 넣으면 그냥 다 반납
+		m_dropItemLookUpTable.erase(pItem->dropUID);
+		FieldDropItemPool::FreeItem(pItem);
+		return;
+	}
+
+	SendCreateFieldDropItem(pItem);
+
+	return;
 }
 

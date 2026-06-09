@@ -80,7 +80,7 @@ enum class EQUIP_SLOT : uint8
 	CHEST,
 	PANTS,
 	BOOTS,
-	GLOVES,
+	WEAPON,
 	MAX,
 };
 
@@ -88,4 +88,55 @@ enum class ITEM_RARITY : uint8
 {
 	NORMAL,
 	MAGIC,
+};
+
+enum class FIELD_DROP_TYPE : uint8
+{
+	NONE,
+	HP_POTION,
+	MP_POTION,
+	NORMAL_EQUIPMENT,
+	MAGIC_EQUIPMENT,
+};
+
+enum class RANDOM_STAT_TYPE : uint8
+{
+	NONE,
+	ATK,
+	DEF,
+	MAX_HP,
+	MAX_MP,
+	HP_REGEN,
+	MP_REGEN,
+	MAX,
+};
+
+enum class SLOT_TYPE : uint8
+{
+	NONE,
+	INVENTORY,
+	EQUIPMENT,
+	QUICKSLOT,
+};
+
+enum class SLOT_STATE : uint8
+{
+	NONE,
+	EMPTY,
+	EXIST,
+};
+
+enum class USE_ITEM_RESULT : uint8
+{
+	NONE,
+	CONSUME,
+	EQUIP,
+	UNEQUIP,
+};
+
+enum class CONSUMABLE_ITEM_TYPE : uint8
+{
+	SMALL_HP_POTION,
+	SMALL_MP_POTION,
+	MAX,
 };

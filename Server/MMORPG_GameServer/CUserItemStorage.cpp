@@ -7,6 +7,7 @@
 #include "CUserItemStorage.h"
 
 CMPoolTLS<UserItem>* CUserItemStorage::m_itemPool = nullptr;
+uint64               CUserItemStorage::m_refCount = 0;
 
 void CUserItemStorage::ItemPoolInit()
 {
@@ -14,12 +15,34 @@ void CUserItemStorage::ItemPoolInit()
 		return;
 
 	m_itemPool = new CMPoolTLS<UserItem>;
+	m_refCount = 0;
 }
 
 void CUserItemStorage::ItemPoolDestroy()
 {
-	delete m_itemPool;
-	m_itemPool = nullptr;
+	if (m_refCount == 0)
+	{
+		delete m_itemPool;
+		m_itemPool = nullptr;
+	}
+}
+
+void CUserItemStorage::Init()
+{
+	m_storage.clear();
+	m_refCount++;
+}
+
+void CUserItemStorage::Destroy()
+{
+	std::unordered_map<ITEM_UID, UserItem*>::iterator it = m_storage.begin();
+	for (; it != m_storage.end(); ++it)
+	{
+		m_itemPool->Free(it->second);
+	}
+
+	m_storage.clear();
+	m_refCount--;
 }
 
 bool CUserItemStorage::CreateItem(const ItemCreateInfo& Info, ITEM_UID& OutItemUID)
@@ -30,15 +53,20 @@ bool CUserItemStorage::CreateItem(const ItemCreateInfo& Info, ITEM_UID& OutItemU
 	if (uid == ItemUID::ITEM_UID_INVALID_ID)
 	{
 		m_itemPool->Free(pItem);
-		OutItemUID = uid;
+		OutItemUID = ItemUID::ITEM_UID_INVALID_ID;
 		return false;
 	}
 
-	pItem->m_itemUID = uid;
-	pItem->m_count = Info.count;
-	pItem->m_itemID = Info.itemID;
-	pItem->m_rarity = Info.rarity;
-	pItem->m_randomStat = Info.randomStat;
+	pItem->itemUID = uid;
+	pItem->count = Info.count;
+	pItem->itemID = Info.itemID;
+	pItem->randomStatCount = Info.randomStatCount;
+
+	for (int i = 0; i < Info.randomStatCount; i++)
+	{
+		pItem->randomStat[i].randomStatType = Info.randomStat[i].randomStatType;
+		pItem->randomStat[i].randomStatValue = Info.randomStat[i].randomStatValue;
+	}
 
 	m_storage.insert(std::pair<ITEM_UID, UserItem*>(uid, pItem));
 
@@ -67,8 +95,7 @@ bool CUserItemStorage::ChangeItemCount(ITEM_UID ItemUID, uint16 NewCount)
 	if (it == m_storage.end())
 		return false;
 
-	it->second->m_count = NewCount;
-
+	it->second->count = NewCount;
 	return true;
 }
 
@@ -86,22 +113,23 @@ void CUserItemStorage::LoadItemFromDB(const DBItemInfo& Info)
 {
 	UserItem* pItem = m_itemPool->Alloc();
 
-	pItem->m_itemUID = Info.itemUID;
-	pItem->m_count = Info.count;
-	pItem->m_itemID = Info.itemID;
-	pItem->m_rarity = Info.rarity;
-	pItem->m_randomStat = Info.randomStat;
-
-	m_storage.insert(std::pair<ITEM_UID, UserItem*>(pItem->m_itemUID, pItem));
+	pItem->itemUID = Info.itemUID;
+	pItem->count = Info.count;
+	pItem->itemID = Info.itemID;
+	pItem->randomStatCount = Info.randomStatCount;
+	for (int i = 0; i < Info.randomStatCount; i++)
+	{
+		pItem->randomStat[i].randomStatType = Info.randomStat[i].randomStatType;
+		pItem->randomStat[i].randomStatValue = Info.randomStat[i].randomStatValue;
+	}
+	m_storage.insert(std::pair<ITEM_UID, UserItem*>(pItem->itemUID, pItem));
 }
 
-void CUserItemStorage::StorageDestroy()
+uint16 CUserItemStorage::GetItemCount(ITEM_UID InItemUID)
 {
-	std::unordered_map<ITEM_UID, UserItem*>::iterator it = m_storage.begin();
-	for (; it != m_storage.end(); ++it)
-	{
-		m_itemPool->Free(it->second);
-	}
+	std::unordered_map<ITEM_UID, UserItem*>::iterator it = m_storage.find(InItemUID);
+	if (it == m_storage.end())
+		return 0;
 
-	m_storage.clear();
+	return it->second->count;
 }

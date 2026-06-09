@@ -17,7 +17,7 @@ void CMonster::Init(uint64 monsterID,  uint16 monsterType, const Location& spawn
 	m_def = MonsterConst::BASE_DEF;
 	m_hp = MonsterConst::BASE_HP;
 	m_maxHP = MonsterConst::BASE_MAXHP;
-
+	m_exp = MonsterConst::GET_EXP;
 
 	// AI의 초기화
 	m_pMonsterAIComp = new MonsterAI;
@@ -76,6 +76,14 @@ void CMonster::Damage(uint16 damage)
 void CMonster::AIUpdate()
 {
 	m_pMonsterAIComp->Update();
+}
+
+bool   CMonster::IsAlive()
+{
+	if (m_hp > 0)
+		return true;
+
+	return false;
 }
 
 uint32 CMonster::CalBaseAttackDamage(CUser* target, uint32 curTime)

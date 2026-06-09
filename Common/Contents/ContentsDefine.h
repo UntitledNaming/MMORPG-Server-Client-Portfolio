@@ -8,8 +8,8 @@ namespace AuthConst
 
 namespace FieldConst
 {
-	constexpr uint32  UPDATE_LOOP_TIME          = 25;                                // 25ms Update Thread loop
-	constexpr uint32  UPDATE_FRAME              = 1000 / UPDATE_LOOP_TIME;           // Frame Loop Count per sec
+	constexpr uint32  UPDATE_LOOP_TIME                = 25;                          // 25ms Update Thread loop
+	constexpr uint32  UPDATE_FRAME                    = 1000 / UPDATE_LOOP_TIME;     // Frame Loop Count per sec
 	constexpr uint32  USER_TIMEOUT                    = 40000;
 	constexpr uint32  MAP_WORLD_OFFSET_X              = 200000;                      // (0,0) Sector Position X
 	constexpr uint32  MAP_WORLD_OFFSET_Y              = 200000;                      // (0,0) Sector Position Y
@@ -24,6 +24,7 @@ namespace FieldConst
 	constexpr float   Pi                              = 3.1415926535f;
 	constexpr uint16  MAX_SECTOR_USER_COUNT           = 30;
 	constexpr uint16  MAX_SECTOR_MONSTER_COUNT        = 30;
+	constexpr uint16  MAX_SECTOR_ITEM_COUNT           = 30;
 	constexpr uint32  MAX_GROSS_FIELD_MONSTER_COUNT   = 2533;
 	constexpr uint32  GROSS_FIELD_SECTOR_COUNT        = 2533;
 	constexpr uint32  GROSS_FIELD_AREA_ARRAY_COUNT    = 115;
@@ -36,16 +37,12 @@ namespace UserConst
 	constexpr uint16  NICK_MAX = 64;
 	constexpr float   WALK_SPEED = 600.0; // 600 cm/s
 	constexpr float   RUN_SPEED = 1200.0; // 1200 cm/s
-	constexpr float   JUMP_ANIMATION_TIME = 0.0f;
-	constexpr uint16  WARRIOR_MANA_REGEN = 5;
-	constexpr uint16  WARRIOR_HP_REGEN   = 5;
 	constexpr uint16  USER_SKILL_SLOT_COUNT = 4;
 	constexpr uint16  USER_BUFF_SKILL_SLOT_COUNT = 1;
 	constexpr uint16  USER_ACTIVE_SKILL_SLOT_COUNT = 3;
-	constexpr uint16  BASE_MAXHP = 100;
-	constexpr uint16  BASE_MAXMP = 100;
-	constexpr uint16  BASE_ATK = 5;
-	constexpr uint16  BASE_DEF = 1;
+	constexpr uint16  USER_MAX_LEVEL = 10;
+	constexpr uint32  USER_HP_REGEN_TIME = 1;
+	constexpr uint32  USER_MP_REGEN_TIME = 1;
 }
 
 namespace ClientMovement
@@ -87,8 +84,8 @@ namespace ClientAttack
 	////////////////////////////////////////////////
     //  2 Skill
     ////////////////////////////////////////////////
-	constexpr uint16 SPINSLASH_REQUIRED_MANA = 10;
-	constexpr uint32 SPINSLASH_COOLTIME_SEC = 7000;
+	constexpr uint16 SPINSLASH_REQUIRED_MANA = 20;
+	constexpr uint32 SPINSLASH_COOLTIME_SEC = 5000;
 	constexpr uint32 SPINSLASH_MAX_HIT_COUNT = 4;
 	constexpr float  SPINSLASH_RANGE = 400.0f;
 
@@ -97,7 +94,7 @@ namespace ClientAttack
     //  3 Skill
     ////////////////////////////////////////////////
 	constexpr uint16 GROUNDSMASH_REQUIRED_MANA = 30;
-	constexpr uint32 GROUNDSMASH_COOLTIME_SEC = 20000;
+	constexpr uint32 GROUNDSMASH_COOLTIME_SEC = 8000;
 	constexpr uint32 GROUNDSMASH_MAX_HIT_COUNT = 8;
 	constexpr float  GROUNDSMASH_RANGE = 600.0f;
 
@@ -112,10 +109,12 @@ namespace ClientAttack
 
 namespace MonsterConst
 {
-	constexpr uint16  BASE_ATK   = 5;
-	constexpr uint16  BASE_DEF   = 1;
-	constexpr uint16  BASE_HP    = 50;
-	constexpr uint16  BASE_MAXHP = 50;
+	constexpr uint16  GET_EXP    = 35;
+	constexpr uint16  BASE_ATK   = 15;
+	constexpr uint16  BASE_DEF   = 3;
+	constexpr uint16  BASE_HP    = 160;
+	constexpr uint16  BASE_MAXHP = 160;
+	constexpr uint16  BASE_EXP   = 35;
 	constexpr float   POS_SNAP_DIST_CM = 300.0f;
 	constexpr float   PATROL_SPEED = 300.0f;
 	constexpr float   CHASE_SPEED = 550.0f;
@@ -142,14 +141,49 @@ namespace UserInventory
 	constexpr uint16 INVENTORY_SLOT_MAX = 40;
 }
 
-namespace UserEquipment
-{
-	
-}
-
 namespace ItemUID
 {
 	constexpr uint64 ITEM_UID_INVALID_ID    = 0;
 	constexpr uint64 ITEM_UID_RESERVE_COUNT = 1000000;
 	constexpr float  ITEM_RESERVE_PERCENT   = 80;
+}
+
+namespace UserQuickSlot
+{
+	constexpr uint16 QUICK_SLOT_MAX = 2;
+}
+
+namespace ItemIDConst
+{
+	// Consumable
+	constexpr ITEM_ID SMALL_HP_POTION = 10001;
+	constexpr ITEM_ID SMALL_MP_POTION = 10002;
+
+	// Normal Equipment
+	constexpr ITEM_ID NORMAL_HELMET   = 20001;
+	constexpr ITEM_ID NORMAL_CHEST    = 20002;
+	constexpr ITEM_ID NORMAL_PANTS    = 20003;
+	constexpr ITEM_ID NORMAL_BOOTS    = 20004;
+	constexpr ITEM_ID NORMAL_WEAPON   = 20005;
+
+	// Magic Equipment
+	constexpr ITEM_ID MAGIC_HELMET    = 21001;
+	constexpr ITEM_ID MAGIC_CHEST     = 21002;
+	constexpr ITEM_ID MAGIC_PANTS     = 21003;
+	constexpr ITEM_ID MAGIC_BOOTS     = 21004;
+	constexpr ITEM_ID MAGIC_WEAPON    = 21005;
+}
+
+namespace FieldDropItemConst
+{
+	constexpr uint16 FIELD_DROP_ITEM_RANDOM_STAT_MAX = 5;
+	constexpr uint32 FIELD_DROP_ITEM_EXPIRED_TIME = 60000;
+	constexpr uint32 CREATE_SMALL_HP_POTION_MAX   = 5;
+	constexpr uint32 CREATE_SMALL_MP_POTION_MAX   = 5;
+}
+
+namespace ConsumableConst
+{
+	constexpr uint32 HP_POTION_USE_COOLTIME_MS = 5000;
+	constexpr uint32 MP_POTION_USE_COOLTIME_MS = 5000;
 }

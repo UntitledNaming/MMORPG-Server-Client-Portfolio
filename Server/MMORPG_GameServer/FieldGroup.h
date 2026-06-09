@@ -154,6 +154,8 @@ public:
     void SendMonsterTargetUpdate(CMonster* pMonster);
     void SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, uint16 newHP);
     void SendMonsterStop(CMonster* pMonster);
+    void SendCreateFieldDropItem(FieldDropItem* pItem);
+    void SendDeleteFieldDropItem(FieldDropItem* pItem);
     void AddMonsterToSector(CMonster* pMonster, uint16 secX, uint16 secY);
     void RemoveMonsterToSector(CMonster* pMonster, uint16 secX, uint16 secY);
     FieldSector& GetFieldSector(uint16 secX, uint16 secY) { return m_sectors[secY][secX]; }
@@ -203,15 +205,19 @@ private:
 	void HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage);
 	void HandleLeftAttackStop(uint64 sessionID, CMessage* pMessage);
 	void HandleSkillUse(uint64 sessionID, CMessage* pMessage);
-    void HandleRespawn(uint64 sessionID, CMessage* pMessage);
+	void HandlePickUpItems(uint64 sessionID, CMessage* pMessage);
+	void HandleUseItem(uint64 sessionID, CMessage* pMessage);
+	void HandleDeleteItem(uint64 sessionID, CMessage* pMessage);
+	void HandleSwapSlot(uint64 sessionID, CMessage* pMessage);
 
 	///////////////////////////////////
     // 프레임 로직 처리 함수         //
     ///////////////////////////////////
 	void MovementProc();
 	void SectorUpdate(CUser* pUser, const SectorPos& newSec);
-	void UserManaRegen();
     void MonsterAIUpdate();
+    void FieldDropItemExpired();
+    void UpdateUserRecovery();
 
 	//////////////////////////////////////////////////////////////////////////////////
     // 몬스터 관련 함수
@@ -220,15 +226,19 @@ private:
 	void GrossMonsterSpawnInit();
     void MonsterRegen();
 
+    //////////////////////////////////////////////////////////////////////////////////
+    // 아이템 관련 함수
+    //////////////////////////////////////////////////////////////////////////////////
+    void CreateFieldDropItem(CMonster& monster);
 
 private:
 	std::unordered_map<uint64, CUser*>            m_userLookUpTable;
+	std::unordered_map<uint64, FieldDropItem*>    m_dropItemLookUpTable;
 	FieldSector                                   m_sectors[FieldConst::SECTOR_Y_MAX][FieldConst::SECTOR_X_MAX];
 	CMonster                                      m_grossMonsterPoolArray[FieldConst::MAX_GROSS_FIELD_MONSTER_COUNT];
 									              
 	GrossMonsterSpawnSectorArea                   m_grossFieldSpawnArea[3] = { {82,111,51,101}, {42,76,55,93}, {50,96,87,111} };
 
-	uint32                                        m_ManaRegenOldTime = 0;
 	uint64                                        m_monsterAllocID   = 0;
 
 public:

@@ -274,3 +274,160 @@ CMessage* PacketBuilder::AttackMonster(CMonster* pMonster, uint64 TargetID, uint
 
 	return pMessage;
 }
+
+CMessage* PacketBuilder::CreateFieldDropItem(FieldDropItem* pItem)
+{
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+
+	*pMessage << FieldProtocol::PACKET_SC_CREATE_FIELD_DROP_ITEM;
+	*pMessage << pItem->dropUID;
+	*pMessage << static_cast<unsigned long>(pItem->itemID);
+	*pMessage << pItem->location.xpos;
+	*pMessage << pItem->location.ypos;
+	*pMessage << pItem->location.zpos;
+	*pMessage << pItem->count;
+
+	return pMessage;
+}
+
+CMessage* PacketBuilder::DeleteFieldDropItem(FieldDropItem* pItems)
+{
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+
+	*pMessage << FieldProtocol::PACKET_SC_DELETE_FIELD_DROP_ITEM;
+	*pMessage << pItems->dropUID;
+
+	return pMessage;
+}
+
+CMessage* PacketBuilder::PickUpEquipFieldDropItem(PickUpEquipResult* result)
+{
+	uint8 randomStatCount = result->randomStatCount;
+
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+
+	*pMessage << FieldProtocol::PACKET_SC_PICKUP_EQUIPMENT_ITEMS;
+	*pMessage << static_cast<unsigned long>(result->itemID);
+	*pMessage << result->slotIndex;
+	*pMessage << result->count;
+	*pMessage << randomStatCount;
+
+	for (int i = 0; i < randomStatCount; i++)
+	{
+		*pMessage << static_cast<uint8>(result->randomStatResult[i].randomStatType);
+		*pMessage << result->randomStatResult[i].randomStatValue;
+	}
+
+	return pMessage;
+}
+
+CMessage* PacketBuilder::PickUpConsumableFieldDropItem(PickUpConsumableResult* result)
+{
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+
+	*pMessage << FieldProtocol::PACKET_SC_PICKUP_CONSUMABLE_ITEMS;
+	*pMessage << result->updateSlotCount;
+	
+	for (int i = 0; i < result->updateSlotCount; i++)
+	{
+		*pMessage << result->consumableResult[i].slotIndex;
+		*pMessage << result->consumableResult[i].newItemCount;
+	}
+
+	return pMessage;
+}
+
+CMessage* PacketBuilder::DeleteItem(bool Success)
+{
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+
+	*pMessage << FieldProtocol::PACKET_SC_DELETE_ITEM;
+	*pMessage << Success;
+
+	return pMessage;
+}
+
+CMessage* PacketBuilder::UseItem(UseItemResult& result)
+{
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+
+	switch (result.resultType)
+	{
+	case USE_ITEM_RESULT::CONSUME:
+		*pMessage << FieldProtocol::PACKET_SC_USE_CONSUMABLE_ITEM;
+		break;
+
+	case USE_ITEM_RESULT::EQUIP:
+		*pMessage << FieldProtocol::PACKET_SC_EQUIP_ITEM;
+		break;
+
+	case USE_ITEM_RESULT::UNEQUIP:
+		*pMessage << FieldProtocol::PACKET_SC_UNEQUIP_ITEM;
+		break;
+	}
+
+	*pMessage << result.success;
+	if (!result.success)
+		return pMessage;
+
+	switch (result.resultType)
+	{
+	case USE_ITEM_RESULT::CONSUME:
+		*pMessage << static_cast<uint8>(result.consumableResult.slotType);
+		*pMessage << result.consumableResult.newItenCount;
+		*pMessage << result.consumableResult.slotIndex;
+		break;
+
+	case USE_ITEM_RESULT::EQUIP:
+		uint8 updateCount = result.equipResult.updateSlotCount;
+		*pMessage << updateCount;
+		for (int i = 0; i < updateCount; i++)
+		{
+			*pMessage << static_cast<uint8>(result.equipResult.resultSlot[i].slotState);
+			*pMessage << static_cast<uint8>(result.equipResult.resultSlot[i].slotType);
+			*pMessage << result.equipResult.resultSlot[i].slotIndex;
+			*pMessage << static_cast<unsigned long>(result.equipResult.resultSlot[i].itemID);
+		}
+		break;
+
+	case USE_ITEM_RESULT::UNEQUIP:
+		*pMessage << result.unEquipResult.inventorySlotIdx;
+		break;
+	}
+
+	return pMessage;
+}
+
+CMessage* PacketBuilder::SwapSlot(bool Success)
+{
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+	*pMessage << FieldProtocol::PACKET_SC_SWAP_SLOT;
+	*pMessage << Success;
+
+	return pMessage;
+}
+
+CMessage* PacketBuilder::LevelUp(UserLevelStat& result)
+{
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+
+	*pMessage << FieldProtocol::PACKET_SC_LEVEL_UP;
+	*pMessage << result.level;
+	*pMessage << result.requiredExp;
+	*pMessage << result.atk;
+	*pMessage << result.def;
+	*pMessage << result.maxHP;
+	*pMessage << result.maxMP;
+	*pMessage << result.hpRegenPerSec;
+	*pMessage << result.mpRegenPerSec;
+
+	return pMessage;
+}
