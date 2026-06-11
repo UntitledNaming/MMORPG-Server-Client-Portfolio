@@ -7,6 +7,8 @@
 #include "M1MainHUDWidget.generated.h"
 
 class UM1SkillBarWidget;
+class UM1InventoryPanelWidget;
+class UM1EquipmentPanelWidget;
 
 UCLASS()
 class M1_API UM1MainHUDWidget : public UUserWidget
@@ -38,6 +40,11 @@ public:
     UFUNCTION(BlueprintCallable, Category = "UI")
     void BindToPlayer(class AM1LocalPlayer* Player);
 
+public:
+    void ToggleInventoryPanel();
+    void ToggleEquipmentPanel();
+    bool IsAnyItemPanelOpen() const;
+
 protected:
     UPROPERTY()
     class AM1LocalPlayer* OwningPlayer;
@@ -57,4 +64,10 @@ protected:
 protected:
     UPROPERTY(meta = (BindWidget))
     UM1SkillBarWidget* SkillBar;
+
+    UPROPERTY(meta = (BindWidget))
+    UM1InventoryPanelWidget* InventoryPanel = nullptr;
+
+    UPROPERTY(meta = (BindWidget))
+    UM1EquipmentPanelWidget* EquipmentPanel = nullptr;
 };

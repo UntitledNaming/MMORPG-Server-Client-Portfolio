@@ -16,6 +16,7 @@
 #include "Network\ClientCore\CMessage.h"
 #include "NetPacketHeader.h"
 #include "Kismet/GameplayStatics.h"
+#include "Item\M1FieldDropItem.h"
 
 AM1SpawnManager::AM1SpawnManager()
 {
@@ -278,6 +279,95 @@ void AM1SpawnManager::OnMonsterAttack(uint64 MonsterID, uint64 TargetID)
     float AttackYaw = FMath::RadiansToDegrees(FMath::Atan2(ToTarget.Y, ToTarget.X));
 
     Monster->OnReceiveAttackTarget(AttackYaw);
+}
+
+void AM1SpawnManager::SpawnFieldDropItem(FCreateDropItem& Result)
+{
+    if (FieldDropItemMap.Contains(Result.DropID))
+        return;
+
+    if (FieldDropItemClass == nullptr)
+        return;
+
+    UWorld* World = GetWorld();
+    if (World == nullptr)
+        return;
+
+    FActorSpawnParameters Params;
+    Params.SpawnCollisionHandlingOverride =
+        ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+    AM1FieldDropItem* NewFieldDropItem =
+        World->SpawnActor<AM1FieldDropItem>(
+            FieldDropItemClass,
+            Result.DropLocation,
+            FRotator(0,0,0),
+            Params);
+
+    if (NewFieldDropItem == nullptr)
+        return;
+
+    NewFieldDropItem->Init(Result.DropID, Result.ItemID, Result.DropLocation, Result.Count);
+    FieldDropItemMap.Add(Result.DropID, NewFieldDropItem);
+}
+
+void AM1SpawnManager::DespawnFieldDropItem(uint64 DropID)
+{
+    AM1FieldDropItem** Found = FieldDropItemMap.Find(DropID);
+    if (Found == nullptr || *Found == nullptr)
+        return;
+
+    (*Found)->Destroy();
+    FieldDropItemMap.Remove(DropID);
+}
+
+void AM1SpawnManager::TryPickUpNearestItem(FVector PlayerLocation)
+{
+    if (!NetworkManager)
+        return;
+
+    double RangeSquared = FieldDropItemConst::FIELD_DROP_PICKUP_RANGE * FieldDropItemConst::FIELD_DROP_PICKUP_RANGE;
+    double NearestRangeSquared = 1000000.f;
+
+    AM1FieldDropItem* NearestDropItem = nullptr;
+    for (TMap<uint64, AM1FieldDropItem*>::TIterator It(FieldDropItemMap); It; ++It)
+    {
+        AM1FieldDropItem* Target = It.Value();
+        if (!Target)
+            continue;
+
+        // 우선 탐색 거리가 현재 아이템과 플레이어 위치 사이 거리보다 작으면 지속 아니면 다음 아이템
+        double CurDistanceSquared = FVector::DistSquared2D(PlayerLocation, Target->GetActorLocation());
+
+        if (CurDistanceSquared > RangeSquared)
+            continue;
+
+        //NearestRangeSquared랑 비교해서 더 가까우면 갱신
+        if (NearestRangeSquared < CurDistanceSquared)
+            continue;
+
+        NearestRangeSquared = CurDistanceSquared;
+        NearestDropItem = Target;
+    }
+
+    // 가까운 아이템 없으면 리턴
+    if (NearestDropItem == nullptr)
+        return;
+
+    CMessage* msg = CMessage::Alloc();
+    msg->Clear(1);
+    *msg << FieldProtocol::PACKET_CS_PICK_UP_ITEM << NearestDropItem->GetDropID();
+    NetworkManager->SendPacket(msg, static_cast<uint8>(ERouteType::GROUP), ServiceID::NONE_SERVICE);
+    CMessage::Free(msg);
+}
+
+void AM1SpawnManager::ApplyConsumableRecovery(uint16 RecoverHP, uint16 RecoverMP)
+{
+    if (!MyPlayer)
+        return;
+
+    MyPlayer->SetHP(MyPlayer->GetCurrentHealth() + RecoverHP);
+    MyPlayer->SetCurrentMana(MyPlayer->GetCurrentMana() + RecoverMP);
 }
 
 void AM1SpawnManager::ProcessClientAttackHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg)

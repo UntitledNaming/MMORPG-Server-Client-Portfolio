@@ -14,4 +14,7 @@ namespace M1GameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill2);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill3);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Skill4);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_PickUp);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Inventory);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Equipment);
 }

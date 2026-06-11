@@ -42,11 +42,16 @@ private:
 	void OnUseSkill2();
 	void OnUseSkill3();
 	void OnUseSkill4();
+	void OnPickUp();
 	void DoMove(float Right, float Forward);
 	void DoLook(float Yaw, float Pitch);
 	void QuitGame();
 
 	void TrySendMovementPacket();
+
+	void ToggleInventory();
+	void ToggleEquipment();
+	void RefreshItemUIInputMode(bool bOpen);
 
 public:
 	void SendLeftAttackSwingPacket(float FacingYaw, uint8 SwingIdx);

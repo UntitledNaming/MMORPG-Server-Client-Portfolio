@@ -29,9 +29,9 @@ public:
     FORCEINLINE bool GetSpawnFlag() { return bSpawnFlag; }
 
     // Getter
+    FORCEINLINE int16  GetCurrentHealth() const { return HP; }
+    FORCEINLINE int16  GetMaxHealth() const { return MaxHP; }
     FORCEINLINE float  GetMoveDirection() const { return MoveDirectionAngle; }
-    FORCEINLINE float  GetCurrentHealth() const { return HP; }
-    FORCEINLINE float  GetMaxHealth() const { return MaxHP; }
     FORCEINLINE float  GetHealthPercent() const { return MaxHP > 0 ? HP / MaxHP : 0.0f; }
     FORCEINLINE float  GetHitDirectionAngle() const { return HitDirectionAngle; }
     FORCEINLINE bool   IsHit()                const { return bIsHit; }
@@ -40,6 +40,7 @@ public:
 
     FORCEINLINE void SetUseUpperBodyWhenMovingFlag(bool InUseUpperBodyWhenMoving) { bUseUpperBodyWhenMoving = InUseUpperBodyWhenMoving; }
     FORCEINLINE void SetMoveDirection(float Angle) { MoveDirectionAngle = Angle; }
+
 
     virtual void  ApplySpawnData(const FM1SpawnData& Data);
     virtual float GetMoveSpeed() { return 0.f; }

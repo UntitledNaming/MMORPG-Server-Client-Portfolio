@@ -68,4 +68,37 @@ public:
 
 	// 서버가 보낸 "몬스터 공격" 처리
 	static void Handle_SC_HIT_TOPLAYER(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "이동 모드 변경" 처리
+	static void Handle_SC_CHANGE_CHARACTER_MOVEMODE(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "필드 드랍 아이템 생성" 처리
+	static void Handle_SC_CREATE_FIELD_DROP_ITEM(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "필드 드랍 아이템 삭제" 처리
+	static void Handle_SC_DELETE_FIELD_DROP_ITEM(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "장비 아이템 픽업" 처리
+	static void Handle_SC_PICKUP_EQUIPMENT_ITEMS(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "소비 아이템 픽업" 처리
+	static void Handle_SC_PICKUP_CONSUMABLE_ITEMS(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "소비 아이템 사용" 처리
+	static void Handle_SC_USE_CONSUMABLE_ITEM(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "장비 장착" 처리
+	static void Handle_SC_EQUIP_ITEM(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "장비 해제" 처리
+	static void Handle_SC_UNEQUIP_ITEM(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "아이템 삭제" 처리
+	static void Handle_SC_DELETE_ITEM(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "슬롯 교환" 처리
+	static void Handle_SC_SWAP_SLOT(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "레벨업" 처리
+	static void Handle_SC_LEVEL_UP(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 };

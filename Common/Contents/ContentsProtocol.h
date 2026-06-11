@@ -401,23 +401,23 @@ namespace FieldProtocol
     // 
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_EQUIP_ITEM = 1032;
+    constexpr uint16 PACKET_SC_EQUIP_ITEM = 1033;
     //---------------------------------------------------------------
     //  Use EquipmentItem Msg     			    Server -> Client
     //  
     //  1   -  Success          (uint8)
     // 
     //  if Success
-    //  1   -  UpdateSlotCount  (uint8)
+    //  1   -  UpdateSlotCount  (uint8)   // Max : 2
     //  
     //  per SlotCount
-    //  1   -  SlotState        (uint8) Exist or Empty
+    //  1   -  SlotState        (uint8)   Exist or Empty
     //  1   -  SlotType         (uint8)
     //  2   -  SlotIndex        (int16)
     //  4   -  ItemID           (uint32)
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_UNEQUIP_ITEM = 1032;
+    constexpr uint16 PACKET_SC_UNEQUIP_ITEM = 1034;
     //---------------------------------------------------------------
     //  Use Item Msg     					    Server -> Client
     //
@@ -428,7 +428,7 @@ namespace FieldProtocol
     // 
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_DELETE_ITEM = 1033;
+    constexpr uint16 PACKET_SC_DELETE_ITEM = 1035;
     //---------------------------------------------------------------
     //  Delete Item Msg 					    Server -> Client
     //
@@ -437,7 +437,7 @@ namespace FieldProtocol
     //---------------------------------------------------------------
 
 
-    constexpr uint16 PACKET_SC_SWAP_SLOT = 1034;
+    constexpr uint16 PACKET_SC_SWAP_SLOT = 1036;
     //---------------------------------------------------------------
     //  Swap Item Msg   					    Server -> Client
     //
@@ -445,7 +445,7 @@ namespace FieldProtocol
     // 
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_LEVEL_UP = 1034;
+    constexpr uint16 PACKET_SC_LEVEL_UP = 1037;
     //---------------------------------------------------------------
     //  Swap Item Msg   					    Server -> Client
     //

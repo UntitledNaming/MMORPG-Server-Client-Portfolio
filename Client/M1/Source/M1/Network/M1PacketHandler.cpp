@@ -11,7 +11,7 @@
 #include "ClientCore/CMessage.h"
 #include "Kismet/GameplayStatics.h"
 #include "ContentsEnum.h"
-
+#include "System\M1ItemManager.h"
 
 M1PacketHandler::M1PacketHandler()
 {
@@ -359,4 +359,192 @@ void M1PacketHandler::Handle_SC_HIT_TOPLAYER(CMessage* pMessage, UM1NetworkManag
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
 	SpawnManager->OnMonsterAttack(monsterid, targetid);
 	SpawnManager->ApplyPlayerHitResult(targetid, (int32)newhp);
+}
+
+void M1PacketHandler::Handle_SC_CHANGE_CHARACTER_MOVEMODE(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint64 id;
+	uint8  moveMode;
+
+	*pMessage >> id;
+	*pMessage >> moveMode;
+}
+
+void M1PacketHandler::Handle_SC_CREATE_FIELD_DROP_ITEM(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint64 dropID;
+	uint32 itemID;
+	float  xpos, ypos, zpos;
+	uint16 count;
+
+	*pMessage >> dropID;
+	*pMessage >> itemID;
+	*pMessage >> xpos >> ypos >> zpos;
+	*pMessage >> count;
+
+	FCreateDropItem result;
+	result.Count = count;
+	result.DropID = dropID;
+	result.ItemID = itemID;
+	result.DropLocation.X = xpos;
+	result.DropLocation.Y = ypos;
+	result.DropLocation.Z = zpos;
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	SpawnManager->SpawnFieldDropItem(result);
+}
+
+void M1PacketHandler::Handle_SC_DELETE_FIELD_DROP_ITEM(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint64 dropID;
+
+	*pMessage >> dropID;
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	SpawnManager->DespawnFieldDropItem(dropID);
+}
+
+void M1PacketHandler::Handle_SC_PICKUP_EQUIPMENT_ITEMS(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	PickUpEquipResult result = {};
+
+	*pMessage >> result.itemID;
+	*pMessage >> result.slotIndex;
+	*pMessage >> result.count;
+	*pMessage >> result.randomStatCount;
+
+	for (uint8 i = 0; i < result.randomStatCount; ++i)
+	{
+		uint8 randomStatType = 0;
+		*pMessage >> randomStatType;
+		*pMessage >> result.randomStatResult[i].randomStatValue;
+		result.randomStatResult[i].randomStatType = static_cast<RANDOM_STAT_TYPE>(randomStatType);
+	}
+
+	UM1ItemManager* ItemManager = NetworkManager->GetItemManager();
+	ItemManager->OnPickupEquipmentItem(result);
+
+}
+
+void M1PacketHandler::Handle_SC_PICKUP_CONSUMABLE_ITEMS(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	PickUpConsumableResult result = {};
+
+	*pMessage >> result.itemID;
+	*pMessage >> result.updateSlotCount;
+
+	for (uint16 i = 0; i < result.updateSlotCount; ++i)
+	{
+		*pMessage >> result.consumableResult[i].slotIndex;
+		*pMessage >> result.consumableResult[i].newItemCount;
+	}
+
+	UM1ItemManager* ItemManager = NetworkManager->GetItemManager();
+	ItemManager->OnPickupConsumableItem(result);
+}
+
+void M1PacketHandler::Handle_SC_USE_CONSUMABLE_ITEM(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	bool success;
+	USE_CONSUMABLE_ITEM_RESULT result = {};
+
+	*pMessage >> success;
+
+	if (success)
+	{
+		uint8 type;
+		*pMessage >> type;
+		result.slotType = static_cast<SLOT_TYPE>(type);
+		*pMessage >> result.newItenCount;
+		*pMessage >> result.slotIndex;
+	}
+
+
+	UM1ItemManager* ItemManager = NetworkManager->GetItemManager();
+	ItemManager->OnUseConsumableResult(success,result);
+}
+
+void M1PacketHandler::Handle_SC_EQUIP_ITEM(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	bool success;
+	EQUIP_ITEM_RESULT result;
+
+	*pMessage >> success;
+
+	if (success)
+	{
+		*pMessage >> result.updateSlotCount;
+
+		for (uint8 i = 0; i < result.updateSlotCount; ++i)
+		{
+			uint8  slotState;
+			uint8  slotType;
+			*pMessage >> slotState;
+			*pMessage >> slotType;
+			*pMessage >> result.resultSlot[i].slotIndex;
+			*pMessage >> result.resultSlot[i].itemID;
+			result.resultSlot[i].slotState = static_cast<SLOT_STATE>(slotState);
+			result.resultSlot[i].slotType = static_cast<SLOT_TYPE>(slotType);
+		}
+	}
+
+	UM1ItemManager* ItemManager = NetworkManager->GetItemManager();
+	ItemManager->OnEquipItemResult(success, result);
+}
+
+void M1PacketHandler::Handle_SC_UNEQUIP_ITEM(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	bool success;
+	UNEQUIP_ITEM_RESULT result;
+
+	*pMessage >> success;
+
+	if (success)
+	{
+		*pMessage >> result.inventorySlotIdx;
+	}
+
+	UM1ItemManager* ItemManager = NetworkManager->GetItemManager();
+	ItemManager->OnUnequipItemResult(success, result);
+}
+
+void M1PacketHandler::Handle_SC_DELETE_ITEM(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	bool success;
+
+	*pMessage >> success;
+
+	UM1ItemManager* ItemManager = NetworkManager->GetItemManager();
+	ItemManager->OnDeleteItemResult(success);
+}
+
+void M1PacketHandler::Handle_SC_SWAP_SLOT(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	bool success;
+
+	*pMessage >> success;
+
+	UM1ItemManager* ItemManager = NetworkManager->GetItemManager();
+	ItemManager->OnSwapSlotResult(success);
+}
+
+void M1PacketHandler::Handle_SC_LEVEL_UP(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint16 level;
+	uint64 requiredExp;
+	int16  atk;
+	int16  def;
+	int16  maxHP;
+	int16  maxMP;
+	uint16 hpRegen;
+	uint16 mpRegen;
+
+	*pMessage >> level;
+	*pMessage >> requiredExp;
+	*pMessage >> atk;
+	*pMessage >> def;
+	*pMessage >> maxHP;
+	*pMessage >> maxMP;
+	*pMessage >> hpRegen;
+	*pMessage >> mpRegen;
 }

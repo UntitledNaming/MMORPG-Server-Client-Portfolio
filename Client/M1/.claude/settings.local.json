@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "PowerShell(head *)",
-      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\sdj53\\\\Documents\\\\GitHub\\\\MMO-Server-Portfolio\\\\Client\\\\M1\\\\Source\\\\M1\\\\Character\" -File | ForEach-Object { $_.Name })"
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\sdj53\\\\Documents\\\\GitHub\\\\MMO-Server-Portfolio\\\\Client\\\\M1\\\\Source\\\\M1\\\\Character\" -File | ForEach-Object { $_.Name })",
+      "PowerShell(\\(Get-Content \"C:\\\\Users\\\\sdj53\\\\Documents\\\\GitHub\\\\MMO-Server-Portfolio\\\\Client\\\\M1\\\\Source\\\\M1\\\\System\\\\M1SpawnManager.cpp\" | Measure-Object -Line\\).Lines)",
+      "PowerShell(\\(Get-Content \"C:\\\\Users\\\\sdj53\\\\Documents\\\\GitHub\\\\MMO-Server-Portfolio\\\\Client\\\\M1\\\\Source\\\\M1\\\\System\\\\M1SpawnManager.cpp\" -Raw\\) -match \"\\(?i\\)puck|pickup|nearest\")"
     ]
   }
 }

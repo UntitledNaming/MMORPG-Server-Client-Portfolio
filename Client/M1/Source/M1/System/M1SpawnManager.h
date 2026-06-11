@@ -58,7 +58,10 @@ public:
 	void OnMonsterMove(uint64 EntityID, FMonsterMove& Data);
 	void OnMonsterStop(uint64 EntityID, FVector& StopLocation);
 	void OnMonsterAttack(uint64 MonsterID, uint64 TargetID);
-
+	void SpawnFieldDropItem(FCreateDropItem& Result);
+	void DespawnFieldDropItem(uint64 DropID);
+	void TryPickUpNearestItem(FVector PlayerLocation);
+	void ApplyConsumableRecovery(uint16 RecoverHP, uint16 RecoverMP);
 	class AM1Character* FindPlayer(uint64 EntityID) const;
 	class AM1Character* FindMonster(uint64 EntityID) const;
 
@@ -79,14 +82,20 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Spawn")
 	TSubclassOf<class AM1Monster>                  MonsterCharacterClass;
 
+	UPROPERTY(EditAnywhere, Category = "Spawn")
+	TSubclassOf<class AM1FieldDropItem>            FieldDropItemClass;
+
 	UPROPERTY()
 	TObjectPtr<AM1LocalPlayer>                     MyPlayer = nullptr;
 
 	UPROPERTY()
-	TMap<uint64, class AM1OtherPlayer*>            PlayerMap;  // 타 플레이어 관리 자료구조
+	TMap<uint64, class AM1OtherPlayer*>            PlayerMap;      // 타 플레이어 관리 자료구조
 
 	UPROPERTY()
 	TMap<uint64, class AM1Monster*>                MonsterMap;     // 몬스터 관리 자료구조
+
+	UPROPERTY()
+	TMap<uint64, class AM1FieldDropItem*>          FieldDropItemMap;
 
 private:
 	uint64                   MyID = 0;                       // 서버로 부터 부여받은 내 캐릭터 ID

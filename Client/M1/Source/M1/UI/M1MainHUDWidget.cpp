@@ -4,6 +4,8 @@
 #include "UI/M1MainHUDWidget.h"
 #include "Character/M1LocalPlayer.h"
 #include "M1SkillBarWidget.h"
+#include "M1InventoryPanelWidget.h"
+#include "M1EquipmentPanelWidget.h"
 
 void UM1MainHUDWidget::BindToPlayer(AM1LocalPlayer* Player)
 {
@@ -47,4 +49,33 @@ void UM1MainHUDWidget::OnExpChanged(float CurrentExp, float RequiredExp)
 void UM1MainHUDWidget::OnLevelUpdate(int32 Level)
 {
     UpdateLevel(Level);
+}
+
+void UM1MainHUDWidget::ToggleInventoryPanel()
+{
+    if (!InventoryPanel)
+        return;
+
+    const bool bVisible = InventoryPanel->GetVisibility() == ESlateVisibility::Visible;
+    InventoryPanel->SetVisibility(bVisible ? ESlateVisibility::Collapsed : ESlateVisibility::Visible);
+}
+
+void UM1MainHUDWidget::ToggleEquipmentPanel()
+{
+    if (!EquipmentPanel)
+        return;
+
+    const bool bVisible = EquipmentPanel->GetVisibility() == ESlateVisibility::Visible;
+    EquipmentPanel->SetVisibility(bVisible ? ESlateVisibility::Collapsed : ESlateVisibility::Visible);
+}
+
+bool UM1MainHUDWidget::IsAnyItemPanelOpen() const
+{
+    const bool bInventoryOpen =
+        InventoryPanel && InventoryPanel->GetVisibility() == ESlateVisibility::Visible;
+
+    const bool bEquipmentOpen =
+        EquipmentPanel && EquipmentPanel->GetVisibility() == ESlateVisibility::Visible;
+
+    return bInventoryOpen || bEquipmentOpen;
 }

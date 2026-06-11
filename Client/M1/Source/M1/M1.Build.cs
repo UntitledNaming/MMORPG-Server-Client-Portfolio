@@ -17,6 +17,8 @@ public class M1 : ModuleRules
             "GameplayTags",
             "AnimGraphRuntime",
             "UMG",
+            "Slate",
+            "SlateCore",
              });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

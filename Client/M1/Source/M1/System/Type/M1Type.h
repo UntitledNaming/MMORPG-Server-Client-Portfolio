@@ -75,3 +75,46 @@ struct TCircularSnapBuffer
 
     T& Last() { return (*this)[Count - 1]; }
 };
+
+struct FRandomStat
+{
+    RANDOM_STAT_TYPE  RandomStatType;
+    uint16            RandomStatValue;
+};
+
+
+struct FItemSlotData
+{
+    ITEM_ID             ItemID;      // 0 == Empty
+    uint16              Count;       
+    TArray<FRandomStat> RandomStats; // Only Equipment Used
+};
+
+UENUM()
+enum class ESlotRequestType : uint8
+{
+    None,
+    Use,
+    Swap,
+    Delete,
+};
+
+struct FPendingSlotRequest
+{
+    ESlotRequestType RequestType = ESlotRequestType::None;
+
+    SLOT_TYPE FromSlotType;
+    int16 FromSlotIndex;
+
+    // Swap 전용
+    SLOT_TYPE ToSlotType;
+    int16 ToSlotIndex;
+};
+
+struct FCreateDropItem
+{
+    uint64  DropID = 0;
+    ITEM_ID ItemID = 0;
+    FVector DropLocation = FVector::ZeroVector;
+    uint16  Count = 0;
+};

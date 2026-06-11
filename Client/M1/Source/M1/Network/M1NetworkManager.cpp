@@ -16,6 +16,7 @@
 #include "HAL/IConsoleManager.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "System\M1ItemManager.h"
 
 void UM1NetworkManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -82,13 +83,16 @@ void UM1NetworkManager::Deinitialize()
 		ClientInstance = nullptr;
 	}
 
-	//CMessage::PoolDestroy();
+	CMessage::PoolDestroy();
 }
 
 void UM1NetworkManager::Tick(float DeltaTime)
 {
 	if (ClientInstance == nullptr || SpawnManager == nullptr)
 		return;
+
+	if (!ItemManager)
+		ItemManager = GetGameInstance()->GetSubsystem<UM1ItemManager>();
 
 	if (!ClientInstance->ConnectAlive())
 	{
@@ -123,6 +127,11 @@ void UM1NetworkManager::Tick(float DeltaTime)
 AM1SpawnManager* UM1NetworkManager::GetSpawnManager()
 {
 	return SpawnManager;
+}
+
+UM1ItemManager* UM1NetworkManager::GetItemManager()
+{
+	return ItemManager;
 }
 
 void  UM1NetworkManager::SetSpawnManager(AM1SpawnManager* Manager)
@@ -187,7 +196,19 @@ void UM1NetworkManager::InitFunctorArray()
 	M1FunctorArray[FieldProtocol::PACKET_SC_DELETE_MONSTER]           = &M1PacketHandler::Handle_SC_DELETE_MONSTER;
 	M1FunctorArray[FieldProtocol::PACKET_SC_MOVE_MONSTER]           = &M1PacketHandler::Handle_SC_MOVE_MONSTER;
 	M1FunctorArray[FieldProtocol::PACKET_SC_STOP_MONSTER]           = &M1PacketHandler::Handle_SC_STOP_MONSTER;
-	M1FunctorArray[FieldProtocol::PACKET_SC_HIT_TOPLAYER]           = &M1PacketHandler::Handle_SC_HIT_TOPLAYER;
+	M1FunctorArray[FieldProtocol::PACKET_SC_HIT_TOPLAYER]              = &M1PacketHandler::Handle_SC_HIT_TOPLAYER;
+	M1FunctorArray[AuthProtocol::PACKET_SC_GAME_LOGIN_RES]             = &M1PacketHandler::Handle_SC_LOGIN_RES;
+	M1FunctorArray[FieldProtocol::PACKET_SC_CHANGE_CHARACTER_MOVEMODE] = &M1PacketHandler::Handle_SC_CHANGE_CHARACTER_MOVEMODE;
+	M1FunctorArray[FieldProtocol::PACKET_SC_CREATE_FIELD_DROP_ITEM]    = &M1PacketHandler::Handle_SC_CREATE_FIELD_DROP_ITEM;
+	M1FunctorArray[FieldProtocol::PACKET_SC_DELETE_FIELD_DROP_ITEM]    = &M1PacketHandler::Handle_SC_DELETE_FIELD_DROP_ITEM;
+	M1FunctorArray[FieldProtocol::PACKET_SC_PICKUP_EQUIPMENT_ITEMS]    = &M1PacketHandler::Handle_SC_PICKUP_EQUIPMENT_ITEMS;
+	M1FunctorArray[FieldProtocol::PACKET_SC_PICKUP_CONSUMABLE_ITEMS]   = &M1PacketHandler::Handle_SC_PICKUP_CONSUMABLE_ITEMS;
+	M1FunctorArray[FieldProtocol::PACKET_SC_USE_CONSUMABLE_ITEM]       = &M1PacketHandler::Handle_SC_USE_CONSUMABLE_ITEM;
+	M1FunctorArray[FieldProtocol::PACKET_SC_EQUIP_ITEM]                = &M1PacketHandler::Handle_SC_EQUIP_ITEM;
+	M1FunctorArray[FieldProtocol::PACKET_SC_UNEQUIP_ITEM]              = &M1PacketHandler::Handle_SC_UNEQUIP_ITEM;
+	M1FunctorArray[FieldProtocol::PACKET_SC_DELETE_ITEM]               = &M1PacketHandler::Handle_SC_DELETE_ITEM;
+	M1FunctorArray[FieldProtocol::PACKET_SC_SWAP_SLOT]                 = &M1PacketHandler::Handle_SC_SWAP_SLOT;
+	M1FunctorArray[FieldProtocol::PACKET_SC_LEVEL_UP]                  = &M1PacketHandler::Handle_SC_LEVEL_UP;
 }
 
 void UM1NetworkManager::LoadServerConfig()

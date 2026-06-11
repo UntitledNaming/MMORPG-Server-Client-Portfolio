@@ -45,24 +45,6 @@ void AM1PlayerController::BeginPlayingState()
 {
     Super::BeginPlayingState();
 
-    if (const UM1InputDataAsset* InputData = UM1AssetManager::GetAssetByName<UM1InputDataAsset>("InputDataAsset"))
-    {
-        if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
-        {
-            Subsystem->AddMappingContext(InputData->InputMappingContext, 0);
-
-            if (UEnhancedPlayerInput* EPI = Cast<UEnhancedPlayerInput>(PlayerInput))
-            {
-                auto JumpAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_Jump);
-                auto MoveAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_Move);
-                auto LookAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_Look);
-                auto LeftAttackAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_LeftAttack);
-                auto Skill1Action = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_Skill1);
-
-            }
-        }
-    }
-
     if (!NetworkManager)
     {
         if (UGameInstance* GI = GetGameInstance())
@@ -90,8 +72,10 @@ void AM1PlayerController::SetupInputComponent()
         auto Skill2Action = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_Skill2);
         auto Skill3Action = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_Skill3);
         auto Skill4Action = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_Skill4);
+        auto PickUpAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_PickUp);
+        auto InventoryAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_Inventory);
+        auto EquipmentAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_Equipment);
 
-        // todo : Jump BindAction
         EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AM1PlayerController::OnMove);
         EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Canceled, this, &AM1PlayerController::OnMove);
         EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AM1PlayerController::OnMove);
@@ -104,6 +88,9 @@ void AM1PlayerController::SetupInputComponent()
         EnhancedInputComponent->BindAction(Skill2Action, ETriggerEvent::Started, this, &AM1PlayerController::OnUseSkill2);
         EnhancedInputComponent->BindAction(Skill3Action, ETriggerEvent::Started, this, &AM1PlayerController::OnUseSkill3);
         EnhancedInputComponent->BindAction(Skill4Action, ETriggerEvent::Started, this, &AM1PlayerController::OnUseSkill4);
+        EnhancedInputComponent->BindAction(PickUpAction, ETriggerEvent::Started, this, &AM1PlayerController::OnPickUp);
+        EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &AM1PlayerController::ToggleInventory);
+        EnhancedInputComponent->BindAction(EquipmentAction, ETriggerEvent::Started, this, &AM1PlayerController::ToggleEquipment);
     }
 
 
@@ -239,6 +226,18 @@ void AM1PlayerController::OnUseSkill4()
         M1Player->GetAbilityComponent()->ActivateAbility(EAbilitySlot::Skill4);
 }
 
+void AM1PlayerController::OnPickUp()
+{
+    if (M1Player == nullptr)
+        return;
+
+    AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+    if (SpawnManager == nullptr)
+        return;
+
+    SpawnManager->TryPickUpNearestItem(M1Player->GetActorLocation());
+}
+
 // 매개인자 : WASD 입력에 대한 X, Y축값
 void AM1PlayerController::DoMove(float Right, float Forward)
 {
@@ -337,6 +336,46 @@ void AM1PlayerController::TrySendMovementPacket()
     LastSendYaw = CurrentYaw;
     MovementSendTime = 0.0f;
 
+}
+
+void AM1PlayerController::ToggleInventory()
+{
+    UM1MainHUDWidget* HUDWidget = Cast<UM1MainHUDWidget>(MainHUD);
+    if (!HUDWidget)
+        return;
+
+    HUDWidget->ToggleInventoryPanel();
+    RefreshItemUIInputMode(HUDWidget->IsAnyItemPanelOpen());
+}
+
+void AM1PlayerController::ToggleEquipment()
+{
+    UM1MainHUDWidget* HUDWidget = Cast<UM1MainHUDWidget>(MainHUD);
+    if (!HUDWidget)
+        return;
+
+    HUDWidget->ToggleEquipmentPanel();
+    RefreshItemUIInputMode(HUDWidget->IsAnyItemPanelOpen());
+}
+
+void AM1PlayerController::RefreshItemUIInputMode(bool bOpen)
+{
+    bShowMouseCursor = bOpen;
+    bEnableClickEvents = bOpen;
+    bEnableMouseOverEvents = bOpen;
+
+    if (bOpen)
+    {
+        FInputModeGameAndUI Mode;
+        Mode.SetHideCursorDuringCapture(false);
+        Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+        SetInputMode(Mode);
+    }
+    else
+    {
+        FInputModeGameOnly Mode;
+        SetInputMode(Mode);
+    }
 }
 
 void AM1PlayerController::mpMovementInput(CMessage* pMessage, const FVector& Location, float Yaw, bool MoveFlag)

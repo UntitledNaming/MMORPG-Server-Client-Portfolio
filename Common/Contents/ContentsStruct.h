@@ -13,19 +13,19 @@ struct Vec2
 
 struct SkillData
 {
-	uint16           MaxUserCount;    // Å¸°Ý½Ã ÃÖ´ë ÇÇ°Ý À¯Àú¼ö
-	uint16           MaxMonsterCount; // Å¸°Ý½Ã ÃÖ´ë ÇÇ°Ý ¸ó½ºÅÍ¼ö
-	uint16           RequiredMana;    // ÇÊ¿ä ¸¶³ª
-	uint32           CoolTime;        // Äð Å¸ÀÓ
-	uint32           Duration;        // Áö¼Ó ½Ã°£
-	uint16           BaseDamage;      // °íÁ¤ µ¥¹ÌÁö
-	float            Range ;          // °ø°Ý °Å¸®
-	float            AttackRatio;     // °ø°Ý·Â °è¼ö
-	float            HalfAngleDegree; // °ø°Ý ¹üÀ§ Àý¹Ý °¢µµ
-	bool             bHitUser;        // À¯Àú ÇÇ°Ý ÇÒÁö ¸»Áö
-	bool             bHitMonster;     // ¸ó½ºÅÍ ÇÇ°Ý ÇÒÁö ¸»Áö
+	uint16           MaxUserCount;    // Å¸ï¿½Ý½ï¿½ ï¿½Ö´ï¿½ ï¿½Ç°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	uint16           MaxMonsterCount; // Å¸ï¿½Ý½ï¿½ ï¿½Ö´ï¿½ ï¿½Ç°ï¿½ ï¿½ï¿½ï¿½Í¼ï¿½
+	uint16           RequiredMana;    // ï¿½Ê¿ï¿½ ï¿½ï¿½ï¿½ï¿½
+	uint32           CoolTime;        // ï¿½ï¿½ Å¸ï¿½ï¿½
+	uint32           Duration;        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
+	uint16           BaseDamage;      // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	float            Range ;          // ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½
+	float            AttackRatio;     // ï¿½ï¿½ï¿½Ý·ï¿½ ï¿½ï¿½ï¿½
+	float            HalfAngleDegree; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	bool             bHitUser;        // ï¿½ï¿½ï¿½ï¿½ ï¿½Ç°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	bool             bHitMonster;     // ï¿½ï¿½ï¿½ï¿½ ï¿½Ç°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	ESkillDamageType DamageType;      
-	EHitShape        HitShape;        // °ø°Ý ¸ð¾ç
+	EHitShape        HitShape;        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 };
 
 struct Location

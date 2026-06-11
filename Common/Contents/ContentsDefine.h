@@ -160,26 +160,27 @@ namespace ItemIDConst
 	constexpr ITEM_ID SMALL_MP_POTION = 10002;
 
 	// Normal Equipment
-	constexpr ITEM_ID NORMAL_HELMET   = 20001;
-	constexpr ITEM_ID NORMAL_CHEST    = 20002;
-	constexpr ITEM_ID NORMAL_PANTS    = 20003;
-	constexpr ITEM_ID NORMAL_BOOTS    = 20004;
-	constexpr ITEM_ID NORMAL_WEAPON   = 20005;
+	constexpr ITEM_ID NORMAL_HELMET   = 10003;
+	constexpr ITEM_ID NORMAL_CHEST    = 10004;
+	constexpr ITEM_ID NORMAL_PANTS    = 10005;
+	constexpr ITEM_ID NORMAL_BOOTS    = 10006;
+	constexpr ITEM_ID NORMAL_WEAPON   = 10007;
 
 	// Magic Equipment
-	constexpr ITEM_ID MAGIC_HELMET    = 21001;
-	constexpr ITEM_ID MAGIC_CHEST     = 21002;
-	constexpr ITEM_ID MAGIC_PANTS     = 21003;
-	constexpr ITEM_ID MAGIC_BOOTS     = 21004;
-	constexpr ITEM_ID MAGIC_WEAPON    = 21005;
+	constexpr ITEM_ID MAGIC_HELMET    = 10008;
+	constexpr ITEM_ID MAGIC_CHEST     = 10009;
+	constexpr ITEM_ID MAGIC_PANTS     = 10010;
+	constexpr ITEM_ID MAGIC_BOOTS     = 10011;
+	constexpr ITEM_ID MAGIC_WEAPON    = 10012;
 }
 
 namespace FieldDropItemConst
 {
 	constexpr uint16 FIELD_DROP_ITEM_RANDOM_STAT_MAX = 5;
-	constexpr uint32 FIELD_DROP_ITEM_EXPIRED_TIME = 60000;
-	constexpr uint32 CREATE_SMALL_HP_POTION_MAX   = 5;
-	constexpr uint32 CREATE_SMALL_MP_POTION_MAX   = 5;
+	constexpr uint32 FIELD_DROP_ITEM_EXPIRED_TIME    = 60000;
+	constexpr uint32 CREATE_SMALL_HP_POTION_MAX      = 5;
+	constexpr uint32 CREATE_SMALL_MP_POTION_MAX      = 5;
+	constexpr float  FIELD_DROP_PICKUP_RANGE         = 400.f;
 }
 
 namespace ConsumableConst

@@ -11,6 +11,8 @@ class M1Client;
 class CMessage;
 class UM1NetworkManager;
 class AM1SpawnManager;
+class UM1ItemManager;
+
 typedef void(*PacketHandlerFunc)(CMessage*, UM1NetworkManager*);
 
 UCLASS(Config = Game)
@@ -26,6 +28,7 @@ public:
     virtual bool IsTickable() const override { return true; }
 
     AM1SpawnManager* GetSpawnManager();
+    UM1ItemManager* GetItemManager();
     void  SetSpawnManager(AM1SpawnManager* Manager);
     void  SendPacket(CMessage* Packet, uint8 RouteType, uint16 ServiceID);
     bool  Disconnect();
@@ -52,6 +55,8 @@ private:
     PacketHandlerFunc M1FunctorArray[ContentsProtocol::MAX_PACKET_ID];
 
     AM1SpawnManager* SpawnManager = nullptr;
+
+    UM1ItemManager* ItemManager = nullptr;
 
     double LastSendTime = 0;
 };

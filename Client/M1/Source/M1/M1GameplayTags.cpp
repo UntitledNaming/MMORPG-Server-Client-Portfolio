@@ -13,4 +13,7 @@ namespace M1GameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Input_Action_Skill2, "Input.Action.Skill2");
     UE_DEFINE_GAMEPLAY_TAG(Input_Action_Skill3, "Input.Action.Skill3");
     UE_DEFINE_GAMEPLAY_TAG(Input_Action_Skill4, "Input.Action.Skill4");
+    UE_DEFINE_GAMEPLAY_TAG(Input_Action_PickUp, "Input.Action.PickUp");
+    UE_DEFINE_GAMEPLAY_TAG(Input_Action_Inventory, "Input.Action.Inventory");
+    UE_DEFINE_GAMEPLAY_TAG(Input_Action_Equipment, "Input.Action.Equipment");
 }
