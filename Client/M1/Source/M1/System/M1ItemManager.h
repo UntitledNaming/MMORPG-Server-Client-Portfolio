@@ -10,6 +10,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryChanged);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnQuickSlotChanged);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEquipmentChanged);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnSlotCoolTimeStart, uint8, SlotType, int16, SlotIndex, float, Duration);
 
 class UM1NetworkManager;
 
@@ -72,4 +73,34 @@ public:
     int16     GetDragHoverIndex() const { return DragHoverIndex; };
     void      SetDragHover(SLOT_TYPE type, int16 index) { DragHoverType = type; DragHoverIndex = index; };
     void      ClearDragHover() { DragHoverType = SLOT_TYPE::NONE; DragHoverIndex = -1; };
+
+
+    // ── Packet Handler 내 캐릭터 생성시 호출  ────────────────────────
+    void  ParseAndInitFromSpawn(class CMessage* pMessage);
+
+private:
+    void RefreshEquipStat();
+    FM1CharacterStat CalculateEquipStat();
+
+public:
+    UPROPERTY(BlueprintAssignable)
+    FOnSlotCoolTimeStart OnSlotCoolTimeStart;
+
+    UFUNCTION(BlueprintCallable)
+    bool IsSlotOnCoolTime(uint8 SlotType, int32 SlotIndex) const;
+
+    UFUNCTION(BlueprintCallable)
+    float GetSlotCoolTimeRatio(uint8 SlotType, int32 SlotIndex) const;
+
+private:
+    struct FSlotCoolTimeInfo
+    {
+        FTimerHandle TimerHandle;  // 쿨타임 끝낼 타이머
+        float Duration = 0.f;      // 전체 쿨타임 시간
+        double EndTime = 0.0;      // 쿨타임 끝나는 월드 시간
+    };
+    TMap<int32, FSlotCoolTimeInfo> SlotCoolTimeMap;
+
+    int32 MakeSlotCoolTimeKey(SLOT_TYPE SlotType, int16 SlotIndex) const;
+    void StartSlotCoolTime(SLOT_TYPE SlotType, int16 SlotIndex, ITEM_ID UsedItemID);
 };

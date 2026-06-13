@@ -14,6 +14,8 @@ class M1_API AM1OtherPlayer : public AM1BasePlayer
 	
 public:
 	AM1OtherPlayer();
+	
+	virtual void ApplySpawnData(const FM1SpawnData& Data) override;
 	virtual float GetMoveSpeed() override;
 	virtual bool  GetMoveFlag()  override;
 	virtual void  SetHP(int32 NewHP) override;

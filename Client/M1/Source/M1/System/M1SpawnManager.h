@@ -62,8 +62,13 @@ public:
 	void DespawnFieldDropItem(uint64 DropID);
 	void TryPickUpNearestItem(FVector PlayerLocation);
 	void ApplyConsumableRecovery(uint16 RecoverHP, uint16 RecoverMP);
+	void OnLevelUp(uint16 Level, uint16 HP, uint16 MP, uint32 CurrentExp);
+	void OnGetExp(uint32 NewCurrentExp);
+	
 	class AM1Character* FindPlayer(uint64 EntityID) const;
 	class AM1Character* FindMonster(uint64 EntityID) const;
+	TObjectPtr<class AM1LocalPlayer> GetLocalPlayer() { return MyPlayer; };
+
 
 	// RTT 측정 관련 함수
 	void SendRttPacket();

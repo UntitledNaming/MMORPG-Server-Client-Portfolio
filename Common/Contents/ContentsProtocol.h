@@ -42,11 +42,40 @@ namespace FieldProtocol
     //	4	-	Xpos			(float)
     //	4	-	Ypos			(float)
     //	4	-	Zpos			(float)
-    //  2   -   HP              (uint16)  
-    //  2   -   MaxHP           (uint16)  
+    //  4   -   Yaw             (float)
+    //  2   -   HP              (uint16)
     //  2   -   MP              (uint16)
-    //  2   -   MaxMP           (uint16)
-    //  2   -   MPRegenPerSec   (uint16)
+    //  2   -   Level           (uint16)
+    //  4   -   CurrentExp      (uint32)
+    // 
+    //  // Inventory No Empty Item Slot Data
+    //  1   -   Count           (uint8)
+    //  per Slot:
+    //  2   -   SlotIndex       (int16)
+    //  4   -   ItemID          (uint32)
+    //  2   -   ItemCount       (uint16)
+    //  1   -   RandomStatCount (uint8)
+    //      per Random Stat:
+    //      1   - StatType      (uint8)
+    //      2   - StatValue     (uint16)
+    // 
+    //  // Equipment No Empty Item Slot Data 
+    //  1   -   Count           (uint8)
+    //  per Slot:
+    //  1   -   EquipSlot       (uint8)
+    //  4   -   ItemID          (uint32)
+    //  1   -   RandomStatCount (uint8)
+    //      per Random Stat:
+    //      1   - StatType      (uint8)
+    //      2   - StatValue     (uint16)
+    // 
+    // 
+    //  // QuickSlot No Empty Item Slot Data 
+    //  1   -   Count           (uint8)
+    //  per Slot:
+    //  4   -   ItemID          (uint32)
+    //  2   -   ItemCount       (uint16)
+    // 
     //---------------------------------------------------------------
 
     constexpr uint16 PACKET_SC_CREATE_OTHER_CHARACTER = 1001;
@@ -447,16 +476,19 @@ namespace FieldProtocol
 
     constexpr uint16 PACKET_SC_LEVEL_UP = 1037;
     //---------------------------------------------------------------
-    //  Swap Item Msg   					    Server -> Client
+    //  Level Up Msg    					    Server -> Client
     //
     //  2   -  Level                     (uint16) 
-    //  8   -  RequiredExp               (uint64) 
-    //  2   -  Atk                       (int16) 
-    //  2   -  Def                       (int16) 
-    //  2   -  MaxHP                     (int16) 
-    //  2   -  MaxMP                     (int16) 
-    //  2   -  HPRegen                   (uint16) 
-    //  2   -  MPRegen                   (uint16) 
+    //  2   -  HP                        (uint16)
+    //  2   -  MP                        (uint16)
+    //  4   -  CurrentExp                (uint32)
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_GET_EXP = 1038;
+    //---------------------------------------------------------------
+    //  Get EXP Msg     					    Server -> Client
+    //
+    //  4   -  NewCurrentExp             (uint32)
     // 
     //---------------------------------------------------------------
 }

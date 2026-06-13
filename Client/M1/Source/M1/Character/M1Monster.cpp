@@ -8,6 +8,12 @@ AM1Monster::AM1Monster()
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
+void  AM1Monster::ApplySpawnData(const FM1SpawnData& Data)
+{
+	Super::ApplySpawnData(Data);  // AM1Character: EntityID, Location, Rotation, HP, MaxHP 세팅
+	InitOverheadStatus(TEXT("Khaimera"), HP, MaxHP);
+	SetOverheadVisible(true);
+}
 
 float AM1Monster::GetMoveSpeed()
 {

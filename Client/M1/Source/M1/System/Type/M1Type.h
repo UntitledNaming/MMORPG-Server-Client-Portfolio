@@ -6,27 +6,13 @@
 struct FM1SpawnData
 {
     uint64   EntityID = 0; 
-
     FVector  Location = FVector::ZeroVector;
-
     FRotator Rotation = FRotator::ZeroRotator;
-
     int16    HP = 0;
-
-    int16    MaxHP = 0;
-
     int16    MP = 0;
-
-    int16    MaxMP = 0;
-
+    int16    MaxHP = 0;
     uint16   Level = 1;
-
-    uint16   MPRegenPerSec = 0;
-
-    float    CurrentEXP = 0.f;
-
-    float    RequiredEXP = 100.f;
-
+    uint32   CurrentEXP = 0;
     bool     MoveFlag = false;
 };
 
@@ -87,7 +73,7 @@ struct FItemSlotData
 {
     ITEM_ID             ItemID;      // 0 == Empty
     uint16              Count;       
-    TArray<FRandomStat> RandomStats; // Only Equipment Used
+    TArray<FRandomStat> RandomStats; // Only Equipment Item Used
 };
 
 UENUM()
@@ -117,4 +103,42 @@ struct FCreateDropItem
     ITEM_ID ItemID = 0;
     FVector DropLocation = FVector::ZeroVector;
     uint16  Count = 0;
+};
+
+struct FM1CharacterStat
+{
+    int16  ATK = 0;
+    int16  DEF = 0;
+    int16  MaxHP = 0;
+    int16  MaxMP = 0;
+    uint16 HPRegenPerSec = 0;
+    uint16 MPRegenPerSec = 0;
+
+    FM1CharacterStat operator+(const FM1CharacterStat& O) const
+    {
+        return {
+            (int16)(ATK + O.ATK),
+            (int16)(DEF + O.DEF),
+            (int16)(MaxHP + O.MaxHP),
+            (int16)(MaxMP + O.MaxMP),
+            (uint16)(HPRegenPerSec + O.HPRegenPerSec),
+            (uint16)(MPRegenPerSec + O.MPRegenPerSec)
+        };
+    }
+
+    FM1CharacterStat& operator+=(const FM1CharacterStat& O)
+    {
+        ATK += O.ATK;
+        DEF += O.DEF;
+        MaxHP += O.MaxHP;
+        MaxMP += O.MaxMP;
+        HPRegenPerSec += O.HPRegenPerSec;
+        MPRegenPerSec += O.MPRegenPerSec;
+        return *this;
+    }
+};
+struct FM1LevelData
+{
+    FM1CharacterStat Stat;
+    int32            RequiredExp;
 };

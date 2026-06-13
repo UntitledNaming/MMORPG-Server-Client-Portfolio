@@ -8,6 +8,18 @@ void UM1ItemSlotWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	ItemManager = GetGameInstance()->GetSubsystem<UM1ItemManager>();
+	if (Image_CoolTime)
+	{
+		Image_CoolTime->SetVisibility(ESlateVisibility::Collapsed);
+		Image_CoolTime->SetColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.5f));
+	}
+}
+
+void UM1ItemSlotWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	UpdateCooldownImage();
 }
 
 FReply UM1ItemSlotWidget::NativeOnMouseButtonDown(const FGeometry& GeoMetry, const FPointerEvent& PointerEvent)
@@ -18,6 +30,10 @@ FReply UM1ItemSlotWidget::NativeOnMouseButtonDown(const FGeometry& GeoMetry, con
 
 	// 아이템 매니저 없으면 리턴
 	if (!ItemManager)
+		return FReply::Handled();
+
+	// 해당 슬롯 쿨타임 체크
+	if (ItemManager->IsSlotOnCoolTime(static_cast<uint8>(SlotType), SlotIndex))
 		return FReply::Handled();
 
 	// 슬롯 타입에 해당하는 슬롯 데이터 가져오기
@@ -173,3 +189,28 @@ void UM1ItemSlotWidget::RefreshSlot()
 	OnSlotDataChanged(static_cast<int32>(SlotData->ItemID), static_cast<int32>(SlotData->Count), bIsEmpty);
 }
 
+void UM1ItemSlotWidget::UpdateCooldownImage()
+{
+	if (!ItemManager || !Image_CoolTime)
+		return;
+
+	if (SlotType == SLOT_TYPE::NONE || SlotIndex < 0)
+	{
+		Image_CoolTime->SetVisibility(ESlateVisibility::Collapsed);
+		return;
+	}
+
+	const float Ratio = ItemManager->GetSlotCoolTimeRatio(
+		static_cast<uint8>(SlotType),
+		SlotIndex
+	);
+
+	if (Ratio > 0.f)
+	{
+		Image_CoolTime->SetVisibility(ESlateVisibility::HitTestInvisible);
+	}
+	else
+	{
+		Image_CoolTime->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}

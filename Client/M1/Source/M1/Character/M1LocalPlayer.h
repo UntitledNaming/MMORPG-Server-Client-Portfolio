@@ -14,6 +14,7 @@ class M1_API AM1LocalPlayer : public AM1BasePlayer
 public:
 	AM1LocalPlayer();
 
+	virtual void  ApplySpawnData(const FM1SpawnData& Data) override;
 	virtual float GetMoveSpeed() override;
 	virtual bool  GetMoveFlag()  override;
 	virtual void  SetHP(int32 NewHP) override;
@@ -26,7 +27,8 @@ protected:
 	virtual void Tick(float DeltaTime) override;
     
 private:
-	void TickManaRegen(float DeltaTime);
+	void  TickManaRegen(float DeltaTime);
+	void  TickHPRegen(float DeltaTime);  
 
 protected:
 	// 카메라는 여기로
@@ -35,4 +37,5 @@ protected:
 
 private:
 	float ManaRegenAccum = 0.f;
+	float HPRegenAccum = 0.f;   
 };

@@ -209,6 +209,7 @@ void UM1NetworkManager::InitFunctorArray()
 	M1FunctorArray[FieldProtocol::PACKET_SC_DELETE_ITEM]               = &M1PacketHandler::Handle_SC_DELETE_ITEM;
 	M1FunctorArray[FieldProtocol::PACKET_SC_SWAP_SLOT]                 = &M1PacketHandler::Handle_SC_SWAP_SLOT;
 	M1FunctorArray[FieldProtocol::PACKET_SC_LEVEL_UP]                  = &M1PacketHandler::Handle_SC_LEVEL_UP;
+	M1FunctorArray[FieldProtocol::PACKET_SC_GET_EXP]                   = &M1PacketHandler::Handle_SC_GET_EXP;
 }
 
 void UM1NetworkManager::LoadServerConfig()

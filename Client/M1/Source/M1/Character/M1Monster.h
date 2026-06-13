@@ -16,6 +16,7 @@ class M1_API AM1Monster : public AM1Character
 public:
 	AM1Monster();
 
+	virtual void  ApplySpawnData(const FM1SpawnData& Data);
 	virtual float GetMoveSpeed() override;
 	virtual bool  GetMoveFlag()  override;
 	virtual void  SetHP(int32 NewHP) override;

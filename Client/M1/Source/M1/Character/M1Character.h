@@ -53,10 +53,10 @@ public:
     // 피격 애니 종료 시 AnimBP Notify에서 호출
     UFUNCTION(BlueprintCallable, Category = "Combat")
     void ResetHitReact();
-
 protected:
     virtual void BeginPlay() override;
     virtual void UpdateMoveDirection();
+    virtual void NotifyMaxHealthChanged() {}
 
     FTimerHandle HitReactTimerHandle;
 

@@ -28,42 +28,43 @@ void M1PacketHandler::Handle_SC_LOGIN_RES(CMessage* pMessage, UM1NetworkManager*
 
 void M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
+	uint64 charid;
 	float xpos;
 	float ypos;
 	float zpos;
+	float yaw;
 	uint16 hp;
 	uint16 mp;
-	uint16 maxhp;
-	uint16 maxmp;
-	uint16 mpregenpersec;
-	uint64 id;
+	uint16 level;
+	uint32 curexp;
 
-	*pMessage >> id;
+	*pMessage >> charid;
 	*pMessage >> xpos;
 	*pMessage >> ypos;
 	*pMessage >> zpos;
+	*pMessage >> yaw;
 	*pMessage >> hp;
-	*pMessage >> maxhp;
 	*pMessage >> mp;
-	*pMessage >> maxmp;
-	*pMessage >> mpregenpersec;
-
-	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
-
-	FVector Location(xpos, ypos, zpos);
-	FRotator Rotation(0, 0, 0);
+	*pMessage >> level;
+	*pMessage >> curexp;
 
 	FM1SpawnData Data;
-	Data.EntityID = id;
+	Data.EntityID = charid;
+	Data.CurrentEXP = curexp;
 	Data.HP = hp;
 	Data.MP = mp;
-	Data.MaxHP = maxhp;
-	Data.MaxMP = maxmp;
-	Data.Location = Location;
-	Data.Rotation = Rotation;
-	Data.MPRegenPerSec = mpregenpersec;
+	Data.MaxHP = hp;
+	Data.Location = FVector(xpos, ypos, zpos);
+	Data.Rotation = FRotator(0, yaw, 0);
+	Data.Level = level;
+	Data.MoveFlag = false;
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	UM1ItemManager* ItemManager = NetworkManager->GetItemManager();
 
 	SpawnManager->SpawnMyPlayer(Data);
+	ItemManager->ParseAndInitFromSpawn(pMessage);
+
 }
 
 void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1NetworkManager* NetworkManager)
@@ -76,8 +77,6 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 	float yaw;
 	uint16 hp;
 	uint16 maxhp;
-	uint16 mp;
-	uint16 maxmp;
 
 	*pMessage >> id;
 	*pMessage >> xpos;
@@ -86,8 +85,6 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 	*pMessage >> yaw;
 	*pMessage >> hp;
 	*pMessage >> maxhp;
-	*pMessage >> mp;
-	*pMessage >> maxmp;
 	*pMessage >> moveflag;
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
@@ -101,8 +98,6 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 	Data.Rotation = Rotation;
 	Data.HP = hp;
 	Data.MaxHP = maxhp;
-	Data.MP = mp;
-	Data.MaxMP = maxmp;
 	Data.MoveFlag = moveflag;
 	SpawnManager->SpawnOtherPlayer(Data);
 }
@@ -531,20 +526,26 @@ void M1PacketHandler::Handle_SC_SWAP_SLOT(CMessage* pMessage, UM1NetworkManager*
 void M1PacketHandler::Handle_SC_LEVEL_UP(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
 	uint16 level;
-	uint64 requiredExp;
-	int16  atk;
-	int16  def;
-	int16  maxHP;
-	int16  maxMP;
-	uint16 hpRegen;
-	uint16 mpRegen;
+	uint16 hp;
+	uint16 mp;
+	uint32 curexp;
 
 	*pMessage >> level;
-	*pMessage >> requiredExp;
-	*pMessage >> atk;
-	*pMessage >> def;
-	*pMessage >> maxHP;
-	*pMessage >> maxMP;
-	*pMessage >> hpRegen;
-	*pMessage >> mpRegen;
+	*pMessage >> hp;
+	*pMessage >> mp;
+	*pMessage >> curexp;
+
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	SpawnManager->OnLevelUp(level, hp, mp, curexp);
+
+}
+
+void M1PacketHandler::Handle_SC_GET_EXP(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint32 newCurrentExp;
+	*pMessage >> newCurrentExp;
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	SpawnManager->OnGetExp(newCurrentExp);
 }

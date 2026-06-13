@@ -10,6 +10,14 @@ AM1OtherPlayer::AM1OtherPlayer()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+void AM1OtherPlayer::ApplySpawnData(const FM1SpawnData& Data)
+{
+    Super::ApplySpawnData(Data);
+    bMoving = Data.MoveFlag;
+    InitOverheadStatus(TEXT("GreyStone"), HP, MaxHP);
+    SetOverheadVisible(true);
+}
+
 float AM1OtherPlayer::GetMoveSpeed()
 {
 	return GetCharacterMovement()->MaxWalkSpeed;

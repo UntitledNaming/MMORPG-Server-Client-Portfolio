@@ -1,5 +1,3 @@
-
-
 #include "M1SpawnManager.h"
 #include "Network\M1NetworkManager.h"
 #include "ContentsDefine.h"
@@ -80,9 +78,6 @@ void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
 
     // 플레이어 생성하면 플래그 키고 플레이어 초기화 후 PlayerMap에 넣기
     MyID = Data.EntityID;
-    Data.CurrentEXP = 0;
-    Data.RequiredEXP = 100.f;
-    Data.Level = 1;
     NewPlayer->ApplySpawnData(Data);
     NewPlayer->SetSpawnFlag(true);
     MyPlayer = NewPlayer;
@@ -132,10 +127,6 @@ void AM1SpawnManager::SpawnOtherPlayer(FM1SpawnData& Data)
     NewCharacter->ApplySpawnData(Data);
     NewCharacter->SetSpawnFlag(true);
 
-    FString Name = TEXT("GreyStone");
-    NewCharacter->InitOverheadStatus(Name, Data.HP, Data.MaxHP);
-    NewCharacter->SetOverheadVisible(true);
-
     PlayerMap.Add(Data.EntityID, NewCharacter);
 }
 
@@ -168,10 +159,6 @@ void AM1SpawnManager::SpawnMonster(FM1SpawnData& Data)
 
     NewMonster->ApplySpawnData(Data);
     NewMonster->SetSpawnFlag(true);
-
-    FString Name = TEXT("Khaimera");
-    NewMonster->InitOverheadStatus(Name, Data.HP, Data.MaxHP);
-    NewMonster->SetOverheadVisible(true);
 
     MonsterMap.Add(Data.EntityID, NewMonster);
 }
@@ -368,6 +355,23 @@ void AM1SpawnManager::ApplyConsumableRecovery(uint16 RecoverHP, uint16 RecoverMP
 
     MyPlayer->SetHP(MyPlayer->GetCurrentHealth() + RecoverHP);
     MyPlayer->SetCurrentMana(MyPlayer->GetCurrentMana() + RecoverMP);
+}
+
+void AM1SpawnManager::OnLevelUp(uint16 Level, uint16 HP, uint16 MP, uint32 CurrentExp)
+{
+    if (!MyPlayer) return;
+
+    MyPlayer->OnLevelUpData(Level, CurrentExp);  // BaseStat 갱신 + EXP/Level UI 브로드캐스트
+    MyPlayer->SetHP(HP);                         // HP 반영 + OnHealthChanged 브로드캐스트
+    MyPlayer->SetCurrentMana(MP);                // MP 반영 + OnManaChanged 브로드캐스트
+}
+
+void AM1SpawnManager::OnGetExp(uint32 NewCurrentExp)
+{
+    if (!MyPlayer) 
+        return;
+
+    MyPlayer->SetCurrentExp(NewCurrentExp);
 }
 
 void AM1SpawnManager::ProcessClientAttackHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg)

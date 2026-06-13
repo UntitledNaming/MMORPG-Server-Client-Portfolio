@@ -22,6 +22,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "UI")
 	TObjectPtr<UTextBlock> Text_Count;
 
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "UI")
+	TObjectPtr<UImage> Image_CoolTime;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UM1DraggedItemWidget> DragWidgetClass;
 
@@ -33,6 +36,7 @@ protected:
 
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	virtual FReply NativeOnMouseButtonDown(const FGeometry&, const FPointerEvent&) override;
 	virtual FReply NativeOnMouseButtonUp(const FGeometry&, const FPointerEvent&) override;
 	virtual void NativeOnMouseEnter(const FGeometry&, const FPointerEvent&) override;
@@ -47,5 +51,8 @@ public:
 	// 아이템이 있으면 ItemID로 아이템 아이콘 테이블 조회해서 해당 아이콘 텍스쳐 가져와서 설정
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnSlotDataChanged(int32 ItemID, int32 Count, bool bIsEmpty);
+
+private:
+	void UpdateCooldownImage();
 
 };

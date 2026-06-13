@@ -44,4 +44,5 @@ void UM1Ability_Buff::OnServerConfirmed(AM1Character* Owner)
 	mana -= RequiredMP;
 
 	Player->SetCurrentMana(mana);
+	Player->ApplyBuff();
 }
