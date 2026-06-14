@@ -18,21 +18,15 @@ class M1_API AM1Character : public ACharacter
 public:
     AM1Character();
 
-    FORCEINLINE bool IsDead()
-    {
-        if (HP <= 0)
-            return true;
-
-        return false;
-    }
+    FORCEINLINE bool IsDead() const { return HP <= 0; }
     FORCEINLINE void SetSpawnFlag(bool InFlag) { bSpawnFlag = InFlag; }
     FORCEINLINE bool GetSpawnFlag() { return bSpawnFlag; }
 
     // Getter
-    FORCEINLINE int16  GetCurrentHealth() const { return HP; }
-    FORCEINLINE int16  GetMaxHealth() const { return MaxHP; }
-    FORCEINLINE float  GetMoveDirection() const { return MoveDirectionAngle; }
-    FORCEINLINE float  GetHealthPercent() const { return MaxHP > 0 ? HP / MaxHP : 0.0f; }
+    FORCEINLINE int16  GetCurrentHealth()     const { return HP; }
+    FORCEINLINE int16  GetMaxHealth()         const { return MaxHP; }
+    FORCEINLINE float  GetMoveDirection()     const { return MoveDirectionAngle; }
+    FORCEINLINE float  GetHealthPercent()     const { return MaxHP > 0 ? (float)HP / (float)MaxHP : 0.0f; }
     FORCEINLINE float  GetHitDirectionAngle() const { return HitDirectionAngle; }
     FORCEINLINE bool   IsHit()                const { return bIsHit; }
     FORCEINLINE bool   GetUseUpperBodyWhenMovingFlag()      const { return bUseUpperBodyWhenMoving; }
@@ -43,9 +37,9 @@ public:
 
 
     virtual void  ApplySpawnData(const FM1SpawnData& Data);
+    virtual void  SetHP(int32 NewHP);
     virtual float GetMoveSpeed() { return 0.f; }
     virtual bool  GetMoveFlag() { return false; }
-    virtual void  SetHP(int32 NewHP);
 
     // 피격 방향 각도로 피격 리액션 트리거 (0=정면, ±90=측면, ±180=후면)
     void TriggerHitReact(float HitAngle);
@@ -53,10 +47,10 @@ public:
     // 피격 애니 종료 시 AnimBP Notify에서 호출
     UFUNCTION(BlueprintCallable, Category = "Combat")
     void ResetHitReact();
+
 protected:
     virtual void BeginPlay() override;
     virtual void UpdateMoveDirection();
-    virtual void NotifyMaxHealthChanged() {}
 
     FTimerHandle HitReactTimerHandle;
 
@@ -66,7 +60,7 @@ protected:
 protected:
 
     UPROPERTY(VisibleAnywhere)
-    uint64 EntityID = -1;
+    uint64 EntityID;
 
     UPROPERTY(VisibleAnywhere)
     int16 HP = 100;

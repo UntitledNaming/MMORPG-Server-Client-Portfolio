@@ -40,17 +40,9 @@ AM1LocalPlayer::AM1LocalPlayer()
 void AM1LocalPlayer::ApplySpawnData(const FM1SpawnData& Data)
 {
 	Super::ApplySpawnData(Data);
-	SetLevelStat(Level);                              // Mana, Stat 브로드 캐스트
-
-	OnExpChanged.Broadcast(CurrentExp, RequiredExp);  // HUD EXP바 초기값
-	OnHealthChanged.Broadcast(HP, MaxHP);             // HUD HP바 초기값
+	SetLevelStat(Level);                           
 }
 
-void AM1LocalPlayer::BeginPlay()
-{
-	Super::BeginPlay();
-	OnHealthChanged.Broadcast(HP, MaxHP);
-}
 
 void AM1LocalPlayer::SetHP(int32 NewHP)
 {
@@ -64,12 +56,49 @@ void AM1LocalPlayer::SetHP(int32 NewHP)
 	}
 }
 
+void  AM1LocalPlayer::SetCurrentMana(uint16 Mana)
+{
+	Super::SetCurrentMana(Mana);
+
+	OnManaChanged.Broadcast(MP, MaxMP);
+}
+
+void  AM1LocalPlayer::SetCurrentExp(uint32 NewExp)
+{
+	Super::SetCurrentExp(NewExp);
+
+	OnExpChanged.Broadcast((float)CurrentExp, (float)RequiredExp);
+}
+
+void  AM1LocalPlayer::OnLevelUpData(uint16 NewLevel, uint32 NewCurrentExp)
+{
+	Super::OnLevelUpData(NewLevel, NewCurrentExp);
+
+	OnLevelUpdate.Broadcast((int32)Level);
+	OnExpChanged.Broadcast((float)CurrentExp, (float)RequiredExp);
+}
+
 void AM1LocalPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	UpdateMoveDirection();
 	TickManaRegen(DeltaTime);
 	TickHPRegen(DeltaTime);
+}
+
+void AM1LocalPlayer::OnFinalStatChanged(const FM1CharacterStat& FinalStat)
+{
+	OnHealthChanged.Broadcast(HP, MaxHP);
+	OnManaChanged.Broadcast(MP, MaxMP);
+
+	OnStatChanged.Broadcast(
+		FinalStat.ATK,
+		FinalStat.DEF,
+		FinalStat.MaxHP,
+		FinalStat.MaxMP,
+		FinalStat.HPRegenPerSec,
+		FinalStat.MPRegenPerSec
+	);
 }
 
 float AM1LocalPlayer::GetMoveSpeed()

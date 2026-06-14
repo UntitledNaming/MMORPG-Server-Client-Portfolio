@@ -14,7 +14,10 @@ void UM1QuickSlotPanelWidget::NativeConstruct()
     for (int32 i = 0; i < SlotWidgets.Num(); i++)
     {
         if (SlotWidgets[i])
+        {
             SlotWidgets[i]->InitSlot(SLOT_TYPE::QUICKSLOT, static_cast<int16>(i));
+
+        }
     }
 
     ItemManager->OnQuickSlotChanged.AddDynamic(this, &UM1QuickSlotPanelWidget::OnQuickSlotChanged);

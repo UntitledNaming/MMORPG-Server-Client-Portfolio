@@ -18,6 +18,28 @@ void UM1ItemManager::Initialize(FSubsystemCollectionBase& Collection)
 	Equipment.SetNum((uint8)EQUIP_SLOT::MAX);            
 	QuickSlot.SetNum(UserQuickSlot::QUICK_SLOT_MAX);     // 2개
 
+	for (int i = 0; i < UserInventory::INVENTORY_SLOT_MAX; i++)
+	{
+		Inventory[i].ItemID = 0;
+		Inventory[i].Count = 0;
+		Inventory[i].RandomStats = {};
+	}
+
+	for (int i = 1; i < (uint8)EQUIP_SLOT::MAX; i++)
+	{
+		Equipment[i].ItemID = 0;
+		Equipment[i].Count = 0;
+		Equipment[i].RandomStats = {};
+	}
+
+	for (int i = 0; i < UserQuickSlot::QUICK_SLOT_MAX; i++)
+	{
+		QuickSlot[i].ItemID = 0;
+		QuickSlot[i].Count = 0;
+		QuickSlot[i].RandomStats = {};
+	}
+
+
 	FM1ItemTable::Init();
 }
 

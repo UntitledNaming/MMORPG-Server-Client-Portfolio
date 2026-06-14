@@ -61,6 +61,11 @@ void AM1PlayerController::SetupInputComponent()
 
     if (const UM1InputDataAsset* InputData = UM1AssetManager::GetAssetByName<UM1InputDataAsset>("InputDataAsset"))
     {
+        if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+            ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+        {
+            Subsystem->AddMappingContext(InputData->InputMappingContext, 0);
+        }
 
         UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
 
@@ -92,7 +97,6 @@ void AM1PlayerController::SetupInputComponent()
         EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &AM1PlayerController::ToggleInventory);
         EnhancedInputComponent->BindAction(EquipmentAction, ETriggerEvent::Started, this, &AM1PlayerController::ToggleEquipment);
     }
-
 
     InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AM1PlayerController::QuitGame);
 }

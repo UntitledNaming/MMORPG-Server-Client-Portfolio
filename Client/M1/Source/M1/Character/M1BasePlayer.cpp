@@ -6,15 +6,6 @@ AM1BasePlayer::AM1BasePlayer()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AM1BasePlayer::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// 초기값 브로드캐스트
-	OnManaChanged.Broadcast(MP, MaxMP);
-	OnExpChanged.Broadcast(CurrentExp, RequiredExp);
-}
-
 void AM1BasePlayer::ApplySpawnData(const FM1SpawnData& Data)
 {
 	Super::ApplySpawnData(Data);
@@ -27,17 +18,18 @@ void AM1BasePlayer::ApplySpawnData(const FM1SpawnData& Data)
 void  AM1BasePlayer::SetCurrentMana(uint16 Mana)
 {
 	MP = FMath::Clamp(Mana, 0, MaxMP);
-	OnManaChanged.Broadcast(MP, MaxMP);
 }
 
 void  AM1BasePlayer::SetCurrentExp(uint32 NewExp)
 {
 	CurrentExp = NewExp;
-	OnExpChanged.Broadcast(CurrentExp, RequiredExp);
 }
 
 void AM1BasePlayer::SetLevelStat(uint16 NewLevel)
 {
+	if (NewLevel == 0 || NewLevel > UserConst::USER_MAX_LEVEL)
+		return;
+
 	Level = NewLevel;
 	BaseStat = LevelTable[Level].Stat;
 	RequiredExp = LevelTable[Level].RequiredExp;
@@ -54,6 +46,7 @@ void AM1BasePlayer::ApplyBuff()
 {
 	BuffStat.ATK = ClientAttack::BUFF_ATK_ADD_AMOUNT;
 	BuffStat.DEF = ClientAttack::BUFF_DEF_ADD_AMOUNT;
+
 	RecalculateFinalStat();
 
 	GetWorldTimerManager().SetTimer(
@@ -75,8 +68,6 @@ void AM1BasePlayer::OnLevelUpData(uint16 NewLevel, uint32 NewCurrentExp)
 {
 	SetLevelStat(NewLevel);
 	CurrentExp = NewCurrentExp;
-	OnLevelUpdate.Broadcast(NewLevel);
-	OnExpChanged.Broadcast(CurrentExp, RequiredExp);
 }
 
 void AM1BasePlayer::RecalculateFinalStat()
@@ -91,9 +82,5 @@ void AM1BasePlayer::RecalculateFinalStat()
 	MP = FMath::Clamp((int32)MP, 0, (int32)MaxMP);
 	MPRegenPerSec = Final.MPRegenPerSec;
 
-	OnManaChanged.Broadcast(MP, MaxMP);
-	OnStatChanged.Broadcast(Final.ATK, Final.DEF, Final.MaxHP, Final.MaxMP,
-		Final.HPRegenPerSec, Final.MPRegenPerSec);
-
-	NotifyMaxHealthChanged();
+	OnFinalStatChanged(Final);
 }

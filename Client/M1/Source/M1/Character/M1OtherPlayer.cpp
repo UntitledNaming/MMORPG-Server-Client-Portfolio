@@ -13,7 +13,9 @@ AM1OtherPlayer::AM1OtherPlayer()
 void AM1OtherPlayer::ApplySpawnData(const FM1SpawnData& Data)
 {
     Super::ApplySpawnData(Data);
+
     bMoving = Data.MoveFlag;
+
     InitOverheadStatus(TEXT("GreyStone"), HP, MaxHP);
     SetOverheadVisible(true);
 }
@@ -54,30 +56,6 @@ void AM1OtherPlayer::Tick(float DeltaTime)
 
 	if (bNeedStopCorrection)
 		UpdateStopCorrection(DeltaTime);
-
-
-	DbgLogTimer += DeltaTime;
-	if (DbgLogTimer >= 2.f)
-	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				(int32)EntityID,
-				2.5f,
-				FColor::Yellow,
-				FString::Printf(
-					TEXT("[OP %llu] TooFew=%d NoRTT=%d Early=%d ExhStop=%d Extrap=%d Idle=%d NoPair=%d StopIdle=%d | OK=%d Buf=%d"),
-					EntityID,
-					DbgCount_TooFewSnaps, DbgCount_NoRTT, DbgCount_TooEarly,
-					DbgCount_ExhStop, DbgCount_ExhExtrap, DbgCount_ExhIdle,
-					DbgCount_NoPair, DbgCount_StopNoMove,
-					DbgCount_Rendered, SnapshotBuffer.Count));
-		}
-		DbgLogTimer          = 0.f;
-		DbgCount_TooFewSnaps = DbgCount_NoRTT      = DbgCount_TooEarly   = 0;
-		DbgCount_ExhStop     = DbgCount_ExhExtrap  = DbgCount_ExhIdle    = 0;
-		DbgCount_NoPair      = DbgCount_StopNoMove = DbgCount_Rendered   = 0;
-	}
 }
 
 void AM1OtherPlayer::OnReceiveMovementPacket(const FMovementSnapshot& Snapshot)
@@ -149,11 +127,11 @@ void AM1OtherPlayer::OnReceiveSyncPacket(uint64 ServerTimestamp, FVector SyncPos
 void AM1OtherPlayer::UpdateInterpolation(float DeltaTime)
 {
     // 보간은 스냅샷 2개가 필요하니 버퍼 비어있거나 1개밖에 없으면 pass
-    if (SnapshotBuffer.Count < 2) { ++DbgCount_TooFewSnaps; return; }
+    if (SnapshotBuffer.Count < 2) {  return; }
 
     // 시간 동기화 체크(RTT 응답 한번도 못받았으면 보간X)
     if (NetworkManager == nullptr || !(NetworkManager->GetSpawnManager()->GetRTTRecv()))
-    { ++DbgCount_NoRTT; return; }
+    { return; }
 
     // RenderTime 계산시 GetServerTimeMs는 클라에서 측정한 UTC값 + 편도 레이턴시 값을 반환함.
     // 편도 레이턴시가 들어가는 이유는 클라는 서버 시간 기준 100ms 전을 렌더링하는 느낌으로 갈건데
@@ -173,7 +151,7 @@ void AM1OtherPlayer::UpdateInterpolation(float DeltaTime)
     // 스냅샷 버퍼의 []에 들어가는 값은 head로 부터 떨어진 offset임.
     // 현재 head에 있는 즉, 가장 오래된 snapshot의 시간값보다 rendertime이 작으면 아직 render할 시간 아니니 리턴
     if (RenderTime < SnapshotBuffer[0].ServerTimestamp)
-    { ++DbgCount_TooEarly; return; }
+    {  return; }
 
     // 스냅샷 버퍼의 마지막 스냅샷에 찍힌 서버 시간보다 RenderTime이 크면 아직 새로운 패킷이 안온 상태임.
     if (RenderTime >= SnapshotBuffer.Last().ServerTimestamp)
@@ -183,7 +161,6 @@ void AM1OtherPlayer::UpdateInterpolation(float DeltaTime)
         // 마지막 스냅샷이 정지 패킷인데 현재 캐릭터는 이동중이라면 정지 수렴 처리
         if (!Last.bMoving && bMoving)
         {
-            ++DbgCount_ExhStop;
             bMoving = false;
             StopTargetLocation = Last.Position;
             StopTargetYaw      = Last.MoveYaw;
@@ -192,7 +169,6 @@ void AM1OtherPlayer::UpdateInterpolation(float DeltaTime)
         // 이동중인데 패킷이 아직 안 온 경우: 마지막 방향/속도로 외삽(최대 200ms 캡)
         else if (Last.bMoving && bMoving)
         {
-            ++DbgCount_ExhExtrap;
             float ElapsedSec = FMath::Min((float)(RenderTime - Last.ServerTimestamp) / 1000.f, 0.2f);
             FVector ForwardDir = FRotator(0.f, Last.MoveYaw, 0.f).Vector();
             FVector ExtrapPos  = Last.Position + ForwardDir * UserConst::WALK_SPEED * ElapsedSec;
@@ -201,10 +177,6 @@ void AM1OtherPlayer::UpdateInterpolation(float DeltaTime)
                 SetActorLocationAndRotation(ExtrapPos, FRotator(0.f, Last.MoveYaw, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
             else
                 SetActorLocation(ExtrapPos, false, nullptr, ETeleportType::TeleportPhysics);
-        }
-        else
-        {
-            ++DbgCount_ExhIdle;
         }
 
         return;
@@ -227,7 +199,6 @@ void AM1OtherPlayer::UpdateInterpolation(float DeltaTime)
     // 스냅샷을 못찾았으면 리턴
     if (PrevIdx == -1)
     {
-        ++DbgCount_NoPair;
         // 타임스탬프 순서가 어긋난 경우 등 원인 파악용 상세 로그 (최초 발생 시마다 출력)
         FString BufDump;
         for (int32 i = 0; i < SnapshotBuffer.Count; ++i)
@@ -288,7 +259,6 @@ void AM1OtherPlayer::UpdateInterpolation(float DeltaTime)
     // 이동하지 않으면 리턴
     if (!bMoving)
     {
-        ++DbgCount_StopNoMove;
         GetCharacterMovement()->MaxWalkSpeed = 0;
         return;
     }
@@ -318,7 +288,6 @@ void AM1OtherPlayer::UpdateInterpolation(float DeltaTime)
 
     // TeleportPhysics: 매 프레임 velocity를 0으로 초기화해서
     // CharacterMovement가 보간 사이 갭에서 캐릭터를 앞으로 밀어버리는 현상 방지
-    ++DbgCount_Rendered;
     SetActorLocationAndRotation(InterpPos, FRotator(0.f, InterpYaw, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
 
 }

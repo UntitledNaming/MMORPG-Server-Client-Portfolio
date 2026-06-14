@@ -29,6 +29,7 @@ void AM1Character::ApplySpawnData(const FM1SpawnData& Data)
 	EntityID = Data.EntityID;
 	SetActorLocation(Data.Location);
 	SetActorRotation(Data.Rotation);
+
 	HP = Data.HP;
 	MaxHP = Data.MaxHP;
 }

@@ -79,7 +79,6 @@ void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
     // 플레이어 생성하면 플래그 키고 플레이어 초기화 후 PlayerMap에 넣기
     MyID = Data.EntityID;
     NewPlayer->ApplySpawnData(Data);
-    NewPlayer->SetSpawnFlag(true);
     MyPlayer = NewPlayer;
 
 
@@ -95,7 +94,7 @@ void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
         
         SendRttPacket();
     }
-
+    NewPlayer->SetSpawnFlag(true);
 }
 
 void AM1SpawnManager::SpawnOtherPlayer(FM1SpawnData& Data)
