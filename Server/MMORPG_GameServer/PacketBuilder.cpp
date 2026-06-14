@@ -31,6 +31,7 @@ CMessage* PacketBuilder::CreateMyCharacter(CUser* pUser)
 	*pMessage << pUser->GetX();
 	*pMessage << pUser->GetY();
 	*pMessage << pUser->GetZ();
+	*pMessage << pUser->GetMoveYaw();
 	*pMessage << pUser->GetHP();
 	*pMessage << pUser->GetMP();
 	*pMessage << pUser->GetLevel();

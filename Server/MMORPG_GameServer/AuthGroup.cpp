@@ -74,6 +74,7 @@ void AuthGroup::OnUpdate()
 void AuthGroup::LoginRequestProc(UINT64 sessionID, CMessage* pMessage)
 {
 	std::wstring field = L"Field";
+	m_nonuserTable.erase(sessionID);
 
 	CUser* pUser = CUser::Alloc();
 	pUser->Init(sessionID);

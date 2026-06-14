@@ -182,14 +182,14 @@ bool CUser::GainExp(uint32 GetExp, GainEXPResult& result)
 	// 레벨업 했을 때 초과분에 대한 처리
 	while (true)
 	{
-		GetExp -= m_requiredExp;
+		m_currentExp -= m_requiredExp;
 		m_level++;
 
 		BaseStatInit(m_level);
 
 		// 레벨업에 대한 스탯 초기화 후 해당 레벨이 Max면 hp, mp 초기화 후 curExp = 0 후 탈출
 		// 잔여 경험치가 필요 경험치보다 작으면 반영 후 탈출
-		if (m_level == UserConst::USER_MAX_LEVEL || m_requiredExp > GetExp)
+		if (m_level == UserConst::USER_MAX_LEVEL || m_requiredExp > m_currentExp)
 		{
 			uint32 curTime = timeGetTime();
 			int16 maxHP = GetMaxHP(curTime);
@@ -205,7 +205,7 @@ bool CUser::GainExp(uint32 GetExp, GainEXPResult& result)
 			if (m_level == UserConst::USER_MAX_LEVEL)
 				result.curEXP = 0;
 			else
-				result.curEXP = GetExp;
+				result.curEXP = m_currentExp;
 
 			break;
 		}

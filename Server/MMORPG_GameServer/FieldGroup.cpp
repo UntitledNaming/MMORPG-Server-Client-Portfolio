@@ -1286,7 +1286,7 @@ void FieldGroup::FieldDropItemExpired()
 		m_sectors[pItem->sectorPos.GetY()][pItem->sectorPos.GetX()].RemoveItem(pItem);
 
 		// 전체 자료구조에서 제거
-		m_dropItemLookUpTable.erase(it);
+		it = m_dropItemLookUpTable.erase(it);
 
 		// 메모리 풀에 반납
 		FieldDropItemPool::FreeItem(pItem);

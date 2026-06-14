@@ -63,6 +63,7 @@ public:
 
     static FieldDropItem* CreateItem(const Location& dropLocation);
     static void FreeItem(FieldDropItem* pDropItem);
+    static uint64 GetDropItemUseCount();
 
 private:
     static FIELD_DROP_TYPE RollFieldDropType();

@@ -41,6 +41,11 @@ void FieldDropItemPool::FreeItem(FieldDropItem* pDropItem)
     }
 }
 
+uint64 FieldDropItemPool::GetDropItemUseCount()
+{
+    return m_dropItemPool->GetUseCnt();
+}
+
 FIELD_DROP_TYPE FieldDropItemPool::RollFieldDropType()
 {
     int totalweight = 0;

@@ -148,8 +148,8 @@ private:
 	static CMPoolTLS<CUser> m_userPool;
 
 	uint64                 m_sessionID;
-	uint32                 m_currentExp;
-	uint32                 m_requiredExp;
+	int32                  m_currentExp;
+	int32                  m_requiredExp;
 	SwingInfo              m_swingInfo;                                                       // 좌 클릭 공격 처리 관련 구조체
 	SkillInfo              m_skillInfo[UserConst::USER_SKILL_SLOT_COUNT];
 	Location               m_location;                                                        // 캐릭터 위치
