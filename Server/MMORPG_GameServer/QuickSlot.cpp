@@ -1,3 +1,4 @@
+#include <array>
 #include "QuickSlot.h"
 
 void QuickSlot::Init()
@@ -24,6 +25,10 @@ bool QuickSlot::SetConsumable(int16 slotIndex, ITEM_UID InItemUID, ITEM_UID& Out
 	OutItemUID = m_quickSlot[slotIndex];
 	m_quickSlot[slotIndex] = InItemUID;
 
+	if (OutItemUID == ItemUID::ITEM_UID_INVALID_ID)
+	{
+		m_useCount++;
+	}
 	return true;
 }
 
@@ -34,6 +39,11 @@ bool QuickSlot::ClearConsumable(int16 slotIndex, ITEM_UID& OutItemUID)
 
 	OutItemUID = m_quickSlot[slotIndex];
 	m_quickSlot[slotIndex] = ItemUID::ITEM_UID_INVALID_ID;
+
+	if (OutItemUID != ItemUID::ITEM_UID_INVALID_ID)
+	{
+		m_useCount--;
+	}
 
 	return true;
 }

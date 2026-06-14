@@ -5,6 +5,8 @@
 #include "ContentsDefine.h"
 #include "MemoryPoolTLS.h"
 
+struct FieldDropItem;
+
 struct SwingInfo
 {
 	uint8  m_lastSwingIdx;
@@ -37,7 +39,7 @@ struct SkillInfo
 struct UserLevelStat
 {
 	uint16 level;
-	uint64 requiredExp;
+	uint32 requiredExp;
 
 	int16  atk;
 	int16  def;
@@ -81,7 +83,7 @@ public:
 	void   CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, const SectorPos& newSecPos, SectorAround& outDeleteSector, SectorAround& outCreateSector);
 	void   SwingStop() { m_swingInfo.m_lastSwingIdx = 0; }
 
-	bool   GetExp(uint64 GetExp, UserLevelStat& result);
+	bool   GainExp(uint64 GetExp, GainEXPResult& result);
 	bool   CanUseSkill(uint32 curTime, uint8 skillIndex);
 	bool   Move();
 	bool   CanSwing(uint32 curTime, uint8 swingidx);
@@ -95,6 +97,7 @@ public:
 	bool   ItemSlotChange(SLOT_TYPE fromType, int16 fromIndex, SLOT_TYPE toType, int16 toIndex);
 
 	uint64 GetSessionID() const { return m_sessionID; }
+	uint32 GetCurrentEXP() const { return m_currentExp; }
 	uint32 CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime);
 	uint32 CalSkillDamage(uint16 skillIndex, CMonster* target, uint32 curTime);
 	uint32 CalBaseAttackDamage(CUser* target, uint32 curTime);
@@ -110,6 +113,7 @@ public:
 	uint16 GetSectorArrayIdx() const { return m_arrayIdx; }
 	uint16 GetSectorXpos() const { return m_secPos.GetX(); }
 	uint16 GetSectorYpos() const { return m_secPos.GetY(); }
+	uint16 GetLevel() const { return m_level; }
 	uint8  GetLastSwingIndex() const { return m_swingInfo.m_lastSwingIdx; }
 
 	float  GetX() const { return m_location.xpos; }
@@ -121,6 +125,9 @@ public:
 
 	const SectorPos& GetSectorPos() const { return m_secPos; }
 	const Location& GetLocation() const { return m_location; }
+	const Inventory& GetInventory() const{ return m_inventory; }
+	const Equipment& GetEquipment() const { return m_equipment; }
+	const QuickSlot& GetQuickslot() const { return m_quickSlot; }
 
 	void SetLocation(Location& location) { m_location = location; }
 	void SetMoveYaw(float moveYaw) { m_movementYaw = moveYaw; }
@@ -154,8 +161,8 @@ private:
 	static CMPoolTLS<CUser> m_userPool;
 
 	uint64                 m_sessionID;
-	uint64                 m_currentExp;
-	uint64                 m_requiredExp;
+	uint32                 m_currentExp;
+	uint32                 m_requiredExp;
 	SwingInfo              m_swingInfo;                                                       // 좌 클릭 공격 처리 관련 구조체
 	SkillInfo              m_skillInfo[UserConst::USER_SKILL_SLOT_COUNT];
 	Location               m_location;                                                        // 캐릭터 위치
@@ -165,10 +172,10 @@ private:
 	int16                  m_hp;                                                              // 캐릭터 HP
 	int16                  m_mp;                                                              // 캐릭터 MP
 	UserStat               m_baseStat;                                                        // 유저 기본 스탯(클래스, 레벨 기반)
-	Inventory              m_inventory;        // Inventory
-	Equipment              m_equipment;        // Currently Equipped Items Slots
-	QuickSlot              m_quickSlot;        // Consumable Item Slots
-	CUserItemStorage       m_storage;          // Item Storage
+	Inventory              m_inventory;                                                       // Inventory
+	Equipment              m_equipment;                                                       // Currently Equipped Items Slots
+	QuickSlot              m_quickSlot;                                                       // Consumable Item Slots
+	CUserItemStorage       m_storage;                                                         // Item Storage
 	RecoveryInfo           m_recoveryInfo;    
 	ConsumableCooltimeInfo m_consumableCooltimeInfo;
 	bool                   m_disconnectFlag;

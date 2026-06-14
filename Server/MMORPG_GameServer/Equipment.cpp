@@ -1,4 +1,5 @@
 #include <unordered_map>
+#include <array>
 #include "MemoryPoolTLS.h"
 #include "ItemUIDAllocator.h"
 #include "CUserItemStorage.h"
@@ -42,6 +43,8 @@ bool Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& O
 	const UserItem* outitem = m_pStorage->FindItem(OutItemUID);
 	if (outitem)
 	{
+		m_useCount--;
+
 		// ItemTable 찾아서 기본 스탯 찾아서 빼기
 		const ItemData* pData = ItemTable::GetItemData(outitem->itemID);
 		if (pData)
@@ -142,6 +145,7 @@ bool Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& O
 		}
 	}
 
+	m_useCount++;
 	return true;
 }
 
@@ -156,6 +160,8 @@ bool Equipment::UnEquippedItem(EQUIP_SLOT slotNum, ITEM_UID& OutItemUID)
 	const UserItem* outitem = m_pStorage->FindItem(OutItemUID);
 	if (outitem)
 	{
+		m_useCount--;
+
 		// ItemTable 찾아서 기본 스탯 찾아서 빼기
 		const ItemData* pData = ItemTable::GetItemData(outitem->itemID);
 		if (pData)

@@ -1,5 +1,6 @@
 #pragma once
 #include "ContentsType.h"
+#include "ContentsStruct.h"
 
 class CUser;
 class CMonster;

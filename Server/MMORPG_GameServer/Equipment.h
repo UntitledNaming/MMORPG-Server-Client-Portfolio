@@ -25,13 +25,17 @@ public:
 	bool     EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& OutItemUID);
 	bool     UnEquippedItem(EQUIP_SLOT slotNum, ITEM_UID& OutItemUID);
 	ITEM_UID GetEquippedItem(EQUIP_SLOT slotNum);
+	uint64   GetUseCount() const { return m_useCount; };
+	
+	const std::array<ITEM_UID, (int)EQUIP_SLOT::MAX>& GetEquipmentArray() const { return m_equipment; };
 
 private:
 	bool     IndexRangeCheck(EQUIP_SLOT slot);
 
 private:
-	ITEM_UID          m_equipment[(int)EQUIP_SLOT::MAX];     // Currently Equipped Items;
-	CUserItemStorage* m_pStorage = nullptr;
+	CUserItemStorage*                          m_pStorage = nullptr;
+	uint64                                     m_useCount = 0;
+	std::array<ITEM_UID, (int)EQUIP_SLOT::MAX> m_equipment;
 
 	// Cache Data
 	int16     m_currentATK;

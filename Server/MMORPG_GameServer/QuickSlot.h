@@ -17,11 +17,15 @@ public:
 	bool     ClearConsumable(int16 slotIndex, ITEM_UID& OutItemUID);
 	bool     SwapSlot(int16 fromIndex, int16 toIndex);
 	ITEM_UID GetQuickSlotItem(int16 index);
+	uint64   GetUseCount() const { return m_useCount; }
+
+	const std::array<ITEM_UID, UserQuickSlot::QUICK_SLOT_MAX>& GetQuickSlotArray() const { return m_quickSlot; }
 
 private:
 	bool     IndexRangeCheck(int16 slotIndex);
 
 private:
-	ITEM_UID  m_quickSlot[UserQuickSlot::QUICK_SLOT_MAX];
+	std::array<ITEM_UID, UserQuickSlot::QUICK_SLOT_MAX> m_quickSlot;
+	uint64    m_useCount = 0;
 };
 

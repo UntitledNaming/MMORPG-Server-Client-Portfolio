@@ -3,7 +3,6 @@
 #include "ContentsType.h"
 #include "ContentsEnum.h"
 #include "ContentsDefine.h"
-#include "SectorPos.h"
 
 struct Vec2
 {
@@ -73,38 +72,20 @@ struct UpdateSlotResult
 	uint16          newItemCount;
 };
 
-
-struct ItemCreateInfo
+struct UserItem 
 {
+	ITEM_UID            itemUID = 0;
 	ITEM_ID             itemID = 0;
 	uint16              count = 0;
 	uint8               randomStatCount = 0;
 	RandomStatResult    randomStat[FieldDropItemConst::FIELD_DROP_ITEM_RANDOM_STAT_MAX];
 };
 
-struct UserItem : public ItemCreateInfo
-{
-	ITEM_UID    itemUID = 0;
-};
-
-struct DBItemInfo : public ItemCreateInfo
-{
-	ITEM_UID    itemUID = 0;
-};
 
 struct UIDRange
 {
 	ITEM_UID allocID = 0;
 	ITEM_UID lastID = 0;
-};
-
-struct FieldDropItem : public ItemCreateInfo
-{
-	uint64      dropUID     = 0;
-	uint32      expiredTime = 0;
-	uint16      sectorIdx   = 0;
-	Location    location;
-	SectorPos   sectorPos;
 };
 
 struct DropRate
@@ -226,4 +207,15 @@ struct ConsumableCooltimeInfo
 			}
 		}
 	}
+};
+
+struct GainEXPResult
+{
+	bool   levelUp = false;
+	uint32 curEXP = 0;
+
+	// levelUp == true 일때
+	uint16 curLevel;
+	int16  curHP;
+	int16  curMP;
 };

@@ -474,22 +474,18 @@ namespace FieldProtocol
     // 
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_LEVEL_UP = 1037;
+    constexpr uint16 PACKET_SC_GAIN_EXP = 1037;
     //---------------------------------------------------------------
     //  Level Up Msg    					    Server -> Client
     //
-    //  2   -  Level                     (uint16) 
+    //  1   -  LevelUp                   (bool)
+    //  4   -  CurExp                    (uint32)
+    // 
+    //  if LevelUp True
+    //  2   -  CurLevel                  (uint16) 
     //  2   -  HP                        (uint16)
     //  2   -  MP                        (uint16)
-    //  4   -  CurrentExp                (uint32)
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_GET_EXP = 1038;
-    //---------------------------------------------------------------
-    //  Get EXP Msg     					    Server -> Client
-    //
-    //  4   -  NewCurrentExp             (uint32)
-    // 
-    //---------------------------------------------------------------
 }
 

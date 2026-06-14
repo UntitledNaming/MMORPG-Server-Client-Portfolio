@@ -3,6 +3,7 @@
 #include <stack>
 #include <unordered_map>
 #include <unordered_set>
+#include <array>
 #include "ContentsEnum.h"
 #include "SkillTable.h"
 #include "CMonster.h"
@@ -158,7 +159,7 @@ void CUser::CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, const 
 	m_secPos.CalSectorTransitionMessageTargets(oldSecPos, newSecPos, outDeleteSector, outCreateSector);
 }
 
-bool CUser::GetExp(uint64 GetExp, UserLevelStat& result)
+bool CUser::GainExp(uint64 GetExp, GainEXPResult& result)
 {
 	// 레벨 Max 찼으면 그냥 리턴
 	if (m_level >= UserConst::USER_MAX_LEVEL)
@@ -169,29 +170,47 @@ bool CUser::GetExp(uint64 GetExp, UserLevelStat& result)
 
 	// 필요 경험치 덜 찼으면 그냥 리턴
 	if (m_currentExp < m_requiredExp)
+	{
+		result.levelUp = false;
+		result.curEXP += m_currentExp;
 		return true;
+	}
 
-	// 레벨업 했으면 해당 레벨에 해당하는 스탯으로 스탯 초기화
-	m_level++;
+	result.levelUp = true;
 
-	BaseStatInit(m_level);
+	// 레벨업 했을 때 초과분에 대한 처리
+	while (true)
+	{
+		GetExp -= m_requiredExp;
+		m_level++;
 
-	// 최종 스탯 result에 담기
-	uint32 curTime = timeGetTime();
-	int16 maxHP = GetMaxHP(curTime);
-	int16 maxMP = GetMaxMP(curTime);
+		BaseStatInit(m_level);
 
-	result.atk = GetAtk(curTime);
-	result.def = GetDef(curTime);
-	result.maxHP = maxHP;
-	result.maxMP = maxMP;
-	result.hpRegenPerSec = GetHPRegenSec();
-	result.mpRegenPerSec = GetMPRegenSec();
-	result.level = m_level;
+		// 레벨업에 대한 스탯 초기화 후 해당 레벨이 Max면 hp, mp 초기화 후 curExp = 0 후 탈출
+		// 잔여 경험치가 필요 경험치보다 작으면 반영 후 탈출
+		if (m_level == UserConst::USER_MAX_LEVEL || m_requiredExp > GetExp)
+		{
+			uint32 curTime = timeGetTime();
+			int16 maxHP = GetMaxHP(curTime);
+			int16 maxMP = GetMaxMP(curTime);
 
-	m_currentExp = 0;
-	m_hp = maxHP;
-	m_mp = maxMP;
+			m_hp = maxHP;
+			m_mp = maxMP;
+
+			result.curLevel = m_level;
+			result.curHP = m_hp;
+			result.curMP = m_mp;
+
+			if (m_level == UserConst::USER_MAX_LEVEL)
+				result.curEXP = 0;
+			else
+				result.curEXP = GetExp;
+
+			break;
+		}
+
+	}
+
 	return true;
 }
 

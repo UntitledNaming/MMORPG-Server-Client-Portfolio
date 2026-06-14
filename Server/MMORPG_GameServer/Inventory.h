@@ -24,13 +24,17 @@ public:
 	bool     GetItemUID(int16 slotIndex, ITEM_UID& OutItemUID);
 	int16    GetEmptySlotIndex();
 	int16    GetUIDToSlotIndex(ITEM_UID uid);
+	uint64   GetUseCount() { return m_useCount; };
+
+	const std::array<ITEM_UID, UserInventory::INVENTORY_SLOT_MAX>& GetInventoryArray() const { return m_inventory; };
 
 private:
 	bool   IndexRangeCheck(int16 slotIndex);
 
 private:
-	ITEM_UID                                                   m_inventory[UserInventory::INVENTORY_SLOT_MAX];
 	CUserItemStorage*                                          m_pStorage = nullptr;
+	uint64                                                     m_useCount = 0;
+	std::array<ITEM_UID, UserInventory::INVENTORY_SLOT_MAX>    m_inventory;
 	std::stack<int16>                                          m_slotIndexAllocator;
 	std::unordered_map<ITEM_ID, std::unordered_set<ITEM_UID>>  m_stackableItemUIDs;
 	std::unordered_map<ITEM_UID, int16>                        m_uidToSlotIndex;

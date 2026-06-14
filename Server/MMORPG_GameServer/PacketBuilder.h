@@ -36,6 +36,6 @@ public:
 	static CMessage* UseItem(UseItemResult& result);
 	static CMessage* SwapSlot(bool Success);
 
-	static CMessage* LevelUp(UserLevelStat& result);
+	static CMessage* GainExp(GainEXPResult& result);
 };
 

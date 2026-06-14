@@ -2,13 +2,13 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <array>
 #include <cmath>
 #include <chrono>
 #include <stack>
 #include "CMonster.h"
 #include "ContentsDefine.h"
 #include "ContentsEnum.h"
-#include "ContentsStruct.h"
 #include "ContentsProtocol.h"
 #include "MemoryPoolTLS.h"
 #include "CMessage.h"
@@ -730,7 +730,7 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 	}
 
 	// 데미지 계산 및 hp 수정
-	UserLevelStat resultStat = {};
+	uint64 totalExp = 0;
 
 	for (int i = 0; i < result.HitMonsterCount; i++)
 	{
@@ -743,20 +743,21 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 		// 아이템 생성 실패시 다음
 		CreateFieldDropItem(*result.HitMonsterArray[i]);
 
-		// 레벨업 체크
-		resultStat.level = 0;
-		if (!pUser->GetExp(result.HitMonsterArray[i]->GetExp(), resultStat))
-			continue;
-
+		// 경험치 획득량 체크
+		totalExp += result.HitMonsterArray[i]->GetExp();
 	}
 
-	// 레벨업을 했으면 레벨업 패킷 유저에게 보내기
-	if (resultStat.level != 0)
+	// 획득한 경험치 한번에 유저에 반영
+	GainEXPResult gainResult = {};
+	gainResult.levelUp = false;
+	if (pUser->GainExp(totalExp, gainResult))
 	{
-		CMessage* pLevelUp = PacketBuilder::LevelUp(resultStat);
-		SendPacket(sessionID, pLevelUp);
-		CMessage::Free(pLevelUp);
+		// 경험치 획득 성공시 패킷 보내기
+		CMessage* GainExpMsg = PacketBuilder::GainExp(gainResult);
+		SendPacket(sessionID, GainExpMsg);
+		CMessage::Free(GainExpMsg);
 	}
+
 
 	// 공격자 swing 메세지 뿌리기 
 	CMessage* pSwingMsg = PacketBuilder::AttackLeftSwing(pUser,attackyaw);
@@ -878,7 +879,7 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 	}
 
 	// 데미지 계산 및 hp 수정
-	UserLevelStat resultStat = {};
+	uint64 totalExp = 0;
 
 	for (int i = 0; i < result.HitMonsterCount; i++)
 	{
@@ -891,22 +892,20 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 
 		// 아이템 생성
 		CreateFieldDropItem(*result.HitMonsterArray[i]);
-
 		
-		// 레벨업 체크
-		resultStat.level = 0;
-		if (!pUser->GetExp(result.HitMonsterArray[i]->GetExp(), resultStat))
-			continue;
-
-		// 추후 몬스터 잡으면서 여러번 레벨업 할 수 있음. 레벨업 패킷은 최종 결과만 메세지 보냄. 
+		// 경험치 획득량 체크
+		totalExp += result.HitMonsterArray[i]->GetExp();
 	}
 
-	// 레벨업을 했으면 레벨업 패킷 유저에게 보내기
-	if (resultStat.level != 0)
+	// 획득한 경험치 한번에 유저에 반영
+	GainEXPResult gainResult = {};
+	gainResult.levelUp = false;
+	if (pUser->GainExp(totalExp, gainResult))
 	{
-		CMessage* pLevelUp = PacketBuilder::LevelUp(resultStat);
-		SendPacket(sessionID, pLevelUp);
-		CMessage::Free(pLevelUp);
+		// 경험치 획득 성공시 패킷 보내기
+		CMessage* GainExpMsg = PacketBuilder::GainExp(gainResult);
+		SendPacket(sessionID, GainExpMsg);
+		CMessage::Free(GainExpMsg);
 	}
 
 	SendPacket_HitSectors(result);

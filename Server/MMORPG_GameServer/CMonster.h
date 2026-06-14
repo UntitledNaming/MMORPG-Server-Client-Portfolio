@@ -29,7 +29,7 @@ public:
 	Location& GetMonsterAITargetLocation() const;
 
     uint64 GetMonsterID() const { return m_monsterID; }
-	uint64 GetExp() const { return m_exp; }
+	uint32 GetExp() const { return m_exp; }
 	uint32 GetRespawnTime() const { return m_respawnTime; }
 	uint32 GetRespawnDelay() const { return m_respawnDelay; }
     uint16 GetMonsterType() const { return m_monsterType; }
@@ -62,7 +62,7 @@ public:
 
 private:
 	uint64        m_monsterID      = 0;
-	uint64        m_exp = 35;
+	uint32        m_exp = 35;
 	uint16        m_monsterType    = 0;     // 0 : Khaimera
 	uint16        m_sectorIdx      = 0;
 	int16         m_hp             = 50;

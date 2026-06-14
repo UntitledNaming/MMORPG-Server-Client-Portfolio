@@ -1,7 +1,15 @@
 #include <chrono>
+#include <stack>
+#include <unordered_map>
+#include <unordered_set>
+#include <array>
 #include "ContentsProtocol.h"
 #include "ContentsStruct.h"
 #include "ContentsDefine.h"
+#include "Inventory.h"
+#include "Equipment.h"
+#include "QuickSlot.h"
+#include "CUserItemStorage.h"
 #include "IUser.h"
 #include "CUser.h"
 #include "CMonster.h"
@@ -23,10 +31,11 @@ CMessage* PacketBuilder::CreateMyCharacter(CUser* pUser)
 	*pMessage << pUser->GetY();
 	*pMessage << pUser->GetZ();
 	*pMessage << pUser->GetHP();
-	*pMessage << pUser->GetMaxHP(timeGetTime());
 	*pMessage << pUser->GetMP();
-	*pMessage << pUser->GetMaxMP(timeGetTime());
-	*pMessage << pUser->GetMPRegenSec();
+	*pMessage << pUser->GetLevel();
+	*pMessage << static_cast<unsigned long>(pUser->GetCurrentEXP());
+
+
 
 	return pMessage;
 }
@@ -414,20 +423,20 @@ CMessage* PacketBuilder::SwapSlot(bool Success)
 	return pMessage;
 }
 
-CMessage* PacketBuilder::LevelUp(UserLevelStat& result)
+CMessage* PacketBuilder::GainExp(GainEXPResult& result)
 {
 	CMessage* pMessage = CMessage::Alloc();
 	pMessage->Clear(1);
 
-	*pMessage << FieldProtocol::PACKET_SC_LEVEL_UP;
-	*pMessage << result.level;
-	*pMessage << result.requiredExp;
-	*pMessage << result.atk;
-	*pMessage << result.def;
-	*pMessage << result.maxHP;
-	*pMessage << result.maxMP;
-	*pMessage << result.hpRegenPerSec;
-	*pMessage << result.mpRegenPerSec;
+	*pMessage << FieldProtocol::PACKET_SC_GAIN_EXP;
+	*pMessage << result.levelUp;
+	*pMessage << static_cast<unsigned long>(result.curEXP);
 
+	if (result.levelUp)
+	{
+		*pMessage << result.curLevel;
+		*pMessage << result.curHP;
+		*pMessage << result.curMP;
+	}
 	return pMessage;
 }

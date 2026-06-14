@@ -1,6 +1,7 @@
 #include <stack>
 #include <unordered_map>
 #include <unordered_set>
+#include <array>
 #include "MemoryPoolTLS.h"
 #include "ItemUIDAllocator.h"
 #include "CUserItemStorage.h"
@@ -78,6 +79,7 @@ bool Inventory::InsertItemToSlot(ITEM_UID Item, int16 slotIndex)
 
 	m_inventory[slotIndex] = Item;
 	m_uidToSlotIndex.insert(std::pair<ITEM_UID, int16>(Item, slotIndex));
+	m_useCount++;
 	return true;
 }
 
@@ -86,14 +88,14 @@ bool Inventory::DeleteInventorySlot(int16 slotIndex, ITEM_UID& OutItemUID)
 	if (!IndexRangeCheck(slotIndex))
 		return false;
 
+	if (m_inventory[slotIndex] == ItemUID::ITEM_UID_INVALID_ID)
+		return false;
+
 	OutItemUID = m_inventory[slotIndex];
 	m_inventory[slotIndex] = ItemUID::ITEM_UID_INVALID_ID;
 
-	// 아이템 UID 존재시 index 관리 자료구조에서 제거
-	if (OutItemUID != ItemUID::ITEM_UID_INVALID_ID)
-	{
-		m_uidToSlotIndex.erase(OutItemUID);
-	}
+	m_uidToSlotIndex.erase(OutItemUID);
+	m_useCount--;
 
 	return true;
 }
