@@ -17,7 +17,7 @@ public:
 	bool     ClearConsumable(int16 slotIndex, ITEM_UID& OutItemUID);
 	bool     SwapSlot(int16 fromIndex, int16 toIndex);
 	ITEM_UID GetQuickSlotItem(int16 index);
-	uint64   GetUseCount() const { return m_useCount; }
+	uint8    GetUseCount() const { return m_useCount; }
 
 	const std::array<ITEM_UID, UserQuickSlot::QUICK_SLOT_MAX>& GetQuickSlotArray() const { return m_quickSlot; }
 
@@ -26,6 +26,6 @@ private:
 
 private:
 	std::array<ITEM_UID, UserQuickSlot::QUICK_SLOT_MAX> m_quickSlot;
-	uint64    m_useCount = 0;
+	uint8    m_useCount = 0;
 };
 

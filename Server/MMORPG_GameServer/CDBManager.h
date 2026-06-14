@@ -19,8 +19,8 @@ public:
 
 private:
 	std::thread         m_dbSaveThread;
-	DBTLS*              m_pDBTLS;
-	LFQueue<CMessage*>* m_pDBQue;
-	BOOL                m_endFlag;
+	DBTLS*              m_pDBTLS = nullptr;
+	LFQueue<CMessage*>* m_pDBQue = nullptr;
+	bool                m_endFlag = false;
 };
 

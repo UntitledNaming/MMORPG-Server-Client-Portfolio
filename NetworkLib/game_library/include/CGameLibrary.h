@@ -86,7 +86,7 @@ private:
 	std::vector<CGroup*>                     m_GroupArray;                                    // 컨텐츠 그룹 객체 관리할 자료구조
 	std::unordered_map<std::wstring, UINT16> m_GroupIDMap;                                    // Attach 인자로 받은 문자열과 그룹 객체 배열 index 매핑 자료구조
 	UINT16                                   m_GroupID;                                       // 그룹 등록시 부여할 ID (위 자료구조의 Index로 사용)
-	SRWLOCK                                  m_GroupIDMapLock;                                // 그룹 ID Map 동기화 객체
+	SRWLOCK                                  m_GroupIDMapLock = SRWLOCK_INIT;                 // 그룹 ID Map 동기화 객체
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 서비스 관련 변수 및 자료구조

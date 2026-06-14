@@ -18,6 +18,7 @@
 #include "FieldSector.h"
 #include "CGroup.h"
 #include "FieldGroup.h"
+#include "FieldDropItemPool.h"
 #include "PacketBuilder.h"
 
 CMessage* PacketBuilder::CreateMyCharacter(CUser* pUser)
@@ -35,7 +36,80 @@ CMessage* PacketBuilder::CreateMyCharacter(CUser* pUser)
 	*pMessage << pUser->GetLevel();
 	*pMessage << static_cast<unsigned long>(pUser->GetCurrentEXP());
 
+	const Inventory& inven = pUser->GetInventory();
+	const Equipment& equip = pUser->GetEquipment();
+	const QuickSlot& quick = pUser->GetQuickslot();
+	const CUserItemStorage& storage = pUser->GetItemStorage();
+	const auto& invenArray = inven.GetInventoryArray();
+	const auto& equipArray = equip.GetEquipmentArray();
+	const auto& quickArray = quick.GetQuickSlotArray();
 
+	*pMessage << inven.GetUseCount();
+
+	for (int16 i = 0; i < UserInventory::INVENTORY_SLOT_MAX; i++)
+	{
+		// 슬롯 비어있으면 pass
+		if(invenArray[i] == ItemUID::ITEM_UID_INVALID_ID)
+			continue;
+
+		*pMessage << i;
+
+		const UserItem* pItem = storage.FindItem(invenArray[i]);
+		if (pItem == nullptr)
+			continue;
+
+		*pMessage << static_cast<unsigned long>(pItem->itemID);
+		*pMessage << pItem->count;
+
+		uint8 randStatCount = pItem->randomStatCount;
+		*pMessage << randStatCount;
+		for (int i = 0; i < randStatCount; i++)
+		{
+			*pMessage << static_cast<uint8>(pItem->randomStat[i].randomStatType);
+			*pMessage << pItem->randomStat[i].randomStatValue;
+		}
+	}
+
+	*pMessage << equip.GetUseCount();
+
+	for (int16 i = 1; i < (int16)EQUIP_SLOT::MAX; i++)
+	{
+		if (equipArray[i] == ItemUID::ITEM_UID_INVALID_ID)
+			continue;
+
+		*pMessage << i;
+
+		const UserItem* pItem = storage.FindItem(invenArray[i]);
+		if (pItem == nullptr)
+			continue;
+
+		*pMessage << static_cast<unsigned long>(pItem->itemID);
+
+		uint8 randStatCount = pItem->randomStatCount;
+		*pMessage << randStatCount;
+		for (int i = 0; i < randStatCount; i++)
+		{
+			*pMessage << static_cast<uint8>(pItem->randomStat[i].randomStatType);
+			*pMessage << pItem->randomStat[i].randomStatValue;
+		}
+	}
+
+	*pMessage << quick.GetUseCount();
+	for (int16 i = 0; i < UserQuickSlot::QUICK_SLOT_MAX; i++)
+	{
+		if (quickArray[i] == ItemUID::ITEM_UID_INVALID_ID)
+			continue;
+
+		*pMessage << i;
+
+		const UserItem* pItem = storage.FindItem(invenArray[i]);
+		if (pItem == nullptr)
+			continue;
+
+		*pMessage << static_cast<unsigned long>(pItem->itemID);
+		*pMessage << pItem->count;
+	}
+	
 
 	return pMessage;
 }
@@ -388,12 +462,15 @@ CMessage* PacketBuilder::UseItem(UseItemResult& result)
 	switch (result.resultType)
 	{
 	case USE_ITEM_RESULT::CONSUME:
+	{
 		*pMessage << static_cast<uint8>(result.consumableResult.slotType);
 		*pMessage << result.consumableResult.newItenCount;
 		*pMessage << result.consumableResult.slotIndex;
+	}
 		break;
 
 	case USE_ITEM_RESULT::EQUIP:
+	{
 		uint8 updateCount = result.equipResult.updateSlotCount;
 		*pMessage << updateCount;
 		for (int i = 0; i < updateCount; i++)
@@ -403,10 +480,13 @@ CMessage* PacketBuilder::UseItem(UseItemResult& result)
 			*pMessage << result.equipResult.resultSlot[i].slotIndex;
 			*pMessage << static_cast<unsigned long>(result.equipResult.resultSlot[i].itemID);
 		}
+	}
 		break;
 
 	case USE_ITEM_RESULT::UNEQUIP:
+	{
 		*pMessage << result.unEquipResult.inventorySlotIdx;
+	}
 		break;
 	}
 

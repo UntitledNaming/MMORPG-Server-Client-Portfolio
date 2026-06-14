@@ -1,11 +1,20 @@
 #include <vector>
-#include "MemoryPoolTLS.h"
-#include "SectorPos.h"
+#include <array>
+#include <stack>
+#include <unordered_map>
+#include <unordered_set>
 #include "ContentsStruct.h"
 #include "ContentsDefine.h"
+#include "MemoryPoolTLS.h"
+#include "SectorPos.h"
+#include "Inventory.h"
+#include "Equipment.h"
+#include "QuickSlot.h"
+#include "CUserItemStorage.h"
 #include "IUser.h"
 #include "CUser.h"
 #include "CMonster.h"
+#include "FieldDropItemPool.h"
 #include "FieldSector.h"
 
 void FieldSector::Init()

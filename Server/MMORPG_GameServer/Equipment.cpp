@@ -97,7 +97,7 @@ bool Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& O
 	
 	const UserItem* initem = m_pStorage->FindItem(InItemUID);
 	if (!initem)
-		return;
+		return false;
 
 	// ItemTable¿¡¼­ ±âº» ½ºÅÈ Ã£¾Æ¼­ ´õÇÏ±â
 	const ItemData* pInItemData = ItemTable::GetItemData(initem->itemID);
@@ -158,54 +158,54 @@ bool Equipment::UnEquippedItem(EQUIP_SLOT slotNum, ITEM_UID& OutItemUID)
 
 	// Ä³½Ã ½ºÅÈ °»½Å
 	const UserItem* outitem = m_pStorage->FindItem(OutItemUID);
-	if (outitem)
+	if (outitem == nullptr)
+		return false;
+
+	m_useCount--;
+
+	// ItemTable Ã£¾Æ¼­ ±âº» ½ºÅÈ Ã£¾Æ¼­ »©±â
+	const ItemData* pData = ItemTable::GetItemData(outitem->itemID);
+	if (pData)
 	{
-		m_useCount--;
+		m_currentATK -= pData->baseStat.atk;
+		m_currentDEF -= pData->baseStat.def;
+		m_currentMaxHP -= pData->baseStat.maxHP;
+		m_currentMaxMP -= pData->baseStat.maxMP;
+		m_currentHPRegenPerSec -= pData->baseStat.hpRegenPerSec;
+		m_currentMPRegenPerSec -= pData->baseStat.mpRegenPerSec;
+	}
 
-		// ItemTable Ã£¾Æ¼­ ±âº» ½ºÅÈ Ã£¾Æ¼­ »©±â
-		const ItemData* pData = ItemTable::GetItemData(outitem->itemID);
-		if (pData)
+
+	// ·£´ý ½ºÅÈ »©±â
+	uint8 statCount = outitem->randomStatCount;
+	for (int i = 0; i < statCount; i++)
+	{
+		const RandomStatResult& randStat = outitem->randomStat[i];
+		switch (randStat.randomStatType)
 		{
-			m_currentATK -= pData->baseStat.atk;
-			m_currentDEF -= pData->baseStat.def;
-			m_currentMaxHP -= pData->baseStat.maxHP;
-			m_currentMaxMP -= pData->baseStat.maxMP;
-			m_currentHPRegenPerSec -= pData->baseStat.hpRegenPerSec;
-			m_currentMPRegenPerSec -= pData->baseStat.mpRegenPerSec;
-		}
+		case RANDOM_STAT_TYPE::ATK:
+			m_currentATK -= randStat.randomStatValue;
+			break;
 
+		case RANDOM_STAT_TYPE::DEF:
+			m_currentDEF -= randStat.randomStatValue;
+			break;
 
-		// ·£´ý ½ºÅÈ »©±â
-		uint8 statCount = outitem->randomStatCount;
-		for (int i = 0; i < statCount; i++)
-		{
-			const RandomStatResult& randStat = outitem->randomStat[i];
-			switch (randStat.randomStatType)
-			{
-			case RANDOM_STAT_TYPE::ATK:
-				m_currentATK -= randStat.randomStatValue;
-				break;
+		case RANDOM_STAT_TYPE::MAX_HP:
+			m_currentMaxHP -= randStat.randomStatValue;
+			break;
 
-			case RANDOM_STAT_TYPE::DEF:
-				m_currentDEF -= randStat.randomStatValue;
-				break;
+		case RANDOM_STAT_TYPE::MAX_MP:
+			m_currentMaxMP -= randStat.randomStatValue;
+			break;
 
-			case RANDOM_STAT_TYPE::MAX_HP:
-				m_currentMaxHP -= randStat.randomStatValue;
-				break;
+		case RANDOM_STAT_TYPE::HP_REGEN:
+			m_currentHPRegenPerSec -= randStat.randomStatValue;
+			break;
 
-			case RANDOM_STAT_TYPE::MAX_MP:
-				m_currentMaxMP -= randStat.randomStatValue;
-				break;
-
-			case RANDOM_STAT_TYPE::HP_REGEN:
-				m_currentHPRegenPerSec -= randStat.randomStatValue;
-				break;
-
-			case RANDOM_STAT_TYPE::MP_REGEN:
-				m_currentMPRegenPerSec -= randStat.randomStatValue;
-				break;
-			}
+		case RANDOM_STAT_TYPE::MP_REGEN:
+			m_currentMPRegenPerSec -= randStat.randomStatValue;
+			break;
 		}
 	}
 

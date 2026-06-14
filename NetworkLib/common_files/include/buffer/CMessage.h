@@ -83,22 +83,22 @@ public:
 public:
 	static CMPoolTLS<CMessage>* m_pMessagePool;
 
-	static INT                  m_iNetHeaderSize;    // 헤더 사이즈
-	static INT                  m_iLanHeaderSize;    // 헤더 사이즈
-											         
-	static bool                 m_netHderFlag;       // 네트워크 헤더 사용 플래그
+	static INT                  m_iNetHeaderSize;                  // 헤더 사이즈
+	static INT                  m_iLanHeaderSize;                  // 헤더 사이즈
+											                       
+	static bool                 m_netHderFlag;                     // 네트워크 헤더 사용 플래그
 
 private:
-	CHAR*                       m_iAllocPtr;         // 직렬화 버퍼 할당 메모리 포인터
-	CHAR*                       m_iReadPos;
-	CHAR*                       m_iWritePos;
-		                        
-	INT                         m_iBufferSize;       // 직렬화 버퍼 크기
-	INT                         m_iDataSize;         // 현재 사용중인 크기(네트워크 헤더 제외)
-	INT                         m_iResizeCount;      // resize 횟수
-	INT                         m_iRefCnt;	       
-	INT                         m_EncodingFlag;      
+	CHAR*                       m_iAllocPtr = nullptr;             // 직렬화 버퍼 할당 메모리 포인터
+	CHAR*                       m_iReadPos  = nullptr;		       
+	CHAR*                       m_iWritePos = nullptr;		       
+		                        							       
+	INT                         m_iBufferSize  = 0;                // 직렬화 버퍼 크기
+	INT                         m_iDataSize    = 0;                // 현재 사용중인 크기(네트워크 헤더 제외)
+	INT                         m_iResizeCount = 0;                // resize 횟수
+	INT                         m_iRefCnt      = 0;	       
+	INT                         m_EncodingFlag = 0;      
 			                      			       
-	BOOL                        m_iError;            // 연산자 오버로딩에서 오류 탐지 플래그
+	BOOL                        m_iError       = false;            // 연산자 오버로딩에서 오류 탐지 플래그
 };
 

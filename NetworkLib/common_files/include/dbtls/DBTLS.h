@@ -59,12 +59,12 @@ private:
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// DB_TLS 클래스 멤버 변수
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	DWORD             m_TlsIdx;
+	DWORD             m_TlsIdx = 0;
 	std::string       m_Schema;
 	std::string       m_DBIP;
-	UINT              m_DBPort;
-	DB_Query*         m_DBQueryAry[DBTLS_MAX_COUNT];
-	INT16             m_DBQArrayIdx;
+	UINT              m_DBPort = 0;
+	DB_Query*         m_DBQueryAry[DBTLS_MAX_COUNT] = {};
+	INT16             m_DBQArrayIdx = 0;
 
 
 };

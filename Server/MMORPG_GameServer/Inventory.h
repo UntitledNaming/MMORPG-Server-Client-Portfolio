@@ -24,7 +24,7 @@ public:
 	bool     GetItemUID(int16 slotIndex, ITEM_UID& OutItemUID);
 	int16    GetEmptySlotIndex();
 	int16    GetUIDToSlotIndex(ITEM_UID uid);
-	uint64   GetUseCount() { return m_useCount; };
+	uint8    GetUseCount() const { return m_useCount; };
 
 	const std::array<ITEM_UID, UserInventory::INVENTORY_SLOT_MAX>& GetInventoryArray() const { return m_inventory; };
 
@@ -33,7 +33,7 @@ private:
 
 private:
 	CUserItemStorage*                                          m_pStorage = nullptr;
-	uint64                                                     m_useCount = 0;
+	uint8                                                      m_useCount = 0;
 	std::array<ITEM_UID, UserInventory::INVENTORY_SLOT_MAX>    m_inventory;
 	std::stack<int16>                                          m_slotIndexAllocator;
 	std::unordered_map<ITEM_ID, std::unordered_set<ITEM_UID>>  m_stackableItemUIDs;

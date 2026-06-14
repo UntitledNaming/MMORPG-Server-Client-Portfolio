@@ -1,4 +1,12 @@
 #include <windows.h>
+#include <array>
+#include <unordered_map>
+#include <stack>
+#include <unordered_set>
+#include "Inventory.h"
+#include "Equipment.h"
+#include "QuickSlot.h"
+#include "CUserItemStorage.h"
 #include "MonsterAI.h"
 #include "IUser.h"
 #include "CUser.h"
@@ -67,7 +75,7 @@ void CMonster::Damage(uint16 damage)
 	m_hp -= damage;
 	if (m_hp <= 0)
 	{
-		m_hp == 0;
+		m_hp = 0;
 		m_state = EMonsterState::Dead;
 		m_respawnTime = 0;
 	}

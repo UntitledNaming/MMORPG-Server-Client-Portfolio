@@ -158,8 +158,8 @@ protected:
 	};
 
 public:
-	LFStack<Bucket*>*    g_pBucketPool;                // 공용 버킷 풀 락프리 스택으로 구현
-	CMemoryPool<Bucket>* g_pCaseBucketPool;            // 버킷 껍데기 가져오는 풀
+	LFStack<Bucket*>*    g_pBucketPool     = nullptr;                // 공용 버킷 풀 락프리 스택으로 구현
+	CMemoryPool<Bucket>* g_pCaseBucketPool = nullptr;            // 버킷 껍데기 가져오는 풀
 
 protected:
 	bool          m_bPlacementNew;
@@ -170,7 +170,7 @@ protected:
 	DWORD         m_iTlsIndex;
 
 	LONG          m_SubPoolIndex;
-	SubPool       m_SubPoolArray[SUBPOOL_MAX];                //각 서브풀 포인터 관리 자료구조
+	SubPool       m_SubPoolArray[SUBPOOL_MAX] = {};                //각 서브풀 포인터 관리 자료구조
 
 public:
 	CMPoolTLS(int iBucketNum = 0, bool bPlacementNew = false) : g_pBucketPool(nullptr), g_pCaseBucketPool(nullptr), m_SubPoolIndex(-1), m_bPlacementNew(bPlacementNew), 

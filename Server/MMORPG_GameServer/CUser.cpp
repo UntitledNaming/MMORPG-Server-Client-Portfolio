@@ -12,6 +12,7 @@
 #include "QuickSlot.h"
 #include "CUserItemStorage.h"
 #include "ItemTable.h"
+#include "FieldDropItemPool.h"
 #include "IUser.h"
 #include "CUser.h"
 
@@ -159,7 +160,7 @@ void CUser::CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, const 
 	m_secPos.CalSectorTransitionMessageTargets(oldSecPos, newSecPos, outDeleteSector, outCreateSector);
 }
 
-bool CUser::GainExp(uint64 GetExp, GainEXPResult& result)
+bool CUser::GainExp(uint32 GetExp, GainEXPResult& result)
 {
 	// 레벨 Max 찼으면 그냥 리턴
 	if (m_level >= UserConst::USER_MAX_LEVEL)
@@ -764,19 +765,23 @@ bool CUser::UseConsumableItem(const UserItem* pUserItem, const ItemData* pItemDa
 	switch (consumeType)
 	{
 	case CONSUMABLE_ITEM_TYPE::SMALL_HP_POTION:
+	{
 		uint16 maxHP = GetMaxHP(curTime);
 		m_hp += pItemData->recoverHP;
 		if (m_hp > maxHP)
 			m_hp = maxHP;
 		m_consumableCooltimeInfo.CooltimeStartTimeMs[(int)consumeType] = curTime;
+	}
 		break;
 
 	case CONSUMABLE_ITEM_TYPE::SMALL_MP_POTION:
+	{
 		uint16 maxMP = GetMaxMP(curTime);
 		m_mp += pItemData->recoverMP;
 		if (m_mp > maxMP)
 			m_mp = maxMP;
 		m_consumableCooltimeInfo.CooltimeStartTimeMs[(int)consumeType] = curTime;
+	}
 		break;
 	}
 

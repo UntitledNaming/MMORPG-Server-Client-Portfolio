@@ -2,6 +2,7 @@
 #include "ContentsDefine.h"
 #include "MemoryPoolTLS.h"
 #include "ItemTable.h"
+#include "SectorPos.h"
 #include "FieldDropItemPool.h"
 
 CMPoolTLS<FieldDropItem>* FieldDropItemPool::m_dropItemPool = nullptr;
@@ -174,8 +175,8 @@ FieldDropItem* FieldDropItemPool::CreateFieldItemByItemData(const ItemData* item
     pDropItem->location.xpos = dropLocation.xpos;
     pDropItem->location.ypos = dropLocation.ypos;
     pDropItem->location.zpos = dropLocation.zpos;
-    pDropItem->sectorPos.SetPos(const SectorPos(SectorPos((dropLocation.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (dropLocation.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE)));
-    for (int i = 0; i < FieldDropItemConst::FIELD_DROP_ITEM_RANDOM_STAT_MAX)
+    pDropItem->sectorPos.SetPos(SectorPos(SectorPos((dropLocation.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (dropLocation.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE)));
+    for (int i = 0; i < FieldDropItemConst::FIELD_DROP_ITEM_RANDOM_STAT_MAX; i++)
     {
         pDropItem->randomStat[i] = {};
     }

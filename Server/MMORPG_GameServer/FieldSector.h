@@ -1,8 +1,9 @@
 #pragma once
 #include "ContentsType.h"
 
-class CUser;
-class CMonster;
+class  CUser;
+class  CMonster;
+struct FieldDropItem;
 
 class FieldSector
 {

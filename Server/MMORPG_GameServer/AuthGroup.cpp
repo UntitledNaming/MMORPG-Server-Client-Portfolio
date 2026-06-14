@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <stack>
+#include <array>
 #include "ContentsEnum.h"
 #include "ContentsDefine.h"
 #include "ContentsProtocol.h"

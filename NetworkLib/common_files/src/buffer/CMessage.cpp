@@ -12,7 +12,7 @@ INT CMessage::m_iNetHeaderSize = 0;
 INT CMessage::m_iLanHeaderSize = 0;
 bool CMessage::m_netHderFlag = false;
 
-CMessage::CMessage()
+CMessage::CMessage() : m_EncodingFlag(0)
 {
 	m_iAllocPtr = (char*)malloc(eBuffer_Default);
 	m_iReadPos = m_iAllocPtr;

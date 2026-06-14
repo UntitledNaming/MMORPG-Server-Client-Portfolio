@@ -155,7 +155,7 @@ void FieldGroup::SendCreateFieldDropItem(FieldDropItem* pItem)
 		SendPacket_SectorOne(pCreateFieldDropItem, CreateAround.m_Around[i].GetX(), CreateAround.m_Around[i].GetY(), nullptr);
 	}
 
-	CMessage(pCreateFieldDropItem);
+	CMessage::Free(pCreateFieldDropItem);
 }
 
 void FieldGroup::SendDeleteFieldDropItem(FieldDropItem* pItem)
@@ -170,7 +170,7 @@ void FieldGroup::SendDeleteFieldDropItem(FieldDropItem* pItem)
 		SendPacket_SectorOne(pDeleteFieldDropItem, DeleteAround.m_Around[i].GetX(), DeleteAround.m_Around[i].GetY(), nullptr);
 	}
 
-	CMessage(pDeleteFieldDropItem);
+	CMessage::Free(pDeleteFieldDropItem);
 }
 
 void FieldGroup::AddMonsterToSector(CMonster* pMonster, uint16 secX, uint16 secY)
@@ -198,7 +198,7 @@ CUser* FieldGroup::GetUser(uint64 sessionID)
 
 void FieldGroup::Init(CGameLibrary* p)
 {
-	srand(time(NULL));
+	srand(static_cast<unsigned int>(time(nullptr)));
 
 	m_pGameLib = p;
 	m_GroupFrameTime = UPDATE_LOOP_TIME;
@@ -208,7 +208,6 @@ void FieldGroup::Init(CGameLibrary* p)
 	m_SendTPS = 0;
 	m_FrameTPS = 0;
 	InitializeSRWLock(&m_GroupLock);
-	m_ManaRegenOldTime = timeGetTime();
 
 	for (int y = 0; y < SECTOR_Y_MAX; y++)
 	{
@@ -224,6 +223,20 @@ void FieldGroup::Init(CGameLibrary* p)
 
 void FieldGroup::Destroy()
 {
+	// 현재 있는 모든 유저 연결 끊기
+	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.begin();
+	for (; it != m_userLookUpTable.end(); ++it)
+	{
+		Disconnect(it->second->GetSessionID());
+	}
+
+	// 유저 전부 삭제될때까지 대기
+	while (!m_userLookUpTable.empty())
+	{
+
+	}
+
+
 	for (int i = 0; i < MAX_GROSS_FIELD_MONSTER_COUNT; i++)
 	{
 		m_grossMonsterPoolArray[i].Destroy();
@@ -730,7 +743,7 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 	}
 
 	// 데미지 계산 및 hp 수정
-	uint64 totalExp = 0;
+	uint32 totalExp = 0;
 
 	for (int i = 0; i < result.HitMonsterCount; i++)
 	{
@@ -879,7 +892,7 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 	}
 
 	// 데미지 계산 및 hp 수정
-	uint64 totalExp = 0;
+	uint32 totalExp = 0;
 
 	for (int i = 0; i < result.HitMonsterCount; i++)
 	{
@@ -1223,7 +1236,7 @@ void FieldGroup::SectorUpdate(CUser* pUser, const SectorPos& newSec)
 
 		}
 
-		for (int count = 0; count > sector.GetItemCount(); count++)
+		for (int count = 0; count < sector.GetItemCount(); count++)
 		{
 			FieldDropItem* pItem = sector.GetFieldDropItem(count);
 

@@ -70,9 +70,7 @@ public:
 	~CMemoryPool()
 	{
 		// Free에서 소멸자 호출 안했으니 소멸자 호출해주고 메모리 풀 노드 지우기
-
-		Node* tempTop;
-		Node* newTop;
+		Node* newTop = nullptr;
 		Node* realTop = (Node*)((UINT64)m_pTopNode & BITMASK);
 
 		while (realTop != nullptr)

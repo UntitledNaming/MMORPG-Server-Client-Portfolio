@@ -2,8 +2,16 @@
 #include <cmath>
 #include <limits>
 #include <vector>
+#include <stack>
+#include <unordered_map>
+#include <unordered_set>
+#include <array>
 #include "ContentsDefine.h"
 #include "SectorPos.h"
+#include "Inventory.h"
+#include "Equipment.h"
+#include "QuickSlot.h"
+#include "CUserItemStorage.h"
 #include "IUser.h"
 #include "CUser.h"
 #include "CMonster.h"

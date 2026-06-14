@@ -4,10 +4,11 @@
 #include "ContentsDefine.h"
 #include "MemoryPoolTLS.h"
 #include "ItemUIDAllocator.h"
+#include "SectorPos.h"
+#include "FieldDropItemPool.h"
 #include "CUserItemStorage.h"
 
 CMPoolTLS<UserItem>* CUserItemStorage::m_itemPool = nullptr;
-uint64               CUserItemStorage::m_refCount = 0;
 
 void CUserItemStorage::ItemPoolInit()
 {
@@ -15,22 +16,17 @@ void CUserItemStorage::ItemPoolInit()
 		return;
 
 	m_itemPool = new CMPoolTLS<UserItem>;
-	m_refCount = 0;
 }
 
 void CUserItemStorage::ItemPoolDestroy()
 {
-	if (m_refCount == 0)
-	{
-		delete m_itemPool;
-		m_itemPool = nullptr;
-	}
+	delete m_itemPool;
+	m_itemPool = nullptr;
 }
 
 void CUserItemStorage::Init()
 {
 	m_storage.clear();
-	m_refCount++;
 }
 
 void CUserItemStorage::Destroy()
@@ -42,10 +38,9 @@ void CUserItemStorage::Destroy()
 	}
 
 	m_storage.clear();
-	m_refCount--;
 }
 
-bool CUserItemStorage::CreateItem(const ItemCreateInfo& Info, ITEM_UID& OutItemUID)
+bool CUserItemStorage::CreateItem(const BaseItemInfo& Info, ITEM_UID& OutItemUID)
 {
 	UserItem* pItem = m_itemPool->Alloc();
 
@@ -99,9 +94,9 @@ bool CUserItemStorage::ChangeItemCount(ITEM_UID ItemUID, uint16 NewCount)
 	return true;
 }
 
-const UserItem* CUserItemStorage::FindItem(ITEM_UID ItemUID)
+const UserItem* CUserItemStorage::FindItem(ITEM_UID ItemUID) const
 {
-	std::unordered_map<ITEM_UID, UserItem*>::iterator it = m_storage.find(ItemUID);
+	std::unordered_map<ITEM_UID, UserItem*>::const_iterator it = m_storage.find(ItemUID);
 	if (it == m_storage.end())
 		return nullptr;
 
@@ -109,7 +104,7 @@ const UserItem* CUserItemStorage::FindItem(ITEM_UID ItemUID)
 }
 
 
-void CUserItemStorage::LoadItemFromDB(const DBItemInfo& Info)
+void CUserItemStorage::LoadItemFromDB(const DBItem& Info)
 {
 	UserItem* pItem = m_itemPool->Alloc();
 

@@ -5,6 +5,7 @@
 class CMessage;
 class CUser;
 class CMonster;
+struct FieldDropItem;
 
 class PacketBuilder
 {

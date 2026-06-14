@@ -1,9 +1,17 @@
+#include <array>
+#include <unordered_map>
+#include <unordered_set>
+#include <stack>
 #include "ContentsDefine.h"
 #include "ContentsStruct.h"
 #include "MemoryPoolTLS.h"
 #include "SkillTable.h"
 #include "SectorPos.h"
 #include "CMonster.h"
+#include "Inventory.h"
+#include "Equipment.h"
+#include "QuickSlot.h"
+#include "CUserItemStorage.h"
 #include "IUser.h"
 #include "CUser.h"
 #include "HitSearchBuilder.h"

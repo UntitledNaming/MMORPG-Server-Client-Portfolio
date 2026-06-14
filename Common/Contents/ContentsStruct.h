@@ -12,19 +12,19 @@ struct Vec2
 
 struct SkillData
 {
-	uint16           MaxUserCount;    // Ÿ�ݽ� �ִ� �ǰ� ������
-	uint16           MaxMonsterCount; // Ÿ�ݽ� �ִ� �ǰ� ���ͼ�
-	uint16           RequiredMana;    // �ʿ� ����
-	uint32           CoolTime;        // �� Ÿ��
-	uint32           Duration;        // ���� �ð�
-	uint16           BaseDamage;      // ���� ������
-	float            Range ;          // ���� �Ÿ�
-	float            AttackRatio;     // ���ݷ� ���
-	float            HalfAngleDegree; // ���� ���� ���� ����
-	bool             bHitUser;        // ���� �ǰ� ���� ����
-	bool             bHitMonster;     // ���� �ǰ� ���� ����
+	uint16           MaxUserCount;    
+	uint16           MaxMonsterCount; 
+	uint16           RequiredMana;    
+	uint32           CoolTime;        
+	uint32           Duration;        
+	uint16           BaseDamage;      
+	float            Range ;          
+	float            AttackRatio;     
+	float            HalfAngleDegree; 
+	bool             bHitUser;        
+	bool             bHitMonster;     
 	ESkillDamageType DamageType;      
-	EHitShape        HitShape;        // ���� ���
+	EHitShape        HitShape;        
 };
 
 struct Location
@@ -72,15 +72,23 @@ struct UpdateSlotResult
 	uint16          newItemCount;
 };
 
-struct UserItem 
+struct BaseItemInfo
 {
-	ITEM_UID            itemUID = 0;
 	ITEM_ID             itemID = 0;
 	uint16              count = 0;
 	uint8               randomStatCount = 0;
 	RandomStatResult    randomStat[FieldDropItemConst::FIELD_DROP_ITEM_RANDOM_STAT_MAX];
 };
 
+struct UserItem : public BaseItemInfo
+{
+	ITEM_UID            itemUID = 0;
+};
+
+struct DBItem : public BaseItemInfo
+{
+	ITEM_UID            itemUID = 0;
+};
 
 struct UIDRange
 {
@@ -163,7 +171,7 @@ struct UseItemResult
 struct UserLevelStat
 {
 	uint16 level;
-	uint64 requiredExp;
+	uint32 requiredExp;
 
 	int16  atk;
 	int16  def;

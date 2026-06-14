@@ -46,19 +46,13 @@ static constexpr RandomStatRule g_magicRandomStatRules[] =
     { RANDOM_STAT_TYPE::MP_REGEN, 1, 2},
 };
 
-
-struct FieldDropItem 
+struct FieldDropItem : public BaseItemInfo
 {
     uint64              dropUID = 0;
     uint32              expiredTime = 0;
     uint16              sectorIdx = 0;
     Location            location;
     SectorPos           sectorPos;
-
-    ITEM_ID             itemID = 0;
-    uint16              count = 0;
-    uint8               randomStatCount = 0;
-    RandomStatResult    randomStat[FieldDropItemConst::FIELD_DROP_ITEM_RANDOM_STAT_MAX];
 };
 
 class FieldDropItemPool

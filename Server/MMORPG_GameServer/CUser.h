@@ -36,20 +36,6 @@ struct SkillInfo
 
 };
 
-struct UserLevelStat
-{
-	uint16 level;
-	uint32 requiredExp;
-
-	int16  atk;
-	int16  def;
-	int16  maxHP;
-	int16  maxMP;
-
-	uint16 hpRegenPerSec;
-	uint16 mpRegenPerSec;
-};
-
 constexpr UserLevelStat g_userLevelStatTable[10] =
 {
 	// Lv, RequiredExp, ATK, DEF, MaxHP, MaxMP, HPRegen, MPRegen
@@ -83,7 +69,7 @@ public:
 	void   CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, const SectorPos& newSecPos, SectorAround& outDeleteSector, SectorAround& outCreateSector);
 	void   SwingStop() { m_swingInfo.m_lastSwingIdx = 0; }
 
-	bool   GainExp(uint64 GetExp, GainEXPResult& result);
+	bool   GainExp(uint32 GetExp, GainEXPResult& result);
 	bool   CanUseSkill(uint32 curTime, uint8 skillIndex);
 	bool   Move();
 	bool   CanSwing(uint32 curTime, uint8 swingidx);
@@ -128,6 +114,7 @@ public:
 	const Inventory& GetInventory() const{ return m_inventory; }
 	const Equipment& GetEquipment() const { return m_equipment; }
 	const QuickSlot& GetQuickslot() const { return m_quickSlot; }
+	const CUserItemStorage& GetItemStorage() const { return m_storage; };
 
 	void SetLocation(Location& location) { m_location = location; }
 	void SetMoveYaw(float moveYaw) { m_movementYaw = moveYaw; }

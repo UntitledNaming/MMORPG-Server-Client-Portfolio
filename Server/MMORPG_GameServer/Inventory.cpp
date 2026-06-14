@@ -96,7 +96,7 @@ bool Inventory::DeleteInventorySlot(int16 slotIndex, ITEM_UID& OutItemUID)
 
 	m_uidToSlotIndex.erase(OutItemUID);
 	m_useCount--;
-
+	m_slotIndexAllocator.push(slotIndex);
 	return true;
 }
 
