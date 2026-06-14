@@ -100,7 +100,7 @@ void CUser::UpdateRecovery(uint32 curTime)
 	m_recoveryInfo.HP_accumulatedTimeMs += FieldConst::UPDATE_LOOP_TIME;
 	m_recoveryInfo.MP_accumulatedTimeMs += FieldConst::UPDATE_LOOP_TIME;
 
-	if (m_recoveryInfo.HP_accumulatedTimeMs >= USER_HP_REGEN_TIME)
+	if (m_recoveryInfo.HP_accumulatedTimeMs >= USER_HP_REGEN_TIME * 1000)
 	{
 		m_hp += GetHPRegenSec();
 
@@ -112,14 +112,14 @@ void CUser::UpdateRecovery(uint32 curTime)
 		m_recoveryInfo.HP_accumulatedTimeMs = 0;
 	}
 
-	if (m_recoveryInfo.MP_accumulatedTimeMs >= USER_MP_REGEN_TIME)
+	if (m_recoveryInfo.MP_accumulatedTimeMs >= USER_MP_REGEN_TIME * 1000)
 	{
 		m_mp += GetMPRegenSec();
 
 		uint16 maxmp = GetMaxMP(curTime);
 
-		if (m_hp > maxmp)
-			m_hp = maxmp;
+		if (m_mp > maxmp)
+			m_mp = maxmp;
 
 		m_recoveryInfo.MP_accumulatedTimeMs = 0;
 	}
@@ -149,10 +149,17 @@ void CUser::UseSkill(uint32 curTime, uint8 skillIndex)
 		m_skillInfo[skillIndex].m_skillActivate = true;
 		m_skillInfo[skillIndex].m_skillLastRecvTime = curTime;
 		m_skillInfo[skillIndex].m_skillExpiredTime = curTime + g_skillData[skillIndex].Duration;
+		m_mp -= g_skillData[skillIndex].RequiredMana;
+		if (m_mp < 0)
+			__debugbreak();
+
 		return;
 	}
 
 	m_skillInfo[skillIndex].m_skillLastRecvTime = curTime;
+	m_mp -= g_skillData[skillIndex].RequiredMana;
+	if (m_mp < 0)
+		__debugbreak();
 }
 
 void CUser::CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, const SectorPos& newSecPos, SectorAround& outDeleteSector, SectorAround& outCreateSector)

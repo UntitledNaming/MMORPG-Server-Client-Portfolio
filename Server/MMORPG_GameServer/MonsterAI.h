@@ -52,6 +52,7 @@ private:
 	uint32      m_chaseUpdateAccum = 0;       // 추격 시 누적시간
 
 	uint32      m_attackAccum = 0;            // 공격 시 누적시간
-			    						      
+	
+	uint32      m_combatExitElapsed = 0;      // 공격 모드 시 추격 전환 대기 시간 체크 변수
 };
 

@@ -134,6 +134,7 @@ namespace MonsterConst
 	constexpr float   CHASE_REENTER_RANGE = 100;
 	constexpr uint32  CHASE_UPDATE_MIN_MS = 200;
 	constexpr uint32  MOVE_SYNC_INTERVAL_MS = 1000;
+	constexpr uint32  COMBAT_EXIT_DELAY_MS = 400;
 }
 
 namespace UserInventory

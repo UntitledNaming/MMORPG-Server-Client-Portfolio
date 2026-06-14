@@ -73,7 +73,7 @@ void MonsterAI::Reset()
 	m_attackAccum = 0;
 	m_idleElapsed = 0;
 	m_idleDuration = 0;
-
+	m_combatExitElapsed = 0;
 
 	EnterIdle();
 }
@@ -209,54 +209,20 @@ void MonsterAI::UpdateCombat()
 	// 범위 벗어나면 다시 추격
 	if (!IsChaseRange())
 	{
-		EnterChase(m_pTarget);
-		return;
-	}
+		m_combatExitElapsed += UPDATE_LOOP_TIME;
 
-
-
-
-	// 데드 존인 경우 이동 및 패킷 뿌리기
-	if (!IsAttackRange())
-	{
-		// 속도가 0이면 CHASE_SPEED로 전환 후 이동 시작하기
-		if (m_pOwner->GetMoveSpeedPerSec() == 0)
+		if (m_combatExitElapsed >= COMBAT_EXIT_DELAY_MS)
 		{
-			m_pOwner->SetMoveSpeed(CHASE_SPEED / UPDATE_FRAME);
-			m_pOwner->SetMoveSpeedPerSec(CHASE_SPEED);
-			m_chaseUpdateAccum = 0;
-
-			// 방향 변경
-			float dx = m_pTarget->GetLocation().xpos - m_pOwner->GetX();
-			float dy = m_pTarget->GetLocation().ypos - m_pOwner->GetY();
-			float rad = atan2f(dy, dx);
-			float targetYaw = rad * 180.0f / FieldConst::Pi;
-			float dirX = cosf(rad);
-			float dirY = sinf(rad);
-
-			m_targetLocation.xpos = m_pTarget->GetLocation().xpos - dirX * CHASE_STOP_DISTANCE;
-			m_targetLocation.ypos = m_pTarget->GetLocation().ypos - dirY * CHASE_STOP_DISTANCE;
-			m_targetLocation.zpos = m_pTarget->GetLocation().zpos;
-
-			m_pOwner->SetMoveYaw(targetYaw);
-
-			m_pField->SendMonsterTargetUpdate(m_pOwner);
+			EnterChase(m_pTarget);
+			return;
 		}
-
-		// 속도가 0이아니면 타겟 업데이트 하고 이동 후 섹터 업데이트
-		TargetUpdate();
-		m_pOwner->Move();
-		UpdateSector();
-		return;
 	}
-
-	// 공격 범위 안에 들어왔으면 속도 0으로 만들기
-	if (m_pOwner->GetMoveSpeedPerSec() > 0)
+	else
 	{
-		m_pOwner->SetMoveSpeed(0);
-		m_pOwner->SetMoveSpeedPerSec(0);
-		m_pField->SendMonsterStop(m_pOwner);
+		// 범위 안이면 전환 시간 초기화
+		m_combatExitElapsed = 0;
 	}
+
 
 	// 공격 주기 시간 증가
 	m_attackAccum += UPDATE_LOOP_TIME;
@@ -329,7 +295,7 @@ void MonsterAI::EnterChase(CUser* targetPlayer)
 
 	m_pOwner->SetMoveYaw(targetYaw);
 	m_chaseUpdateAccum = 0;
-
+	m_combatExitElapsed = 0;
 
 	// 타겟 목적지 변경 되었으니 Move 패킷 주변에 뿌리기
 	m_pField->SendMonsterTargetUpdate(m_pOwner);
@@ -381,6 +347,8 @@ void MonsterAI::EnterCombat()
 
 	// 정지 패킷 뿌리기
 	m_pField->SendMonsterStop(m_pOwner);
+
+	m_combatExitElapsed = 0;
 }
 
 CUser* MonsterAI::FindNearestPlayer(float range)
