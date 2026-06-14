@@ -523,29 +523,28 @@ void M1PacketHandler::Handle_SC_SWAP_SLOT(CMessage* pMessage, UM1NetworkManager*
 	ItemManager->OnSwapSlotResult(success);
 }
 
-void M1PacketHandler::Handle_SC_LEVEL_UP(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+void M1PacketHandler::Handle_SC_GAIN_EXP(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
+	bool   levelup;
+	uint32 curexp;
 	uint16 level;
 	uint16 hp;
 	uint16 mp;
-	uint32 curexp;
+
+	*pMessage >> levelup;
+	*pMessage >> curexp;
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	if (!levelup)
+	{
+		SpawnManager->OnGetExp(curexp);
+		return;
+	}
 
 	*pMessage >> level;
 	*pMessage >> hp;
 	*pMessage >> mp;
-	*pMessage >> curexp;
 
-
-	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
 	SpawnManager->OnLevelUp(level, hp, mp, curexp);
-
 }
 
-void M1PacketHandler::Handle_SC_GET_EXP(CMessage* pMessage, UM1NetworkManager* NetworkManager)
-{
-	uint32 newCurrentExp;
-	*pMessage >> newCurrentExp;
-
-	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
-	SpawnManager->OnGetExp(newCurrentExp);
-}

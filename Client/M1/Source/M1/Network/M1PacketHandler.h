@@ -99,9 +99,7 @@ public:
 	// 서버가 보낸 "슬롯 교환" 처리
 	static void Handle_SC_SWAP_SLOT(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 
-	// 서버가 보낸 "레벨업" 처리
-	static void Handle_SC_LEVEL_UP(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+	// 서버가 보낸 "경험치 획득 및 레벨업" 처리
+	static void Handle_SC_GAIN_EXP(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 
-	// 서버가 보낸 "경험치 획득" 처리
-	static void Handle_SC_GET_EXP(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 };
