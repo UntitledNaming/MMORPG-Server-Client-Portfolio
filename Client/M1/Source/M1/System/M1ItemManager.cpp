@@ -109,14 +109,20 @@ void UM1ItemManager::OnUseConsumableResult(bool bSuccess, USE_CONSUMABLE_ITEM_RE
 		UsedItemID = Inventory[Result.slotIndex].ItemID;
 		Inventory[Result.slotIndex].Count = Result.newItenCount;
 		if (Result.newItenCount == 0)
-			Inventory[Result.slotIndex].ItemID = 0;  // 아이템 슬롯 비우기
+		{
+			Inventory[Result.slotIndex].ItemID = 0;
+			ClearSlotCoolTime(SLOT_TYPE::INVENTORY, Result.slotIndex);
+		}
 		break;
 
 	case SLOT_TYPE::QUICKSLOT:
 		UsedItemID = QuickSlot[Result.slotIndex].ItemID;
 		QuickSlot[Result.slotIndex].Count = Result.newItenCount;
 		if (Result.newItenCount == 0)
+		{
 			QuickSlot[Result.slotIndex].ItemID = 0;
+			ClearSlotCoolTime(SLOT_TYPE::QUICKSLOT, Result.slotIndex);
+		}
 		break;
 	}
 
@@ -151,19 +157,56 @@ void UM1ItemManager::OnEquipItemResult(bool bSuccess, EQUIP_ITEM_RESULT& Result)
 	if (!bSuccess)
 		return;
 
-	FItemSlotData* InvSlot = nullptr;
-	FItemSlotData* EquipSlot = nullptr;
+
+	// 업데이트 전 슬롯 데이터 스냅샷 저장
+	TArray<FItemSlotData> Snapshot;
+	Snapshot.Reserve(Result.updateSlotCount);
 
 	for (uint8 i = 0; i < Result.updateSlotCount; ++i)
 	{
 		const UPDATE_SLOT& s = Result.resultSlot[i];
 
-		// 결과 반영할 슬롯의 주소 얻기
 		if (s.slotType == SLOT_TYPE::INVENTORY)
-			InvSlot = &Inventory[s.slotIndex];
-
+			Snapshot.Add(Inventory[s.slotIndex]);
 		else if (s.slotType == SLOT_TYPE::EQUIPMENT)
-			EquipSlot = &Equipment[s.slotIndex];
+			Snapshot.Add(Equipment[s.slotIndex]);
+	}
+
+
+	// 결과 직접 반영
+	for (uint8 i = 0; i < Result.updateSlotCount; ++i)
+	{
+		const UPDATE_SLOT& s = Result.resultSlot[i];
+
+		FItemSlotData* Slot = nullptr;
+		if (s.slotType == SLOT_TYPE::INVENTORY)
+			Slot = &Inventory[s.slotIndex];
+		else if (s.slotType == SLOT_TYPE::EQUIPMENT)
+			Slot = &Equipment[s.slotIndex];
+
+		if (!Slot) continue;
+
+		if (s.itemID == 0)
+		{
+			Slot->ItemID = 0;
+			Slot->Count = 0;
+			Slot->RandomStats.Reset();
+		}
+		else
+		{
+			Slot->ItemID = s.itemID;
+			Slot->Count = 1;
+
+			Slot->RandomStats.Reset();
+			for (const FItemSlotData& Snap : Snapshot)
+			{
+				if (Snap.ItemID == s.itemID)
+				{
+					Slot->RandomStats = Snap.RandomStats;
+					break;
+				}
+			}
+		}
 	}
 
 
@@ -597,6 +640,20 @@ float UM1ItemManager::GetSlotCoolTimeRatio(uint8 SlotType, int32 SlotIndex) cons
 int32 UM1ItemManager::MakeSlotCoolTimeKey(SLOT_TYPE SlotType, int16 SlotIndex) const
 {
 	return ((int32)SlotType << 16) | (uint16)SlotIndex;
+}
+
+void UM1ItemManager::ClearSlotCoolTime(SLOT_TYPE SlotType, int16 SlotIndex)
+{
+	const int32 Key = MakeSlotCoolTimeKey(SlotType, SlotIndex);
+	FSlotCoolTimeInfo* Info = SlotCoolTimeMap.Find(Key);
+	if (!Info)
+		return;
+
+	UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
+	if (World)
+		World->GetTimerManager().ClearTimer(Info->TimerHandle);
+
+	SlotCoolTimeMap.Remove(Key);
 }
 
 void UM1ItemManager::StartSlotCoolTime(SLOT_TYPE SlotType, int16 SlotIndex, ITEM_ID UsedItemID)

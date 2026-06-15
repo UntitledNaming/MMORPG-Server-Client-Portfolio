@@ -28,5 +28,6 @@ void UM1DraggedItemWidget::SetIcon(UTexture2D* Texture)
         return;
 
     // 드래그 시작할때 ItemSlotWidget에서 이 함수 호출해서 아이콘 이미지를 세팅함.
-    Image_Icon->SetBrushFromTexture(Texture);
+    Image_Icon->SetBrushFromTexture(Texture, false);
+    Image_Icon->SetDesiredSizeOverride(FVector2D(48.f, 48.f));
 }

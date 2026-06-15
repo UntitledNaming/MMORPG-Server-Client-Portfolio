@@ -109,4 +109,5 @@ private:
 
     int32 MakeSlotCoolTimeKey(SLOT_TYPE SlotType, int16 SlotIndex) const;
     void StartSlotCoolTime(SLOT_TYPE SlotType, int16 SlotIndex, ITEM_ID UsedItemID);
+    void ClearSlotCoolTime(SLOT_TYPE SlotType, int16 SlotIndex);
 };
