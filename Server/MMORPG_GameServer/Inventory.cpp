@@ -15,7 +15,6 @@ void Inventory::Init(CUserItemStorage* pStorage)
 	}
 
 	m_pStorage = pStorage;
-	m_stackableItemUIDs.clear();
 	m_uidToSlotIndex.clear();
 
 	// DB에 저장된 아이템들 인벤토리에 배치
@@ -101,45 +100,6 @@ bool Inventory::DeleteInventorySlot(int16 slotIndex, ITEM_UID& OutItemUID)
 	m_useCount--;
 	m_slotIndexAllocator.push(slotIndex);
 	return true;
-}
-
-bool Inventory::InsertNotFullStackItemUID(ITEM_ID itemID, ITEM_UID InItemUID)
-{
-	std::unordered_map<ITEM_ID, std::unordered_set<ITEM_UID>>::iterator it = m_stackableItemUIDs.find(itemID);
-
-	if (it == m_stackableItemUIDs.end())
-		return false;
-
-	it->second.insert(InItemUID);
-	return true;
-}
-
-bool Inventory::DeleteNotFullStackItemUID(ITEM_ID itemID, ITEM_UID InItemUID)
-{
-	std::unordered_map<ITEM_ID, std::unordered_set<ITEM_UID>>::iterator it = m_stackableItemUIDs.find(itemID);
-	if (it == m_stackableItemUIDs.end())
-		return false;
-
-	std::unordered_set<ITEM_UID>::iterator it2 = it->second.find(InItemUID);
-	if (it2 == it->second.end())
-		return false;
-
-	it->second.erase(it2);
-	return true;
-}
-
-void Inventory::FindNotFullStackItemUID(ITEM_ID itemID, ITEM_UID& outItemUID)
-{
-	outItemUID = ItemUID::ITEM_UID_INVALID_ID;
-
-	std::unordered_map<ITEM_ID, std::unordered_set<ITEM_UID>>::iterator it = m_stackableItemUIDs.find(itemID);
-	if (it == m_stackableItemUIDs.end())
-		return;
-
-	if (it->second.empty())
-		return;
-
-	outItemUID = *(it->second.begin());
 }
 
 bool Inventory::IndexRangeCheck(int16 slotIndex)

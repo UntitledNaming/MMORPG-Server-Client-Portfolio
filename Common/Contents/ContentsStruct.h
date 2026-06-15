@@ -128,9 +128,8 @@ struct PickUpEquipResult
 struct PickUpConsumableResult
 {
 	ITEM_ID          itemID;
-	uint16           updateSlotCount;
 
-	UpdateSlotResult consumableResult[UserInventory::INVENTORY_SLOT_MAX];
+	UpdateSlotResult consumableResult;
 };
 
 struct UPDATE_SLOT

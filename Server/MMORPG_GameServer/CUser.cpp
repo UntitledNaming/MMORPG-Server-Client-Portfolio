@@ -282,17 +282,24 @@ bool CUser::IsAlive()
 // 필드에 있는 드랍 아이템 먹으려고 할 때 작동
 bool CUser::GetConsumableItem(FieldDropItem& dropItem, PickUpConsumableResult& OutResult)
 {
-	// 넣을 갯수를 기준으로 우선 FullStack에 있는 UID 있으면 거기에 먼저 넣고 남은것 remainCount로 다시 받기
-	uint16 remainCount = dropItem.count;
-
-	if (!AddToExistingConsumableStack(dropItem.itemID, remainCount, OutResult))
+	// 그냥 빈 슬롯 찾아서 거기에 아이템 넣기
+	int16 emptyIndex = m_inventory.GetEmptySlotIndex();
+	if (emptyIndex == -1)
 		return false;
 
-	// 다 넣었으면 true 리턴
-	if (remainCount == 0)
-		return true;
+	// 슬롯 있으면 거기에 아이템 넣기
+	ITEM_UID retUID;
+	if (!m_storage.CreateItem(dropItem, retUID))
+		return false;
 
-	return CreateNewConsumableStacks(dropItem, remainCount, OutResult);
+	// 해당 UID를 인벤토리에 배치
+	m_inventory.InsertItemToSlot(retUID, emptyIndex);
+
+	OutResult.itemID = dropItem.itemID;
+	OutResult.consumableResult.slotIndex = emptyIndex;
+	OutResult.consumableResult.newItemCount = dropItem.count;
+
+	return true;
 }
 
 bool CUser::GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResult)
@@ -339,10 +346,7 @@ bool CUser::DeleteItem(int16 slotIndex, SLOT_TYPE slotType)
 
 		const UserItem* pItem = m_storage.FindItem(retID);
 		if (pItem == nullptr)
-			return false;
-
-		// 장비 아이템 UID면 false
-		m_inventory.DeleteNotFullStackItemUID(pItem->itemID, retID);
+			__debugbreak();
 
 		break;
 	}
@@ -406,7 +410,6 @@ bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 		// 다 사용했으면 아이템 삭제
 		ITEM_UID retUID;
 		m_inventory.DeleteInventorySlot(slotIndex, retUID);
-		m_inventory.DeleteNotFullStackItemUID(pUserData->itemID, retUID);
 
 		return m_storage.DeleteItem(retUID);
 	}
@@ -900,120 +903,6 @@ bool CUser::UnEquippedItem(EQUIP_SLOT equipSlot)
 	return m_inventory.InsertItemToSlot(retUID, emptyIdx);
 }
 
-bool CUser::AddToExistingConsumableStack(ITEM_ID ItemID, uint16& RemainCount,PickUpConsumableResult& OutResult)
-{
-	while (true)
-	{
-		ITEM_UID retID;
-		m_inventory.FindNotFullStackItemUID(ItemID, retID);
-
-		// 애초에 인벤토리에 해당 소비품에 대한 UID가 없으면 리턴해서 새롭게 인벤토리에 생성하기
-		if (retID == ItemUID::ITEM_UID_INVALID_ID)
-			return true;
-
-		const UserItem* pUserItem = m_storage.FindItem(retID);
-		uint32 retCount = pUserItem->count;
-		if (retCount == 0)
-			return false;
-
-		// 있으면 retCount에 수량 더하기 이게 stack 넘어가면 새로운 아이템 생성
-		retCount += RemainCount;
-
-		const ItemData* pItemData = ItemTable::GetItemData(pUserItem->itemID);
-		if (pItemData == nullptr)
-			return false;
-
-		OutResult.itemID = pItemData->itemID;
-
-		// 현재 증가시킨 갯수가 Max에 도달 안했으면 그냥 반영하고 리턴
-		uint16 maxStack = pItemData->maxStack;
-
-		if (retCount < maxStack)
-		{
-			RemainCount = 0;
-
-			if (!m_storage.ChangeItemCount(retID, retCount))
-				return false;
-
-			OutResult.consumableResult[OutResult.updateSlotCount].slotIndex = m_inventory.GetUIDToSlotIndex(retID);
-			OutResult.consumableResult[OutResult.updateSlotCount].newItemCount = retCount;
-			OutResult.updateSlotCount++;
-			return true;
-		}
-
-		// 만약 도달 했으면 Storage에 반영하고 FullStack 자료구조에서 제거하고 결과에 반영해주고 리턴
-		else if (retCount == maxStack)
-		{
-			RemainCount = 0;
-			if (!m_storage.ChangeItemCount(retID, retCount))
-				return false;
-
-			if (!m_inventory.DeleteNotFullStackItemUID(pUserItem->itemID, retID))
-				return false;
-
-			OutResult.consumableResult[OutResult.updateSlotCount].slotIndex = m_inventory.GetUIDToSlotIndex(retID);
-			OutResult.consumableResult[OutResult.updateSlotCount].newItemCount = retCount;
-			OutResult.updateSlotCount++;
-			return true;
-		}
-
-		// Stack에 다 채웠고 남았으면 Remain 갱신 후 다시 FullStack 확인해서 소모품 UID 찾기
-		OutResult.consumableResult[OutResult.updateSlotCount].slotIndex = m_inventory.GetUIDToSlotIndex(retID);
-		OutResult.consumableResult[OutResult.updateSlotCount].newItemCount = maxStack;
-		OutResult.updateSlotCount++;
-
-		m_storage.ChangeItemCount(retID, maxStack);
-		m_inventory.DeleteNotFullStackItemUID(pUserItem->itemID, retID);
-		RemainCount = retCount - maxStack;
-	}
-
-	return false;
-}
-
-bool CUser::CreateNewConsumableStacks(FieldDropItem& dropItem, uint16& RemainCount, PickUpConsumableResult& OutResult)
-{
-	// RemainCount를 인벤토리 및 Storage에 생성
-	const ItemData* pItemData = ItemTable::GetItemData(dropItem.itemID);
-	if (pItemData == nullptr)
-		return false;
-
-	// 기본으로 생성할 1개 + 남은 갯수가 해당 아이템의 stack 갯수보다 엄청 많은 경우도 고려해야 해서 몫을 더해줌.
-	uint16 needSlotCount = (RemainCount + pItemData->maxStack - 1) / pItemData->maxStack;
-
-	for (int i = 0; i < needSlotCount; i++)
-	{
-		int16 inventoryIdx = m_inventory.GetEmptySlotIndex();
-		if (inventoryIdx == -1)
-			return false;
-
-		// 여유 슬롯이 있으면 아이템 생성하기
-		uint16 stackCount = min(RemainCount, pItemData->maxStack);
-		dropItem.count = stackCount;
-
-		ITEM_UID retID;
-		if (!m_storage.CreateItem(dropItem, retID))
-			return false;
-
-		// 성공하면 인벤토리에 배치
-		if (!m_inventory.InsertItemToSlot(retID, inventoryIdx))
-			return false;
-
-		OutResult.itemID = pItemData->itemID;
-		OutResult.consumableResult[OutResult.updateSlotCount].slotIndex = inventoryIdx;
-		OutResult.consumableResult[OutResult.updateSlotCount].newItemCount = stackCount;
-		OutResult.updateSlotCount++;
-
-		RemainCount -= stackCount;
-
-		if (stackCount < pItemData->maxStack)
-		{
-			m_inventory.InsertNotFullStackItemUID(dropItem.itemID, retID);
-		}
-	}
-
-	return true;
-}
-
 bool CUser::SlotTypeRangeCheck(SLOT_TYPE type)
 {
 	if ((int)type < (int)SLOT_TYPE::INVENTORY || (int)type > (int)SLOT_TYPE::QUICKSLOT )
@@ -1105,15 +994,6 @@ bool CUser::SwapInventoryQuickSlot(int16 inventoryIndex, int16 quickSlotIndex)
 	const ItemData* pQuickSlotItemData = ItemTable::GetItemData(pQuickSlotItem->itemID);
 	if (pQuickSlotItemData == nullptr)
 		return false;
-
-	// 퀵 슬롯 아이템의 Count가 MaxStack 아래면 FullStack 자료구조에 넣기
-	if (pQuickSlotItem->count < pQuickSlotItemData->maxStack)
-	{
-		m_inventory.InsertNotFullStackItemUID(pQuickSlotItem->itemID, quickSlotUID);
-	}
-
-	// 기존에 있던 인벤토리 소모품은 FullStack에서 제거
-	m_inventory.DeleteNotFullStackItemUID(pInventoryItem->itemID, inventoryUID);
 
 	return true;
 }

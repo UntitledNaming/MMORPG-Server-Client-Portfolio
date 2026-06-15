@@ -132,8 +132,6 @@ private:
 	bool CanUseConsumalbIetem(uint32 curTime, CONSUMABLE_ITEM_TYPE itemType);
 	bool EquippedItem(int16 inventorySlotIndex, UseItemResult& result);
 	bool UnEquippedItem(EQUIP_SLOT equipSlot);
-	bool AddToExistingConsumableStack(ITEM_ID ItemID, uint16& RemainCount , PickUpConsumableResult& OutResult);
-	bool CreateNewConsumableStacks(FieldDropItem& dropItem, uint16& RemainCount , PickUpConsumableResult& OutResult);
 	bool SlotTypeRangeCheck(SLOT_TYPE type);
 	bool SwapInventoryEquipment(int16 inventoryIndex, EQUIP_SLOT equipSlot);
 	bool SwapInventoryQuickSlot(int16 inventoryIndex, int16 quickSlotIndex);

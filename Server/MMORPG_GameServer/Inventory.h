@@ -17,9 +17,6 @@ public:
 	bool ItemSlotChange(int16 fromIndex , int16 toIndex);
 	bool InsertItemToSlot(ITEM_UID Item, int16 slotIndex);
 	bool DeleteInventorySlot(int16 slotIndex, ITEM_UID& OutItemUID);
-	bool InsertNotFullStackItemUID(ITEM_ID itemID, ITEM_UID InItemUID);
-	bool DeleteNotFullStackItemUID(ITEM_ID itemID, ITEM_UID InItemUID);
-	void FindNotFullStackItemUID(ITEM_ID itemID, ITEM_UID& outItemUID);
 
 	bool     GetItemUID(int16 slotIndex, ITEM_UID& OutItemUID);
 	int16    GetEmptySlotIndex();
@@ -36,7 +33,6 @@ private:
 	uint8                                                      m_useCount = 0;
 	std::array<ITEM_UID, UserInventory::INVENTORY_SLOT_MAX>    m_inventory;
 	std::stack<int16>                                          m_slotIndexAllocator;
-	std::unordered_map<ITEM_ID, std::unordered_set<ITEM_UID>>  m_stackableItemUIDs;
 	std::unordered_map<ITEM_UID, int16>                        m_uidToSlotIndex;
 };
 
