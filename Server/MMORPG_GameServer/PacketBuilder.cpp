@@ -469,9 +469,7 @@ CMessage* PacketBuilder::UseItem(UseItemResult& result)
 
 	case USE_ITEM_RESULT::EQUIP:
 	{
-		uint8 updateCount = result.equipResult.updateSlotCount;
-		*pMessage << updateCount;
-		for (int i = 0; i < updateCount; i++)
+		for (int i = 0; i < 2; i++)
 		{
 			*pMessage << static_cast<uint8>(result.equipResult.resultSlot[i].slotType);
 			*pMessage << result.equipResult.resultSlot[i].slotIndex;

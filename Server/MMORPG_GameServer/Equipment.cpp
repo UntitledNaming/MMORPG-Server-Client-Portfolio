@@ -155,6 +155,8 @@ bool Equipment::UnEquippedItem(EQUIP_SLOT slotNum, ITEM_UID& OutItemUID)
 		return false;
 
 	OutItemUID = m_equipment[(int)slotNum];
+	if (OutItemUID == ItemUID::ITEM_UID_INVALID_ID)
+		return false;
 
 	// 캐시 스탯 갱신
 	const UserItem* outitem = m_pStorage->FindItem(OutItemUID);

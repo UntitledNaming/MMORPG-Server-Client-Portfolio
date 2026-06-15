@@ -283,15 +283,17 @@ bool CUser::IsAlive()
 bool CUser::GetConsumableItem(FieldDropItem& dropItem, PickUpConsumableResult& OutResult)
 {
 	// 그냥 빈 슬롯 찾아서 거기에 아이템 넣기
-	int16 emptyIndex = m_inventory.GetEmptySlotIndex();
+	int16 emptyIndex = m_inventory.GainEmptySlotIndex();
 	if (emptyIndex == -1)
 		return false;
 
 	// 슬롯 있으면 거기에 아이템 넣기
 	ITEM_UID retUID;
 	if (!m_storage.CreateItem(dropItem, retUID))
+	{
+		m_inventory.InsertSlotIndex(emptyIndex);
 		return false;
-
+	}
 	// 해당 UID를 인벤토리에 배치
 	m_inventory.InsertItemToSlot(retUID, emptyIndex);
 
@@ -305,18 +307,23 @@ bool CUser::GetConsumableItem(FieldDropItem& dropItem, PickUpConsumableResult& O
 bool CUser::GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResult)
 {
 	// 여유 공간 없으면 false 리턴
-	int16 ret = m_inventory.GetEmptySlotIndex();
+	int16 ret = m_inventory.GainEmptySlotIndex();
 	if (ret == -1)
 		return false;
 
 	// 여유분 있으면 Storage에 CreateItem
 	ITEM_UID ID;
 	if (!m_storage.CreateItem(dropItem, ID))
+	{
+		m_inventory.InsertSlotIndex(ret);
 		return false;
+	}
 
 	if (!m_inventory.InsertItemToSlot(ID, ret))
+	{
+		m_inventory.InsertSlotIndex(ret);
 		return false;
-
+	}
 	OutResult.itemID = dropItem.itemID;
 	OutResult.slotIndex = ret;
 	OutResult.count = dropItem.count;
@@ -433,18 +440,23 @@ bool CUser::UseEquipmentItem(int16 slotIndex, UseItemResult& result)
 	// 만약 장비가 있다면 장착 해제
 
 	// 장비 장착 해제 시 인벤토리 슬롯 여유분 확인
-	int16 emptyIdx = m_inventory.GetEmptySlotIndex();
+	int16 emptyIdx = m_inventory.GainEmptySlotIndex();
 	if (emptyIdx == -1)
 		return false;
 
 	// 인벤토리 여유 있으면 기존 장비 탭에서 빼고 인벤토리에 삽입
 	ITEM_UID UID;
 	if (!m_equipment.UnEquippedItem(static_cast<EQUIP_SLOT>(slotIndex), UID))
+	{
+		m_inventory.InsertSlotIndex(emptyIdx);
 		return false;
+	}
 
 	if (!m_inventory.InsertItemToSlot(UID, emptyIdx))
+	{
+		m_inventory.InsertSlotIndex(emptyIdx);
 		return false;
-
+	}
 	result.resultType = USE_ITEM_RESULT::UNEQUIP;
 	result.unEquipResult.inventorySlotIdx = emptyIdx;
 	return true;
@@ -879,18 +891,14 @@ bool CUser::EquippedItem(int16 inventorySlotIndex, UseItemResult& result)
 // 해당 장비 슬롯에 있는 장비 해제하려고 할 때 작동
 bool CUser::UnEquippedItem(EQUIP_SLOT equipSlot)
 {
-	// 인벤토리에 여유 공간 있는지 확인 없으면 false
-	int16 emptyIdx = m_inventory.GetEmptySlotIndex();
-	if (emptyIdx == -1)
-		return false;
-
 	// 장비 해제 실패하면 false 리턴
 	ITEM_UID retUID;
 	if (!m_equipment.UnEquippedItem(equipSlot, retUID))
 		return false;
 
-	// 해제 성공했는데 UID가 INVALID면 false 리턴
-	if (retUID == ItemUID::ITEM_UID_INVALID_ID)
+	// 인벤토리에 여유 공간 있는지 확인 없으면 false
+	int16 emptyIdx = m_inventory.GainEmptySlotIndex();
+	if (emptyIdx == -1)
 		return false;
 
 	// 있으면 해당 슬롯에 옮기기

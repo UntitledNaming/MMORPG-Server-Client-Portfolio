@@ -22,7 +22,7 @@ void Inventory::Init(CUserItemStorage* pStorage)
 	// slotIndexAllocator 세팅
 	for (int i = 0; i < UserInventory::INVENTORY_SLOT_MAX; i++)
 	{
-		m_slotIndexAllocator.push(i);
+		m_slotIndexAllocator.insert(i);
 	}
 	// 전체 인벤토리 돌면서 stackableItemUIDs 세팅
 }
@@ -34,10 +34,7 @@ void Inventory::Destroy()
 		m_inventory[i] = ItemUID::ITEM_UID_INVALID_ID;
 	}
 
-	while (!m_slotIndexAllocator.empty())
-	{
-		m_slotIndexAllocator.pop();
-	}
+	m_slotIndexAllocator.clear();
 
 	m_pStorage = nullptr;
 }
@@ -79,6 +76,13 @@ bool Inventory::InsertItemToSlot(ITEM_UID Item, int16 slotIndex)
 	if (!IndexRangeCheck(slotIndex))
 		return false;
 
+	if (m_inventory[slotIndex] == ItemUID::ITEM_UID_INVALID_ID)
+		__debugbreak();
+
+	std::unordered_set<int16>::iterator it = m_slotIndexAllocator.find(slotIndex);
+	if (it != m_slotIndexAllocator.end())
+		__debugbreak();
+
 	m_inventory[slotIndex] = Item;
 	m_uidToSlotIndex.insert(std::pair<ITEM_UID, int16>(Item, slotIndex));
 	m_useCount++;
@@ -98,7 +102,7 @@ bool Inventory::DeleteInventorySlot(int16 slotIndex, ITEM_UID& OutItemUID)
 
 	m_uidToSlotIndex.erase(OutItemUID);
 	m_useCount--;
-	m_slotIndexAllocator.push(slotIndex);
+	m_slotIndexAllocator.insert(slotIndex);
 	return true;
 }
 
@@ -108,6 +112,11 @@ bool Inventory::IndexRangeCheck(int16 slotIndex)
 		return false;
 
 	return true;
+}
+
+void Inventory::InsertSlotIndex(int16 slotIndex)
+{
+	m_slotIndexAllocator.insert(slotIndex);
 }
 
 bool Inventory::GetItemUID(int16 slotIndex, ITEM_UID& OutItemUID)
@@ -124,14 +133,14 @@ bool Inventory::GetItemUID(int16 slotIndex, ITEM_UID& OutItemUID)
 	return true;
 }
 
-int16 Inventory::GetEmptySlotIndex()
+int16 Inventory::GainEmptySlotIndex()
 {
 	if (m_slotIndexAllocator.empty())
 		return -1;
 
-	int16 ret = m_slotIndexAllocator.top();
-	m_slotIndexAllocator.pop();
-
+	std::unordered_set<int16>::iterator it = m_slotIndexAllocator.begin();
+	int16 ret = *it;
+	m_slotIndexAllocator.erase(it);
 	return ret;
 }
 
