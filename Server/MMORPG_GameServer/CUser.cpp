@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <array>
+#include <set>
 #include "ContentsEnum.h"
 #include "SkillTable.h"
 #include "CMonster.h"

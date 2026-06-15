@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <stack>
 #include <array>
+#include <set>
 #include "ContentsEnum.h"
 #include "ContentsDefine.h"
 #include "ContentsProtocol.h"

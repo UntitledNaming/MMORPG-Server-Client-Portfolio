@@ -33,7 +33,7 @@ private:
 	CUserItemStorage*                                          m_pStorage = nullptr;
 	uint8                                                      m_useCount = 0;
 	std::array<ITEM_UID, UserInventory::INVENTORY_SLOT_MAX>    m_inventory;
-	std::unordered_set<int16>                                  m_slotIndexAllocator;
+	std::set<int16>                                            m_slotIndexAllocator;
 	std::unordered_map<ITEM_UID, int16>                        m_uidToSlotIndex;
 };
 

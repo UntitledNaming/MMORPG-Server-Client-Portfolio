@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <stack>
 #include <unordered_set>
+#include <set>
 #include "Inventory.h"
 #include "Equipment.h"
 #include "QuickSlot.h"

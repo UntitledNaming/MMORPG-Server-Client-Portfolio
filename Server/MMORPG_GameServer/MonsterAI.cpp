@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <array>
+#include <set>
 #include "ContentsDefine.h"
 #include "SectorPos.h"
 #include "Inventory.h"

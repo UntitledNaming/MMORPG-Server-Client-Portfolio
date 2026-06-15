@@ -1,6 +1,7 @@
 #include <stack>
 #include <unordered_map>
 #include <unordered_set>
+#include <set>
 #include <array>
 #include "MemoryPoolTLS.h"
 #include "ItemUIDAllocator.h"
@@ -76,7 +77,7 @@ bool Inventory::InsertItemToSlot(ITEM_UID Item, int16 slotIndex)
 	if (!IndexRangeCheck(slotIndex))
 		return false;
 
-	std::unordered_set<int16>::iterator it = m_slotIndexAllocator.find(slotIndex);
+	std::set<int16>::iterator it = m_slotIndexAllocator.find(slotIndex);
 	if (it != m_slotIndexAllocator.end())
 		__debugbreak();
 
@@ -137,7 +138,7 @@ int16 Inventory::GainEmptySlotIndex()
 	if (m_slotIndexAllocator.empty())
 		return -1;
 
-	std::unordered_set<int16>::iterator it = m_slotIndexAllocator.begin();
+	std::set<int16>::iterator it = m_slotIndexAllocator.begin();
 	int16 ret = *it;
 	m_slotIndexAllocator.erase(it);
 	return ret;

@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <stack>
+#include <set>
 #include "ContentsDefine.h"
 #include "ContentsStruct.h"
 #include "MemoryPoolTLS.h"

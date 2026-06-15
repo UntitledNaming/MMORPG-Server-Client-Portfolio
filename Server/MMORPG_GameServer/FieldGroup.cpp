@@ -6,6 +6,7 @@
 #include <cmath>
 #include <chrono>
 #include <stack>
+#include <set>
 #include "CMonster.h"
 #include "ContentsDefine.h"
 #include "ContentsEnum.h"

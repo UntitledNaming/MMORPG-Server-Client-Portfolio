@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <array>
+#include <set>
 #include "ContentsProtocol.h"
 #include "ContentsStruct.h"
 #include "ContentsDefine.h"
