@@ -861,6 +861,9 @@ bool CUser::EquippedItem(int16 inventorySlotIndex, UseItemResult& result)
 	if (OutEquipItem == ItemUID::ITEM_UID_INVALID_ID)
 	{
 		result.equipResult.resultSlot[slotUpdateCount].itemID = ItemUID::ITEM_UID_INVALID_ID;
+
+		slotUpdateCount++;
+		result.equipResult.updateSlotCount = slotUpdateCount;
 		return true;
 	}
 
@@ -873,6 +876,9 @@ bool CUser::EquippedItem(int16 inventorySlotIndex, UseItemResult& result)
 		__debugbreak();
 
 	result.equipResult.resultSlot[slotUpdateCount].itemID = pOutEquipItem->itemID;
+
+	slotUpdateCount++;
+	result.equipResult.updateSlotCount = slotUpdateCount;
 	return true;
 }
 

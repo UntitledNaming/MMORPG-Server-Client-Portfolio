@@ -434,10 +434,9 @@ namespace FieldProtocol
     //  1   -  Success          (uint8)
     // 
     //  if Success
-    //  1   -  SlotType         (uint8)
-    //  2   -  SlotIndex        (int16)
-    //  4   -  ItemID           (uint32)
-    // 
+    //  1   -  UpdateSlotCount  (uint8)   // Max : 2
+    //  
+    //  per SlotCount
     //  1   -  SlotType         (uint8)
     //  2   -  SlotIndex        (int16)
     //  4   -  ItemID           (uint32)

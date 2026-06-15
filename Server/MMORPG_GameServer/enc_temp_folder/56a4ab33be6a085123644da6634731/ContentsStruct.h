@@ -141,6 +141,7 @@ struct UPDATE_SLOT
 
 struct EQUIP_ITEM_RESULT
 {
+	uint8       updateSlotCount;
 	UPDATE_SLOT resultSlot[2];    // Inventory , Equipment
 };
 
