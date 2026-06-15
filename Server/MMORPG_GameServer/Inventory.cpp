@@ -16,7 +16,6 @@ void Inventory::Init(CUserItemStorage* pStorage)
 	}
 
 	m_pStorage = pStorage;
-	m_uidToSlotIndex.clear();
 
 	// DB에 저장된 아이템들 인벤토리에 배치
 
@@ -45,28 +44,20 @@ bool Inventory::ItemSlotChange(int16 fromIndex, int16 toIndex)
 	if (!(IndexRangeCheck(fromIndex) && IndexRangeCheck(toIndex)))
 		return false;
 
+	// to가 InvalidID인 경우 index 반환 및 사용할 index 제거
+	// from, to 모두 아이템이 있으면 index 반환 필요x
+	if (m_inventory[toIndex] == ItemUID::ITEM_UID_INVALID_ID)
+	{
+		// to가 Invalid면 fromindex가 empty가 되고 toindex가 할당 자료구조에서 제거되어야 함.
+		m_slotIndexAllocator.erase(toIndex);
+		m_slotIndexAllocator.insert(fromIndex);
+	}
+
+	// UID Swap 작업
 	ITEM_UID TempTo = m_inventory[toIndex];
-	ITEM_UID TempFrom = m_inventory[fromIndex];
 
-	m_inventory[toIndex] = TempFrom;
+	m_inventory[toIndex] = m_inventory[fromIndex];
 	m_inventory[fromIndex] = TempTo;
-
-	// 기존 from, to에 있는 UID들의 index 변경
-	std::unordered_map<ITEM_UID, int16>::iterator itTo;
-
-	itTo = m_uidToSlotIndex.find(TempTo);
-	if (itTo != m_uidToSlotIndex.end())
-	{
-		itTo->second = fromIndex;
-	}
-
-	std::unordered_map<ITEM_UID, int16>::iterator itFrom;
-	itFrom = m_uidToSlotIndex.find(TempFrom);
-	if (itFrom != m_uidToSlotIndex.end())
-	{
-		itFrom->second = toIndex;
-	}
-
 
 	return true;
 }
@@ -85,7 +76,6 @@ bool Inventory::InsertItemToSlot(ITEM_UID Item, int16 slotIndex)
 		__debugbreak();
 
 	m_inventory[slotIndex] = Item;
-	m_uidToSlotIndex.insert(std::pair<ITEM_UID, int16>(Item, slotIndex));
 	m_useCount++;
 	return true;
 }
@@ -101,9 +91,13 @@ bool Inventory::DeleteInventorySlot(int16 slotIndex, ITEM_UID& OutItemUID)
 	OutItemUID = m_inventory[slotIndex];
 	m_inventory[slotIndex] = ItemUID::ITEM_UID_INVALID_ID;
 
-	m_uidToSlotIndex.erase(OutItemUID);
 	m_useCount--;
 	return true;
+}
+
+void Inventory::EraseEmptyIndex(int16 emptyIndex)
+{
+	m_slotIndexAllocator.erase(emptyIndex);
 }
 
 bool Inventory::IndexRangeCheck(int16 slotIndex)
@@ -119,18 +113,12 @@ void Inventory::ReturnSlotIndex(int16 slotIndex)
 	m_slotIndexAllocator.insert(slotIndex);
 }
 
-bool Inventory::GetItemUID(int16 slotIndex, ITEM_UID& OutItemUID)
+ITEM_ID Inventory::GetItemUID(int16 slotIndex)
 {
-	OutItemUID = ItemUID::ITEM_UID_INVALID_ID;
-
 	if (!IndexRangeCheck(slotIndex))
 		return false;
 
-	if (m_inventory[slotIndex] == ItemUID::ITEM_UID_INVALID_ID)
-		return false;
-
-	OutItemUID = m_inventory[slotIndex];
-	return true;
+	return m_inventory[slotIndex];
 }
 
 int16 Inventory::GainEmptySlotIndex()
@@ -144,11 +132,3 @@ int16 Inventory::GainEmptySlotIndex()
 	return ret;
 }
 
-int16 Inventory::GetUIDToSlotIndex(ITEM_UID uid)
-{
-	std::unordered_map<ITEM_UID, int16>::iterator it = m_uidToSlotIndex.find(uid);
-	if (it == m_uidToSlotIndex.end())
-		return -1;
-
-	return it->second;
-}

@@ -388,8 +388,8 @@ bool CUser::DeleteItem(int16 slotIndex, SLOT_TYPE slotType)
 // 해당 아이템 슬롯에 대해서 우클릭 할때 혹은 해당 버튼 누를 때 작동
 bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 {
-	ITEM_UID retID;
-	if (!m_inventory.GetItemUID(slotIndex, retID))
+	ITEM_UID retID = m_inventory.GetItemUID(slotIndex);
+	if (retID == ItemUID::ITEM_UID_INVALID_ID)
 		return false;
 
 	const UserItem* pUserData = m_storage.FindItem(retID);
@@ -516,6 +516,37 @@ bool CUser::ItemSlotChange(SLOT_TYPE fromType, int16 fromIndex, SLOT_TYPE toType
 	if ((!SlotTypeRangeCheck(fromType)) || (!SlotTypeRangeCheck(toType)))
 		return false;
 
+	// todo : from이 InvalidID면 비정상 유저로 판단해서 끊기
+	switch (fromType)
+	{
+	case SLOT_TYPE::INVENTORY:
+	{
+		ITEM_UID retID = m_inventory.GetItemUID(fromIndex);
+		if (retID == ItemUID::ITEM_UID_INVALID_ID)
+			return false;
+	}
+	break;
+
+	case SLOT_TYPE::EQUIPMENT:
+	{
+		ITEM_UID retUID = m_equipment.GetEquippedItem(static_cast<EQUIP_SLOT>(fromIndex));
+		if (retUID == ItemUID::ITEM_UID_INVALID_ID)
+			return false;
+	}
+	break;
+
+	case SLOT_TYPE::QUICKSLOT:
+	{
+		ITEM_UID retUID = m_quickSlot.GetQuickSlotItem(fromIndex);
+		if (retUID == ItemUID::ITEM_UID_INVALID_ID)
+			return false;
+	}
+	break;
+
+	default:
+		return false;
+	}
+
 	// from 타입과 to 타입이 같으면 from 타입만 체크해서 인벤토리면 인벤토리 이동, 퀵 슬롯이면 퀵슬롯 이동
 	if (fromType == toType)
 	{
@@ -534,14 +565,6 @@ bool CUser::ItemSlotChange(SLOT_TYPE fromType, int16 fromIndex, SLOT_TYPE toType
 			return false;
 		}
 	}
-
-	// 인벤토리에서 장비 슬롯으로 이동
-	else if (fromType == SLOT_TYPE::INVENTORY && toType == SLOT_TYPE::EQUIPMENT)
-		return SwapInventoryEquipment(fromIndex, static_cast<EQUIP_SLOT>(toIndex));
-
-	// 장비 슬롯에서 인벤토리 이동
-	else if (fromType == SLOT_TYPE::EQUIPMENT && toType == SLOT_TYPE::INVENTORY)
-		return SwapInventoryEquipment(toIndex, static_cast<EQUIP_SLOT>(fromIndex));
 
 	// 인벤토리에서 퀵 슬롯 이동
 	else if (fromType == SLOT_TYPE::INVENTORY && toType == SLOT_TYPE::QUICKSLOT)
@@ -837,8 +860,8 @@ bool CUser::CanUseConsumalbIetem(uint32 curTime, CONSUMABLE_ITEM_TYPE itemType)
 bool CUser::EquippedItem(int16 inventorySlotIndex, UseItemResult& result)
 {
 	// UID 획득 실패 했으면 false 리턴
-	ITEM_UID retID;
-	if (!m_inventory.GetItemUID(inventorySlotIndex, retID))
+	ITEM_UID retID = m_inventory.GetItemUID(inventorySlotIndex);
+	if (retID == ItemUID::ITEM_UID_INVALID_ID)
 		return false;
 
 	// 해당 슬롯의 아이템 타입 체크 Consumable을 false 리턴
@@ -926,7 +949,8 @@ bool CUser::SwapInventoryEquipment(int16 inventoryIndex, EQUIP_SLOT equipSlot)
 	// 해당 인벤토리 및 장비 슬롯 위치에 있는 아이템 UID가 하나라도 Invalid면 false 리턴
 	ITEM_UID inventoryUID;
 	ITEM_UID equipmentUID;
-	if (!m_inventory.GetItemUID(inventoryIndex, inventoryUID))
+	ITEM_UID retID = m_inventory.GetItemUID(inventoryIndex);
+	if (retID == ItemUID::ITEM_UID_INVALID_ID)
 		return false;
 
 	// 장착 중이던 장비가 없으면 false 리턴
@@ -964,47 +988,54 @@ bool CUser::SwapInventoryEquipment(int16 inventoryIndex, EQUIP_SLOT equipSlot)
 
 bool CUser::SwapInventoryQuickSlot(int16 inventoryIndex, int16 quickSlotIndex)
 {
-	// 인벤토리나 퀵슬롯에 있는 아이템 UID가 Invalid면 false 리턴
-	ITEM_UID inventoryUID;
-	ITEM_UID quickSlotUID;
+	ITEM_UID inventoryUID = m_inventory.GetItemUID(inventoryIndex);
+	ITEM_UID quickSlotUID = m_quickSlot.GetQuickSlotItem(quickSlotIndex);
 
-	if (!m_inventory.GetItemUID(inventoryIndex, inventoryUID))
-		return false;
+	const ItemData* pInvenItem = ItemTable::GetItemData(inventoryUID);
+	const ItemData* pQuickItem = ItemTable::GetItemData(quickSlotUID);
 
-	quickSlotUID = m_quickSlot.GetQuickSlotItem(quickSlotIndex);
-	if (quickSlotUID == ItemUID::ITEM_UID_INVALID_ID)
-		return false;
+	// todo : 둘 중 하나라도 아이템이 소모품이 아니면 false 리턴 후 해당 유저 끊기
+	if (pInvenItem)
+	{
+		if (pInvenItem->itemType != ITEM_TYPE::CONSUMABLE)
+			return false;
+	}
 
-	const UserItem* pInventoryItem = m_storage.FindItem(inventoryUID);
-	if (pInventoryItem == nullptr)
-		return false;
-
-	const ItemData* pInventoryItemData = ItemTable::GetItemData(pInventoryItem->itemID);
-	if (pInventoryItemData == nullptr)
-		return false;
-
-	// 인벤토리 위치에 있는 아이템이 소모품이 아니면 false 리턴
-	if (pInventoryItemData->itemType != ITEM_TYPE::CONSUMABLE)
-		return false;
-
-	// 기존 인벤토리 및 퀵슬롯에서 아이템 제거
+	if (pQuickItem)
+	{
+		if (pQuickItem->itemType != ITEM_TYPE::CONSUMABLE)
+			return false;
+	}
+	
+	// 인벤토리와 퀵슬롯에서 UID 제거
 	m_inventory.DeleteInventorySlot(inventoryIndex, inventoryUID);
 	m_quickSlot.ClearConsumable(quickSlotIndex, quickSlotUID);
 
-	// 기존 인벤토리 UID를 퀵슬롯으로 이동
-	m_quickSlot.SetConsumable(quickSlotIndex, inventoryUID, quickSlotUID);
+	// from Invalid는 상위 함수에서 걸러졌으니 여기서 Invalid면 To가 Invalid인 상황
+	if (inventoryUID == ItemUID::ITEM_UID_INVALID_ID)
+	{
+		// to가 Inventory인데 빈 슬롯인 상황
+	
+		// 퀵슬롯 UID가 인벤토리에 오니 해당 index는 할당 불가
+		m_inventory.EraseEmptyIndex(inventoryIndex);
+		m_inventory.InsertItemToSlot(quickSlotUID, inventoryIndex);
+		return true;
+	}
+	
+	else if (quickSlotUID == ItemUID::ITEM_UID_INVALID_ID)
+	{
+		// to가 QuickSlot인데 빈 슬롯인 상황
 
-	// 퀵슬롯에 있던 UID를 인벤토리로 이동
+		// 기존 인벤토리 아이템이 퀵슬롯으로 이동하니 해당 인벤토리 index 반환
+		m_inventory.ReturnSlotIndex(inventoryIndex);
+		m_quickSlot.SetConsumable(quickSlotIndex, inventoryUID, quickSlotUID);
+		return true;
+	}
+
+	// 둘 다 아이템이 있는 상황
+	ITEM_UID retQuickUID = ItemUID::ITEM_UID_INVALID_ID;
+	m_quickSlot.SetConsumable(quickSlotIndex, inventoryUID, retQuickUID);
 	m_inventory.InsertItemToSlot(quickSlotUID, inventoryIndex);
-
-	const UserItem* pQuickSlotItem = m_storage.FindItem(quickSlotUID);
-	if (pQuickSlotItem == nullptr)
-		return false;
-
-	const ItemData* pQuickSlotItemData = ItemTable::GetItemData(pQuickSlotItem->itemID);
-	if (pQuickSlotItemData == nullptr)
-		return false;
-
 	return true;
 }
 
