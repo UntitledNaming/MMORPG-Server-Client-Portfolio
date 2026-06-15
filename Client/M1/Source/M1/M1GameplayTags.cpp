@@ -16,4 +16,6 @@ namespace M1GameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Input_Action_PickUp, "Input.Action.PickUp");
     UE_DEFINE_GAMEPLAY_TAG(Input_Action_Inventory, "Input.Action.Inventory");
     UE_DEFINE_GAMEPLAY_TAG(Input_Action_Equipment, "Input.Action.Equipment");
+    UE_DEFINE_GAMEPLAY_TAG(Input_Action_QuickSlot1, "Input.Action.QuickSlot1");
+    UE_DEFINE_GAMEPLAY_TAG(Input_Action_QuickSlot2, "Input.Action.QuickSlot2");
 }

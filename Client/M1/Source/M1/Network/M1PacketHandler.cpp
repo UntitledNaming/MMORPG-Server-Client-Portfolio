@@ -426,13 +426,9 @@ void M1PacketHandler::Handle_SC_PICKUP_CONSUMABLE_ITEMS(CMessage* pMessage, UM1N
 	PickUpConsumableResult result = {};
 
 	*pMessage >> result.itemID;
-	*pMessage >> result.updateSlotCount;
 
-	for (uint16 i = 0; i < result.updateSlotCount; ++i)
-	{
-		*pMessage >> result.consumableResult[i].slotIndex;
-		*pMessage >> result.consumableResult[i].newItemCount;
-	}
+	*pMessage >> result.consumableResult.slotIndex;
+	*pMessage >> result.consumableResult.newItemCount;
 
 	UM1ItemManager* ItemManager = NetworkManager->GetItemManager();
 	ItemManager->OnPickupConsumableItem(result);
@@ -468,9 +464,7 @@ void M1PacketHandler::Handle_SC_EQUIP_ITEM(CMessage* pMessage, UM1NetworkManager
 
 	if (success)
 	{
-		*pMessage >> result.updateSlotCount;
-
-		for (uint8 i = 0; i < result.updateSlotCount; ++i)
+		for (uint8 i = 0; i < 2; ++i)
 		{
 			uint8  slotType;
 			*pMessage >> slotType;
