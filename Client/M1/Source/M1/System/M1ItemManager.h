@@ -13,6 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEquipmentChanged);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnSlotCoolTimeStart, uint8, SlotType, int16, SlotIndex, float, Duration);
 
 class UM1NetworkManager;
+class UM1ItemTooltipWidget;
 
 UCLASS()
 class M1_API UM1ItemManager : public UGameInstanceSubsystem
@@ -31,7 +32,10 @@ private:
 	bool                  bPendingSlotRequest;
 
     UPROPERTY()
-    TObjectPtr<class UM1DraggedItemWidget> ActiveDragWidget;         // 드래그 중인 플로팅 위젯 소유
+    TObjectPtr<class UM1DraggedItemWidget> ActiveDragWidget;
+
+    UPROPERTY()
+    TObjectPtr<UM1ItemTooltipWidget> ActiveTooltipWidget;
 
     bool                  bIsDragging = false;
     SLOT_TYPE             DragStartSourceType = SLOT_TYPE::NONE;     // 드래그 시작할 때 위치의 슬롯 타입
@@ -66,6 +70,8 @@ public:
 
     void      StartDrag(SLOT_TYPE, int16, UM1DraggedItemWidget*);
     void      EndDrag();
+    void      ShowTooltip(SLOT_TYPE, int16, TSubclassOf<UM1ItemTooltipWidget>);
+    void      HideTooltip();
     bool      IsDragging() const { return bIsDragging; };
     SLOT_TYPE GetDragStartSourceType() const { return DragStartSourceType; };
     int16     GetDragStartSourceIndex() const { return DragStartSourceIndex; };

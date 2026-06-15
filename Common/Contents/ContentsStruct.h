@@ -143,7 +143,7 @@ struct UPDATE_SLOT
 struct EQUIP_ITEM_RESULT
 {
 	uint8       updateSlotCount;
-	UPDATE_SLOT resultSlot[2];    // 0 : Inventory , 1 : Equipment
+	UPDATE_SLOT resultSlot[2];    // Inventory , Equipment
 };
 
 struct UNEQUIP_ITEM_RESULT

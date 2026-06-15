@@ -1,6 +1,15 @@
 #include "UI/M1ItemTooltipWidget.h"
 #include "Item/M1ItemTable.h"
 #include "Components/TextBlock.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+
+void UM1ItemTooltipWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+    Super::NativeTick(MyGeometry, InDeltaTime);
+
+    FVector2D MousePos = UWidgetLayoutLibrary::GetMousePositionOnViewport(GetWorld());
+    SetPositionInViewport(MousePos + FVector2D(15.f, 15.f), false);
+}
 
 void UM1ItemTooltipWidget::SetItemData(ITEM_ID InItemID, const TArray<FRandomStat>& InRandomStats)
 {
@@ -8,6 +17,10 @@ void UM1ItemTooltipWidget::SetItemData(ITEM_ID InItemID, const TArray<FRandomSta
     const ItemData* Data = FM1ItemTable::GetItemData(InItemID);
     if (!Data)
         return;
+
+    // 아이템 이름
+    if (Text_ItemName)
+        Text_ItemName->SetText(FText::FromString(FM1ItemTable::GetItemName(InItemID)));
 
     // 희귀도
     if (Text_Rarity)

@@ -57,20 +57,32 @@ FReply UM1ItemSlotWidget::NativeOnMouseButtonDown(const FGeometry& GeoMetry, con
 	if (!SlotData || SlotData->ItemID == 0)
 		return FReply::Handled();
 
+	ItemManager->HideTooltip();
+
 	// DragWidgetClass가 설정되어 있으면
 	if (DragWidgetClass)
 	{
-		// 실제 객체를 만들고 
 		UM1DraggedItemWidget* DragWidget = CreateWidget<UM1DraggedItemWidget>(GetOwningPlayer(), DragWidgetClass);
 		if (DragWidget)
 		{
-			// DragWidget 생성해서 뷰포트 최상단에 올리고 ItemManger에 해당 소스 슬롯과 위젯 전달
 			DragWidget->AddToViewport(100);
+
+			// 현재 슬롯 텍스처를 드래그 위젯에 복사
+			if (Image_Icon)
+			{
+				UTexture2D* Texture = Cast<UTexture2D>(Image_Icon->GetBrush().GetResourceObject());
+				DragWidget->SetIcon(Texture);
+
+				// 소스 슬롯 이미지 숨기기
+				Image_Icon->SetVisibility(ESlateVisibility::Hidden);
+			}
+
 			ItemManager->StartDrag(SlotType, SlotIndex, DragWidget);
+			ItemManager->SetDragHover(SlotType, SlotIndex);
 		}
 	}
 
-	return FReply::Handled();
+	return FReply::Handled().CaptureMouse(TakeWidget());
 }
 
 FReply UM1ItemSlotWidget::NativeOnMouseButtonUp(const FGeometry& GeoMetry, const FPointerEvent& PointerEvent)
@@ -99,6 +111,9 @@ FReply UM1ItemSlotWidget::NativeOnMouseButtonUp(const FGeometry& GeoMetry, const
 	// 현재 마우스 위치에 있는 슬롯 타입과 드래그 시작 위치 타입과 위치가 같으면 Use 패킷 전달(그 자리에서 우클릭 뗀것)
 	else if (HoverType == SrcType && HoverIndex == SrcIndex)
 	{
+		// Use는 드래그가 아니므로 이미지 즉시 복원
+		if (Image_Icon)
+			Image_Icon->SetVisibility(ESlateVisibility::HitTestInvisible);
 		ItemManager->TrySendUseItem(static_cast<uint8>(SrcType), SrcIndex);
 	}
 
@@ -112,24 +127,31 @@ FReply UM1ItemSlotWidget::NativeOnMouseButtonUp(const FGeometry& GeoMetry, const
 
 	// 드래그 끝
 	ItemManager->EndDrag();
-	return FReply::Handled();
+	return FReply::Handled().ReleaseMouseCapture();
 }
 
 void UM1ItemSlotWidget::NativeOnMouseEnter(const FGeometry& GeoMetry, const FPointerEvent& PointerEvent)
 {
 	Super::NativeOnMouseEnter(GeoMetry, PointerEvent);
 
-	// 드래그 중에 마우스가 이 슬롯 위로 오면 현재 마우스가 이 위젯 위에 있으니 ItemManger에 전달해 DragHover 변수들 세팅
 	if (ItemManager->IsDragging())
+	{
+		// 드래그 중이면 hover 슬롯 갱신
 		ItemManager->SetDragHover(SlotType, SlotIndex);
+	}
+	else
+	{
+		// 드래그 중 아니면 툴팁 표시
+		ItemManager->ShowTooltip(SlotType, SlotIndex, TooltipWidgetClass);
+	}
 }
 
 void UM1ItemSlotWidget::NativeOnMouseLeave(const FPointerEvent& PointerEvent)
 {
 	Super::NativeOnMouseLeave(PointerEvent);
 
-	// 마우스가 슬롯을 벗어나면 Hover쪽 변수 초기화
 	ItemManager->ClearDragHover();
+	ItemManager->HideTooltip();
 }
 
 void UM1ItemSlotWidget::InitSlot(SLOT_TYPE InSlotType, int16 InSlotIndex)
@@ -184,6 +206,10 @@ void UM1ItemSlotWidget::RefreshSlot()
 			Text_Count->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
+
+	// 드래그로 숨겨진 이미지 복원 (BP가 visibility를 건드리지 않는 경우 대비)
+	if (Image_Icon)
+		Image_Icon->SetVisibility(ESlateVisibility::HitTestInvisible);
 
 	// BP 이벤트
 	OnSlotDataChanged(static_cast<int32>(SlotData->ItemID), static_cast<int32>(SlotData->Count), bIsEmpty);

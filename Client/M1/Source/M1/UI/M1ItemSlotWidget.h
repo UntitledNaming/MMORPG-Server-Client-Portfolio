@@ -9,6 +9,7 @@
 
 class UM1ItemManager;
 class UM1DraggedItemWidget;
+class UM1ItemTooltipWidget;
 
 UCLASS()
 class M1_API UM1ItemSlotWidget : public UUserWidget
@@ -27,6 +28,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UM1DraggedItemWidget> DragWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UM1ItemTooltipWidget> TooltipWidgetClass;
 
 	UPROPERTY()
 	UM1ItemManager* ItemManager = nullptr;

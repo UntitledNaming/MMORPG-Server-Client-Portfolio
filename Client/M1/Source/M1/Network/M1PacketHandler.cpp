@@ -472,13 +472,10 @@ void M1PacketHandler::Handle_SC_EQUIP_ITEM(CMessage* pMessage, UM1NetworkManager
 
 		for (uint8 i = 0; i < result.updateSlotCount; ++i)
 		{
-			uint8  slotState;
 			uint8  slotType;
-			*pMessage >> slotState;
 			*pMessage >> slotType;
 			*pMessage >> result.resultSlot[i].slotIndex;
 			*pMessage >> result.resultSlot[i].itemID;
-			result.resultSlot[i].slotState = static_cast<SLOT_STATE>(slotState);
 			result.resultSlot[i].slotType = static_cast<SLOT_TYPE>(slotType);
 		}
 	}

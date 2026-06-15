@@ -299,3 +299,23 @@ const ItemData* FM1ItemTable::GetItemData(ITEM_ID ItemID)
 
 	return it->second;
 }
+
+FString FM1ItemTable::GetItemName(ITEM_ID ItemID)
+{
+	switch (ItemID)
+	{
+	case ItemIDConst::SMALL_HP_POTION:  return TEXT("Small HP Potion");
+	case ItemIDConst::SMALL_MP_POTION:  return TEXT("Small MP Potion");
+	case ItemIDConst::NORMAL_HELMET:    return TEXT("Helmet");
+	case ItemIDConst::NORMAL_CHEST:     return TEXT("Chest Armor");
+	case ItemIDConst::NORMAL_PANTS:     return TEXT("Pants");
+	case ItemIDConst::NORMAL_BOOTS:     return TEXT("Boots");
+	case ItemIDConst::NORMAL_WEAPON:    return TEXT("Sword");
+	case ItemIDConst::MAGIC_HELMET:     return TEXT("Magic Helmet");
+	case ItemIDConst::MAGIC_CHEST:      return TEXT("Magic Chest Armor");
+	case ItemIDConst::MAGIC_PANTS:      return TEXT("Magic Pants");
+	case ItemIDConst::MAGIC_BOOTS:      return TEXT("Magic Boots");
+	case ItemIDConst::MAGIC_WEAPON:     return TEXT("Magic Sword");
+	default:                            return TEXT("Unknown Item");
+	}
+}

@@ -112,6 +112,9 @@ bool AM1LocalPlayer::GetMoveFlag()
 
 void AM1LocalPlayer::TickManaRegen(float DeltaTime)
 {
+	if (IsDead())
+		return;
+
 	// 마나 다 찼으면 pass
 	if (MP >= MaxMP)
 		return;
@@ -136,6 +139,9 @@ void AM1LocalPlayer::TickManaRegen(float DeltaTime)
 
 void  AM1LocalPlayer::TickHPRegen(float DeltaTime)
 {
+	if (IsDead())
+		return;
+
 	if (HP >= MaxHP) 
 		return;
 

@@ -15,5 +15,7 @@ protected:
 
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry&, float) override;
+
+public:
 	        void SetIcon(UTexture2D* Texture);
 };

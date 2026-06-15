@@ -15,9 +15,10 @@ public:
 	FM1ItemTable() = default;
 	~FM1ItemTable() = default;
 
-	static void  Init();
-	static void  Destroy();
+	static void         Init();
+	static void         Destroy();
 	static const ItemData* GetItemData(ITEM_ID ItemID);
+	static FString      GetItemName(ITEM_ID ItemID);
 
 private:
 	static std::unordered_map<ITEM_ID, ItemData*> m_ItemTable;

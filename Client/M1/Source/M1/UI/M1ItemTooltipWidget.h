@@ -16,6 +16,9 @@ class M1_API UM1ItemTooltipWidget : public UUserWidget
 public:
     void SetItemData(ITEM_ID InItemID, const TArray<FRandomStat>& InRandomStats);
 
+protected:
+    virtual void NativeTick(const FGeometry&, float) override;
+
 private:
     UPROPERTY(meta = (BindWidget))
     UTextBlock* Text_ItemName = nullptr;

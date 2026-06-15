@@ -4,6 +4,7 @@
 #include "Network\ClientCore\CMessage.h"
 #include "Network\M1NetworkManager.h"
 #include "UI\M1DraggedItemWidget.h"
+#include "UI\M1ItemTooltipWidget.h"
 #include "System\M1SpawnManager.h"
 #include "Character\M1LocalPlayer.h"
 
@@ -90,7 +91,14 @@ void UM1ItemManager::OnUseConsumableResult(bool bSuccess, USE_CONSUMABLE_ITEM_RE
 {
 	bPendingSlotRequest = false;
 	if (!bSuccess)
+	{
+		switch (PendingRequest.FromSlotType)
+		{
+		case SLOT_TYPE::INVENTORY:  OnInventoryChanged.Broadcast();  break;
+		case SLOT_TYPE::QUICKSLOT:  OnQuickSlotChanged.Broadcast();  break;
+		}
 		return;
+	}
 
 	// 슬롯 업데이트 전에 ItemID 먼저 읽기
 	ITEM_ID UsedItemID = 0;
@@ -153,16 +161,11 @@ void UM1ItemManager::OnEquipItemResult(bool bSuccess, EQUIP_ITEM_RESULT& Result)
 		// 결과 반영할 슬롯의 주소 얻기
 		if (s.slotType == SLOT_TYPE::INVENTORY)
 			InvSlot = &Inventory[s.slotIndex];
+
 		else if (s.slotType == SLOT_TYPE::EQUIPMENT)
 			EquipSlot = &Equipment[s.slotIndex];
 	}
 
-	if (InvSlot && EquipSlot)
-	{
-		FItemSlotData Temp = *EquipSlot;
-		*EquipSlot = *InvSlot;
-		*InvSlot = Temp;
-	}
 
 	OnInventoryChanged.Broadcast();
 	OnEquipmentChanged.Broadcast();
@@ -195,8 +198,17 @@ void UM1ItemManager::OnDeleteItemResult(bool bSuccess)
 {
 	bPendingSlotRequest = false;
 
+	// 실패해도 Broadcast →RefreshSlot에서 이미지 복원
 	if (!bSuccess)
+	{
+		switch (PendingRequest.FromSlotType)
+		{
+		case SLOT_TYPE::INVENTORY:  OnInventoryChanged.Broadcast();  break;
+		case SLOT_TYPE::EQUIPMENT:  OnEquipmentChanged.Broadcast();  break;
+		case SLOT_TYPE::QUICKSLOT:  OnQuickSlotChanged.Broadcast();  break;
+		}
 		return;
+	}
 
 	switch (PendingRequest.FromSlotType)
 	{
@@ -222,8 +234,14 @@ void UM1ItemManager::OnSwapSlotResult(bool bSuccess)
 {
 	bPendingSlotRequest = false;
 
+	// 실패해도 Broadcast →RefreshSlot에서 이미지 복원
 	if (!bSuccess)
+	{
+		OnInventoryChanged.Broadcast();
+		OnEquipmentChanged.Broadcast();
+		OnQuickSlotChanged.Broadcast();
 		return;
+	}
 
 
 	FItemSlotData* FromData = nullptr;
@@ -286,6 +304,7 @@ void UM1ItemManager::TrySendUseItem(uint8 SlotType, int16 SlotIndex)
 		return;
 
 	CMessage* msg = CMessage::Alloc();
+	msg->Clear(1);
 	*msg << (uint16)FieldProtocol::PACKET_CS_USE_ITEM << SlotType << SlotIndex;
 	NetworkManager->SendPacket(msg, static_cast<uint8>(ERouteType::GROUP), ServiceID::NONE_SERVICE);
 	PendingRequest.RequestType = ESlotRequestType::Use;
@@ -304,6 +323,7 @@ void UM1ItemManager::TrySendDeleteItem(uint8 SlotType, int16 SlotIndex)
 		return;
 
 	CMessage* msg = CMessage::Alloc();
+	msg->Clear(1);
 	*msg << (uint16)FieldProtocol::PACKET_CS_DELETE_ITEM << SlotType << SlotIndex;
 	NetworkManager->SendPacket(msg, static_cast<uint8>(ERouteType::GROUP), ServiceID::NONE_SERVICE);
 	PendingRequest.RequestType = ESlotRequestType::Delete;
@@ -327,6 +347,7 @@ void UM1ItemManager::TrySendSwapSlot(uint8 FromType, int16 FromIdx, uint8 ToType
 
 
 	CMessage* msg = CMessage::Alloc();
+	msg->Clear(1);
 	*msg << (uint16)FieldProtocol::PACKET_CS_SWAP_SLOT << FromType << FromIdx << ToType << ToIdx;
 	NetworkManager->SendPacket(msg, static_cast<uint8>(ERouteType::GROUP), ServiceID::NONE_SERVICE);
 	PendingRequest.RequestType = ESlotRequestType::Swap;
@@ -363,6 +384,48 @@ void UM1ItemManager::EndDrag()
 		ActiveDragWidget->RemoveFromParent();
 		ActiveDragWidget = nullptr;
 	}
+}
+
+void UM1ItemManager::ShowTooltip(SLOT_TYPE Type, int16 Index, TSubclassOf<UM1ItemTooltipWidget> WidgetClass)
+{
+	if (!WidgetClass)
+		return;
+
+	const FItemSlotData* SlotData = nullptr;
+	switch (Type)
+	{
+	case SLOT_TYPE::INVENTORY:  SlotData = &Inventory[Index];  break;
+	case SLOT_TYPE::EQUIPMENT:  SlotData = &Equipment[Index];  break;
+	case SLOT_TYPE::QUICKSLOT:  SlotData = &QuickSlot[Index];  break;
+	}
+
+	if (!SlotData || SlotData->ItemID == 0)
+		return;
+
+	// 최초 1회 생성
+	if (!ActiveTooltipWidget)
+	{
+		UWorld* World = GetGameInstance()->GetWorld();
+		APlayerController* PC = World ? World->GetFirstPlayerController() : nullptr;
+		if (!PC)
+			return;
+
+		ActiveTooltipWidget = CreateWidget<UM1ItemTooltipWidget>(PC, WidgetClass);
+		if (!ActiveTooltipWidget)
+			return;
+
+		ActiveTooltipWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+		ActiveTooltipWidget->AddToViewport(50);
+	}
+
+	ActiveTooltipWidget->SetItemData(SlotData->ItemID, SlotData->RandomStats);
+	ActiveTooltipWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+}
+
+void UM1ItemManager::HideTooltip()
+{
+	if (ActiveTooltipWidget)
+		ActiveTooltipWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void  UM1ItemManager::ParseAndInitFromSpawn(CMessage* pMessage)
