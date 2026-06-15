@@ -135,7 +135,6 @@ struct PickUpConsumableResult
 
 struct UPDATE_SLOT
 {
-	SLOT_STATE slotState;
 	SLOT_TYPE  slotType;
 	int16      slotIndex;
 	ITEM_ID    itemID;

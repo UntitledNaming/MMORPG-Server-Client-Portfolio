@@ -394,6 +394,7 @@ bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 			return false;
 
 		result.resultType = USE_ITEM_RESULT::CONSUME;
+		result.consumableResult.slotType = SLOT_TYPE::INVENTORY;
 		result.consumableResult.newItenCount = newItemCount;
 		result.consumableResult.slotIndex = slotIndex;
 
@@ -843,21 +844,22 @@ bool CUser::EquippedItem(int16 inventorySlotIndex, UseItemResult& result)
 	if (!m_equipment.EquippedItem(pItemData->equipSlot, removedUID, OutEquipItem))
 		return false;
 
-	uint8 slotUpdateCount = result.equipResult.updateSlotCount;
+	uint8 slotUpdateCount = 0;
 	result.resultType = USE_ITEM_RESULT::EQUIP;
 	result.equipResult.resultSlot[slotUpdateCount].slotType = SLOT_TYPE::EQUIPMENT;
 	result.equipResult.resultSlot[slotUpdateCount].slotIndex = static_cast<int16>(pItemData->equipSlot);
-	result.equipResult.resultSlot[slotUpdateCount].slotState = SLOT_STATE::EXIST;
 	result.equipResult.resultSlot[slotUpdateCount].itemID = pItemData->itemID;
 	slotUpdateCount++;
 
 	result.equipResult.resultSlot[slotUpdateCount].slotType = SLOT_TYPE::INVENTORY;
 	result.equipResult.resultSlot[slotUpdateCount].slotIndex = inventorySlotIndex;
-	result.equipResult.resultSlot[slotUpdateCount].slotState = SLOT_STATE::EMPTY;
 
 	// 해당 장비 슬롯에 장착된 장비가 없으면 그냥 리턴
 	if (OutEquipItem == ItemUID::ITEM_UID_INVALID_ID)
 	{
+		result.equipResult.resultSlot[slotUpdateCount].itemID = ItemUID::ITEM_UID_INVALID_ID;
+
+		slotUpdateCount++;
 		result.equipResult.updateSlotCount = slotUpdateCount;
 		return true;
 	}
@@ -870,8 +872,9 @@ bool CUser::EquippedItem(int16 inventorySlotIndex, UseItemResult& result)
 	if (pOutEquipItem == nullptr)
 		__debugbreak();
 
-	result.equipResult.resultSlot[slotUpdateCount].slotState = SLOT_STATE::EXIST;
 	result.equipResult.resultSlot[slotUpdateCount].itemID = pOutEquipItem->itemID;
+
+	slotUpdateCount++;
 	result.equipResult.updateSlotCount = slotUpdateCount;
 	return true;
 }

@@ -119,13 +119,6 @@ enum class SLOT_TYPE : uint8
 	QUICKSLOT,
 };
 
-enum class SLOT_STATE : uint8
-{
-	NONE,
-	EMPTY,
-	EXIST,
-};
-
 enum class USE_ITEM_RESULT : uint8
 {
 	NONE,

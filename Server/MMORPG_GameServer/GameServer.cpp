@@ -21,6 +21,7 @@
 #include "ItemTable.h"
 #include "CUserItemStorage.h"
 #include "FieldDropItemPool.h"
+#include "ItemUIDAllocator.h"
 #include "GameServer.h"
 
 CMPoolTLS<UserItem>* m_itemPool = nullptr;
@@ -73,6 +74,7 @@ void GameServer::Init()
 	CUserItemStorage::ItemPoolInit();
 	ItemTable::Init();
 	FieldDropItemPool::Init();
+	ItemUIDAllocator::Init();
 	m_monitorThread = std::thread(&GameServer::Monitoring, this);
 }
 

@@ -21,7 +21,10 @@ void Inventory::Init(CUserItemStorage* pStorage)
 	// DB에 저장된 아이템들 인벤토리에 배치
 
 	// slotIndexAllocator 세팅
-
+	for (int i = 0; i < UserInventory::INVENTORY_SLOT_MAX; i++)
+	{
+		m_slotIndexAllocator.push(i);
+	}
 	// 전체 인벤토리 돌면서 stackableItemUIDs 세팅
 }
 

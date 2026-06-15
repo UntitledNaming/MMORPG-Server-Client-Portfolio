@@ -297,6 +297,22 @@ void FieldGroup::OnRecv(UINT64 sessionID, CMessage* pMessage)
 	case PACKET_CS_USE_SKILL:
 		HandleSkillUse(sessionID, pMessage);
 		break;
+
+	case PACKET_CS_PICK_UP_ITEM:
+		HandlePickUpItems(sessionID, pMessage);
+		break;
+
+	case PACKET_CS_USE_ITEM:
+		HandleUseItem(sessionID, pMessage);
+		break;
+
+	case PACKET_CS_DELETE_ITEM:
+		HandleDeleteItem(sessionID, pMessage);
+		break;
+
+	case PACKET_CS_SWAP_SLOT:
+		HandleSwapSlot(sessionID, pMessage);
+		break;
 	}
 }
 
@@ -956,12 +972,14 @@ void FieldGroup::HandlePickUpItems(uint64 sessionID, CMessage* pMessage)
 
 	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
 	if (it == m_userLookUpTable.end())
-		return;
+		__debugbreak();
+
+	pUser = it->second;
 
 	uint64 dropID;
 	*pMessage >> dropID;
 
-	std::unordered_map<uint64, FieldDropItem*>::iterator it2 = m_dropItemLookUpTable.find(sessionID);
+	std::unordered_map<uint64, FieldDropItem*>::iterator it2 = m_dropItemLookUpTable.find(dropID);
 	if (it2 == m_dropItemLookUpTable.end())
 		return;
 

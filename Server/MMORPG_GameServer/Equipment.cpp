@@ -113,10 +113,10 @@ bool Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& O
 
 
 	// ·£´ý ½ºÅÈ ´õÇÏ±â
-	uint8 statCount = outitem->randomStatCount;
+	uint8 statCount = initem->randomStatCount;
 	for (int i = 0; i < statCount; i++)
 	{
-		const RandomStatResult& randStat = outitem->randomStat[i];
+		const RandomStatResult& randStat = initem->randomStat[i];
 		switch (randStat.randomStatType)
 		{
 		case RANDOM_STAT_TYPE::ATK:
