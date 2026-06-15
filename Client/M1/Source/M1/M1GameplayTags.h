@@ -17,4 +17,6 @@ namespace M1GameplayTags
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_PickUp);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Inventory);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_Equipment);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_QuickSlot1);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Action_QuickSlot2);
 }

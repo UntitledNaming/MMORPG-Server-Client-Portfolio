@@ -77,12 +77,9 @@ void UM1ItemManager::OnPickupConsumableItem(const PickUpConsumableResult& Result
 {
 	bPendingSlotRequest = false;
 
-	for (int i = 0; i < Result.updateSlotCount; i++)
-	{
-		int16 idx = Result.consumableResult[i].slotIndex;
-		Inventory[idx].ItemID = Result.itemID;
-		Inventory[idx].Count = Result.consumableResult[i].newItemCount;
-	}
+	int16 idx = Result.consumableResult.slotIndex;
+	Inventory[idx].ItemID = Result.itemID;
+	Inventory[idx].Count = Result.consumableResult.newItemCount;
 
 	OnInventoryChanged.Broadcast();
 }
@@ -135,8 +132,9 @@ void UM1ItemManager::OnUseConsumableResult(bool bSuccess, USE_CONSUMABLE_ITEM_RE
 			SpawnManager->ApplyConsumableRecovery(Data->recoverHP, Data->recoverMP);
 	}
 
-	// "사용한 슬롯"에 쿨타임을 건다.
-	StartSlotCoolTime(Result.slotType, Result.slotIndex, UsedItemID);
+	// 아이템이 남아있을 때만 쿨타임을 건다 (소진 시 빈 슬롯에 쿨타임 방지)
+	if (Result.newItenCount > 0)
+		StartSlotCoolTime(Result.slotType, Result.slotIndex, UsedItemID);
 
 	switch (Result.slotType)
 	{
@@ -159,10 +157,11 @@ void UM1ItemManager::OnEquipItemResult(bool bSuccess, EQUIP_ITEM_RESULT& Result)
 
 
 	// 업데이트 전 슬롯 데이터 스냅샷 저장
+		  // resultSlot과 같은 순서로 스냅샷 저장
 	TArray<FItemSlotData> Snapshot;
-	Snapshot.Reserve(Result.updateSlotCount);
+	Snapshot.Reserve(2);
 
-	for (uint8 i = 0; i < Result.updateSlotCount; ++i)
+	for (uint8 i = 0; i < 2; ++i)
 	{
 		const UPDATE_SLOT& s = Result.resultSlot[i];
 
@@ -170,11 +169,12 @@ void UM1ItemManager::OnEquipItemResult(bool bSuccess, EQUIP_ITEM_RESULT& Result)
 			Snapshot.Add(Inventory[s.slotIndex]);
 		else if (s.slotType == SLOT_TYPE::EQUIPMENT)
 			Snapshot.Add(Equipment[s.slotIndex]);
+		else
+			Snapshot.Add(FItemSlotData{});
 	}
 
-
 	// 결과 직접 반영
-	for (uint8 i = 0; i < Result.updateSlotCount; ++i)
+	for (uint8 i = 0; i < 2; ++i)
 	{
 		const UPDATE_SLOT& s = Result.resultSlot[i];
 
@@ -196,19 +196,19 @@ void UM1ItemManager::OnEquipItemResult(bool bSuccess, EQUIP_ITEM_RESULT& Result)
 		{
 			Slot->ItemID = s.itemID;
 			Slot->Count = 1;
-
 			Slot->RandomStats.Reset();
-			for (const FItemSlotData& Snap : Snapshot)
+
+			// j != i 조건으로 자기 자신 제외 →같은 itemID가 두 슬롯에 있어도 반드시 반대 슬롯 스냅샷을 가져옴
+			for (uint8 j = 0; j < (uint8)Snapshot.Num(); ++j)
 			{
-				if (Snap.ItemID == s.itemID)
+				if (j != i && Snapshot[j].ItemID == s.itemID)
 				{
-					Slot->RandomStats = Snap.RandomStats;
+					Slot->RandomStats = Snapshot[j].RandomStats;
 					break;
 				}
 			}
 		}
 	}
-
 
 	OnInventoryChanged.Broadcast();
 	OnEquipmentChanged.Broadcast();
@@ -330,6 +330,9 @@ void UM1ItemManager::OnSwapSlotResult(bool bSuccess)
 
 		*ToData = *FromData;
 		*FromData = Temp;
+
+		ClearSlotCoolTime(PendingRequest.FromSlotType, PendingRequest.FromSlotIndex);
+		ClearSlotCoolTime(PendingRequest.ToSlotType, PendingRequest.ToSlotIndex);
 	}
 
 	OnInventoryChanged.Broadcast();
@@ -658,14 +661,12 @@ void UM1ItemManager::ClearSlotCoolTime(SLOT_TYPE SlotType, int16 SlotIndex)
 
 void UM1ItemManager::StartSlotCoolTime(SLOT_TYPE SlotType, int16 SlotIndex, ITEM_ID UsedItemID)
 {
-	// 소모품 타입 아니면 리턴
 	const ItemData* Data = FM1ItemTable::GetItemData(UsedItemID);
 	if (!Data || Data->itemType != ITEM_TYPE::CONSUMABLE)
 		return;
 
 	float DurationSec = 0.f;
 
-	// 소모품 타입에 따라 기간 설정
 	switch (Data->consumableType)
 	{
 	case CONSUMABLE_ITEM_TYPE::SMALL_HP_POTION:
@@ -680,39 +681,38 @@ void UM1ItemManager::StartSlotCoolTime(SLOT_TYPE SlotType, int16 SlotIndex, ITEM
 		return;
 	}
 
-
 	UWorld* World = GetGameInstance() ? GetGameInstance()->GetWorld() : nullptr;
 	if (!World)
 		return;
 
-	// 해당 슬롯 타입 및 index를 통해 key 생성
-	const int32 Key = MakeSlotCoolTimeKey(SlotType, SlotIndex);
-
-	// 이미 해당 슬롯에 쿨타임 정보가 있으면 기존 타이머 제거
-	if (FSlotCoolTimeInfo* OldInfo = SlotCoolTimeMap.Find(Key))
+	// 같은 ItemID를 가진 모든 인벤토리/퀵슬롯에 쿨타임 적용
+	auto ApplyCoolTime = [&](SLOT_TYPE InSlotType, int16 InSlotIndex)
 	{
-		World->GetTimerManager().ClearTimer(OldInfo->TimerHandle);
+		const int32 Key = MakeSlotCoolTimeKey(InSlotType, InSlotIndex);
+
+		if (FSlotCoolTimeInfo* OldInfo = SlotCoolTimeMap.Find(Key))
+			World->GetTimerManager().ClearTimer(OldInfo->TimerHandle);
+
+		FSlotCoolTimeInfo& Info = SlotCoolTimeMap.FindOrAdd(Key);
+		Info.Duration = DurationSec;
+		Info.EndTime  = World->GetTimeSeconds() + DurationSec;
+
+		FTimerDelegate Delegate;
+		Delegate.BindLambda([this, Key]() { SlotCoolTimeMap.Remove(Key); });
+		World->GetTimerManager().SetTimer(Info.TimerHandle, Delegate, DurationSec, false);
+
+		OnSlotCoolTimeStart.Broadcast((uint8)InSlotType, InSlotIndex, DurationSec);
+	};
+
+	for (int16 i = 0; i < Inventory.Num(); ++i)
+	{
+		if (Inventory[i].ItemID == UsedItemID)
+			ApplyCoolTime(SLOT_TYPE::INVENTORY, i);
 	}
 
-	// 쿨타임 정보 Map에 저장. FindOrAdd를 통해 없으면 정보 생성함.
-	FSlotCoolTimeInfo& Info = SlotCoolTimeMap.FindOrAdd(Key);
-	Info.Duration = DurationSec;
-	Info.EndTime = World->GetTimeSeconds() + DurationSec;
-
-	// 델리게이트 만들어서 람다 등록. 해당 람다가 타이머 지나서 호출되면 쿨타임 Map에서 제거됨.
-	FTimerDelegate Delegate;
-	Delegate.BindLambda([this, Key]()
-		{
-			SlotCoolTimeMap.Remove(Key);
-		});
-
-	// 타이머 등록해서 DurationSec 후에 델리게이트에 등록한 람다 호출되면서 Map에서 Key에 대한 쿨타임 정보 제거
-	World->GetTimerManager().SetTimer(
-		Info.TimerHandle,
-		Delegate,
-		DurationSec,
-		false
-	);
-
-	OnSlotCoolTimeStart.Broadcast((uint8)SlotType, SlotIndex, DurationSec);
+	for (int16 i = 0; i < QuickSlot.Num(); ++i)
+	{
+		if (QuickSlot[i].ItemID == UsedItemID)
+			ApplyCoolTime(SLOT_TYPE::QUICKSLOT, i);
+	}
 }

@@ -43,6 +43,8 @@ private:
 	void OnUseSkill3();
 	void OnUseSkill4();
 	void OnPickUp();
+	void OnQuickSlot1();
+	void OnQuickSlot2();
 	void DoMove(float Right, float Forward);
 	void DoLook(float Yaw, float Pitch);
 	void QuitGame();

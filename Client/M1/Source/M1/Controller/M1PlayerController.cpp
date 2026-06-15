@@ -19,6 +19,7 @@
 #include "InputActionValue.h"
 #include "Components/WidgetComponent.h"
 #include "UI\M1MainHUDWidget.h"
+#include "System\M1ItemManager.h"
 
 AM1PlayerController::AM1PlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -80,6 +81,8 @@ void AM1PlayerController::SetupInputComponent()
         auto PickUpAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_PickUp);
         auto InventoryAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_Inventory);
         auto EquipmentAction = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_Equipment);
+        auto QuickSlot1Action = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_QuickSlot1);
+        auto QuickSlot2Action = InputData->FindInputActionByTag(M1GameplayTags::Input_Action_QuickSlot2);
 
         EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AM1PlayerController::OnMove);
         EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Canceled, this, &AM1PlayerController::OnMove);
@@ -96,6 +99,8 @@ void AM1PlayerController::SetupInputComponent()
         EnhancedInputComponent->BindAction(PickUpAction, ETriggerEvent::Started, this, &AM1PlayerController::OnPickUp);
         EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &AM1PlayerController::ToggleInventory);
         EnhancedInputComponent->BindAction(EquipmentAction, ETriggerEvent::Started, this, &AM1PlayerController::ToggleEquipment);
+        EnhancedInputComponent->BindAction(QuickSlot1Action, ETriggerEvent::Started, this, &AM1PlayerController::OnQuickSlot1);
+        EnhancedInputComponent->BindAction(QuickSlot2Action, ETriggerEvent::Started, this, &AM1PlayerController::OnQuickSlot2);
     }
 
     InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AM1PlayerController::QuitGame);
@@ -240,6 +245,36 @@ void AM1PlayerController::OnPickUp()
         return;
 
     SpawnManager->TryPickUpNearestItem(M1Player->GetActorLocation());
+}
+
+void AM1PlayerController::OnQuickSlot1()
+{
+    if (!NetworkManager)
+        return;
+
+    UM1ItemManager* ItemManager = GetGameInstance()->GetSubsystem<UM1ItemManager>();
+    if (!ItemManager)
+        return;
+
+    if (ItemManager->GetQuickSlot(0).ItemID == 0)
+        return;
+
+    ItemManager->TrySendUseItem(static_cast<uint8>(SLOT_TYPE::QUICKSLOT), 0);
+}
+
+void AM1PlayerController::OnQuickSlot2()
+{
+    if (!NetworkManager)
+        return;
+
+    UM1ItemManager* ItemManager = GetGameInstance()->GetSubsystem<UM1ItemManager>();
+    if (!ItemManager)
+        return;
+
+    if (ItemManager->GetQuickSlot(1).ItemID == 0)
+        return;
+
+    ItemManager->TrySendUseItem(static_cast<uint8>(SLOT_TYPE::QUICKSLOT), 1);
 }
 
 // 매개인자 : WASD 입력에 대한 X, Y축값
