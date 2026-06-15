@@ -415,13 +415,9 @@ CMessage* PacketBuilder::PickUpConsumableFieldDropItem(PickUpConsumableResult* r
 
 	*pMessage << FieldProtocol::PACKET_SC_PICKUP_CONSUMABLE_ITEMS;
 	*pMessage << static_cast<unsigned long>(result->itemID);
-	*pMessage << result->updateSlotCount;
 	
-	for (int i = 0; i < result->updateSlotCount; i++)
-	{
-		*pMessage << result->consumableResult[i].slotIndex;
-		*pMessage << result->consumableResult[i].newItemCount;
-	}
+	*pMessage << result->consumableResult.slotIndex;
+	*pMessage << result->consumableResult.newItemCount;
 
 	return pMessage;
 }
