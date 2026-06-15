@@ -409,6 +409,9 @@ namespace FieldProtocol
     //  Pick Up Items Msg 					    Server -> Client
     //
     //  4   -  ItemID                  (uint32)
+    //  2   -  UpdateSlotCount         (uint16)
+    // 
+    //  per 
     //  2   -  SlotIndex               (int16)
     //  2   -  NewItemCount            (uint16)
     //  
@@ -433,7 +436,6 @@ namespace FieldProtocol
     //  
     //  1   -  Success          (uint8)
     // 
-    //  if Success
     //  1   -  SlotType         (uint8)
     //  2   -  SlotIndex        (int16)
     //  4   -  ItemID           (uint32)
