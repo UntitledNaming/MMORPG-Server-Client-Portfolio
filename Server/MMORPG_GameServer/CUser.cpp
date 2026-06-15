@@ -291,7 +291,7 @@ bool CUser::GetConsumableItem(FieldDropItem& dropItem, PickUpConsumableResult& O
 	ITEM_UID retUID;
 	if (!m_storage.CreateItem(dropItem, retUID))
 	{
-		m_inventory.InsertSlotIndex(emptyIndex);
+		m_inventory.ReturnSlotIndex(emptyIndex);
 		return false;
 	}
 	// 해당 UID를 인벤토리에 배치
@@ -315,13 +315,13 @@ bool CUser::GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResu
 	ITEM_UID ID;
 	if (!m_storage.CreateItem(dropItem, ID))
 	{
-		m_inventory.InsertSlotIndex(ret);
+		m_inventory.ReturnSlotIndex(ret);
 		return false;
 	}
 
 	if (!m_inventory.InsertItemToSlot(ID, ret))
 	{
-		m_inventory.InsertSlotIndex(ret);
+		m_inventory.ReturnSlotIndex(ret);
 		return false;
 	}
 	OutResult.itemID = dropItem.itemID;
@@ -348,6 +348,7 @@ bool CUser::DeleteItem(int16 slotIndex, SLOT_TYPE slotType)
 	{
 	case SLOT_TYPE::INVENTORY:
 	{
+		// 이미 비워져 있거나 index 이상하면 false 리턴
 		if (!m_inventory.DeleteInventorySlot(slotIndex, retID))
 			return false;
 
@@ -355,6 +356,8 @@ bool CUser::DeleteItem(int16 slotIndex, SLOT_TYPE slotType)
 		if (pItem == nullptr)
 			__debugbreak();
 
+		// 제거 성공하면 인벤토리에 해당 index 할당자에 반환
+		m_inventory.ReturnSlotIndex(slotIndex);
 		break;
 	}
 
@@ -416,7 +419,10 @@ bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 
 		// 다 사용했으면 아이템 삭제
 		ITEM_UID retUID;
-		m_inventory.DeleteInventorySlot(slotIndex, retUID);
+		if (!m_inventory.DeleteInventorySlot(slotIndex, retUID))
+			__debugbreak();
+
+		m_inventory.ReturnSlotIndex(slotIndex);
 
 		return m_storage.DeleteItem(retUID);
 	}
@@ -448,13 +454,13 @@ bool CUser::UseEquipmentItem(int16 slotIndex, UseItemResult& result)
 	ITEM_UID UID;
 	if (!m_equipment.UnEquippedItem(static_cast<EQUIP_SLOT>(slotIndex), UID))
 	{
-		m_inventory.InsertSlotIndex(emptyIdx);
+		m_inventory.ReturnSlotIndex(emptyIdx);
 		return false;
 	}
 
 	if (!m_inventory.InsertItemToSlot(UID, emptyIdx))
 	{
-		m_inventory.InsertSlotIndex(emptyIdx);
+		m_inventory.ReturnSlotIndex(emptyIdx);
 		return false;
 	}
 	result.resultType = USE_ITEM_RESULT::UNEQUIP;
@@ -873,6 +879,7 @@ bool CUser::EquippedItem(int16 inventorySlotIndex, UseItemResult& result)
 	if (OutEquipItem == ItemUID::ITEM_UID_INVALID_ID)
 	{
 		result.equipResult.resultSlot[slotUpdateCount].itemID = ItemUID::ITEM_UID_INVALID_ID;
+		m_inventory.ReturnSlotIndex(inventorySlotIndex);
 		return true;
 	}
 

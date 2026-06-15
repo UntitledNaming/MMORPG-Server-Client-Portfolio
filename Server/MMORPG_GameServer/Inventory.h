@@ -18,7 +18,7 @@ public:
 	bool InsertItemToSlot(ITEM_UID Item, int16 slotIndex);
 	bool DeleteInventorySlot(int16 slotIndex, ITEM_UID& OutItemUID);
 
-	void     InsertSlotIndex(int16 slotIndex);
+	void     ReturnSlotIndex(int16 slotIndex);
 	bool     GetItemUID(int16 slotIndex, ITEM_UID& OutItemUID);
 	int16    GainEmptySlotIndex();
 	int16    GetUIDToSlotIndex(ITEM_UID uid);

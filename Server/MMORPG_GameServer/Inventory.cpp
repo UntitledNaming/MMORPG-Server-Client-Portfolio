@@ -76,11 +76,11 @@ bool Inventory::InsertItemToSlot(ITEM_UID Item, int16 slotIndex)
 	if (!IndexRangeCheck(slotIndex))
 		return false;
 
-	if (m_inventory[slotIndex] == ItemUID::ITEM_UID_INVALID_ID)
-		__debugbreak();
-
 	std::unordered_set<int16>::iterator it = m_slotIndexAllocator.find(slotIndex);
 	if (it != m_slotIndexAllocator.end())
+		__debugbreak();
+
+	if (m_inventory[slotIndex] != ItemUID::ITEM_UID_INVALID_ID)
 		__debugbreak();
 
 	m_inventory[slotIndex] = Item;
@@ -102,7 +102,6 @@ bool Inventory::DeleteInventorySlot(int16 slotIndex, ITEM_UID& OutItemUID)
 
 	m_uidToSlotIndex.erase(OutItemUID);
 	m_useCount--;
-	m_slotIndexAllocator.insert(slotIndex);
 	return true;
 }
 
@@ -114,7 +113,7 @@ bool Inventory::IndexRangeCheck(int16 slotIndex)
 	return true;
 }
 
-void Inventory::InsertSlotIndex(int16 slotIndex)
+void Inventory::ReturnSlotIndex(int16 slotIndex)
 {
 	m_slotIndexAllocator.insert(slotIndex);
 }
