@@ -31,7 +31,6 @@ void CUser::Init(uint64 sessionID)
 	m_sessionID = sessionID;
 	m_location = Location{ 381250.0f , 443750.0f ,-38775.f };
 	m_moveFlag = false;
-	m_disconnectFlag = false;
 	m_secPos.SetPos(SectorPos((m_location.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (m_location.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE));
 	m_arrayIdx = 0;
 	m_syncCount = 0;
@@ -41,7 +40,6 @@ void CUser::Init(uint64 sessionID)
 	m_recvTime = timeGetTime();
 	m_lastSyncCheckTime = timeGetTime();
 
-	m_swingInfo.Init();
 	SkillInfoInit();
 
 	// 스탯 초기화
@@ -73,16 +71,12 @@ void CUser::ResPawn()
 {
 	uint32 curTime = timeGetTime();
 
-	m_disconnectFlag = false;
 	m_moveFlag = false;
 	m_arrayIdx = 0;
 	m_syncCount = 0;
 	m_movementYaw = 0.0f;
 	m_recvTime = curTime;
 	m_lastSyncCheckTime = curTime;
-
-	m_swingInfo.m_lastSwingIdx = 0;
-	m_swingInfo.m_lastSwingRecvTime = 0;
 
 	for (int i = 0; i < USER_SKILL_SLOT_COUNT; i++)
 	{
@@ -252,29 +246,9 @@ bool CUser::Move()
 	return true;
 }
 
-bool CUser::CanSwing(uint32 curTime, uint8 swingidx)
-{
-	if (m_swingInfo.m_lastSwingIdx == 0 || m_swingInfo.m_lastSwingIdx == 4)
-	{
-		m_swingInfo.m_lastSwingIdx = 1;
-	}
-	else
-	{
-		m_swingInfo.m_lastSwingIdx++;
-	}
-
-	// 유저 swingindex랑 패킷으로 받은 swingindex가 다르면 연결 끊기
-	if (m_swingInfo.m_lastSwingIdx != swingidx)
-		return false;
-
-	m_swingInfo.m_lastSwingRecvTime = curTime;
-
-	return true;
-}
-
 bool CUser::IsAlive()
 {
-	if (m_hp <= 0 || m_disconnectFlag == true)
+	if (m_hp <= 0)
 		return false;
 
 	return true;

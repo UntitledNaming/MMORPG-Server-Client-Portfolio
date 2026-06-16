@@ -67,12 +67,10 @@ public:
 	void   UseSkill(uint32 curTime, uint8 skillIndex);
 	void   SetNewSectorPos(const SectorPos& newSec) { m_secPos = newSec; }
 	void   CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, const SectorPos& newSecPos, SectorAround& outDeleteSector, SectorAround& outCreateSector);
-	void   SwingStop() { m_swingInfo.m_lastSwingIdx = 0; }
 
 	bool   GainExp(uint32 GetExp, GainEXPResult& result);
 	bool   CanUseSkill(uint32 curTime, uint8 skillIndex);
 	bool   Move();
-	bool   CanSwing(uint32 curTime, uint8 swingidx);
 	bool   IsAlive();
 	bool   GetConsumableItem(FieldDropItem& dropItem, PickUpConsumableResult& OutResult);
 	bool   GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResult);
@@ -100,14 +98,12 @@ public:
 	uint16 GetSectorXpos() const { return m_secPos.GetX(); }
 	uint16 GetSectorYpos() const { return m_secPos.GetY(); }
 	uint16 GetLevel() const { return m_level; }
-	uint8  GetLastSwingIndex() const { return m_swingInfo.m_lastSwingIdx; }
 
 	float  GetX() const { return m_location.xpos; }
 	float  GetY() const { return m_location.ypos; }
 	float  GetZ() const { return m_location.zpos; }
 	float  GetMoveYaw() const { return m_movementYaw; }
 	bool   GetMoveFlag() const { return m_moveFlag; }
-	bool   GetDisconnectFlag() const { return m_disconnectFlag; }
 
 	const SectorPos& GetSectorPos() const { return m_secPos; }
 	const Location& GetLocation() const { return m_location; }
@@ -120,7 +116,6 @@ public:
 	void SetMoveYaw(float moveYaw) { m_movementYaw = moveYaw; }
 	void SetSectorArrayIdx(uint16 idx) { m_arrayIdx = idx; }
 	void SetMoveFlag(bool flag) { m_moveFlag = flag; }
-	void SetDisconnectFlag(bool flag) { m_disconnectFlag = flag; }
 
 	static CUser* Alloc();
 	static void Free(CUser* pUser);
@@ -148,7 +143,6 @@ private:
 	uint64                 m_sessionID;
 	int32                  m_currentExp;
 	int32                  m_requiredExp;
-	SwingInfo              m_swingInfo;                                                       // 좌 클릭 공격 처리 관련 구조체
 	SkillInfo              m_skillInfo[UserConst::USER_SKILL_SLOT_COUNT];
 	Location               m_location;                                                        // 캐릭터 위치
 	SectorPos              m_secPos;           
@@ -163,7 +157,6 @@ private:
 	CUserItemStorage       m_storage;                                                         // Item Storage
 	RecoveryInfo           m_recoveryInfo;    
 	ConsumableCooltimeInfo m_consumableCooltimeInfo;
-	bool                   m_disconnectFlag;
 	bool                   m_moveFlag;
 	float                  m_movementYaw;                                                     // 캐릭터 이동 방향, 이동 처리시 사용
 	float                  m_maxWalkSpeed;                                                    // 캐릭터 최대 이동 속도(이벤트 발생시 변화 값)

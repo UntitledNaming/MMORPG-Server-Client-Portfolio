@@ -210,15 +210,15 @@ CMessage* PacketBuilder::CreateRTTEchoMessage()
 	return pMessage;
 }
 
-CMessage* PacketBuilder::AttackLeftSwing(CUser* pUser, float attackYaw)
+CMessage* PacketBuilder::AttackLeftSwing(uint64 sessionID, float attackYaw, uint8 swingIndex)
 {
 	CMessage* pMessage = CMessage::Alloc();
 	pMessage->Clear(1);
 
 	*pMessage << FieldProtocol::PACKET_SC_SWING_LEFT_ATTACK;
-	*pMessage << pUser->GetSessionID();
+	*pMessage << sessionID;
 	*pMessage << attackYaw;
-	*pMessage << pUser->GetLastSwingIndex();
+	*pMessage << swingIndex;
 
 	return pMessage;
 }

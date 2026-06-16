@@ -17,7 +17,7 @@ public:
 	static CMessage* SyncMyCharacter(CUser* pUser);
 	static CMessage* SyncOtherCharacter(CUser* pUser);
 	static CMessage* CreateRTTEchoMessage();
-	static CMessage* AttackLeftSwing(CUser* pUser, float attackYaw);
+	static CMessage* AttackLeftSwing(uint64 sessionID, float attackYaw, uint8 swingIndex);
 	static CMessage* StopLeftSwing(CUser* pUser);
 	static CMessage* HitTarget(uint8 hitPlayerCount, uint8 hitMonsterCount, std::vector<CUser*>& hitPlayerArray, std::vector<CMonster*>& hitMonsterArray);
 	static CMessage* UseSkillRes(uint8 skillSlot, bool success);
