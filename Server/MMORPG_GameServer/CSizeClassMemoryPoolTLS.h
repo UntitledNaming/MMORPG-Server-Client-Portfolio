@@ -17,7 +17,7 @@ struct BlockSize128
 
 struct BlockSize256
 {
-	char  arrray[256];
+	char  array[256];
 };
 
 struct BlockSize512

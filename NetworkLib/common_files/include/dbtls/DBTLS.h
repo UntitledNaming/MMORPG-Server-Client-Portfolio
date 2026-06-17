@@ -2,7 +2,15 @@
 
 #define DBTLS_MAX_COUNT     50
 #define DBTLS_IDX           -1
-#define DBQUERY_DEFAULT_LEN 200
+#define DBQUERY_DEFAULT_LEN 500
+
+enum class DB_QUERY_RESULT : unsigned char
+{
+	Success,
+	ConnectLost,
+	QueryError,
+	Constraint,      // etc... Name Duplication, UID Duplication
+};
 
 
 class DBTLS
@@ -21,10 +29,10 @@ public:
 	~DBTLS();
 	
 
-	bool        DB_Post_Query(const CHAR* QueryString, ...);                       // DB로 쿼리 날리는 함수
-    MYSQL_RES*  DB_GET_Result(int type);                                           // type 0 : mysql_store_result / type 1 : mysql_use_result
-    MYSQL_ROW*  DB_Fetch_Row(MYSQL_RES* res);                                      // DB에 날린 쿼리로 Row를 1개 얻어 왔을 때 
-                                                                                   // 해당 Row 문자열 저장된 포인터 반환
+	bool        DB_Post_Query(DB_QUERY_RESULT& Result ,const CHAR* QueryString, ...);       // DB로 쿼리 날리는 함수
+    MYSQL_RES*  DB_GET_Result(int type);                                                    // type 0 : mysql_store_result / type 1 : mysql_use_result
+    MYSQL_ROW*  DB_Fetch_Row(MYSQL_RES* res);                                               // DB에 날린 쿼리로 Row를 1개 얻어 왔을 때 
+                                                                                            // 해당 Row 문자열 저장된 포인터 반환
     void        DB_Free_Result(); 
 
 public:
@@ -42,15 +50,16 @@ public:
 
 
 	public:
-		DB_Query(DBTLS* parent, const CHAR* DBip, UINT DBPort);
+		DB_Query(DBTLS* parent);
 		~DB_Query();
+		bool        ReConnect();
 
-		bool        DB_Post_Query(const CHAR* QueryString, const va_list& args);   // DB로 쿼리 날리는 함수
+		bool        DB_Post_Query(DB_QUERY_RESULT& Result, const CHAR* QueryString, const va_list& args);   // DB로 쿼리 날리는 함수
 
-		MYSQL_RES*  DB_GET_Result(int type);                                       // type 0 : mysql_store_result / type 1 : mysql_use_result
-															                       
-		MYSQL_ROW*  DB_Fetch_Row(MYSQL_RES* res);                                  // DB에 날린 쿼리로 Row를 1개 얻어 왔을 때 
-		                                                                           // 해당 Row 문자열 저장된 포인터 반환
+		MYSQL_RES*  DB_GET_Result(int type);                                                                // type 0 : mysql_store_result / type 1 : mysql_use_result
+															                                                
+		MYSQL_ROW*  DB_Fetch_Row(MYSQL_RES* res);                                                           // DB에 날린 쿼리로 Row를 1개 얻어 왔을 때 
+		                                                                                                    // 해당 Row 문자열 저장된 포인터 반환
 		void        DB_Free_Result();                   
 	};
 
@@ -65,7 +74,6 @@ private:
 	UINT              m_DBPort = 0;
 	DB_Query*         m_DBQueryAry[DBTLS_MAX_COUNT] = {};
 	INT16             m_DBQArrayIdx = 0;
-
 
 };
 

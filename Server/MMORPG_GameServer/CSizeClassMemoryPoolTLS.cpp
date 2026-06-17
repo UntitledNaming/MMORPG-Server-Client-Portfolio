@@ -30,13 +30,31 @@ void* CSizeClassMemoryPoolTLS::Alloc(int size)
 	if (size > MAX_MEMORYPOOL_BLOCK_SIZE)
 		return nullptr;
 
-	int quo = size / 32;
-
+	if (size <= 32)
+		return (void*)(m_blockSize32Pool->Alloc());
+	else if (size <= 64)
+		return (void*)(m_blockSize64Pool->Alloc());
+	else if (size <= 128)
+		return (void*)(m_blockSize128Pool->Alloc());
+	else if (size <= 256)
+		return (void*)(m_blockSize256Pool->Alloc());
+	else if (size <= 512)
+		return (void*)(m_blockSize512Pool->Alloc());
 
 	return nullptr;
 }
 
 void CSizeClassMemoryPoolTLS::Free(void* ptr, int size)
 {
+	if (size <= 32)
+		m_blockSize32Pool->Free((BlockSize32*)ptr);
+	else if (size <= 64)
+		m_blockSize64Pool->Free((BlockSize64*)ptr);
+	else if (size <= 128)
+		m_blockSize128Pool->Free((BlockSize128*)ptr);
+	else if (size <= 256)
+		m_blockSize256Pool->Free((BlockSize256*)ptr);
+	else if (size <= 512)
+		m_blockSize512Pool->Free((BlockSize512*)ptr);
 
 }

@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)..\..\NetworkLib\common_files\include\util;$(ProjectDir);$(SolutionDir)..\..\NetworkLib\common_files\include\memorypool;C:\Program Files\MySQL\MySQL Server 8.0\include;$(SolutionDir)..\..\NetworkLib\common_files\include\lockfree;$(SolutionDir)..\..\NetworkLib\common_files\include\list;$(SolutionDir)..\..\NetworkLib\common_files\include\dbtls;$(SolutionDir)..\..\NetworkLib\common_files\include\buffer;$(SolutionDir)..\..\NetworkLib\game_library\include;$(SolutionDir)..\..\Common\Network;$(SolutionDir)..\..\Common\Contents;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\ThirdParty\mysql\include;$(SolutionDir)..\..\NetworkLib\common_files\include\util;$(ProjectDir);$(SolutionDir)..\..\NetworkLib\common_files\include\memorypool;$(SolutionDir)..\..\NetworkLib\common_files\include\lockfree;$(SolutionDir)..\..\NetworkLib\common_files\include\list;$(SolutionDir)..\..\NetworkLib\common_files\include\dbtls;$(SolutionDir)..\..\NetworkLib\common_files\include\buffer;$(SolutionDir)..\..\NetworkLib\game_library\include;$(SolutionDir)..\..\Common\Network;$(SolutionDir)..\..\Common\Contents;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -125,7 +125,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Program Files\MySQL\MySQL Server 8.0\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\ThirdParty\mysql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

@@ -5,6 +5,8 @@
 #include <mysql.h>
 #include <strsafe.h>
 #include <unordered_map>
+#include <errmsg.h>
+#include <mysqld_error.h>
 #include "LogClass.h"
 #include "DBTLS.h"
 
@@ -27,9 +29,14 @@ DBTLS::DBTLS(const CHAR* DBip, INT DBPort, std::string& schema)
 
 DBTLS::~DBTLS()
 {
-	for (int i = 0; i < m_DBQArrayIdx; i++)
+	// 쿼리 배열 0번째 index
+	for (int i = 0; i <= m_DBQArrayIdx; i++)
 	{
-		delete m_DBQueryAry[i];
+		if (m_DBQueryAry[i])
+		{
+			delete m_DBQueryAry[i];
+			m_DBQueryAry[i] = nullptr;
+		}
 	}
 }
 
@@ -41,31 +48,28 @@ bool DBTLS::DB_Post_Query(const CHAR* QueryString, ...)
 	ret = (DB_Query*)TlsGetValue(m_TlsIdx);
 	if (ret == nullptr)
 	{
-		// 쿼리 처음 호출
-		ret = new DB_Query(this,m_DBIP.c_str(),m_DBPort);
-
 		// 관리 배열범위 체크
-		retIDX = InterlockedIncrement16(& m_DBQArrayIdx);
+		retIDX = InterlockedIncrement16(&m_DBQArrayIdx);
 		if (retIDX >= DBTLS_MAX_COUNT)
-		{
-			delete ret;
 			return false;
-		}
+
+		// 쿼리 처음 호출
+		ret = new DB_Query(this);
+
 
 		TlsSetValue(m_TlsIdx, ret);
 
 		// 관리 배열에 저장
 		m_DBQueryAry[retIDX] = ret;
 
-
 	}
-
+	bool Success = false;
 	va_list args;
 	va_start(args, QueryString);
-	ret->DB_Post_Query(QueryString, args);
+	Success = ret->DB_Post_Query(QueryString, args);
 	va_end(args);
 
-	return true;
+	return Success;
 }
 
 MYSQL_RES* DBTLS::DB_GET_Result(int type)
@@ -90,11 +94,11 @@ void DBTLS::DB_Free_Result()
 	ret->DB_Free_Result();
 }
 
-DBTLS::DB_Query::DB_Query(DBTLS* parent, const CHAR* DBip, UINT DBPort) : m_Parent(parent), m_sql_result(nullptr), m_sql_row(nullptr)
+DBTLS::DB_Query::DB_Query(DBTLS* parent) : m_Parent(parent), m_sql_result(nullptr), m_sql_row(nullptr)
 {
 	mysql_init(&m_Conn);
 
-	m_Connection = mysql_real_connect(&m_Conn, DBip, "root", "1q2w3e4r", m_Parent->m_Schema.c_str(), DBPort, (char*)NULL, 0);
+	m_Connection = mysql_real_connect(&m_Conn, m_Parent->m_DBIP.c_str(), "root", "1q2w3e4r", m_Parent->m_Schema.c_str(), m_Parent->m_DBPort, (char*)NULL, 0);
 	if (m_Connection == NULL)
 	{
 		LOG(L"DB", en_LOG_LEVEL::dfLOG_LEVEL_ERROR, L"DB Connect Error... / UniqID : %s ", mysql_error(&m_Conn));
@@ -108,6 +112,21 @@ DBTLS::DB_Query::~DB_Query()
 	mysql_close(m_Connection);
 }
 
+bool DBTLS::DB_Query::ReConnect()
+{
+	mysql_close(m_Connection);
+
+	mysql_init(&m_Conn);
+
+	m_Connection = mysql_real_connect(&m_Conn, m_Parent->m_DBIP.c_str(), "root", "1q2w3e4r", m_Parent->m_Schema.c_str(), m_Parent->m_DBPort, (char*)NULL, 0);
+	if (m_Connection == NULL)
+	{
+		LOG(L"DB", en_LOG_LEVEL::dfLOG_LEVEL_ERROR, L"DB Connect Error... / UniqID : %s ", mysql_error(&m_Conn));
+		return false;
+	}
+	return true;
+}
+
 bool DBTLS::DB_Query::DB_Post_Query(const CHAR* QueryString, const va_list& args)
 {
 	INT     query_stat;
@@ -115,24 +134,30 @@ bool DBTLS::DB_Query::DB_Post_Query(const CHAR* QueryString, const va_list& args
 	CHAR    pBuffer[DBQUERY_DEFAULT_LEN];
 	BOOL    reSize = false;
 
-
-
     ret = StringCchVPrintfA(pBuffer, DBQUERY_DEFAULT_LEN, QueryString, args);
     
-
     // 쿼리 스트링 길이가 할당 크기보다 크면 중단
 	if (ret == STRSAFE_E_INSUFFICIENT_BUFFER)
-	{
 		return false;
-	}
 
 	query_stat = mysql_query(m_Connection, pBuffer);
 	if (query_stat != 0)
 	{
 		int error_code = mysql_errno(m_Connection);
-		// DB와 연결 끊겨서 에러 날 수도 있음. 이때 이 세션 그냥 끊고 
-		// 유저가 다시 연결 해서 로그인 요청 보내게 하는 방법
 		LOG(L"DB",en_LOG_LEVEL::dfLOG_LEVEL_ERROR,L"DB mysql_query Error : %s" ,mysql_error(&m_Conn));
+
+		// 재연결 1번 시도 후 쿼리 날리기
+		if (error_code == CR_SERVER_GONE_ERROR || error_code == CR_SERVER_LOST)
+			return ReConnect();
+
+
+		// 쿼리문 이상한것이면다 크래쉬
+		else if (error_code == ER_PARSE_ERROR || error_code == ER_NO_SUCH_TABLE || error_code == ER_BAD_FIELD_ERROR)
+			__debugbreak();
+
+
+		// 그외 버그는 false 리턴
+
 		return false;
 	}
 
