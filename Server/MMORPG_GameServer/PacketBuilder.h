@@ -17,7 +17,7 @@ public:
 	static CMessage* SyncMyCharacter(CUser* pUser);
 	static CMessage* SyncOtherCharacter(CUser* pUser);
 	static CMessage* CreateRTTEchoMessage();
-	static CMessage* AttackLeftSwing(CUser* pUser, float attackYaw);
+	static CMessage* AttackLeftSwing(uint64 sessionID, float attackYaw, uint8 swingIndex);
 	static CMessage* StopLeftSwing(CUser* pUser);
 	static CMessage* HitTarget(uint8 hitPlayerCount, uint8 hitMonsterCount, std::vector<CUser*>& hitPlayerArray, std::vector<CMonster*>& hitMonsterArray);
 	static CMessage* UseSkillRes(uint8 skillSlot, bool success);
@@ -27,7 +27,7 @@ public:
 	static CMessage* DeleteMonster(CMonster* pMonster);
 	static CMessage* MoveMonster(CMonster* pMonster, const Location& DesLocation);
 	static CMessage* StopMonster(CMonster* pMonster, const Location& StopLocation);
-	static CMessage* AttackMonster(CMonster* pMonster, uint64 TargetID, uint16 newHP);
+	static CMessage* AttackMonster(CMonster* pMonster, uint64 TargetID, int16 newHP);
 
 	static CMessage* CreateFieldDropItem(FieldDropItem* pItem);
 	static CMessage* DeleteFieldDropItem(FieldDropItem* pItems);

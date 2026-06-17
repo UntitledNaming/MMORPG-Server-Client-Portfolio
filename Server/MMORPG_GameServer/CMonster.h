@@ -34,12 +34,12 @@ public:
 	uint32 GetRespawnDelay() const { return m_respawnDelay; }
     uint16 GetMonsterType() const { return m_monsterType; }
     uint16 GetSectorIdx() const { return m_sectorIdx; }
-    uint16 GetHP() const { return m_hp; }
-    uint16 GetMaxHP() const { return m_maxHP; }
+    int16  GetHP() const { return m_hp; }
+    int16  GetMaxHP() const { return m_maxHP; }
 	uint16 GetSectorX() const { return m_secPos.GetX(); }
 	uint16 GetSectorY() const { return m_secPos.GetY(); }
-	uint16 GetAtk() const { return m_atk; }
-	uint16 GetDef() const { return m_def; }
+	int16  GetAtk() const { return m_atk; }
+	int16  GetDef() const { return m_def; }
 	EMonsterState GetMonsterState() const { return m_state; }
 	const SectorPos& GetSectorPos() const { return m_secPos; }
 	const Location& GetLocation() const { return m_location; }

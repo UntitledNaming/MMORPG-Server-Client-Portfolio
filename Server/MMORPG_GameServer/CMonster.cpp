@@ -105,7 +105,7 @@ uint32 CMonster::CalBaseAttackDamage(CUser* target, uint32 curTime)
 	float ratio = 1.0f;
 
 	uint32 damage = static_cast<uint32>(atk * ratio);
-	uint16 targetDef = target->GetDef(curTime);
+	int16 targetDef = target->GetDef(curTime);
 
 	if (damage <= targetDef)
 		return 1;

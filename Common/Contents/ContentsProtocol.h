@@ -42,10 +42,10 @@ namespace FieldProtocol
     //	4	-	Ypos			(float)
     //	4	-	Zpos			(float)
     //  4   -   Yaw             (float)
-    //  2   -   HP              (uint16)
-    //  2   -   MP              (uint16)
+    //  2   -   HP              (int16)
+    //  2   -   MP              (int16)
     //  2   -   Level           (uint16)
-    //  4   -   CurrentExp      (uint32)
+    //  4   -   CurrentExp      (int32)
     // 
     //  // Inventory No Empty Item Slot Data
     //  1   -   Count           (uint8)
@@ -56,7 +56,7 @@ namespace FieldProtocol
     //  1   -   RandomStatCount (uint8)
     //      per Random Stat:
     //      1   - StatType      (uint8)
-    //      2   - StatValue     (uint16)
+    //      2   - StatValue     (int16)
     // 
     //  // Equipment No Empty Item Slot Data 
     //  1   -   Count           (uint8)
@@ -66,7 +66,7 @@ namespace FieldProtocol
     //  1   -   RandomStatCount (uint8)
     //      per Random Stat:
     //      1   - StatType      (uint8)
-    //      2   - StatValue     (uint16)
+    //      2   - StatValue     (int16)
     // 
     // 
     //  // QuickSlot No Empty Item Slot Data 
@@ -87,8 +87,8 @@ namespace FieldProtocol
     //	4	-	Ypos			(float)
     //	4	-	Zpos			(float)
     //  4   -   MoveYaw         (float)  
-    //  2   -   HP              (uint16) 
-    //  2   -   MaxHP           (uint16) 
+    //  2   -   HP              (int16) 
+    //  2   -   MaxHP           (int16) 
     //  1   -   MoveFlag        (bool)
     //
     //---------------------------------------------------------------
@@ -236,11 +236,11 @@ namespace FieldProtocol
     //  1   -   MonsterHitCount   (uint8)
     //  per hit:
     //  8   -   CharacterID       (uint64)
-    //  2   -   NewHP             (uint16)
+    //  2   -   NewHP             (int16)
     //      
     //  per hit:
     //  8   -   MonsterID         (uint64)
-    //  2   -   NewHP             (uint16)
+    //  2   -   NewHP             (int16)
     //
     //---------------------------------------------------------------
 
@@ -280,8 +280,8 @@ namespace FieldProtocol
     //	4	-	Zpos			(float)
     //  4   -   Yaw             (float)  
     //  2   -   MonsterType     (uint16)
-    //  2   -   HP              (uint16) 
-    //  2   -   MaxHP           (uint16) 
+    //  2   -   HP              (int16) 
+    //  2   -   MaxHP           (int16) 
     //---------------------------------------------------------------
 
     constexpr uint16 PACKET_SC_DELETE_MONSTER = 1020;
@@ -327,7 +327,7 @@ namespace FieldProtocol
     //
     //	8	-	MonsterID		(uint64)
     //	8	-	TargetID	 	(uint64)
-    //	2	-	TargetNewHP 	(uint16)
+    //	2	-	TargetNewHP 	(int16)
     //
     //---------------------------------------------------------------
 
@@ -400,7 +400,7 @@ namespace FieldProtocol
     //  
     //  per RandomStatCount
     //  1   -  RandomStatType          (uint8)
-    //  2   -  RandomStatValue         (uint16)
+    //  2   -  RandomStatValue         (int16)
     //---------------------------------------------------------------
 
     constexpr uint16 PACKET_SC_PICKUP_CONSUMABLE_ITEMS = 1031;
@@ -477,12 +477,12 @@ namespace FieldProtocol
     //  Level Up Msg    					    Server -> Client
     //
     //  1   -  LevelUp                   (bool)
-    //  4   -  CurExp                    (uint32)
+    //  4   -  CurExp                    (int32)
     // 
     //  if LevelUp True
     //  2   -  CurLevel                  (uint16) 
-    //  2   -  HP                        (uint16)
-    //  2   -  MP                        (uint16)
+    //  2   -  HP                        (int16)
+    //  2   -  MP                        (int16)
     //---------------------------------------------------------------
 
     constexpr uint16 PACKET_CS_RESPAWN_REQ = 1038;

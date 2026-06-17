@@ -91,7 +91,7 @@ void FieldGroup::SendMonsterTargetUpdate(CMonster* pMonster)
 	CMessage::Free(pMoveMonster);
 }
 
-void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, uint16 newHP)
+void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, int16 newHP)
 {
 	CMessage* pAttackMonster = PacketBuilder::AttackMonster(pMonster, pTarget->GetSessionID(), newHP);
 
@@ -267,7 +267,6 @@ void FieldGroup::OnClientLeave(UINT64 sessionID)
 	sec.RemoveUser(pUser);
 
 	pUser->Destroy();
-	pUser->SetDisconnectFlag(true);
 	CUser::Free(pUser);
 	m_userLookUpTable.erase(it);
 }
@@ -734,14 +733,6 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 
 	pUser = it->second;
 
-	bool dis = false;
-
-	if (!pUser->CanSwing(timeGetTime(), swingindex))
-	{
-		Disconnect(sessionID);
-		return;
-	}
-
 	// 공격자의 위치, 공격 타입을 매개인자로 전달하여 피격자들 찾기
 	HitSearchInfo info;
 	HitSearchBuilder::MakeBaseAttack(pUser, attackyaw, info);
@@ -790,13 +781,11 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 
 
 	// 공격자 swing 메세지 뿌리기 
-	CMessage* pSwingMsg = PacketBuilder::AttackLeftSwing(pUser,attackyaw);
+	CMessage* pSwingMsg = PacketBuilder::AttackLeftSwing(pUser->GetSessionID(), attackyaw, swingindex);
 	SendPacket_SectorAround(pSwingMsg, pUser);
 	CMessage::Free(pSwingMsg);
 
-
 	SendPacket_HitSectors(result);
-
 
 	// 피격 몬스터들 중에 죽었으면 삭제 메세지 뿌리고 섹터에서 제거
 	for (int i = 0; i < result.HitMonsterCount; i++)
@@ -823,7 +812,6 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 		m_sectors[pHitMonster->GetSectorY()][pHitMonster->GetSectorX()].RemoveMonster(pHitMonster);
 
 	}
-
 }
 
 void FieldGroup::HandleLeftAttackStop(uint64 sessionID, CMessage* pMessage)
@@ -839,8 +827,6 @@ void FieldGroup::HandleLeftAttackStop(uint64 sessionID, CMessage* pMessage)
 		__debugbreak();
 
 	pUser = it->second;
-
-	pUser->SwingStop();
 
 	// 공격자 스윙 정지 메세지 뿌리기
 	CMessage* pSwingStop = PacketBuilder::StopLeftSwing(pUser);
