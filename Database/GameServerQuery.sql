@@ -1,6 +1,6 @@
 CREATE DATABASE IF NOT EXISTS `WorldDB`;
 
-CREATE TABLE IF NOT EXISTS `character`(
+CREATE TABLE IF NOT EXISTS worlddb.`character`(
   characterUID         BIGINT NOT NULL AUTO_INCREMENT,
   accountID            BIGINT NOT NULL,
   characterlevel       SMALLINT UNSIGNED NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `character`(
   INDEX   idx_account(accountid) 
 );
 
-CREATE TABLE IF NOT EXISTS `item`(
+CREATE TABLE IF NOT EXISTS worlddb.`item`(
  itemUID              BIGINT NOT NULL,
  characterUID         BIGINT NOT NULL,
  itemID               INT UNSIGNED NOT NULL,
@@ -29,7 +29,9 @@ CREATE TABLE IF NOT EXISTS `item`(
  INDEX   idx_character(characterUID)
 );
 
-  INSERT INTO `character` (characterid, accountid, characterlevel, curexp, xpos, ypos, zpos)
+SET SESSION cte_max_recursion_depth = 10000;
+
+  INSERT INTO worlddb.`character` (characteruid, accountid, characterlevel, curexp, xpos, ypos, zpos)
   WITH RECURSIVE seq(n) AS (
       SELECT 1
       UNION ALL
@@ -42,7 +44,8 @@ CREATE TABLE IF NOT EXISTS `item`(
       0,                                                                  -- curexp
       200000 + (42 + ((n - 1) % 71)) * 2500 + 1250,                       -- xpos (섹터 중앙)
       200000 + (51 + (FLOOR((n - 1) / 71) % 61)) * 2500 + 1250,           -- ypos (섹터 중앙)
-      0                                                                   -- zpos (지면, 필요시 조정)
+      -38775                                                              -- zpos (지면, 필요시 조정)
   FROM seq;
 
 
+SELECT * FROM worlddb.character;
