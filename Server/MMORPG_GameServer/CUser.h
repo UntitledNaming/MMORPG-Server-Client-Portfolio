@@ -81,19 +81,19 @@ public:
 	bool   ItemSlotChange(SLOT_TYPE fromType, int16 fromIndex, SLOT_TYPE toType, int16 toIndex);
 
 	uint64 GetSessionID() const { return m_sessionID; }
-	uint32 GetCurrentEXP() const { return m_currentExp; }
+	int32  GetCurrentEXP() const { return m_currentExp; }
 	uint32 CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime);
 	uint32 CalSkillDamage(uint16 skillIndex, CMonster* target, uint32 curTime);
 	uint32 CalBaseAttackDamage(CUser* target, uint32 curTime);
 	uint32 CalBaseAttackDamage(CMonster* target, uint32 curTime);
-	uint16 GetDef(uint32 curTime);
-	uint16 GetAtk(uint32 curTime);
-	uint16 GetMaxHP(uint32 curTime);
-	uint16 GetMaxMP(uint32 curTime);
-	uint16 GetHP() const { return m_hp; }
-	uint16 GetMP() const { return m_mp; }
-	uint16 GetHPRegenSec() const;
-	uint16 GetMPRegenSec() const;
+    int16  GetDef(uint32 curTime);
+    int16  GetAtk(uint32 curTime);
+    int16  GetMaxHP(uint32 curTime);
+    int16  GetMaxMP(uint32 curTime);
+	int16  GetHP() const { return m_hp; }
+	int16  GetMP() const { return m_mp; }
+	int16  GetHPRegenSec() const;
+	int16  GetMPRegenSec() const;
 	uint16 GetSectorArrayIdx() const { return m_arrayIdx; }
 	uint16 GetSectorXpos() const { return m_secPos.GetX(); }
 	uint16 GetSectorYpos() const { return m_secPos.GetY(); }

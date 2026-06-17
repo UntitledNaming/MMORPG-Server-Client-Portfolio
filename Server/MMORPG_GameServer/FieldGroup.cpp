@@ -91,7 +91,7 @@ void FieldGroup::SendMonsterTargetUpdate(CMonster* pMonster)
 	CMessage::Free(pMoveMonster);
 }
 
-void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, uint16 newHP)
+void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, int16 newHP)
 {
 	CMessage* pAttackMonster = PacketBuilder::AttackMonster(pMonster, pTarget->GetSessionID(), newHP);
 

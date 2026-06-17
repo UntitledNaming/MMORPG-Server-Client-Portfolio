@@ -40,8 +40,8 @@ struct ItemStat
 	int16 def = 0;
 	int16 maxHP = 0;
 	int16 maxMP = 0;
-	uint16 hpRegenPerSec = 0;
-	uint16 mpRegenPerSec = 0;
+	int16 hpRegenPerSec = 0;
+	int16 mpRegenPerSec = 0;
 };
 
 struct ItemData
@@ -63,7 +63,7 @@ struct ItemData
 struct RandomStatResult
 {
 	RANDOM_STAT_TYPE randomStatType;
-	uint16           randomStatValue;
+	int16           randomStatValue;
 };
 
 struct UpdateSlotResult
@@ -168,15 +168,15 @@ struct UseItemResult
 struct UserLevelStat
 {
 	uint16 level;
-	uint32 requiredExp;
+	int32  requiredExp;
 
 	int16  atk;
 	int16  def;
 	int16  maxHP;
 	int16  maxMP;
 
-	uint16 hpRegenPerSec;
-	uint16 mpRegenPerSec;
+	int16 hpRegenPerSec;
+	int16 mpRegenPerSec;
 };
 
 struct RecoveryInfo
@@ -217,7 +217,7 @@ struct ConsumableCooltimeInfo
 struct GainEXPResult
 {
 	bool   levelUp = false;
-	uint32 curEXP = 0;
+	int32  curEXP = 0;
 
 	// levelUp == true 일때
 	uint16 curLevel;

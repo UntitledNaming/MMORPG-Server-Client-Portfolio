@@ -36,7 +36,7 @@ CMessage* PacketBuilder::CreateMyCharacter(CUser* pUser)
 	*pMessage << pUser->GetHP();
 	*pMessage << pUser->GetMP();
 	*pMessage << pUser->GetLevel();
-	*pMessage << static_cast<unsigned long>(pUser->GetCurrentEXP());
+	*pMessage << pUser->GetCurrentEXP();
 
 	const Inventory& inven = pUser->GetInventory();
 	const Equipment& equip = pUser->GetEquipment();
@@ -347,7 +347,7 @@ CMessage* PacketBuilder::StopMonster(CMonster* pMonster, const Location& StopLoc
 	return pMessage;
 }
 
-CMessage* PacketBuilder::AttackMonster(CMonster* pMonster, uint64 TargetID, uint16 newHP)
+CMessage* PacketBuilder::AttackMonster(CMonster* pMonster, uint64 TargetID, int16 newHP)
 {
 	CMessage* pMessage = CMessage::Alloc();
 	pMessage->Clear(1);
@@ -506,7 +506,7 @@ CMessage* PacketBuilder::GainExp(GainEXPResult& result)
 
 	*pMessage << FieldProtocol::PACKET_SC_GAIN_EXP;
 	*pMessage << result.levelUp;
-	*pMessage << static_cast<unsigned long>(result.curEXP);
+	*pMessage <<result.curEXP;
 
 	if (result.levelUp)
 	{

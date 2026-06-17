@@ -99,7 +99,7 @@ void CUser::UpdateRecovery(uint32 curTime)
 	{
 		m_hp += GetHPRegenSec();
 
-		uint16 maxhp = GetMaxHP(curTime);
+		int16 maxhp = GetMaxHP(curTime);
 
 		if (m_hp > maxhp)
 			m_hp = maxhp;
@@ -560,14 +560,14 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime)
 
 	const SkillData& skillData = g_skillData[skillIndex];
 
-	uint16 atk = GetAtk(curTime);
+	int16 atk = GetAtk(curTime);
 	uint32 damage = skillData.BaseDamage + static_cast<uint32>(atk * skillData.AttackRatio);
 	
 	switch (skillData.DamageType)
 	{
 	case ESkillDamageType::Physical:
 	{
-		uint16 targetDef = target->GetDef(curTime);
+		int16 targetDef = target->GetDef(curTime);
 
 		// 데미지 낮아도 1딜 들어감.
 		if (damage <= targetDef)
@@ -580,7 +580,7 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime)
 
 	case ESkillDamageType::Magic:
 	{
-		uint16 targetDef = target->GetDef(curTime);
+		int16 targetDef = target->GetDef(curTime);
 
 		if (damage <= targetDef)
 			damage = 1;
@@ -605,7 +605,7 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CMonster* target, uint32 curTime
 
 	const SkillData& skillData = g_skillData[skillIndex];
 
-	uint16 atk = GetAtk(curTime);
+	int16 atk = GetAtk(curTime);
 	uint32 damage = skillData.BaseDamage + static_cast<uint32>(atk * skillData.AttackRatio);
 
 	switch (skillData.DamageType)
@@ -648,14 +648,14 @@ uint32 CUser::CalBaseAttackDamage(CUser* target, uint32 curTime)
 	if (target == nullptr || !target->IsAlive())
 		return 0;
 
-	uint16 atk = GetAtk(curTime);
+	int16 atk = GetAtk(curTime);
 
 	// if swing index마다 데미지 배율 다르게 하고 싶으면 ratio 수정
 
 	float ratio = 1.0f;
 
 	uint32 damage = static_cast<uint32>(atk * ratio);
-	uint16 targetDef = target->GetDef(curTime);
+	int16 targetDef = target->GetDef(curTime);
 
 	if (damage <= targetDef)
 		return 1;
@@ -668,7 +668,7 @@ uint32 CUser::CalBaseAttackDamage(CMonster* target, uint32 curTime)
 	if (target == nullptr || target->GetMonsterState() == EMonsterState::Dead)
 		return 0;
 
-	uint16 atk = GetAtk(curTime);
+	int16 atk = GetAtk(curTime);
 
 	// if swing index마다 데미지 배율 다르게 하고 싶으면 ratio 수정
 
@@ -683,7 +683,7 @@ uint32 CUser::CalBaseAttackDamage(CMonster* target, uint32 curTime)
 	return damage - targetDef;
 }
 
-uint16 CUser::GetDef(uint32 curTime)
+int16 CUser::GetDef(uint32 curTime)
 {
 	uint16 def = m_baseStat.m_def + m_equipment.GetDEF();
 
@@ -701,7 +701,7 @@ uint16 CUser::GetDef(uint32 curTime)
 	return def;
 }
 
-uint16 CUser::GetAtk(uint32 curTime)
+int16 CUser::GetAtk(uint32 curTime)
 {
 	uint16 atk = m_baseStat.m_atk + m_equipment.GetATK();
 
@@ -719,28 +719,28 @@ uint16 CUser::GetAtk(uint32 curTime)
 	return atk;
 }
 
-uint16 CUser::GetMaxHP(uint32 curTime)
+int16 CUser::GetMaxHP(uint32 curTime)
 {
 	uint16 maxhp = m_baseStat.m_maxHP + m_equipment.GetMaxHP();
 
 	return maxhp;
 }
 
-uint16 CUser::GetMaxMP(uint32 curTime)
+int16 CUser::GetMaxMP(uint32 curTime)
 {
 	uint16 maxmp = m_baseStat.m_maxMP + m_equipment.GetMaxMP();
 
 	return maxmp;
 }
 
-uint16 CUser::GetHPRegenSec() const
+int16 CUser::GetHPRegenSec() const
 {
 	uint16 HPRegenSec = m_baseStat.m_hpRegenPerSec + m_equipment.GetHPRegen();
 
 	return HPRegenSec;
 }
 
-uint16 CUser::GetMPRegenSec() const
+int16 CUser::GetMPRegenSec() const
 {
 	uint16 MPRegenSec = m_baseStat.m_mpRegenPerSec + m_equipment.GetMPRegen();
 
@@ -793,7 +793,7 @@ bool CUser::UseConsumableItem(const UserItem* pUserItem, const ItemData* pItemDa
 	{
 	case CONSUMABLE_ITEM_TYPE::SMALL_HP_POTION:
 	{
-		uint16 maxHP = GetMaxHP(curTime);
+		int16 maxHP = GetMaxHP(curTime);
 		m_hp += pItemData->recoverHP;
 		if (m_hp > maxHP)
 			m_hp = maxHP;
