@@ -40,7 +40,7 @@ DBTLS::~DBTLS()
 	}
 }
 
-bool DBTLS::DB_Post_Query(const CHAR* QueryString, ...)
+bool DBTLS::DB_Post_Query(DB_QUERY_RESULT& Result, const CHAR* QueryString, ...)
 {
 	DB_Query* ret = nullptr;
 	INT16     retIDX;
@@ -51,7 +51,10 @@ bool DBTLS::DB_Post_Query(const CHAR* QueryString, ...)
 		// 관리 배열범위 체크
 		retIDX = InterlockedIncrement16(&m_DBQArrayIdx);
 		if (retIDX >= DBTLS_MAX_COUNT)
+		{
+			InterlockedDecrement16(&m_DBQArrayIdx);
 			return false;
+		}
 
 		// 쿼리 처음 호출
 		ret = new DB_Query(this);
@@ -66,7 +69,7 @@ bool DBTLS::DB_Post_Query(const CHAR* QueryString, ...)
 	bool Success = false;
 	va_list args;
 	va_start(args, QueryString);
-	Success = ret->DB_Post_Query(QueryString, args);
+	Success = ret->DB_Post_Query(Result,QueryString, args);
 	va_end(args);
 
 	return Success;
@@ -101,7 +104,7 @@ DBTLS::DB_Query::DB_Query(DBTLS* parent) : m_Parent(parent), m_sql_result(nullpt
 	m_Connection = mysql_real_connect(&m_Conn, m_Parent->m_DBIP.c_str(), "root", "1q2w3e4r", m_Parent->m_Schema.c_str(), m_Parent->m_DBPort, (char*)NULL, 0);
 	if (m_Connection == NULL)
 	{
-		LOG(L"DB", en_LOG_LEVEL::dfLOG_LEVEL_ERROR, L"DB Connect Error... / UniqID : %s ", mysql_error(&m_Conn));
+		LOG(L"DB", en_LOG_LEVEL::dfLOG_LEVEL_ERROR, L"DB Connect Error... / UniqID : %S ", mysql_error(&m_Conn));
 		__debugbreak();
 	}
 
@@ -127,12 +130,14 @@ bool DBTLS::DB_Query::ReConnect()
 	return true;
 }
 
-bool DBTLS::DB_Query::DB_Post_Query(const CHAR* QueryString, const va_list& args)
+bool DBTLS::DB_Query::DB_Post_Query(DB_QUERY_RESULT& Result, const CHAR* QueryString, const va_list& args)
 {
 	INT     query_stat;
 	HRESULT ret;
 	CHAR    pBuffer[DBQUERY_DEFAULT_LEN];
 	BOOL    reSize = false;
+
+	Result = DB_QUERY_RESULT::None;
 
     ret = StringCchVPrintfA(pBuffer, DBQUERY_DEFAULT_LEN, QueryString, args);
     
@@ -148,19 +153,35 @@ bool DBTLS::DB_Query::DB_Post_Query(const CHAR* QueryString, const va_list& args
 
 		// 재연결 1번 시도 후 쿼리 날리기
 		if (error_code == CR_SERVER_GONE_ERROR || error_code == CR_SERVER_LOST)
-			return ReConnect();
+		{
+			// 재연결 후 쿼리 성공하면 true 리턴
+			if (ReConnect() && mysql_query(m_Connection, pBuffer) == 0)
+			{
+				Result = DB_QUERY_RESULT::Success;
+				return true;
+			}
 
+			Result = DB_QUERY_RESULT::ConnectLost;
+			return false;
+		}
 
 		// 쿼리문 이상한것이면다 크래쉬
 		else if (error_code == ER_PARSE_ERROR || error_code == ER_NO_SUCH_TABLE || error_code == ER_BAD_FIELD_ERROR)
 			__debugbreak();
 
+		// 쿼리에 담긴 데이터 문제(이름 중복, UID 중복 등)
+		else if (error_code == ER_DUP_ENTRY || error_code == ER_BAD_NULL_ERROR
+			|| error_code == ER_NO_REFERENCED_ROW_2 || error_code == ER_ROW_IS_REFERENCED_2)
+		{
+			Result = DB_QUERY_RESULT::Constraint;
+			return false;
+		}
 
 		// 그외 버그는 false 리턴
-
 		return false;
 	}
 
+	Result = DB_QUERY_RESULT::Success;
 	return true;
 }
 

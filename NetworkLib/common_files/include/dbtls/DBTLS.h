@@ -6,10 +6,11 @@
 
 enum class DB_QUERY_RESULT : unsigned char
 {
+	None,
 	Success,
 	ConnectLost,
-	QueryError,
 	Constraint,      // etc... Name Duplication, UID Duplication
+	
 };
 
 
