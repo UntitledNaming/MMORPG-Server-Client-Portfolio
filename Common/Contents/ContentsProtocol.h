@@ -22,7 +22,6 @@ namespace AuthProtocol
     //	64	-	Token		    (64 byte)
     //---------------------------------------------------------------
 
-
 	constexpr uint16 PACKET_SC_GAME_LOGIN_RES = 1;
     //---------------------------------------------------------------
     //  Game Server Login Response Msg			Server -> Client
@@ -32,11 +31,17 @@ namespace AuthProtocol
 
     constexpr uint16 PACKET_CS_GAME_CHARACTER_SELECT = 2;
     //---------------------------------------------------------------
-    //  Game Server Login Response Msg			Server -> Client
+    //  Game Server Character Select Req Msg	Client -> Server
     //
     //	8	-	CharacterUID	(uint64)
     //---------------------------------------------------------------
 
+    constexpr uint16 PACKET_SC_GAME_CHARACTER_SELECT = 3;
+    //---------------------------------------------------------------
+    //  Game Server Character Select Res Msg	Client -> Server
+    //
+    //	1   -   Success         (bool)
+    //---------------------------------------------------------------
 }
 
 namespace FieldProtocol
