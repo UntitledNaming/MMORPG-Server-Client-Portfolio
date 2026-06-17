@@ -13,6 +13,9 @@ void UM1ItemSlotWidget::NativeConstruct()
 		Image_CoolTime->SetVisibility(ESlateVisibility::Collapsed);
 		Image_CoolTime->SetColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.5f));
 	}
+
+	if (Image_Background)
+		Image_Background->SetVisibility(ESlateVisibility::HitTestInvisible);
 }
 
 void UM1ItemSlotWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -82,7 +85,7 @@ FReply UM1ItemSlotWidget::NativeOnMouseButtonDown(const FGeometry& GeoMetry, con
 		}
 	}
 
-	return FReply::Handled().CaptureMouse(TakeWidget());
+	return FReply::Handled();
 }
 
 FReply UM1ItemSlotWidget::NativeOnMouseButtonUp(const FGeometry& GeoMetry, const FPointerEvent& PointerEvent)
@@ -127,7 +130,7 @@ FReply UM1ItemSlotWidget::NativeOnMouseButtonUp(const FGeometry& GeoMetry, const
 
 	// 드래그 끝
 	ItemManager->EndDrag();
-	return FReply::Handled().ReleaseMouseCapture();
+	return FReply::Handled();
 }
 
 void UM1ItemSlotWidget::NativeOnMouseEnter(const FGeometry& GeoMetry, const FPointerEvent& PointerEvent)

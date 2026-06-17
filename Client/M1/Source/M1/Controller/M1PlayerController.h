@@ -23,12 +23,18 @@ public:
 	UM1NetworkManager* GetNetworkManager();
 
 protected:
-	virtual void BeginPlayingState() override;
+	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 	virtual void PlayerTick(float DeltaTime) override;
 
 public:
 	void OnPossess(APawn* InPawn);
+	
+	void ShowLoginWidget();
+	void CloseLoginWidget();
+
+	void ShowRespawnWidget();
+	void CloseRespawnWidget();
 
 private:
 	void OnMove(const FInputActionValue& Value);
@@ -70,7 +76,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI") TSubclassOf<class UUserWidget> MainHUDClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "UI") TSubclassOf<class UUserWidget> LoginWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI") TSubclassOf<class UUserWidget> RespawnWidgetClass;
+
 	UPROPERTY()                                  class UUserWidget* MainHUD = nullptr;
+	UPROPERTY()                                	 class UUserWidget* LoginWidget = nullptr;
+	UPROPERTY()                                  class UUserWidget* RespawnWidget = nullptr;
+
+
 
 private:
 	bool   bCurrentMoveFlag  = false;

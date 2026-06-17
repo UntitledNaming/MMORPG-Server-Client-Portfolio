@@ -20,9 +20,6 @@ protected:
 	virtual void OnRecv(CMessage* pMessage) override;
 	virtual void OnSend(int sendsize) override;
 
-private:
-	void mpCreateLoginRequest(CMessage* pMessage);
-
 public:
-	TQueue<CMessage*> PacketQueue;
+	TQueue<CMessage*,EQueueMode::Mpsc> PacketQueue;
 };

@@ -42,9 +42,9 @@ UM1NetworkManager* AM1PlayerController::GetNetworkManager()
 }
 
 
-void AM1PlayerController::BeginPlayingState()
+void AM1PlayerController::BeginPlay()
 {
-    Super::BeginPlayingState();
+    Super::BeginPlay();
 
     if (!NetworkManager)
     {
@@ -53,6 +53,9 @@ void AM1PlayerController::BeginPlayingState()
             NetworkManager = GI->GetSubsystem<UM1NetworkManager>();
         }
     }
+
+
+    ShowLoginWidget();
 }
 
 void AM1PlayerController::SetupInputComponent()
@@ -155,6 +158,70 @@ void AM1PlayerController::OnPossess(APawn* InPawn)
     }
 }
 
+void AM1PlayerController::ShowLoginWidget()
+{
+    if (LoginWidget || !LoginWidgetClass)
+        return;
+
+    LoginWidget = CreateWidget<UUserWidget>(this, LoginWidgetClass);
+    if (!LoginWidget)
+        return;
+
+    LoginWidget->AddToViewport(3000);
+
+    FInputModeUIOnly InputMode;
+    InputMode.SetWidgetToFocus(LoginWidget->TakeWidget());
+    SetInputMode(InputMode);
+
+    bShowMouseCursor = true;
+}
+
+void AM1PlayerController::CloseLoginWidget()
+{
+    if (LoginWidget)
+    {
+        LoginWidget->RemoveFromParent();
+        LoginWidget = nullptr;
+    }
+
+    FInputModeGameOnly InputMode;
+    SetInputMode(InputMode);
+
+    bShowMouseCursor = false;
+}
+
+void AM1PlayerController::ShowRespawnWidget()
+{
+    if (RespawnWidget || !RespawnWidgetClass)
+        return;
+
+    RespawnWidget = CreateWidget<UUserWidget>(this, RespawnWidgetClass);
+    if (!RespawnWidget)
+        return;
+
+    RespawnWidget->AddToViewport(4000);
+
+    FInputModeUIOnly InputMode;
+    InputMode.SetWidgetToFocus(RespawnWidget->TakeWidget());
+    SetInputMode(InputMode);
+
+    bShowMouseCursor = true;
+}
+
+void AM1PlayerController::CloseRespawnWidget()
+{
+    if (RespawnWidget)
+    {
+        RespawnWidget->RemoveFromParent();
+        RespawnWidget = nullptr;
+    }
+
+    FInputModeGameOnly InputMode;
+    SetInputMode(InputMode);
+
+    bShowMouseCursor = false;
+}
+
 void AM1PlayerController::OnMove(const FInputActionValue& Value)
 {
     FVector2D MovementVector = Value.Get<FVector2D>();
@@ -171,10 +238,10 @@ void AM1PlayerController::OnLook(const FInputActionValue& Value)
 
 void AM1PlayerController::OnJumpStart()
 {
-    if (M1Player)
-    {
-        M1Player->Jump();
-    }
+    if (!M1Player || M1Player->IsDead())
+        return;
+
+    M1Player->Jump();
 }
 
 void AM1PlayerController::OnJumpEnd()
@@ -187,7 +254,7 @@ void AM1PlayerController::OnJumpEnd()
 
 void AM1PlayerController::OnStartLeftAttack()
 {
-    if (!M1Player)
+    if (!M1Player || M1Player->IsDead())
         return;
 
     if (M1Player->GetAbilityComponent())
@@ -196,13 +263,15 @@ void AM1PlayerController::OnStartLeftAttack()
 
 void AM1PlayerController::OnLeftAttackHeld()
 {
-    if (M1Player)
-        M1Player->SetUseUpperBodyWhenMovingFlag(true);
+    if (!M1Player || M1Player->IsDead())
+        return;
+
+    M1Player->SetUseUpperBodyWhenMovingFlag(true);
 }
 
 void AM1PlayerController::OnStopLeftAttack()
 {
-    if (!M1Player)
+    if (!M1Player || M1Player->IsDead())
         return;
 
     if (M1Player->GetAbilityComponent())
@@ -213,31 +282,43 @@ void AM1PlayerController::OnStopLeftAttack()
 
 void AM1PlayerController::OnUseSkill1()
 {
-    if (M1Player && M1Player->GetAbilityComponent())
+    if (!M1Player || M1Player->IsDead())
+        return;
+
+    if (M1Player->GetAbilityComponent())
         M1Player->GetAbilityComponent()->ActivateAbility(EAbilitySlot::Skill1);
 }
 
 void AM1PlayerController::OnUseSkill2()
 {
-    if (M1Player && M1Player->GetAbilityComponent())
+    if (!M1Player || M1Player->IsDead())
+        return;
+
+    if (M1Player->GetAbilityComponent())
         M1Player->GetAbilityComponent()->ActivateAbility(EAbilitySlot::Skill2);
 }
 
 void AM1PlayerController::OnUseSkill3()
 {
-    if (M1Player && M1Player->GetAbilityComponent())
+    if (!M1Player || M1Player->IsDead())
+        return;
+
+    if (M1Player->GetAbilityComponent())
         M1Player->GetAbilityComponent()->ActivateAbility(EAbilitySlot::Skill3);
 }
 
 void AM1PlayerController::OnUseSkill4()
 {
-    if (M1Player && M1Player->GetAbilityComponent())
+    if (!M1Player || M1Player->IsDead())
+        return;
+
+    if (M1Player->GetAbilityComponent())
         M1Player->GetAbilityComponent()->ActivateAbility(EAbilitySlot::Skill4);
 }
 
 void AM1PlayerController::OnPickUp()
 {
-    if (M1Player == nullptr)
+    if (M1Player == nullptr || M1Player->IsDead())
         return;
 
     AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
@@ -249,7 +330,7 @@ void AM1PlayerController::OnPickUp()
 
 void AM1PlayerController::OnQuickSlot1()
 {
-    if (!NetworkManager)
+    if (!NetworkManager || !M1Player || M1Player->IsDead())
         return;
 
     UM1ItemManager* ItemManager = GetGameInstance()->GetSubsystem<UM1ItemManager>();
@@ -264,7 +345,7 @@ void AM1PlayerController::OnQuickSlot1()
 
 void AM1PlayerController::OnQuickSlot2()
 {
-    if (!NetworkManager)
+    if (!NetworkManager || !M1Player || M1Player->IsDead())
         return;
 
     UM1ItemManager* ItemManager = GetGameInstance()->GetSubsystem<UM1ItemManager>();
@@ -280,6 +361,9 @@ void AM1PlayerController::OnQuickSlot2()
 // 매개인자 : WASD 입력에 대한 X, Y축값
 void AM1PlayerController::DoMove(float Right, float Forward)
 {
+    if (!M1Player || M1Player->IsDead())
+        return;
+
     const FRotator Rotation = GetControlRotation();
     const FRotator YawRotation(0, Rotation.Yaw, 0);
 
@@ -287,11 +371,8 @@ void AM1PlayerController::DoMove(float Right, float Forward)
 
     const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-    if (M1Player)
-    {
-        M1Player->AddMovementInput(ForwardDirection, Forward);
-        M1Player->AddMovementInput(RightDirection, Right);
-    }
+    M1Player->AddMovementInput(ForwardDirection, Forward);
+    M1Player->AddMovementInput(RightDirection, Right);
 
     // 이동 벡터 계산
     FVector MoveDirection = ForwardDirection * Forward + RightDirection * Right;
@@ -310,11 +391,11 @@ void AM1PlayerController::DoMove(float Right, float Forward)
 
 void AM1PlayerController::DoLook(float Yaw, float Pitch)
 {
-    if (M1Player)
-    {
-        M1Player->AddControllerYawInput(Yaw);
-        M1Player->AddControllerPitchInput(Pitch);
-    }
+    if (!M1Player || M1Player->IsDead())
+        return;
+
+    M1Player->AddControllerYawInput(Yaw);
+    M1Player->AddControllerPitchInput(Pitch);
 }
 
 void AM1PlayerController::QuitGame()
@@ -329,7 +410,7 @@ void AM1PlayerController::QuitGame()
 
 void AM1PlayerController::TrySendMovementPacket()
 {
-    if (M1Player == nullptr || NetworkManager == nullptr)
+    if (M1Player == nullptr || NetworkManager == nullptr || M1Player->IsDead())
         return;
 
     bool bNeedSend = false;
@@ -432,6 +513,9 @@ void AM1PlayerController::SendLeftAttackSwingPacket(float FacingYaw, uint8 Swing
     if (!NetworkManager)
         return;
 
+    if (!M1Player || M1Player->IsDead())
+        return;
+
     CMessage* pMessage = CMessage::Alloc();
     pMessage->Clear(1);
     *pMessage << FieldProtocol::PACKET_CS_SWING_LEFT_ATTACK;
@@ -446,6 +530,9 @@ void AM1PlayerController::SendLeftAttackStopPacket()
     if (!NetworkManager)
         return;
 
+    if (!M1Player || M1Player->IsDead())
+        return;
+
     CMessage* pMessage = CMessage::Alloc();
     pMessage->Clear(1);
     *pMessage << FieldProtocol::PACKET_CS_STOP_LEFT_ATTACK;
@@ -456,6 +543,9 @@ void AM1PlayerController::SendLeftAttackStopPacket()
 void AM1PlayerController::SendUseSkillPacket(uint8 SkillSlot)
 {
     if (!NetworkManager)
+        return;
+
+    if (!M1Player || M1Player->IsDead())
         return;
 
     CMessage* pMessage = CMessage::Alloc();

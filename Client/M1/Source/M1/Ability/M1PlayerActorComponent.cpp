@@ -27,6 +27,10 @@ void UM1PlayerActorComponent::InitializeFromData(UM1CharacterAbilityDataAsset* D
 
 void UM1PlayerActorComponent::ActivateAbility(EAbilitySlot Slot)
 {
+    AM1Character* OwnerCharacter = GetOwnerCharacter();
+    if (!OwnerCharacter || OwnerCharacter->IsDead())
+        return;
+
     if (UM1AbilityBase* Ability = AbilityInstances.FindRef(Slot))
         Ability->OnActivate(GetOwnerCharacter());
 }

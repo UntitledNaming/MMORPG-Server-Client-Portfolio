@@ -539,3 +539,22 @@ void M1PacketHandler::Handle_SC_GAIN_EXP(CMessage* pMessage, UM1NetworkManager* 
 	SpawnManager->OnLevelUp(level, hp, mp, curexp);
 }
 
+void M1PacketHandler::Handle_SC_RESPAWN_RES(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	float X, Y, Z, Yaw;
+	uint16 HP, MP;
+
+	*pMessage >> X;
+	*pMessage >> Y;
+	*pMessage >> Z;
+	*pMessage >> Yaw;
+	*pMessage >> HP;
+	*pMessage >> MP;
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	if (!SpawnManager)
+		return;
+
+	FVector Location(X, Y, Z);
+	SpawnManager->OnRespawn(Location, HP, MP, Yaw);
+}

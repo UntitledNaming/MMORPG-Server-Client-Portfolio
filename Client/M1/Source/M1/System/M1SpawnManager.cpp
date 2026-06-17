@@ -90,8 +90,8 @@ void AM1SpawnManager::SpawnMyPlayer(FM1SpawnData& Data)
         PC->SetCachedPlayer(NewPlayer);
         PC->OnPossess(NewPlayer);
         PC->SetControlRotation(FRotator(0.f, 0.f, 0.f));
+        PC->CloseLoginWidget();
         NewPlayer->SetActorRotation(FRotator(0.f, 0.f, 0.f));
-        
         SendRttPacket();
     }
     NewPlayer->SetSpawnFlag(true);
@@ -373,6 +373,11 @@ void AM1SpawnManager::OnGetExp(uint32 NewCurrentExp)
     MyPlayer->SetCurrentExp(NewCurrentExp);
 }
 
+void AM1SpawnManager::OnRespawn(FVector& Location, uint16 HP, uint16 MP, float Yaw)
+{
+
+}
+
 void AM1SpawnManager::ProcessClientAttackHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg)
 {
     float CosHalfAngle = FMath::Cos(FMath::DegreesToRadians(HalfAngleDeg));
@@ -441,7 +446,16 @@ void AM1SpawnManager::ApplyPlayerHitResult(uint64 EntityID, int32 NewHP)
     if (EntityID == MyID)
     {
         MyPlayer->SetHP(NewHP);
-        MyPlayer->TriggerHitReact(0.f);  // 서버 패킷에 공격자 정보 없으므로 정면(0°) 기본값
+
+        if (MyPlayer->IsDead())
+        {
+            if (AM1PlayerController* PC = Cast<AM1PlayerController>(MyPlayer->GetController()))
+                PC->ShowRespawnWidget();
+
+            return;
+        }
+
+        MyPlayer->TriggerHitReact(0.f);
         return;
     }
 

@@ -120,8 +120,6 @@ void UM1NetworkManager::Tick(float DeltaTime)
 		PacketHandler(pMessage);
 		CMessage::Free(pMessage);
 	}
-
-	// todo : 연결 끊겼으면 재연결
 }
 
 AM1SpawnManager* UM1NetworkManager::GetSpawnManager()
@@ -209,6 +207,7 @@ void UM1NetworkManager::InitFunctorArray()
 	M1FunctorArray[FieldProtocol::PACKET_SC_DELETE_ITEM]               = &M1PacketHandler::Handle_SC_DELETE_ITEM;
 	M1FunctorArray[FieldProtocol::PACKET_SC_SWAP_SLOT]                 = &M1PacketHandler::Handle_SC_SWAP_SLOT;
 	M1FunctorArray[FieldProtocol::PACKET_SC_GAIN_EXP]                  = &M1PacketHandler::Handle_SC_GAIN_EXP;
+	M1FunctorArray[FieldProtocol::PACKET_SC_RESPAWN_RES]               = &M1PacketHandler::Handle_SC_RESPAWN_RES;
 }
 
 void UM1NetworkManager::LoadServerConfig()

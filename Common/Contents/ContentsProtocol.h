@@ -19,8 +19,7 @@ namespace AuthProtocol
     //---------------------------------------------------------------
     //  Game Server Login Request Msg			Client -> Server
     //
-    //	8	-	AccountNo		(uint64)
-    //  64  -   TokenKey        (char[])
+    //	8	-	AccountID		(uint64)
     //---------------------------------------------------------------
 
 
@@ -486,5 +485,22 @@ namespace FieldProtocol
     //  2   -  MP                        (uint16)
     //---------------------------------------------------------------
 
+    constexpr uint16 PACKET_CS_RESPAWN_REQ = 1038;
+    //---------------------------------------------------------------
+    //  Respawn Msg    					    Server -> Client
+    //
+    //  (no payload)
+    //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_SC_RESPAWN_RES = 1039;
+    //---------------------------------------------------------------
+    //  Respawn Msg    					    Server -> Client
+    //  
+    //  4   -  Xpos                      (float)
+    //  4   -  Ypos                      (float)
+    //  4   -  Zpos                      (float)
+    //  2   -  HP                        (uint16)
+    //  2   -  MP                        (uint16)
+    //---------------------------------------------------------------
 }
 

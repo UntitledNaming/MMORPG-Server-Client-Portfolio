@@ -15,7 +15,9 @@ UM1Ability_BasicAttack::UM1Ability_BasicAttack()
 
 void UM1Ability_BasicAttack::OnActivate(AM1Character* Owner)
 {
-    if (!Owner || bIsAttacking || bPendingStop) return;
+    if (!Owner || Owner->IsDead() || bIsAttacking || bPendingStop)
+        return;
+
     bIsAttacking = true;
     CachedOwner  = Owner;
 
@@ -79,6 +81,6 @@ void UM1Ability_BasicAttack::OnMontageEnded(UAnimMontage* Montage, bool bInterru
         return;
     }
 
-    if (bIsAttacking)
+    if (bIsAttacking && CachedOwner && !CachedOwner->IsDead())
         PlayCastFX(CachedOwner);
 }
