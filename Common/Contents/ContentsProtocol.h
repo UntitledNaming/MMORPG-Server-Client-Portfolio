@@ -19,7 +19,7 @@ namespace AuthProtocol
     //---------------------------------------------------------------
     //  Game Server Login Request Msg			Client -> Server
     //
-    //	8	-	AccountID		(uint64)
+    //	64	-	Token		    (64 byte)
     //---------------------------------------------------------------
 
 
@@ -27,8 +27,16 @@ namespace AuthProtocol
     //---------------------------------------------------------------
     //  Game Server Login Response Msg			Server -> Client
     //
-    //	8	-	AccountNo		(uint64)
+    //	Character List
     //---------------------------------------------------------------
+
+    constexpr uint16 PACKET_CS_GAME_CHARACTER_SELECT = 2;
+    //---------------------------------------------------------------
+    //  Game Server Login Response Msg			Server -> Client
+    //
+    //	8	-	CharacterUID	(uint64)
+    //---------------------------------------------------------------
+
 }
 
 namespace FieldProtocol
