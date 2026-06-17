@@ -4,6 +4,7 @@
 #include "MemoryPoolTLS.h"
 #include "LockFreeMemoryPoolLive.h"
 #include "CMessage.h"
+#include "CSizeClassMemoryPoolTLS.h"
 
 #pragma warning(disable:4996)
 

@@ -81,6 +81,8 @@ public:
 	bool   ItemSlotChange(SLOT_TYPE fromType, int16 fromIndex, SLOT_TYPE toType, int16 toIndex);
 
 	uint64 GetSessionID() const { return m_sessionID; }
+	uint64 GetAccountID() const { return m_accountID; }
+	uint64 GetCharacterUID() const { return m_characterUID; }
 	int32  GetCurrentEXP() const { return m_currentExp; }
 	uint32 CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime);
 	uint32 CalSkillDamage(uint16 skillIndex, CMonster* target, uint32 curTime);
@@ -116,6 +118,8 @@ public:
 	void SetMoveYaw(float moveYaw) { m_movementYaw = moveYaw; }
 	void SetSectorArrayIdx(uint16 idx) { m_arrayIdx = idx; }
 	void SetMoveFlag(bool flag) { m_moveFlag = flag; }
+	void SetAccountID(uint64 accountID) { m_accountID = accountID; }
+	void SetCharacterUID(uint64 characterUID) { m_characterUID = characterUID; }
 
 	static CUser* Alloc();
 	static void Free(CUser* pUser);
@@ -141,6 +145,8 @@ private:
 	static CMPoolTLS<CUser> m_userPool;
 
 	uint64                 m_sessionID;
+	uint64                 m_accountID;
+	uint64                 m_characterUID;
 	int32                  m_currentExp;
 	int32                  m_requiredExp;
 	SkillInfo              m_skillInfo[UserConst::USER_SKILL_SLOT_COUNT];

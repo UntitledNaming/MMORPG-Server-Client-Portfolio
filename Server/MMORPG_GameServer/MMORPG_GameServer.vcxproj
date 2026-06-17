@@ -144,8 +144,10 @@
     <ClCompile Include="AuthGroup.cpp" />
     <ClCompile Include="CDBManager.cpp" />
     <ClCompile Include="CMonster.cpp" />
+    <ClCompile Include="CSizeClassMemoryPoolTLS.cpp" />
     <ClCompile Include="CUser.cpp" />
     <ClCompile Include="CUserItemStorage.cpp" />
+    <ClCompile Include="DBJob.cpp" />
     <ClCompile Include="Equipment.cpp" />
     <ClCompile Include="FieldDropItemPool.cpp" />
     <ClCompile Include="FieldGroup.cpp" />
@@ -166,8 +168,10 @@
     <ClInclude Include="AuthGroup.h" />
     <ClInclude Include="CDBManager.h" />
     <ClInclude Include="CMonster.h" />
+    <ClInclude Include="CSizeClassMemoryPoolTLS.h" />
     <ClInclude Include="CUser.h" />
     <ClInclude Include="CUserItemStorage.h" />
+    <ClInclude Include="DBJob.h" />
     <ClInclude Include="Equipment.h" />
     <ClInclude Include="FieldDropItemPool.h" />
     <ClInclude Include="FieldGroup.h" />

@@ -40,7 +40,7 @@ namespace AuthProtocol
     //---------------------------------------------------------------
     //  Game Server Character Select Res Msg	Client -> Server
     //
-    //	1   -   Success         (bool)
+    //	1   -   Success         (bool)  World In Success of Faill
     //---------------------------------------------------------------
 }
 
