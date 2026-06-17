@@ -5,6 +5,7 @@ class CUserDirectory;
 class CDBManager;
 class AuthGroup;
 class FieldGroup;
+class ProcessMonitor;
 
 class GameServer
 {
@@ -16,11 +17,11 @@ public:
 	void Monitoring();
 
 private:
-	CGameLibrary*   m_pGameLib;
-	CDBManager*     m_pDBManager;
-	AuthGroup*      m_pAuthGroup;
-	FieldGroup*     m_pFieldGroup;
-
+	CGameLibrary*   m_pGameLib = nullptr;
+	CDBManager*     m_pDBManager = nullptr;
+	AuthGroup*      m_pAuthGroup = nullptr;
+	FieldGroup*     m_pFieldGroup = nullptr;
+	ProcessMonitor* m_pPDH = nullptr;
 	std::thread     m_monitorThread;
 	BOOL            m_endFlag;
 

@@ -3,8 +3,8 @@
          BIND_PORT = 11211;
          IOCP_WORKER_THREAD = 6;
          IOCP_ACTIVE_THREAD = 3;
-         SESSION_MAX = 16000;
-         USER_MAX = 15000;
+         SESSION_MAX = 12000;
+         USER_MAX = 10000;
          NAGLE = 0;
          /* Send 스레드 생성 플래그 및 Send 스레드 Sleep 값 */
          SEND_FRAME = 20;
