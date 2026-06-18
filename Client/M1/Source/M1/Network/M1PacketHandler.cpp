@@ -26,6 +26,11 @@ void M1PacketHandler::Handle_SC_LOGIN_RES(CMessage* pMessage, UM1NetworkManager*
 
 }
 
+void M1PacketHandler::Handle_SC_CHARACTER_SELECT_RES(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+
+}
+
 void M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
 	uint64 charid;

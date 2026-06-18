@@ -19,7 +19,7 @@ protected:
 
 private:
     UPROPERTY(meta = (BindWidget))
-    UEditableTextBox* Edit_AccountID = nullptr;
+    UEditableTextBox* Edit_CharacterID = nullptr;
 
     UPROPERTY(meta = (BindWidget))
     UButton* Button_Login = nullptr;
@@ -34,5 +34,5 @@ private:
     UFUNCTION()
     void OnClickLogin();
 
-    bool ParseAccountID(uint64& OutAccountID) const;
+    bool ParseCharacterID(uint64& OutAccountID) const;
 };

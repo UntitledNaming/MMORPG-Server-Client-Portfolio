@@ -20,8 +20,8 @@ void UM1LoginWidget::NativeConstruct()
     if (Text_Message)
         Text_Message->SetVisibility(ESlateVisibility::Collapsed);
 
-    if (Edit_AccountID)
-        Edit_AccountID->SetKeyboardFocus();
+    if (Edit_CharacterID)
+        Edit_CharacterID->SetKeyboardFocus();
 }
 
 void UM1LoginWidget::OnClickLogin()
@@ -29,22 +29,38 @@ void UM1LoginWidget::OnClickLogin()
     if (!NetworkManager)
         return;
 
-    uint64 AccountID = 0;
-    if (!ParseAccountID(AccountID))
+    uint64 CharacterID = 0;
+    if (!ParseCharacterID(CharacterID))
     {
         if (Text_Message)
         {
-            Text_Message->SetText(FText::FromString(TEXT("Account ID를 입력하세요.")));
+            Text_Message->SetText(FText::FromString(TEXT("Character ID를 입력하세요.")));
             Text_Message->SetVisibility(ESlateVisibility::Visible);
         }
         return;
     }
 
+    char token[64] = {};
+    CMessage* LoginReqMsg = CMessage::Alloc();
+    LoginReqMsg->Clear(1);
+
+    *LoginReqMsg << AuthProtocol::PACKET_CS_GAME_LOGIN_REQ;
+    LoginReqMsg->PutData(token, sizeof(token));
+
+    NetworkManager->SendPacket(
+        LoginReqMsg,
+        static_cast<uint8>(ERouteType::GROUP),
+        ServiceID::NONE_SERVICE
+    );
+
+    CMessage::Free(LoginReqMsg);
+
+
     CMessage* Msg = CMessage::Alloc();
     Msg->Clear(1);
 
-    *Msg << AuthProtocol::PACKET_CS_GAME_LOGIN_REQ;
-    *Msg << AccountID;
+    *Msg << AuthProtocol::PACKET_CS_GAME_CHARACTER_SELECT;
+    *Msg << CharacterID;
 
     NetworkManager->SendPacket(
         Msg,
@@ -64,12 +80,12 @@ void UM1LoginWidget::OnClickLogin()
     }
 }
 
-bool UM1LoginWidget::ParseAccountID(uint64& OutAccountID) const
+bool UM1LoginWidget::ParseCharacterID(uint64& OutAccountID) const
 {
-    if (!Edit_AccountID)
+    if (!Edit_CharacterID)
         return false;
 
-    FString Text = Edit_AccountID->GetText().ToString();
+    FString Text = Edit_CharacterID->GetText().ToString();
     Text.TrimStartAndEndInline();
 
     if (Text.IsEmpty())

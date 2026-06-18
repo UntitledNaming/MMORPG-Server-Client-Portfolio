@@ -18,6 +18,9 @@ public:
 	// 서버가 보낸 "로그인 응답" 처리
 	static void Handle_SC_LOGIN_RES(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 
+	// 서버가 보낸 "캐릭터 선택 응답" 처리
+	static void Handle_SC_CHARACTER_SELECT_RES(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
 	// 서버가 보낸 "내 캐릭터 생성" 처리
 	static void Handle_SC_CREATE_MY_CHARACTER(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 

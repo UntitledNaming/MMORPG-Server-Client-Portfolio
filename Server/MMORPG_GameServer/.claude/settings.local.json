@@ -5,7 +5,8 @@
       "PowerShell(head *)",
       "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\sdj53\\\\Documents\\\\GitHub\\\\MMO-Server-Portfolio\\\\Server\\\\MMORPG_GameServer\" | Where-Object { $_.Extension -match '\\\\.\\(h|cpp\\)$' } | Select-Object -ExpandProperty Name)",
       "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\sdj53\\\\Documents\\\\GitHub\\\\MMO-Server-Portfolio\\\\Server\" -Recurse | Where-Object { $_.Name -match '\\(Define|Enum|Struct\\)' } | Select-Object -ExpandProperty FullName)",
-      "PowerShell(ls \"C:\\\\Users\\\\sdj53\\\\Documents\\\\GitHub\\\\MMO-Server-Portfolio\\\\Server\\\\MMORPG_GameServer\" | Where-Object { $_.Extension -match '\\\\.\\(h|cpp\\)$' })"
+      "PowerShell(ls \"C:\\\\Users\\\\sdj53\\\\Documents\\\\GitHub\\\\MMO-Server-Portfolio\\\\Server\\\\MMORPG_GameServer\" | Where-Object { $_.Extension -match '\\\\.\\(h|cpp\\)$' })",
+      "PowerShell($g = Get-ChildItem \"C:\\\\Program Files\\\\Git\\\\cmd\\\\git.exe\",\"C:\\\\Program Files \\(x86\\)\\\\Git\\\\cmd\\\\git.exe\" -ErrorAction SilentlyContinue | Select-Object -First 1; if\\($g\\){ & $g.FullName log --oneline -15 } else { \"git not found in common paths\" })"
     ]
   }
 }

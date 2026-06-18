@@ -178,6 +178,11 @@ void UM1NetworkManager::InitFunctorArray()
 	}
 
 	// 구현된 함수 포인터 배열에 삽입
+	// 인증 관련 핸들러
+	M1FunctorArray[AuthProtocol::PACKET_SC_GAME_LOGIN_RES] = &M1PacketHandler::Handle_SC_LOGIN_RES;
+	M1FunctorArray[AuthProtocol::PACKET_SC_GAME_CHARACTER_SELECT] = &M1PacketHandler::Handle_SC_CHARACTER_SELECT_RES;
+
+	// 필드 그룹 관련 핸들러
 	M1FunctorArray[FieldProtocol::PACKET_SC_CREATE_MY_CHARACTER] = &M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER;
 	M1FunctorArray[FieldProtocol::PACKET_SC_CREATE_OTHER_CHARACTER] = &M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER;
 	M1FunctorArray[FieldProtocol::PACKET_SC_DELETE_CHARACTER] = &M1PacketHandler::Handle_SC_DELETE_CHARACTER;
