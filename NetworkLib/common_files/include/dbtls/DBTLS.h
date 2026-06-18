@@ -10,7 +10,8 @@ enum class DB_QUERY_RESULT : unsigned char
 	Success,
 	ConnectLost,
 	Constraint,      // etc... Name Duplication, UID Duplication
-	
+	IndexOverflow,
+	QueryStringOverflow,
 };
 
 

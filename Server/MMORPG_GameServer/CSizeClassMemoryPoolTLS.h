@@ -32,10 +32,11 @@ class CMPoolTLS;
 
 class CSizeClassMemoryPoolTLS
 {
+public:
 	static void  PoolInit();
 	static void  PoolDestroy();
-	static void* Alloc(int size);
-	static void  Free(void* ptr, int size);
+	static void* Alloc(size_t size);
+	static void  Free(void* ptr, size_t size);
 
 private:
 	static CMPoolTLS<BlockSize32>*  m_blockSize32Pool  ;

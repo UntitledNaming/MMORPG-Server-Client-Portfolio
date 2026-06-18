@@ -25,7 +25,7 @@ void CSizeClassMemoryPoolTLS::PoolDestroy()
 	delete m_blockSize512Pool;
 }
 
-void* CSizeClassMemoryPoolTLS::Alloc(int size)
+void* CSizeClassMemoryPoolTLS::Alloc(size_t size)
 {
 	if (size > MAX_MEMORYPOOL_BLOCK_SIZE)
 		return nullptr;
@@ -44,7 +44,7 @@ void* CSizeClassMemoryPoolTLS::Alloc(int size)
 	return nullptr;
 }
 
-void CSizeClassMemoryPoolTLS::Free(void* ptr, int size)
+void CSizeClassMemoryPoolTLS::Free(void* ptr, size_t size)
 {
 	if (size <= 32)
 		m_blockSize32Pool->Free((BlockSize32*)ptr);

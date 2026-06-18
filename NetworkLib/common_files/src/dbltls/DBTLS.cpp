@@ -44,6 +44,7 @@ bool DBTLS::DB_Post_Query(DB_QUERY_RESULT& Result, const CHAR* QueryString, ...)
 {
 	DB_Query* ret = nullptr;
 	INT16     retIDX;
+	Result = DB_QUERY_RESULT::None;
 
 	ret = (DB_Query*)TlsGetValue(m_TlsIdx);
 	if (ret == nullptr)
@@ -53,6 +54,7 @@ bool DBTLS::DB_Post_Query(DB_QUERY_RESULT& Result, const CHAR* QueryString, ...)
 		if (retIDX >= DBTLS_MAX_COUNT)
 		{
 			InterlockedDecrement16(&m_DBQArrayIdx);
+			Result = DB_QUERY_RESULT::IndexOverflow;
 			return false;
 		}
 
@@ -66,6 +68,7 @@ bool DBTLS::DB_Post_Query(DB_QUERY_RESULT& Result, const CHAR* QueryString, ...)
 		m_DBQueryAry[retIDX] = ret;
 
 	}
+
 	bool Success = false;
 	va_list args;
 	va_start(args, QueryString);
@@ -137,13 +140,15 @@ bool DBTLS::DB_Query::DB_Post_Query(DB_QUERY_RESULT& Result, const CHAR* QuerySt
 	CHAR    pBuffer[DBQUERY_DEFAULT_LEN];
 	BOOL    reSize = false;
 
-	Result = DB_QUERY_RESULT::None;
 
     ret = StringCchVPrintfA(pBuffer, DBQUERY_DEFAULT_LEN, QueryString, args);
     
     // 쿼리 스트링 길이가 할당 크기보다 크면 중단
 	if (ret == STRSAFE_E_INSUFFICIENT_BUFFER)
+	{
+		Result = DB_QUERY_RESULT::QueryStringOverflow;
 		return false;
+	}
 
 	query_stat = mysql_query(m_Connection, pBuffer);
 	if (query_stat != 0)
