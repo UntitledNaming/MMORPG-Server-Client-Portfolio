@@ -238,8 +238,6 @@ private:
 	FieldSector                                   m_sectors[FieldConst::SECTOR_Y_MAX][FieldConst::SECTOR_X_MAX];
 	CMonster                                      m_grossMonsterPoolArray[FieldConst::MAX_GROSS_FIELD_MONSTER_COUNT];
 									              
-	GrossMonsterSpawnSectorArea                   m_grossFieldSpawnArea[3] = { {82,111,51,101}, {42,76,55,93}, {50,96,87,111} };
-
 	uint64                                        m_monsterAllocID   = 0;
 
 public:
