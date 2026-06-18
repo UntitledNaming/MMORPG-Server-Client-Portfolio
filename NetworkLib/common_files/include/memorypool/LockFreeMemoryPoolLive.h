@@ -16,7 +16,7 @@ private:
 
 	//////////////////////////////////////////////////////////////////////////
 	// 메모리 풀에서 사용할 노드 구조체
-	// s_guard  : 노드 앞에 메모리 침범 체크할 가드, Free할때 체크
+	// todo : s_guard  : 노드 앞에 메모리 침범 체크할 가드, Free할때 체크
 	// s_data   : 노드에 객체 자체를 저장
 	// s_pNext  : 노드의 다음 주소
 	// s_poolID : 타입별 메모리 풀 마다 ID 부여할때 체크하기 위한 변수
@@ -27,8 +27,6 @@ private:
 		Node*    s_pNext;  
 		UINT64   s_poolD;
 	};
-
-private:
 
 private:
 	Node*                               m_pTopNode;

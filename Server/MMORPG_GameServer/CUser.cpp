@@ -1,8 +1,6 @@
 #include <string>
 #include <windows.h>
-#include <stack>
 #include <unordered_map>
-#include <unordered_set>
 #include <array>
 #include <set>
 #include "ContentsEnum.h"
@@ -23,40 +21,7 @@ using namespace UserConst;
 
 void CUser::Init(uint64 sessionID)
 {
-	m_inventory.Init(&m_storage);
-	m_equipment.Init(&m_storage);
-	m_storage.Init();
-
-	// todo : 추후 DB에서 데이터 긁어와서 초기화 하기
 	m_sessionID = sessionID;
-	m_location = Location{ 381250.0f , 443750.0f ,-38775.f };
-	m_moveFlag = false;
-	m_secPos.SetPos(SectorPos((m_location.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (m_location.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE));
-	m_arrayIdx = 0;
-	m_syncCount = 0;
-	m_movementYaw = 0.0f;
-	m_maxWalkSpeed = WALK_SPEED;
-	m_moveSpeed = m_maxWalkSpeed / FieldConst::UPDATE_FRAME;
-	m_recvTime = timeGetTime();
-	m_lastSyncCheckTime = timeGetTime();
-
-	SkillInfoInit();
-
-	// 스탯 초기화
-	m_level = 1;
-	m_currentExp = 0;
-
-	BaseStatInit(m_level);
-
-	uint32 curTime = timeGetTime();
-	m_hp = GetMaxHP(curTime);
-	m_mp = GetMaxMP(curTime);
-
-	// 리커버리 정보 초기화
-	m_recoveryInfo.Init();
-
-	// 소비품 쿨타임 초기화
-	m_consumableCooltimeInfo.Init();
 }
 
 void CUser::Destroy()
@@ -69,24 +34,78 @@ void CUser::Destroy()
 
 void CUser::ResPawn()
 {
-	uint32 curTime = timeGetTime();
+	
+}
 
-	m_moveFlag = false;
-	m_arrayIdx = 0;
-	m_syncCount = 0;
-	m_movementYaw = 0.0f;
-	m_recvTime = curTime;
-	m_lastSyncCheckTime = curTime;
+void CUser::LoadDataFromDB(uint64 characterUID, uint64 accountID, uint16 level, int32 curExp, Location& location, std::vector<ItemLoadData>& items)
+{
+	m_inventory.Init(&m_storage);
+	m_equipment.Init(&m_storage);
+	m_storage.Init();
 
-	for (int i = 0; i < USER_SKILL_SLOT_COUNT; i++)
+	// 아이템 인벤토리 삽입
+	// 아이템 장비 탭 삽입
+	// 아이템 퀵슬롯 삽입
+	// 저장소에 넣기
+	std::vector<ItemLoadData>::iterator it = items.begin();
+	for (; it != items.end(); ++it)
 	{
-		m_skillInfo[i].m_skillActivate = false;
-		m_skillInfo[i].m_skillExpiredTime = 0;
-		m_skillInfo[i].m_skillLastRecvTime = 0;
+		ItemLoadData& item = *it;
+		
+		// 아이템 타입 판단
+		switch (item.slotType)
+		{
+		case SLOT_TYPE::INVENTORY:
+			// 해당 index에 인벤토리 아이템
+			InventoryItemLoad(item);
+			break;
+
+		case SLOT_TYPE::EQUIPMENT:
+			EquipmentItemLoad(item);
+			break;
+
+		case SLOT_TYPE::QUICKSLOT:
+			QuickSlotItemLoad(item);
+			break;
+		}
+
+		m_storage.LoadItemFromDB(item);
 	}
 
+
+	SkillInfoInit();
+
+	// 리커버리 정보 초기화
+	m_recoveryInfo.Init();
+
+	// 소비품 쿨타임 초기화
+	m_consumableCooltimeInfo.Init();
+
+	m_characterUID = characterUID;
+	m_accountID = accountID;
+	m_level = level;
+	m_currentExp = curExp;
+	m_location = location;
+	m_moveFlag = false;
+	m_movementYaw = 0.0f;
+	m_maxWalkSpeed = WALK_SPEED;
+	m_moveSpeed = m_maxWalkSpeed / FieldConst::UPDATE_FRAME;
+
+	// 섹터쪽 변수 초기화
+	m_secPos.SetPos(SectorPos((m_location.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (m_location.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE));
+	m_arrayIdx = 0;
+
+	// 레벨에 따른 초기화
+	BaseStatInit(m_level);
+
+	// 레벨 및 장비 세팅 다 하고 나서 hp, mp 설정
+	uint32 curTime = timeGetTime();
 	m_hp = GetMaxHP(curTime);
 	m_mp = GetMaxMP(curTime);
+
+	m_recvTime = timeGetTime();
+	m_lastSyncCheckTime = timeGetTime();
+	m_syncCount = 0;
 }
 
 void CUser::UpdateRecovery(uint32 curTime)
@@ -561,7 +580,7 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime)
 	const SkillData& skillData = g_skillData[skillIndex];
 
 	int16 atk = GetAtk(curTime);
-	uint32 damage = skillData.BaseDamage + static_cast<uint32>(atk * skillData.AttackRatio);
+	int16 damage = skillData.BaseDamage + static_cast<int16>(atk * skillData.AttackRatio);
 	
 	switch (skillData.DamageType)
 	{
@@ -757,6 +776,33 @@ void CUser::Free(CUser* pUser)
 	m_userPool.Free(pUser);
 }
 
+void CUser::InventoryItemLoad(ItemLoadData& Item)
+{
+	// 해당 index에 아이템 삽입
+	m_inventory.InsertItemToSlot(Item.itemUID, Item.slotIndex);
+
+	// 삽입한 index는 indexAllocator에서 제거
+	m_inventory.EraseEmptyIndex(Item.slotIndex);
+}
+
+void CUser::EquipmentItemLoad(ItemLoadData& Item)
+{
+	// 해당 index에 장비 탭 삽입
+	ITEM_UID retID;
+	m_equipment.EquippedItem(static_cast<EQUIP_SLOT>(Item.slotIndex), Item.itemUID, retID);
+	if (retID == ItemUID::ITEM_UID_INVALID_ID)
+		__debugbreak();
+
+}
+
+void CUser::QuickSlotItemLoad(ItemLoadData& Item)
+{
+	ITEM_UID retID;
+	m_quickSlot.SetConsumable(Item.slotIndex, Item.itemUID, retID);
+	if (retID == ItemUID::ITEM_UID_INVALID_ID)
+		__debugbreak();
+}
+
 void CUser::SkillInfoInit()
 {
 	for (int i = 0; i < USER_SKILL_SLOT_COUNT; i++)
@@ -921,10 +967,9 @@ bool CUser::SlotTypeRangeCheck(SLOT_TYPE type)
 bool CUser::SwapInventoryEquipment(int16 inventoryIndex, EQUIP_SLOT equipSlot)
 {
 	// 해당 인벤토리 및 장비 슬롯 위치에 있는 아이템 UID가 하나라도 Invalid면 false 리턴
-	ITEM_UID inventoryUID;
 	ITEM_UID equipmentUID;
-	ITEM_UID retID = m_inventory.GetItemUID(inventoryIndex);
-	if (retID == ItemUID::ITEM_UID_INVALID_ID)
+	ITEM_UID inventoryUID = m_inventory.GetItemUID(inventoryIndex);
+	if (inventoryUID == ItemUID::ITEM_UID_INVALID_ID)
 		return false;
 
 	// 장착 중이던 장비가 없으면 false 리턴
@@ -965,8 +1010,24 @@ bool CUser::SwapInventoryQuickSlot(int16 inventoryIndex, int16 quickSlotIndex)
 	ITEM_UID inventoryUID = m_inventory.GetItemUID(inventoryIndex);
 	ITEM_UID quickSlotUID = m_quickSlot.GetQuickSlotItem(quickSlotIndex);
 
-	const ItemData* pInvenItem = ItemTable::GetItemData(inventoryUID);
-	const ItemData* pQuickItem = ItemTable::GetItemData(quickSlotUID);
+	// 매개인자로 받은 index에 있는 UID의 ITEM_ID 얻기 위해 Find
+	const UserItem* pInvenUserItem = m_storage.FindItem(inventoryUID);
+	const UserItem* pQuickSlotUserItem = m_storage.FindItem(quickSlotUID);
+
+	const ItemData* pInvenItem = nullptr;
+	const ItemData* pQuickItem = nullptr;
+
+	// 매개인자로 받은 index에 있는 UID에 있는 아이템의 타입 체크하기 위해 GetItemData 호출
+	if (pInvenUserItem != nullptr)
+	{
+		pInvenItem = ItemTable::GetItemData(pInvenUserItem->itemID);
+	}
+
+	if (pQuickSlotUserItem != nullptr)
+	{
+		pQuickItem = ItemTable::GetItemData(quickSlotUID);
+	}
+
 
 	// todo : 둘 중 하나라도 아이템이 소모품이 아니면 false 리턴 후 해당 유저 끊기
 	if (pInvenItem)

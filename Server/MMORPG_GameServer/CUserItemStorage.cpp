@@ -104,7 +104,7 @@ const UserItem* CUserItemStorage::FindItem(ITEM_UID ItemUID) const
 }
 
 
-void CUserItemStorage::LoadItemFromDB(const DBItem& Info)
+void CUserItemStorage::LoadItemFromDB(const ItemLoadData& Info)
 {
 	UserItem* pItem = m_itemPool->Alloc();
 
@@ -112,6 +112,7 @@ void CUserItemStorage::LoadItemFromDB(const DBItem& Info)
 	pItem->count = Info.count;
 	pItem->itemID = Info.itemID;
 	pItem->randomStatCount = Info.randomStatCount;
+
 	for (int i = 0; i < Info.randomStatCount; i++)
 	{
 		pItem->randomStat[i].randomStatType = Info.randomStat[i].randomStatType;

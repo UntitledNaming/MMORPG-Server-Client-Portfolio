@@ -1,9 +1,10 @@
 #pragma once
 
-class DBTLS;
+class  DBTLS;
+struct DBJob;
 
 template<typename T>
-class LFQueue;
+class LFQueueMul;
 
 class CDBManager
 {
@@ -14,13 +15,12 @@ public:
 	void Init();
 	void Destroy();
 	void DBThread();
-	void DBSaveData(CMessage* pMessage);
-	void DBLoadUserData(CMessage* pMessage);
+	void EnqueueDBJob(DBJob* pJob);
 
-private:
-	std::thread         m_dbSaveThread;
+public:
+	std::thread         m_DBSaveThread;
+	HANDLE              m_DBEvent;
 	DBTLS*              m_pDBTLS = nullptr;
-	LFQueue<CMessage*>* m_pDBQue = nullptr;
-	bool                m_endFlag = false;
+	LFQueueMul<DBJob*>* m_pDBQue = nullptr;
 };
 

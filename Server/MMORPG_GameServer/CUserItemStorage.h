@@ -17,7 +17,7 @@ public:
 
 	void            Init();
 	void            Destroy();
-	void            LoadItemFromDB(const DBItem& Info);
+	void            LoadItemFromDB(const ItemLoadData& Info);
 	bool            CreateItem(const BaseItemInfo& Info, ITEM_UID& OutItemUID);
 	bool            DeleteItem(ITEM_UID ItemUID);
 	bool            ChangeItemCount(ITEM_UID ItemUID, uint16 NewCount);

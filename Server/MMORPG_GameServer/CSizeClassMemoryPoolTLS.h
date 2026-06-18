@@ -38,7 +38,7 @@ public:
 	static void* Alloc(size_t size);
 	static void  Free(void* ptr, size_t size);
 
-private:
+public:
 	static CMPoolTLS<BlockSize32>*  m_blockSize32Pool  ;
 	static CMPoolTLS<BlockSize64>*  m_blockSize64Pool  ;
 	static CMPoolTLS<BlockSize128>* m_blockSize128Pool ;

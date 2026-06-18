@@ -17,7 +17,7 @@ struct SkillData
 	uint16           RequiredMana;    
 	uint32           CoolTime;        
 	uint32           Duration;        
-	uint16           BaseDamage;      
+	int16            BaseDamage;
 	float            Range ;          
 	float            AttackRatio;     
 	float            HalfAngleDegree; 
@@ -63,7 +63,7 @@ struct ItemData
 struct RandomStatResult
 {
 	RANDOM_STAT_TYPE randomStatType;
-	int16           randomStatValue;
+	int16            randomStatValue;
 };
 
 struct UpdateSlotResult
@@ -85,9 +85,11 @@ struct UserItem : public BaseItemInfo
 	ITEM_UID            itemUID = 0;
 };
 
-struct DBItem : public BaseItemInfo
+struct ItemLoadData : public BaseItemInfo
 {
-	ITEM_UID            itemUID = 0;
+	ITEM_UID  itemUID;
+	SLOT_TYPE slotType;
+	int16     slotIndex;
 };
 
 struct UIDRange
@@ -224,3 +226,4 @@ struct GainEXPResult
 	int16  curHP;
 	int16  curMP;
 };
+

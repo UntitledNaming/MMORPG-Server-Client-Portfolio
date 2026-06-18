@@ -4,6 +4,7 @@
 #include <stack>
 #include <unordered_set>
 #include <set>
+#include <vector>
 #include "Inventory.h"
 #include "Equipment.h"
 #include "QuickSlot.h"
@@ -100,7 +101,7 @@ uint32 CMonster::CalBaseAttackDamage(CUser* target, uint32 curTime)
 	if (target == nullptr || !target->IsAlive())
 		return 0;
 
-	uint16 atk = GetAtk();
+	int16 atk = GetAtk();
 
 	float ratio = 1.0f;
 

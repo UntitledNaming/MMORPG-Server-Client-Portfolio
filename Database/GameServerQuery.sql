@@ -49,3 +49,4 @@ SET SESSION cte_max_recursion_depth = 10000;
 
 
 SELECT * FROM worlddb.character;
+SELECT * FROM worlddb.item;

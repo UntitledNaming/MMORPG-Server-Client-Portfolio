@@ -6,17 +6,7 @@
 #include "MemoryPoolTLS.h"
 
 struct FieldDropItem;
-
-struct SwingInfo
-{
-	uint8  m_lastSwingIdx;
-	uint32 m_lastSwingRecvTime;
-	
-	void Init() {
-		m_lastSwingIdx = 0; m_lastSwingRecvTime
-			= 0;
-	}
-};
+class CMonster;
 
 struct UserStat
 {
@@ -51,8 +41,6 @@ constexpr UserLevelStat g_userLevelStatTable[10] =
 	{ 10,   2600, 30, 7, 310, 190, 4, 8 },
 };
 
-class CMonster;
-
 class CUser : public IUser
 {
 public:
@@ -62,6 +50,7 @@ public:
 	void   Init(uint64 sessionID);
 	void   Destroy();
 	void   ResPawn();
+	void   LoadDataFromDB(uint64 characterUID, uint64 accountID, uint16 level, int32 curExp, Location& location, std::vector<ItemLoadData>& items);
 	void   UpdateRecovery(uint32 curTime);
 	void   Damage(uint16 damage);
 	void   UseSkill(uint32 curTime, uint8 skillIndex);
@@ -125,6 +114,9 @@ public:
 	static void Free(CUser* pUser);
 
 private:
+	void InventoryItemLoad(ItemLoadData& Item);
+	void EquipmentItemLoad(ItemLoadData& Item);
+	void QuickSlotItemLoad(ItemLoadData& Item);
 	void SkillInfoInit();
 	void BaseStatInit(uint16 level);
 	bool UseConsumableItem(const UserItem* pUserItem, const ItemData* pItemData, uint16& newItemCount);

@@ -26,6 +26,8 @@
 #include "CPUUsage.h"
 #include "ProcessMonitor.h"
 #include "LogClass.h"
+#include "LFQMultiLive.h"
+#include "CSizeClassMemoryPoolTLS.h"
 #include "GameServer.h"
 
 #pragma comment(lib,"Pdh.lib")
@@ -42,9 +44,6 @@ GameServer::GameServer()
 	// 그룹, 서비스 Attach
 	m_pGameLib->AttachGroup((CGroup*)m_pAuthGroup, auth);
 	m_pGameLib->AttachGroup((CGroup*)m_pFieldGroup, field);
-
-	// 그 이외 객체 초기화
-	m_pDBManager->Init();
 
 	// 게임라이브러리 작동
 	m_pGameLib->Run();
@@ -64,6 +63,7 @@ GameServer::~GameServer()
 	// 게임 라이브러리 종료(각 객체에서 직렬화 버퍼 사용하기 때문에 게임 라이브러리 먼저 종료하면 직렬화 버퍼 TLS 풀 파괴되어 버림)
 	m_pGameLib->Stop();
 
+	CSizeClassMemoryPoolTLS::PoolDestroy();
 	CUserItemStorage::ItemPoolDestroy();
 	ItemTable::Destroy();
 	FieldDropItemPool::Destroy();
@@ -78,8 +78,14 @@ void GameServer::Init()
 	m_pPDH = new ProcessMonitor;
 	m_endFlag = false;
 
+	m_pDBManager->Init();
+
+	// 그룹에게 DBManager 포인터 전달
+	m_pAuthGroup->InitDBManager(m_pDBManager);
+
 	CLogClass::GetInstance()->Init(1);
 	CUserItemStorage::ItemPoolInit();
+	CSizeClassMemoryPoolTLS::PoolInit();
 	ItemTable::Init();
 	FieldDropItemPool::Init();
 	ItemUIDAllocator::Init();
@@ -130,7 +136,17 @@ void GameServer::Monitoring()
 		wprintf(L" Sync Count                : %lld \n", m_pFieldGroup->syncCount);
 		wprintf(L" Field Frame               : %lld \n", m_pFieldGroup->fieldframe);
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
-		wprintf(L" CMessage Pool Usage Count  : %lld \n", CMessage::m_pMessagePool->GetUseCnt());
+		wprintf(L"-----------------------------------------------------------------------------------------\n");
+		wprintf(L"                                DB                                                       \n");
+		wprintf(L"-----------------------------------------------------------------------------------------\n");
+		wprintf(L" DBQueue Use Count  : %lld \n", m_pDBManager->m_pDBQue->GetUseSize());
+		wprintf(L"-----------------------------------------------------------------------------------------\n");
+		wprintf(L" CMessage     Pool Usage Count  : %lld \n", CMessage::m_pMessagePool->GetUseCnt());
+		wprintf(L" 32SizeBlock  Pool Usage Count  : %lld \n", CSizeClassMemoryPoolTLS::m_blockSize32Pool->GetUseCnt());
+		wprintf(L" 64SizeBlock  Pool Usage Count  : %lld \n", CSizeClassMemoryPoolTLS::m_blockSize64Pool->GetUseCnt());
+		wprintf(L" 128SizeBlock Pool Usage Count  : %lld \n", CSizeClassMemoryPoolTLS::m_blockSize128Pool->GetUseCnt());
+		wprintf(L" 256SizeBlock Pool Usage Count  : %lld \n", CSizeClassMemoryPoolTLS::m_blockSize256Pool->GetUseCnt());
+		wprintf(L" 512SizeBlock Pool Usage Count  : %lld \n", CSizeClassMemoryPoolTLS::m_blockSize512Pool->GetUseCnt());
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
 		wprintf(L"[ CPU Usage : T[%f%] U[%f%] K[%f%]]\n", processtotalsum / loopCnt, processusersum / loopCnt, processkernelsum / loopCnt);
 		wprintf(L"[ Available        Memory Usage : %lf MByte ] [ NonPagedMemory Usage : %lf MByte ]\n", m_pPDH->m_AvailableMemoryVal.doubleValue / (1024 * 1024), m_pPDH->m_NonPagedMemoryVal.doubleValue / (1024 * 1024));

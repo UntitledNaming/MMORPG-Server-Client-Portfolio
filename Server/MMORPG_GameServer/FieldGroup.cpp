@@ -1,11 +1,9 @@
 #include <windows.h>
 #include <vector>
 #include <unordered_map>
-#include <unordered_set>
 #include <array>
 #include <cmath>
 #include <chrono>
-#include <stack>
 #include <set>
 #include "CMonster.h"
 #include "ContentsDefine.h"
