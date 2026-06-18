@@ -82,6 +82,7 @@ void GameServer::Init()
 
 	// 그룹에게 DBManager 포인터 전달
 	m_pAuthGroup->InitDBManager(m_pDBManager);
+	m_pFieldGroup->InitDBManager(m_pDBManager);
 
 	CLogClass::GetInstance()->Init(1);
 	CUserItemStorage::ItemPoolInit();

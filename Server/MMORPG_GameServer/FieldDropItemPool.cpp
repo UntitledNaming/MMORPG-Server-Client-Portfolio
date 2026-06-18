@@ -21,14 +21,14 @@ void FieldDropItemPool::Destroy()
 
 FieldDropItem* FieldDropItemPool::CreateItem(const Location& dropLocation)
 {
-    ITEM_ID retID = GetItemID();
+    ITEM_ID retID = ItemIDConst::SMALL_HP_POTION;//GetItemID();
     if (retID == 0)
         return nullptr;
 
     // 아이템 테이블에 없으면 nullptr 리턴
     const ItemData* pItemData = ItemTable::GetItemData(retID);
     if (pItemData == nullptr)
-        return nullptr;
+        __debugbreak();
 
     return CreateFieldItemByItemData(pItemData, dropLocation);
 }

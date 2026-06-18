@@ -174,6 +174,6 @@ FROM seq s
 CROSS JOIN cnt
 JOIN sectors sec ON sec.sid = ((s.n - 1) % cnt.c) + 1;          -- 라운드로빈 균등 분산
 
-
+TRUNCATE TABLE worlddb.character;
 SELECT * FROM worlddb.character;
 SELECT * FROM worlddb.item;

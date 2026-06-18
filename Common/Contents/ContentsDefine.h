@@ -177,7 +177,7 @@ namespace ItemIDConst
 
 namespace FieldDropItemConst
 {
-	constexpr uint16 FIELD_DROP_ITEM_RANDOM_STAT_MAX = 5;
+	constexpr uint16 FIELD_DROP_ITEM_RANDOM_STAT_MAX = 6;
 	constexpr uint32 FIELD_DROP_ITEM_EXPIRED_TIME    = 60000;
 	constexpr uint32 CREATE_SMALL_HP_POTION_MAX      = 5;
 	constexpr uint32 CREATE_SMALL_MP_POTION_MAX      = 5;

@@ -77,6 +77,6 @@ private:
     static void            SetRandomStat(const RandomStatRule* rule, uint16 ruleCount, RANDOM_STAT_TYPE type, RandomStatResult& randomStat);
 private:
     static CMPoolTLS<FieldDropItem>* m_dropItemPool;
-    static uint64                    m_dropUIDAllocator;
+    static uint64                    m_dropUIDAllocator;                                 // 필드에 떨어진 드랍 아이템 구분용 UID(아이템 UID와 다름)
 };
 

@@ -156,7 +156,7 @@ void AuthGroup::LoginRequestProc(uint64 sessionID, CMessage* pMessage)
 	m_nonuserTable.erase(sessionID);
 
 	CUser* pUser = CUser::Alloc();
-	pUser->Init(sessionID);
+	pUser->Init(sessionID, m_DBManagerPtr);
 
 	// todo : Redis에 토큰 조회
 

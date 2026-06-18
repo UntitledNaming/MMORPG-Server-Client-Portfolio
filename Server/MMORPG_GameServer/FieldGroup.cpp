@@ -38,6 +38,11 @@ size_t FieldGroup::UserCount()
 	return m_userLookUpTable.size();
 }
 
+void FieldGroup::InitDBManager(CDBManager* pDBManager)
+{
+	m_DBManagerPtr = pDBManager;
+}
+
 void FieldGroup::SendMonsterCreateToSector(CMonster* pMonster, uint16 secX, uint16 secY)
 {
 	// 섹터에 있는 유저들에게 몬스터 생성 및 필요하면 Move 패킷 보내기

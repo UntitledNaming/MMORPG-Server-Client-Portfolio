@@ -5,6 +5,7 @@
 class CUser;
 class CMonster;
 class SectorPos;
+class CDBManager;
 struct HitSearchInfo;
 struct HitResult;
 
@@ -149,6 +150,7 @@ public:
 	~FieldGroup() = default;
 
 	size_t UserCount();
+    void InitDBManager(CDBManager* pDBManager);
 
     void SendMonsterCreateToSector(CMonster* pMonster, uint16 secX, uint16 secY);
     void SendMonsterDeleteToSector(CMonster* pMonster, uint16 secX, uint16 secY);
@@ -237,7 +239,7 @@ private:
 	std::unordered_map<uint64, FieldDropItem*>    m_dropItemLookUpTable;
 	FieldSector                                   m_sectors[FieldConst::SECTOR_Y_MAX][FieldConst::SECTOR_X_MAX];
 	CMonster                                      m_grossMonsterPoolArray[FieldConst::MAX_GROSS_FIELD_MONSTER_COUNT];
-									              
+    CDBManager*                                   m_DBManagerPtr = nullptr;
 	uint64                                        m_monsterAllocID   = 0;
 
 public:

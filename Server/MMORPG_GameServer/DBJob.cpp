@@ -47,7 +47,7 @@ void CharacterSelectJob::Execute(DBTLS* InDBTLS)
 		__debugbreak();
 
 	// 유저 테이블 정보 가져오기
-	success = InDBTLS->DB_Post_Query(result, "SELECT * FROM worlddb.character WHERE characterUID = %lld", characterUID);
+	success = InDBTLS->DB_Post_Query(result, "SELECT * FROM worlddb.character WHERE characterUID = %llu", characterUID);
 	if (!success)
 		__debugbreak();
 
@@ -71,7 +71,7 @@ void CharacterSelectJob::Execute(DBTLS* InDBTLS)
 	InDBTLS->DB_Free_Result();
 
 	// 아이템 테이블 정보 가져오기
-	success = InDBTLS->DB_Post_Query(result, "SELECT * FROM worlddb.item WHERE characterUID = %lld", characterUID);
+	success = InDBTLS->DB_Post_Query(result, "SELECT * FROM worlddb.item WHERE characterUID = %llu", characterUID);
 	if (!success)
 		__debugbreak();
 
@@ -140,6 +140,15 @@ void CharacterSelectJob::Execute(DBTLS* InDBTLS)
 
 	// 커밋 끝
 	success = InDBTLS->DB_Post_Query(result, "COMMIT");
+	if (!success)
+		__debugbreak();
+}
+
+void InsertDropItemJob::Execute(DBTLS* InDBTLS)
+{
+	bool success = false;
+	success = InDBTLS->DB_Post_Query(result, "INSERT INTO worlddb.item VALUES (%llu, %llu, %u, %d, %d, %d, %d, %d, %d, %d, %d, %d)", 
+		itemUID, characterUID, itemID, count, slotType, slotIndex, itemStat.atk, itemStat.def, itemStat.maxHP, itemStat.maxMP, itemStat.hpRegenPerSec, itemStat.mpRegenPerSec);
 	if (!success)
 		__debugbreak();
 }

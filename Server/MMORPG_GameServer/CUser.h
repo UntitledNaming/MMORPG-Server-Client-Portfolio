@@ -7,6 +7,7 @@
 
 struct FieldDropItem;
 class CMonster;
+class CDBManager;
 
 struct UserStat
 {
@@ -47,7 +48,7 @@ public:
 	CUser() = default;
 	~CUser() = default;
 	
-	void   Init(uint64 sessionID);
+	void   Init(uint64 sessionID, CDBManager* pDBManager);
 	void   Destroy();
 	void   ResPawn();
 	void   LoadDataFromDB(uint64 characterUID, uint64 accountID, uint16 level, int32 curExp, Location& location, std::vector<ItemLoadData>& items);
@@ -135,6 +136,7 @@ public:
 
 private:
 	static CMPoolTLS<CUser> m_userPool;
+	CDBManager*             m_pDBManager = nullptr;
 
 	uint64                 m_sessionID;
 	uint64                 m_accountID;

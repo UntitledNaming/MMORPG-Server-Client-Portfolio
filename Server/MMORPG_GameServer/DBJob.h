@@ -51,3 +51,17 @@ struct CharacterSelectJob : public DBJob
 	////////////////////////////////
 	std::vector<ItemLoadData> items;
 };
+
+struct InsertDropItemJob : public DBJob
+{
+	virtual void Execute(DBTLS* DBTLS) override;
+
+	// 데이터 삽입 시 필요한 정보 
+	ITEM_UID  itemUID;
+	ITEM_ID   itemID;
+	uint64    characterUID;           // 소유 캐릭터 UID
+	uint16    count;
+	SLOT_TYPE slotType;
+	int16     slotIndex;
+	ItemStat  itemStat;
+};

@@ -3,6 +3,9 @@
 #include <unordered_map>
 #include <array>
 #include <set>
+#include <vector>
+#include <mysql.h>
+#include <thread>
 #include "ContentsEnum.h"
 #include "SkillTable.h"
 #include "CMonster.h"
@@ -12,6 +15,9 @@
 #include "CUserItemStorage.h"
 #include "ItemTable.h"
 #include "FieldDropItemPool.h"
+#include "DBTLS.h"
+#include "DBJob.h"
+#include "CDBManager.h"
 #include "IUser.h"
 #include "CUser.h"
 
@@ -19,13 +25,16 @@ CMPoolTLS<CUser> CUser::m_userPool;
 
 using namespace UserConst;
 
-void CUser::Init(uint64 sessionID)
+void CUser::Init(uint64 sessionID, CDBManager* pDBManager)
 {
 	m_sessionID = sessionID;
+	m_pDBManager = pDBManager;
 }
 
 void CUser::Destroy()
 {
+	// todo : DB에 현재 유저 정보 및 아이템 위치 정보 저장.
+
 	m_equipment.Destroy();
 	m_inventory.Destroy();
 	m_quickSlot.Destroy();
@@ -288,12 +297,41 @@ bool CUser::GetConsumableItem(FieldDropItem& dropItem, PickUpConsumableResult& O
 		m_inventory.ReturnSlotIndex(emptyIndex);
 		return false;
 	}
+
 	// 해당 UID를 인벤토리에 배치
 	m_inventory.InsertItemToSlot(retUID, emptyIndex);
 
 	OutResult.itemID = dropItem.itemID;
 	OutResult.consumableResult.slotIndex = emptyIndex;
 	OutResult.consumableResult.newItemCount = dropItem.count;
+
+	InsertDropItemJob* pJob = new InsertDropItemJob;
+	pJob->characterUID = m_characterUID;
+	pJob->itemUID = retUID;
+	pJob->itemID = dropItem.itemID;
+	pJob->count = dropItem.count;
+	pJob->slotType = SLOT_TYPE::INVENTORY;
+	pJob->slotIndex = emptyIndex;
+	pJob->itemStat = {};
+
+	for (int i = 0; i < dropItem.randomStatCount; i++)
+	{
+		RandomStatResult& stat = dropItem.randomStat[i];
+
+		switch (stat.randomStatType)
+		{
+		case RANDOM_STAT_TYPE::ATK: pJob->itemStat.atk = stat.randomStatValue; break;
+		case RANDOM_STAT_TYPE::DEF: pJob->itemStat.def = stat.randomStatValue; break;
+		case RANDOM_STAT_TYPE::MAX_HP: pJob->itemStat.atk = stat.randomStatValue; break;
+		case RANDOM_STAT_TYPE::MAX_MP: pJob->itemStat.def = stat.randomStatValue; break;
+		case RANDOM_STAT_TYPE::HP_REGEN: pJob->itemStat.hpRegenPerSec = stat.randomStatValue; break;
+		case RANDOM_STAT_TYPE::MP_REGEN: pJob->itemStat.mpRegenPerSec = stat.randomStatValue; break;
+		default:
+			__debugbreak();
+		}
+	}
+
+	m_pDBManager->EnqueueDBJob(pJob);
 
 	return true;
 }
@@ -328,6 +366,35 @@ bool CUser::GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResu
 		OutResult.randomStatResult[i].randomStatType = dropItem.randomStat[i].randomStatType;
 		OutResult.randomStatResult[i].randomStatValue = dropItem.randomStat[i].randomStatValue;
 	}
+
+
+	InsertDropItemJob* pJob = new InsertDropItemJob;
+	pJob->characterUID = m_characterUID;
+	pJob->itemUID = ID;
+	pJob->itemID = dropItem.itemID;
+	pJob->count = dropItem.count;
+	pJob->slotType = SLOT_TYPE::INVENTORY;
+	pJob->slotIndex = ret;
+	pJob->itemStat = {};
+
+	for (int i = 0; i < dropItem.randomStatCount; i++)
+	{
+		RandomStatResult& stat = dropItem.randomStat[i];
+
+		switch (stat.randomStatType)
+		{
+		case RANDOM_STAT_TYPE::ATK: pJob->itemStat.atk = stat.randomStatValue; break;
+		case RANDOM_STAT_TYPE::DEF: pJob->itemStat.def = stat.randomStatValue; break;
+		case RANDOM_STAT_TYPE::MAX_HP: pJob->itemStat.atk = stat.randomStatValue; break;
+		case RANDOM_STAT_TYPE::MAX_MP: pJob->itemStat.def = stat.randomStatValue; break;
+		case RANDOM_STAT_TYPE::HP_REGEN: pJob->itemStat.hpRegenPerSec = stat.randomStatValue; break;
+		case RANDOM_STAT_TYPE::MP_REGEN: pJob->itemStat.mpRegenPerSec = stat.randomStatValue; break;
+		default:
+			__debugbreak();
+		}
+	}
+
+	m_pDBManager->EnqueueDBJob(pJob);
 
 	return true;
 }
