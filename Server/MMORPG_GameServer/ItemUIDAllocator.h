@@ -10,7 +10,7 @@ public:
 	ItemUIDAllocator() = default;
 	~ItemUIDAllocator() = default;
 
-    static void     Init();
+    static void     Init(ITEM_UID startUID, ITEM_UID nextStartUID);
 
 	static ITEM_UID Alloc();
 

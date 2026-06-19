@@ -1,8 +1,10 @@
-CREATE DATABASE IF NOT EXISTS `WorldDB`;
+-- 스키마 생성
+CREATE DATABASE IF NOT EXISTS `WorldDB`;                
 
+-- 캐릭터 테이블 생성
 CREATE TABLE IF NOT EXISTS worlddb.`character`(
-  characterUID         BIGINT NOT NULL AUTO_INCREMENT,
-  accountID            BIGINT NOT NULL,
+  characterUID         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  accountID            BIGINT UNSIGNED NOT NULL,
   characterlevel       SMALLINT UNSIGNED NOT NULL,
   curEXP               INT NOT NULL,
   xpos                 FLOAT  NOT NULL,
@@ -12,9 +14,10 @@ CREATE TABLE IF NOT EXISTS worlddb.`character`(
   INDEX   idx_account(accountid) 
 );
 
+-- 아이템 테이블 생성
 CREATE TABLE IF NOT EXISTS worlddb.`item`(
- itemUID              BIGINT NOT NULL,
- characterUID         BIGINT NOT NULL,
+ itemUID              BIGINT UNSIGNED NOT NULL,
+ characterUID         BIGINT UNSIGNED NOT NULL,
  itemID               INT UNSIGNED NOT NULL,
  count                SMALLINT UNSIGNED NOT NULL,
  slottype             TINYINT UNSIGNED NOT NULL,
@@ -29,8 +32,18 @@ CREATE TABLE IF NOT EXISTS worlddb.`item`(
  INDEX   idx_character(characterUID)
 );
 
+-- UID 할당 테이블 생성
+CREATE TABLE IF NOT EXISTS worlddb.`uid_sequence`(
+uidName                 VARCHAR(20) NOT NULL,
+startUID                BIGINT UNSIGNED NOT NULL,
+PRIMARY KEY(uidName)
+);
+INSERT INTO worlddb.`uid_sequence` VALUES("ItemUIDAllocator", 1);
+
+-- 깊이 재설정
 SET SESSION cte_max_recursion_depth = 10000;
 
+-- 캐릭터 테이블에 캐릭터 위치 분산 저장(초원 영역에 분산 저장)
 INSERT INTO worlddb.`character` (characteruid, accountid, characterlevel, curexp, xpos, ypos, zpos)
 WITH RECURSIVE
     nums(x) AS (                                  -- X 섹터 인덱스 1..160
@@ -174,6 +187,15 @@ FROM seq s
 CROSS JOIN cnt
 JOIN sectors sec ON sec.sid = ((s.n - 1) % cnt.c) + 1;          -- 라운드로빈 균등 분산
 
+
+-- 수정용 쿼리
 TRUNCATE TABLE worlddb.character;
+TRUNCATE TABLE worlddb.uid_sequence;
+DROP TABLE worlddb.character;
+DROP TABLE worlddb.item;
+
+-- 테스트 용 쿼리
 SELECT * FROM worlddb.character;
 SELECT * FROM worlddb.item;
+SELECT * FROM worlddb.uid_sequence;
+INSERT INTO worlddb.item VALUES(1, 1, 10012, 1,1, 5, 10,5,0,0,0,0); -- Test SQL

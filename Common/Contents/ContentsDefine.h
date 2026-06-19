@@ -137,6 +137,11 @@ namespace MonsterConst
 	constexpr uint32  COMBAT_EXIT_DELAY_MS = 400;
 }
 
+namespace UserItemStorage
+{
+	constexpr  int  MAX_ITEM_STORAGE_COUNT = 100;
+}
+
 namespace UserInventory
 {
 	constexpr uint16 INVENTORY_SLOT_MAX = 40;
@@ -145,13 +150,13 @@ namespace UserInventory
 namespace ItemUID
 {
 	constexpr uint64 ITEM_UID_INVALID_ID    = 0;
-	constexpr uint64 ITEM_UID_RESERVE_COUNT = 1000000;
+	constexpr uint64 ITEM_UID_RESERVE_COUNT = 100000;
 	constexpr float  ITEM_RESERVE_PERCENT   = 80;
 }
 
 namespace UserQuickSlot
 {
-	constexpr uint16 QUICK_SLOT_MAX = 2;
+	constexpr uint8 QUICK_SLOT_MAX = 2;
 }
 
 namespace ItemIDConst

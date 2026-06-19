@@ -17,6 +17,7 @@ public:
 	void DBThread();
 	void EnqueueDBJob(DBJob* pJob);
 
+
 public:
 	std::thread         m_DBSaveThread;
 	HANDLE              m_DBEvent;

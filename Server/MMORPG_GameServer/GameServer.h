@@ -15,6 +15,7 @@ public:
 
 	void Init();
 	void Monitoring();
+	void ItemUIDAllocate();
 
 private:
 	CGameLibrary*   m_pGameLib = nullptr;

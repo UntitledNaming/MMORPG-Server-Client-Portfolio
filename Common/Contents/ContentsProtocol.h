@@ -85,6 +85,7 @@ namespace FieldProtocol
     //  // QuickSlot No Empty Item Slot Data 
     //  1   -   Count           (uint8)
     //  per Slot:
+    //  1   -   SlotIndex       (uint8)
     //  4   -   ItemID          (uint32)
     //  2   -   ItemCount       (uint16)
     // 

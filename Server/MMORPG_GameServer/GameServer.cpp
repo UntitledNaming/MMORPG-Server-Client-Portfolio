@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <Pdh.h>
+#include <mysql.h>
 #include "GameLibDefine.h"
 #include "ContentsDefine.h"
 #include "ContentsEnum.h"
@@ -28,6 +29,8 @@
 #include "LogClass.h"
 #include "LFQMultiLive.h"
 #include "CSizeClassMemoryPoolTLS.h"
+#include "DBTLS.h"
+#include "DBJob.h"
 #include "GameServer.h"
 
 #pragma comment(lib,"Pdh.lib")
@@ -71,6 +74,14 @@ GameServer::~GameServer()
 
 void GameServer::Init()
 {
+	CLogClass::GetInstance()->Init(1);
+	CUserItemStorage::ItemPoolInit();
+	CSizeClassMemoryPoolTLS::PoolInit();
+	ItemTable::Init();
+	FieldDropItemPool::Init();
+	ItemUIDAllocator::Init(1, 10000);
+
+
 	m_pGameLib = new CGameLibrary;
 	m_pDBManager = new CDBManager;
 	m_pAuthGroup = new AuthGroup;
@@ -78,18 +89,16 @@ void GameServer::Init()
 	m_pPDH = new ProcessMonitor;
 	m_endFlag = false;
 
+	// DB 매니저 초기화
 	m_pDBManager->Init();
+
+	// DB 매니저 초기화 후 ItemUID 할당하기 
+	ItemUIDAllocate();
 
 	// 그룹에게 DBManager 포인터 전달
 	m_pAuthGroup->InitDBManager(m_pDBManager);
 	m_pFieldGroup->InitDBManager(m_pDBManager);
 
-	CLogClass::GetInstance()->Init(1);
-	CUserItemStorage::ItemPoolInit();
-	CSizeClassMemoryPoolTLS::PoolInit();
-	ItemTable::Init();
-	FieldDropItemPool::Init();
-	ItemUIDAllocator::Init();
 	m_monitorThread = std::thread(&GameServer::Monitoring, this);
 }
 
@@ -140,7 +149,7 @@ void GameServer::Monitoring()
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
 		wprintf(L"                                DB                                                       \n");
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
-		wprintf(L" DBQueue Use Count  : %lld \n", m_pDBManager->m_pDBQue->GetUseSize());
+		wprintf(L" DBQueue Use Count  : %d \n", m_pDBManager->m_pDBQue->GetUseSize());
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
 		wprintf(L" CMessage     Pool Usage Count  : %lld \n", CMessage::m_pMessagePool->GetUseCnt());
 		wprintf(L" 32SizeBlock  Pool Usage Count  : %lld \n", CSizeClassMemoryPoolTLS::m_blockSize32Pool->GetUseCnt());
@@ -173,4 +182,10 @@ void GameServer::Monitoring()
 
 		loopCnt++;
 	}
+}
+
+void GameServer::ItemUIDAllocate()
+{
+	ItemUIDRangeAllocateJob* pJob = new ItemUIDRangeAllocateJob;
+	m_pDBManager->EnqueueDBJob(pJob);
 }

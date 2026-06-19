@@ -74,14 +74,14 @@ CMessage* PacketBuilder::CreateMyCharacter(CUser* pUser)
 
 	*pMessage << equip.GetUseCount();
 
-	for (int16 i = 1; i < (int16)EQUIP_SLOT::MAX; i++)
+	for (uint8 i = (uint8)EQUIP_SLOT::HELMET; i < (uint8)EQUIP_SLOT::MAX; i++)
 	{
 		if (equipArray[i] == ItemUID::ITEM_UID_INVALID_ID)
 			continue;
 
 		*pMessage << i;
 
-		const UserItem* pItem = storage.FindItem(invenArray[i]);
+		const UserItem* pItem = storage.FindItem(equipArray[i]);
 		if (pItem == nullptr)
 			continue;
 
@@ -97,14 +97,14 @@ CMessage* PacketBuilder::CreateMyCharacter(CUser* pUser)
 	}
 
 	*pMessage << quick.GetUseCount();
-	for (int16 i = 0; i < UserQuickSlot::QUICK_SLOT_MAX; i++)
+	for (uint8 i = 0; i < UserQuickSlot::QUICK_SLOT_MAX; i++)
 	{
 		if (quickArray[i] == ItemUID::ITEM_UID_INVALID_ID)
 			continue;
 
 		*pMessage << i;
 
-		const UserItem* pItem = storage.FindItem(invenArray[i]);
+		const UserItem* pItem = storage.FindItem(quickArray[i]);
 		if (pItem == nullptr)
 			continue;
 

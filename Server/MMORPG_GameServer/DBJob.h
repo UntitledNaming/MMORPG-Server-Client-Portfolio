@@ -30,6 +30,10 @@ struct DBJob
 	uint64              sessionID = 0;                        // 이 Job을 던진 세션의 유효성 검증용 
 };
 
+struct ItemUIDRangeAllocateJob : public DBJob
+{
+	virtual void Execute(DBTLS* InDBTLS) override;
+};
 
 struct CharacterSelectJob : public DBJob
 {
@@ -64,4 +68,11 @@ struct InsertDropItemJob : public DBJob
 	SLOT_TYPE slotType;
 	int16     slotIndex;
 	ItemStat  itemStat;
+};
+
+struct DeleteItemJob : public DBJob
+{
+	virtual void Execute(DBTLS* DBTLS) override;
+
+	ITEM_UID itemUID;                 // 삭제할 아이템 UID
 };

@@ -5,12 +5,12 @@ struct UserItem;
 template <typename T>
 class CMPoolTLS;
 
+
 class CUserItemStorage
 {
 public:
 	CUserItemStorage() = default;
 	~CUserItemStorage() = default;
-
 
 	static void ItemPoolInit();
 	static void ItemPoolDestroy();

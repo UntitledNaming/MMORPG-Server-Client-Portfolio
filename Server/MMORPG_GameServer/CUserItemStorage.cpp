@@ -42,6 +42,9 @@ void CUserItemStorage::Destroy()
 
 bool CUserItemStorage::CreateItem(const BaseItemInfo& Info, ITEM_UID& OutItemUID)
 {
+	if (m_storage.size() >= UserItemStorage::MAX_ITEM_STORAGE_COUNT)
+		return false;
+
 	UserItem* pItem = m_itemPool->Alloc();
 
 	ITEM_UID uid = ItemUIDAllocator::Alloc();

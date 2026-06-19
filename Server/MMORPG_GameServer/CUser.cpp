@@ -61,6 +61,9 @@ void CUser::LoadDataFromDB(uint64 characterUID, uint64 accountID, uint16 level, 
 	{
 		ItemLoadData& item = *it;
 		
+		// 로드한 데이터 저장소에 넣기. 그래야 장비 넣을 때 저장소에서 찾아서 처리 가능함.
+		m_storage.LoadItemFromDB(item);
+
 		// 아이템 타입 판단
 		switch (item.slotType)
 		{
@@ -78,7 +81,6 @@ void CUser::LoadDataFromDB(uint64 characterUID, uint64 accountID, uint16 level, 
 			break;
 		}
 
-		m_storage.LoadItemFromDB(item);
 	}
 
 
@@ -294,6 +296,7 @@ bool CUser::GetConsumableItem(FieldDropItem& dropItem, PickUpConsumableResult& O
 	ITEM_UID retUID;
 	if (!m_storage.CreateItem(dropItem, retUID))
 	{
+		// 저장소 가득 찼으면 false 리턴 
 		m_inventory.ReturnSlotIndex(emptyIndex);
 		return false;
 	}
@@ -347,6 +350,7 @@ bool CUser::GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResu
 	ITEM_UID ID;
 	if (!m_storage.CreateItem(dropItem, ID))
 	{
+		// 저장소 가득 찼으면 리턴
 		m_inventory.ReturnSlotIndex(ret);
 		return false;
 	}
@@ -442,7 +446,14 @@ bool CUser::DeleteItem(int16 slotIndex, SLOT_TYPE slotType)
 	}
 
 	// Storage에서 제거(INVALID_ID면 fale 리턴됨)
-	return m_storage.DeleteItem(retID);
+	if (!m_storage.DeleteItem(retID))
+		return false;
+
+	DeleteItemJob* pJob = new DeleteItemJob;
+	pJob->itemUID = retID;
+	m_pDBManager->EnqueueDBJob(pJob);
+
+	return true;
 }
 
 // 해당 아이템 슬롯에 대해서 우클릭 할때 혹은 해당 버튼 누를 때 작동
@@ -485,7 +496,13 @@ bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 
 		m_inventory.ReturnSlotIndex(slotIndex);
 
-		return m_storage.DeleteItem(retUID);
+		if (!m_storage.DeleteItem(retID))
+			return false;
+
+		DeleteItemJob* pJob = new DeleteItemJob;
+		pJob->itemUID = retID;
+		m_pDBManager->EnqueueDBJob(pJob);
+		return true;
 	}
 
 	// 장비 아이템이면 해당 슬롯에 장착 하기
@@ -565,6 +582,10 @@ bool CUser::UseQuickSlotItem(int16 slotIndex, UseItemResult& result)
 
 	if (!m_storage.DeleteItem(eraseUID))
 		return false;
+
+	DeleteItemJob* pJob = new DeleteItemJob;
+	pJob->itemUID = retUID;
+	m_pDBManager->EnqueueDBJob(pJob);
 
 	return true;
 }
@@ -845,11 +866,12 @@ void CUser::Free(CUser* pUser)
 
 void CUser::InventoryItemLoad(ItemLoadData& Item)
 {
+	// 삽입할 index는 indexAllocator에서 제거
+	m_inventory.EraseEmptyIndex(Item.slotIndex);
+
 	// 해당 index에 아이템 삽입
 	m_inventory.InsertItemToSlot(Item.itemUID, Item.slotIndex);
 
-	// 삽입한 index는 indexAllocator에서 제거
-	m_inventory.EraseEmptyIndex(Item.slotIndex);
 }
 
 void CUser::EquipmentItemLoad(ItemLoadData& Item)
@@ -857,17 +879,12 @@ void CUser::EquipmentItemLoad(ItemLoadData& Item)
 	// 해당 index에 장비 탭 삽입
 	ITEM_UID retID;
 	m_equipment.EquippedItem(static_cast<EQUIP_SLOT>(Item.slotIndex), Item.itemUID, retID);
-	if (retID == ItemUID::ITEM_UID_INVALID_ID)
-		__debugbreak();
-
 }
 
 void CUser::QuickSlotItemLoad(ItemLoadData& Item)
 {
 	ITEM_UID retID;
 	m_quickSlot.SetConsumable(Item.slotIndex, Item.itemUID, retID);
-	if (retID == ItemUID::ITEM_UID_INVALID_ID)
-		__debugbreak();
 }
 
 void CUser::SkillInfoInit()
