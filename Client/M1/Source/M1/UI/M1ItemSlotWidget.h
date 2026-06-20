@@ -43,6 +43,7 @@ protected:
 
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	virtual FReply NativeOnMouseButtonDown(const FGeometry&, const FPointerEvent&) override;
 	virtual FReply NativeOnMouseButtonUp(const FGeometry&, const FPointerEvent&) override;
@@ -51,6 +52,9 @@ public:
 
 	void InitSlot(SLOT_TYPE InSlotType, int16 InSlotIndex);
 	void RefreshSlot();
+
+	SLOT_TYPE GetSlotType() const { return SlotType; }
+	int16     GetSlotIndex() const { return SlotIndex; }
 
 	// 어떤 아이템ID에 대해서 어떤 이미지를 쓸 지는 에디터에서 처리해야 함. 
 	// C++에서 호출하면 BP 에디터에서 실제로 정의하여 구현

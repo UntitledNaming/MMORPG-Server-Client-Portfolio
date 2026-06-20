@@ -14,6 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnSlotCoolTimeStart, uint8, Slot
 
 class UM1NetworkManager;
 class UM1ItemTooltipWidget;
+class UM1ItemSlotWidget;
 
 UCLASS()
 class M1_API UM1ItemManager : public UGameInstanceSubsystem
@@ -40,8 +41,9 @@ private:
     bool                  bIsDragging = false;
     SLOT_TYPE             DragStartSourceType = SLOT_TYPE::NONE;     // 드래그 시작할 때 위치의 슬롯 타입
     int16                 DragStartSourceIndex = -1;                 // 드래그 시작할 때 위치의 슬롯 인덱스
-    SLOT_TYPE             DragHoverType = SLOT_TYPE::NONE;           // 마우스가 현재 올려진 슬롯 타입
-    int16                 DragHoverIndex = -1;                       // 마우스가 현재 올려진 슬롯 인덱스
+
+    // 화면상 슬롯 위젯 레지스트리 (드롭 좌표 히트테스트용)
+    TArray<TWeakObjectPtr<UM1ItemSlotWidget>> RegisteredSlots;
 
 public:
 	// ── 델리게이트 (Blueprint 바인딩용) ──────────────
@@ -72,13 +74,13 @@ public:
     void      EndDrag();
     void      ShowTooltip(SLOT_TYPE, int16, TSubclassOf<UM1ItemTooltipWidget>);
     void      HideTooltip();
-    bool      IsDragging() const { return bIsDragging; };
-    SLOT_TYPE GetDragStartSourceType() const { return DragStartSourceType; };
-    int16     GetDragStartSourceIndex() const { return DragStartSourceIndex; };
-    SLOT_TYPE GetDragHoverType() const { return DragHoverType; };
-    int16     GetDragHoverIndex() const { return DragHoverIndex; };
-    void      SetDragHover(SLOT_TYPE type, int16 index) { DragHoverType = type; DragHoverIndex = index; };
-    void      ClearDragHover() { DragHoverType = SLOT_TYPE::NONE; DragHoverIndex = -1; };
+    bool      IsDragging() const { return bIsDragging; }
+    SLOT_TYPE GetDragStartSourceType() const { return DragStartSourceType; }
+    int16     GetDragStartSourceIndex() const { return DragStartSourceIndex; }
+
+    void      RegisterSlotWidget(UM1ItemSlotWidget* Widget);
+    void      UnregisterSlotWidget(UM1ItemSlotWidget* Widget);
+    bool      FindSlotUnderCursor(const FVector2D& AbsCursorPos, SLOT_TYPE& OutType, int16& OutIndex) const;
 
 
     // ── Packet Handler 내 캐릭터 생성시 호출  ────────────────────────

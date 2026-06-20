@@ -166,8 +166,6 @@ void UM1NetworkManager::PacketHandler(CMessage* pMessage)
 		M1FunctorArray[type](pMessage, this);
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Unknown Packet ID: %d"), type);
-
-	CMessage::Free(pMessage);
 }
 
 void UM1NetworkManager::InitFunctorArray()
