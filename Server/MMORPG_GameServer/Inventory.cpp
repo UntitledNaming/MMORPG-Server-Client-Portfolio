@@ -44,6 +44,8 @@ bool Inventory::ItemSlotChange(int16 fromIndex, int16 toIndex)
 	if (!(IndexRangeCheck(fromIndex) && IndexRangeCheck(toIndex)))
 		return false;
 
+
+
 	// to가 InvalidID인 경우 index 반환 및 사용할 index 제거
 	// from, to 모두 아이템이 있으면 index 반환 필요x
 	if (m_inventory[toIndex] == ItemUID::ITEM_UID_INVALID_ID)

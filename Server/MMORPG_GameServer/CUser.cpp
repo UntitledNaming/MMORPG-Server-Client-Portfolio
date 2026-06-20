@@ -33,7 +33,12 @@ void CUser::Init(uint64 sessionID, CDBManager* pDBManager)
 
 void CUser::Destroy()
 {
-	// todo : DB에 현재 유저 정보 및 아이템 위치 정보 저장.
+	//// todo : DB에 현재 위치 저장
+	//LogOutJob* pJob = new LogOutJob;
+	//pJob->characterUID = m_characterUID;
+	//pJob->location = m_location;
+	//m_pDBManager->EnqueueDBJob(pJob);
+
 
 	m_equipment.Destroy();
 	m_inventory.Destroy();
@@ -192,6 +197,17 @@ void CUser::CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, const 
 	m_secPos.CalSectorTransitionMessageTargets(oldSecPos, newSecPos, outDeleteSector, outCreateSector);
 }
 
+bool CUser::UserOnUpdate(int32 curTime)
+{
+	if (!IsAlive())
+		return false;
+
+	UpdateRecovery(curTime);
+
+	// 섹터 변경은 FieldGroup이 Move가 성공하면 그때 할 것임.
+	return Move();
+}
+
 bool CUser::GainExp(uint32 GetExp, GainEXPResult& result)
 {
 	// 레벨 Max 찼으면 그냥 리턴
@@ -201,11 +217,18 @@ bool CUser::GainExp(uint32 GetExp, GainEXPResult& result)
 	// 경험치 올리기
 	m_currentExp += GetExp;
 
+	CharacterProgressJob* pJob = new CharacterProgressJob;
+	pJob->characterUID = m_characterUID;
+
 	// 필요 경험치 덜 찼으면 그냥 리턴
 	if (m_currentExp < m_requiredExp)
 	{
 		result.levelUp = false;
-		result.curEXP += m_currentExp;
+		result.curEXP = m_currentExp;
+		pJob->curEXP = m_currentExp;
+		pJob->level = m_level;
+
+		m_pDBManager->EnqueueDBJob(pJob);
 		return true;
 	}
 
@@ -241,9 +264,11 @@ bool CUser::GainExp(uint32 GetExp, GainEXPResult& result)
 
 			break;
 		}
-
 	}
 
+	pJob->level = m_level;
+	pJob->curEXP = m_currentExp;
+	m_pDBManager->EnqueueDBJob(pJob);
 	return true;
 }
 
@@ -308,7 +333,7 @@ bool CUser::GetConsumableItem(FieldDropItem& dropItem, PickUpConsumableResult& O
 	OutResult.consumableResult.slotIndex = emptyIndex;
 	OutResult.consumableResult.newItemCount = dropItem.count;
 
-	InsertDropItemJob* pJob = new InsertDropItemJob;
+	InsertItemJob* pJob = new InsertItemJob;
 	pJob->characterUID = m_characterUID;
 	pJob->itemUID = retUID;
 	pJob->itemID = dropItem.itemID;
@@ -335,6 +360,7 @@ bool CUser::GetConsumableItem(FieldDropItem& dropItem, PickUpConsumableResult& O
 	}
 
 	m_pDBManager->EnqueueDBJob(pJob);
+
 
 	return true;
 }
@@ -372,7 +398,7 @@ bool CUser::GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResu
 	}
 
 
-	InsertDropItemJob* pJob = new InsertDropItemJob;
+	InsertItemJob* pJob = new InsertItemJob;
 	pJob->characterUID = m_characterUID;
 	pJob->itemUID = ID;
 	pJob->itemID = dropItem.itemID;
@@ -486,8 +512,13 @@ bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 
 		// 사용 후 카운트가 0이 아니면 지울 필요없으니 리턴
 		if (newItemCount != 0)
+		{
+			ItemCountUpdateJob* pJob = new ItemCountUpdateJob;
+			pJob->itemUID = retID;
+			pJob->newCount = newItemCount;
+			m_pDBManager->EnqueueDBJob(pJob);
 			return true;
-
+		}
 
 		// 다 사용했으면 아이템 삭제
 		ITEM_UID retUID;
@@ -529,20 +560,27 @@ bool CUser::UseEquipmentItem(int16 slotIndex, UseItemResult& result)
 		return false;
 
 	// 인벤토리 여유 있으면 기존 장비 탭에서 빼고 인벤토리에 삽입
-	ITEM_UID UID;
-	if (!m_equipment.UnEquippedItem(static_cast<EQUIP_SLOT>(slotIndex), UID))
+	ITEM_UID unEquippedItemUID;
+	if (!m_equipment.UnEquippedItem(static_cast<EQUIP_SLOT>(slotIndex), unEquippedItemUID))
 	{
 		m_inventory.ReturnSlotIndex(emptyIdx);
 		return false;
 	}
 
-	if (!m_inventory.InsertItemToSlot(UID, emptyIdx))
+	if (!m_inventory.InsertItemToSlot(unEquippedItemUID, emptyIdx))
 	{
 		m_inventory.ReturnSlotIndex(emptyIdx);
 		return false;
 	}
 	result.resultType = USE_ITEM_RESULT::UNEQUIP;
 	result.unEquipResult.inventorySlotIdx = emptyIdx;
+
+	//ItemSwapJob* pJob = new ItemSwapJob;
+	//pJob->itemA.itemUID = unEquippedItemUID;
+	//pJob->itemA.newSlotIndex = emptyIdx;
+	//pJob->itemA.newSlotType = SLOT_TYPE::INVENTORY;
+	//m_pDBManager->EnqueueDBJob(pJob);
+
 	return true;
 }
 
@@ -574,7 +612,14 @@ bool CUser::UseQuickSlotItem(int16 slotIndex, UseItemResult& result)
 
 	// 만약 퀵슬롯의 아이템 다 썼으면 퀵슬롯 및 storage에서 제거
 	if (newItemCount != 0)
+	{
+		ItemCountUpdateJob* pJob = new ItemCountUpdateJob;
+		pJob->itemUID = retUID;
+		pJob->newCount = newItemCount;
+		m_pDBManager->EnqueueDBJob(pJob);
+
 		return true;
+	}
 
 	ITEM_UID eraseUID;
 	if (!m_quickSlot.ClearConsumable(slotIndex, eraseUID))
@@ -1003,6 +1048,11 @@ bool CUser::EquippedItem(int16 inventorySlotIndex, UseItemResult& result)
 	result.equipResult.resultSlot[slotUpdateCount].slotType = SLOT_TYPE::INVENTORY;
 	result.equipResult.resultSlot[slotUpdateCount].slotIndex = inventorySlotIndex;
 
+	//ItemSwapJob* pJob = new ItemSwapJob;
+	//pJob->itemA.itemUID = removedUID;
+	//pJob->itemA.newSlotType = SLOT_TYPE::EQUIPMENT;
+	//pJob->itemA.newSlotIndex = static_cast<int16>(pItemData->equipSlot);
+
 	// 해당 장비 슬롯에 장착된 장비가 없으면 그냥 리턴
 	if (OutEquipItem == ItemUID::ITEM_UID_INVALID_ID)
 	{
@@ -1020,6 +1070,7 @@ bool CUser::EquippedItem(int16 inventorySlotIndex, UseItemResult& result)
 		__debugbreak();
 
 	result.equipResult.resultSlot[slotUpdateCount].itemID = pOutEquipItem->itemID;
+
 	return true;
 }
 

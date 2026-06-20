@@ -58,6 +58,7 @@ public:
 	void   SetNewSectorPos(const SectorPos& newSec) { m_secPos = newSec; }
 	void   CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, const SectorPos& newSecPos, SectorAround& outDeleteSector, SectorAround& outCreateSector);
 
+	bool   UserOnUpdate(int32 curTime);                     // true : 이동 성공 , false: 이동 실패
 	bool   GainExp(uint32 GetExp, GainEXPResult& result);
 	bool   CanUseSkill(uint32 curTime, uint8 skillIndex);
 	bool   Move();

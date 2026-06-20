@@ -190,6 +190,7 @@ JOIN sectors sec ON sec.sid = ((s.n - 1) % cnt.c) + 1;          -- 라운드로�
 
 -- 수정용 쿼리
 TRUNCATE TABLE worlddb.character;
+TRUNCATE TABLE worlddb.item;
 TRUNCATE TABLE worlddb.uid_sequence;
 DROP TABLE worlddb.character;
 DROP TABLE worlddb.item;
@@ -199,3 +200,7 @@ SELECT * FROM worlddb.character;
 SELECT * FROM worlddb.item;
 SELECT * FROM worlddb.uid_sequence;
 INSERT INTO worlddb.item VALUES(1, 1, 10012, 1,1, 5, 10,5,0,0,0,0); -- Test SQL
+INSERT INTO worlddb.item VALUES(2,1,10001,2,3,0,0,0,0,0,0,0);
+INSERT INTO worlddb.item VALUES(3,1,10002,3,3,1,0,0,0,0,0,0);
+INSERT INTO worlddb.item VALUES(4,1,10003,1,2,1,1,0,0,0,0,0);
+INSERT INTO worlddb.item VALUES(5,1,10001,4,1,1,0,0,0,0,0,0);

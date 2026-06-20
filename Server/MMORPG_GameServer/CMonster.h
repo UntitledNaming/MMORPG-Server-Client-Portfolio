@@ -18,10 +18,10 @@ public:
 
 	void   Init(uint64 monsterID, uint16 monsterType, const Location& spawnLocation, FieldGroup* fieldGroupPtr);
 	void   Destroy();
-	void   Regen();
 	void   Move();
 	void   Damage(uint16 damage);
-	void   AIUpdate();
+	bool   Regen();
+	bool   MonsterUpdate();
 	bool   IsAlive();
 	uint32 CalBaseAttackDamage(CUser* target, uint32 curTime);
 

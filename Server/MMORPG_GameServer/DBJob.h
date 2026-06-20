@@ -15,6 +15,13 @@ enum class PostAction
 	MoveToField,
 };
 
+struct ItemSwapInfo
+{
+	ITEM_UID  itemUID = ItemUID::ITEM_UID_INVALID_ID;
+	SLOT_TYPE newSlotType;
+	int16     newSlotIndex;
+};
+
 struct DBJob
 {
 	virtual PostAction OnComplete(CGroup* pGroup, CUser* pUser);
@@ -56,7 +63,7 @@ struct CharacterSelectJob : public DBJob
 	std::vector<ItemLoadData> items;
 };
 
-struct InsertDropItemJob : public DBJob
+struct InsertItemJob  : public DBJob
 {
 	virtual void Execute(DBTLS* DBTLS) override;
 
@@ -75,4 +82,37 @@ struct DeleteItemJob : public DBJob
 	virtual void Execute(DBTLS* DBTLS) override;
 
 	ITEM_UID itemUID;                 // 삭제할 아이템 UID
+};
+
+struct ItemCountUpdateJob : public DBJob
+{
+	virtual void Execute(DBTLS* DBTLS) override;
+
+	ITEM_UID itemUID;
+	uint16   newCount;
+};
+
+struct ItemSwapJob : public DBJob
+{
+	virtual void Execute(DBTLS* DBTLS) override;
+
+	ItemSwapInfo itemA;
+	ItemSwapInfo itemB;
+};
+
+struct CharacterProgressJob : public DBJob
+{
+	virtual void Execute(DBTLS* DBTLS) override;
+
+	uint64 characterUID;
+	uint16 level;
+	int32  curEXP;
+};
+
+struct LogOutJob : public DBJob
+{
+	virtual void Execute(DBTLS* DBTLS) override;
+
+	uint64   characterUID;
+	Location location;
 };

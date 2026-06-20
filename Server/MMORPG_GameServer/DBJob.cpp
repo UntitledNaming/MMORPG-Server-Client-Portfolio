@@ -196,7 +196,7 @@ void CharacterSelectJob::Execute(DBTLS* InDBTLS)
 		__debugbreak();
 }
 
-void InsertDropItemJob::Execute(DBTLS* InDBTLS)
+void InsertItemJob::Execute(DBTLS* InDBTLS)
 {
 	bool success = false;
 	success = InDBTLS->DB_Post_Query(result, "INSERT INTO worlddb.item VALUES (%llu, %llu, %u, %d, %d, %d, %d, %d, %d, %d, %d, %d)", 
@@ -210,6 +210,65 @@ void DeleteItemJob::Execute(DBTLS* InDBTLS)
 	bool success = false;
 	success = InDBTLS->DB_Post_Query(result, "DELETE FROM worlddb.item WHERE itemUID = %llu", itemUID);
 		
+	if (!success)
+		__debugbreak();
+}
+
+void ItemCountUpdateJob::Execute(DBTLS* InDBTLS)
+{
+	bool success = false;
+	success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.item SET count = %u WHERE itemUID = %llu", newCount, itemUID);
+
+	if (!success)
+		__debugbreak();
+}
+
+void ItemSwapJob::Execute(DBTLS* InDBTLS)
+{
+	bool success = false;
+
+	// Æ®·£Àè¼Ç ½ÃÀÛ
+	success = InDBTLS->DB_Post_Query(result, "START TRANSACTION");
+	if (!success)
+		__debugbreak();
+	
+	if (itemA.itemUID != ItemUID::ITEM_UID_INVALID_ID)
+	{
+		success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.item SET slottype = %u, slotindex = %d WHERE itemUID = %llu", static_cast<uint8>(itemA.newSlotType), itemA.newSlotIndex);
+
+		if (!success)
+			__debugbreak();
+	}
+
+	if (itemB.itemUID != ItemUID::ITEM_UID_INVALID_ID)
+	{
+		success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.item SET slottype = %u, slotindex = %d WHERE itemUID = %llu", static_cast<uint8>(itemB.newSlotType), itemB.newSlotIndex);
+
+		if (!success)
+			__debugbreak();
+	}
+
+
+	// Ä¿¹Ô ³¡
+	success = InDBTLS->DB_Post_Query(result, "COMMIT");
+	if (!success)
+		__debugbreak();
+}
+
+void CharacterProgressJob::Execute(DBTLS* InDBTLS)
+{
+	bool success = false;
+	success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.character SET characterlevel = %u, curEXP = %d WHERE characterUID = %llu", level, curEXP, characterUID);
+
+	if (!success)
+		__debugbreak();
+}
+
+void LogOutJob::Execute(DBTLS* InDBTLS)
+{
+	bool success = false;
+	//success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.item SET count = %u WHERE itemUID = %llu", newCount, uid);
+
 	if (!success)
 		__debugbreak();
 }

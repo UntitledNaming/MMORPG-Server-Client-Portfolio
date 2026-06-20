@@ -405,11 +405,9 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 
 void FieldGroup::OnUpdate()
 {
-	MovementProc();
-	MonsterRegen();
-	MonsterAIUpdate();
+	UserUpdate();
+	MonsterUpdate();
 	FieldDropItemExpired();
-	UpdateUserRecovery();
 	fieldframe++;
 }
 
@@ -1128,15 +1126,16 @@ void FieldGroup::HandleSwapSlot(uint64 sessionID, CMessage* pMessage)
 	CMessage::Free(pSwapItem);
 }
 
-void FieldGroup::MovementProc()
+void FieldGroup::UserUpdate()
 {
 	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.begin();
-
+	uint32 curTime = timeGetTime();
 	for (; it != m_userLookUpTable.end(); ++it)
 	{
 		CUser* pUser = it->second;
 
-		if (!pUser->Move())
+		// 이동 하면 true 리턴
+		if (!pUser->UserOnUpdate(curTime))
 			continue;
 
 
@@ -1258,14 +1257,27 @@ void FieldGroup::SectorUpdate(CUser* pUser, const SectorPos& newSec)
 	pUser->SetNewSectorPos(newSec);
 }
 
-void FieldGroup::MonsterAIUpdate()
+void FieldGroup::MonsterUpdate()
 {
 	for (int i = 0; i < MAX_GROSS_FIELD_MONSTER_COUNT; i++)
 	{
-		if (m_grossMonsterPoolArray[i].GetMonsterState() == EMonsterState::Dead)
+		// 몬스터 Update시 리젠 성공하면 true 아니면 false
+		if (!m_grossMonsterPoolArray[i].MonsterUpdate())
 			continue;
 
-		m_grossMonsterPoolArray[i].AIUpdate();
+		// 리젠 성공시 섹터 처리
+					// 섹터에 삽입
+		const SectorPos& sectorPos = m_grossMonsterPoolArray[i].GetSectorPos();
+
+		m_sectors[sectorPos.GetY()][sectorPos.GetX()].AddMonster(&m_grossMonsterPoolArray[i]);
+
+		SectorAround Create;
+		SectorPos::SectorFind(Create, sectorPos);
+
+		for (int secCount = 0; secCount < Create.m_count; secCount++)
+		{
+			SendMonsterCreateToSector(&m_grossMonsterPoolArray[i], Create.m_Around[secCount].GetX(), Create.m_Around[secCount].GetY());
+		}
 	}
 }
 
@@ -1298,23 +1310,6 @@ void FieldGroup::FieldDropItemExpired()
 
 		// 메모리 풀에 반납
 		FieldDropItemPool::FreeItem(pItem);
-	}
-
-}
-
-void FieldGroup::UpdateUserRecovery()
-{
-	uint32 curTime = timeGetTime();
-	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.begin();
-	for (; it != m_userLookUpTable.end(); ++it)
-	{
-		CUser* pUser = it->second;
-
-		// 죽었으면 리커버리 안함.
-		if (!pUser->IsAlive())
-			continue;
-
-		pUser->UpdateRecovery(curTime);
 	}
 
 }
@@ -1355,40 +1350,6 @@ void FieldGroup::GrossMonsterSpawnInit()
 				}
 			}
 		}
-	}
-}
-
-void FieldGroup::MonsterRegen()
-{
-	for (int i = 0; i < MAX_GROSS_FIELD_MONSTER_COUNT; i++)
-	{
-		if (m_grossMonsterPoolArray[i].GetMonsterState() != EMonsterState::Dead)
-			continue;
-
-		m_grossMonsterPoolArray[i].IncRespawnTime();
-
-		// 리스폰 시간 지났으면 Idle 상태로 생성
-		uint32 curTime = timeGetTime();
-		if (m_grossMonsterPoolArray[i].GetRespawnTime() >= m_grossMonsterPoolArray[i].GetRespawnDelay())
-		{
-			m_grossMonsterPoolArray[i].Regen();
-
-			// 섹터에 삽입
-			const SectorPos& sectorPos = m_grossMonsterPoolArray[i].GetSectorPos();
-
-			m_sectors[sectorPos.GetY()][sectorPos.GetX()].AddMonster(&m_grossMonsterPoolArray[i]);
-
-			SectorAround Create;
-			SectorPos::SectorFind(Create, sectorPos);
-
-			for (int secCount = 0; secCount < Create.m_count; secCount++)
-			{
-				SendMonsterCreateToSector(&m_grossMonsterPoolArray[i], Create.m_Around[secCount].GetX(), Create.m_Around[secCount].GetY());
-			}
-
-		
-		}
-
 	}
 }
 

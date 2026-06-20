@@ -40,8 +40,20 @@ void CMonster::Destroy()
 	m_pMonsterAIComp = nullptr;
 }
 
-void CMonster::Regen()
+bool CMonster::Regen()
 {
+	// 죽었는지 체크
+	if (GetMonsterState() != EMonsterState::Dead)
+		return false;
+
+	// 죽었으면 시간 증가
+	IncRespawnTime();
+
+	// 시간 지났는지 체크
+	if (GetRespawnTime() < GetRespawnDelay())
+		return false;
+
+	// Regen 작업
 	m_hp = MonsterConst::BASE_HP;
 	m_maxHP = MonsterConst::BASE_MAXHP;
 	m_moveYaw = rand() % 360;
@@ -52,7 +64,7 @@ void CMonster::Regen()
 	m_def = MonsterConst::BASE_DEF;
 	m_respawnTime = 0;
 	m_pMonsterAIComp->Reset();
-
+	return true;
 }
 
 void CMonster::Move()
@@ -83,9 +95,10 @@ void CMonster::Damage(uint16 damage)
 	}
 }
 
-void CMonster::AIUpdate()
+bool CMonster::MonsterUpdate()
 {
 	m_pMonsterAIComp->Update();
+	return Regen();
 }
 
 bool   CMonster::IsAlive()

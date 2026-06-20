@@ -58,7 +58,7 @@ CMessage* PacketBuilder::CreateMyCharacter(CUser* pUser)
 
 		const UserItem* pItem = storage.FindItem(invenArray[i]);
 		if (pItem == nullptr)
-			continue;
+			__debugbreak();
 
 		*pMessage << static_cast<unsigned long>(pItem->itemID);
 		*pMessage << pItem->count;
@@ -83,7 +83,7 @@ CMessage* PacketBuilder::CreateMyCharacter(CUser* pUser)
 
 		const UserItem* pItem = storage.FindItem(equipArray[i]);
 		if (pItem == nullptr)
-			continue;
+			__debugbreak();
 
 		*pMessage << static_cast<unsigned long>(pItem->itemID);
 
@@ -106,7 +106,7 @@ CMessage* PacketBuilder::CreateMyCharacter(CUser* pUser)
 
 		const UserItem* pItem = storage.FindItem(quickArray[i]);
 		if (pItem == nullptr)
-			continue;
+			__debugbreak();
 
 		*pMessage << static_cast<unsigned long>(pItem->itemID);
 		*pMessage << pItem->count;
