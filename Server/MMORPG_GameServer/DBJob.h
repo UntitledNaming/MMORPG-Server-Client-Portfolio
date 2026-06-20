@@ -92,12 +92,11 @@ struct ItemCountUpdateJob : public DBJob
 	uint16   newCount;
 };
 
-struct ItemSwapJob : public DBJob
+struct ItemSlotUpdateJob : public DBJob
 {
 	virtual void Execute(DBTLS* DBTLS) override;
 
-	ItemSwapInfo itemA;
-	ItemSwapInfo itemB;
+	std::vector<ItemSlotUpdateData> updateitems;
 };
 
 struct CharacterProgressJob : public DBJob
@@ -113,6 +112,7 @@ struct LogOutJob : public DBJob
 {
 	virtual void Execute(DBTLS* DBTLS) override;
 
-	uint64   characterUID;
-	Location location;
+	uint64                          characterUID;
+	Location                        location;
+	std::vector<ItemSlotUpdateData> updateitems;
 };

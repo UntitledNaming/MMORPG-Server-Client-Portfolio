@@ -223,43 +223,21 @@ void ItemCountUpdateJob::Execute(DBTLS* InDBTLS)
 		__debugbreak();
 }
 
-void ItemSwapJob::Execute(DBTLS* InDBTLS)
-{
-	bool success = false;
-
-	// 飘罚黎记 矫累
-	success = InDBTLS->DB_Post_Query(result, "START TRANSACTION");
-	if (!success)
-		__debugbreak();
-	
-	if (itemA.itemUID != ItemUID::ITEM_UID_INVALID_ID)
-	{
-		success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.item SET slottype = %u, slotindex = %d WHERE itemUID = %llu", static_cast<uint8>(itemA.newSlotType), itemA.newSlotIndex);
-
-		if (!success)
-			__debugbreak();
-	}
-
-	if (itemB.itemUID != ItemUID::ITEM_UID_INVALID_ID)
-	{
-		success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.item SET slottype = %u, slotindex = %d WHERE itemUID = %llu", static_cast<uint8>(itemB.newSlotType), itemB.newSlotIndex);
-
-		if (!success)
-			__debugbreak();
-	}
-
-
-	// 目乖 场
-	success = InDBTLS->DB_Post_Query(result, "COMMIT");
-	if (!success)
-		__debugbreak();
-}
-
 void CharacterProgressJob::Execute(DBTLS* InDBTLS)
 {
 	bool success = false;
-	success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.character SET characterlevel = %u, curEXP = %d WHERE characterUID = %llu", level, curEXP, characterUID);
+	success = InDBTLS->DB_Post_Query(result, "START TRANSACTION");
+	if (!success)
+		__debugbreak();
 
+	
+	success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.item SET slottype = %u, slotindex = %d WHERE characterUID = %llu", level, curEXP, characterUID);
+
+	if (!success)
+		__debugbreak();
+
+	// 目乖 场
+	success = InDBTLS->DB_Post_Query(result, "COMMIT");
 	if (!success)
 		__debugbreak();
 }

@@ -83,9 +83,19 @@ struct BaseItemInfo
 struct UserItem : public BaseItemInfo
 {
 	ITEM_UID            itemUID = 0;
+	SLOT_TYPE           slotType = SLOT_TYPE::NONE;
+	int16               slotIndex;
+	bool                dirtyFlag = false;
 };
 
 struct ItemLoadData : public BaseItemInfo
+{
+	ITEM_UID  itemUID;
+	SLOT_TYPE slotType;
+	int16     slotIndex;
+};
+
+struct ItemSlotUpdateData
 {
 	ITEM_UID  itemUID;
 	SLOT_TYPE slotType;

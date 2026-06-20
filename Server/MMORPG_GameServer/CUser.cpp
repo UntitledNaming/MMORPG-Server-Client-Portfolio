@@ -55,7 +55,10 @@ void CUser::LoadDataFromDB(uint64 characterUID, uint64 accountID, uint16 level, 
 {
 	m_inventory.Init(&m_storage);
 	m_equipment.Init(&m_storage);
-	m_storage.Init();
+	m_storage.Init(m_pDBManager);
+
+	m_itemSlotUpdateTime = USER_ITEM_SLOT_UPDATE_MIN_TIME + rand() % (USER_ITEM_SLOT_UPDATE_MAX_TIME - USER_ITEM_SLOT_UPDATE_MIN_TIME);
+	m_itemSlotUpdateTimeAccum = 0;
 
 	// 아이템 인벤토리 삽입
 	// 아이템 장비 탭 삽입
@@ -197,12 +200,15 @@ void CUser::CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, const 
 	m_secPos.CalSectorTransitionMessageTargets(oldSecPos, newSecPos, outDeleteSector, outCreateSector);
 }
 
-bool CUser::UserOnUpdate(int32 curTime)
+bool CUser::UserOnUpdate(uint32 curTime)
 {
 	if (!IsAlive())
 		return false;
 
 	UpdateRecovery(curTime);
+
+	// 아이템 슬롯 업데이트 체크
+	ItemSlotUpdate();
 
 	// 섹터 변경은 FieldGroup이 Move가 성공하면 그때 할 것임.
 	return Move();
@@ -907,6 +913,17 @@ CUser* CUser::Alloc()
 void CUser::Free(CUser* pUser)
 {
 	m_userPool.Free(pUser);
+}
+
+void CUser::ItemSlotUpdate()
+{
+	m_itemSlotUpdateTimeAccum += FieldConst::UPDATE_LOOP_TIME;
+
+	if (m_itemSlotUpdateTimeAccum < m_itemSlotUpdateTime)
+		return;
+
+	// Storage 클래스 호출해주기
+	m_storage.ItemSlotUpdate();
 }
 
 void CUser::InventoryItemLoad(ItemLoadData& Item)

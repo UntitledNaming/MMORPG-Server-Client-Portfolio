@@ -58,7 +58,7 @@ public:
 	void   SetNewSectorPos(const SectorPos& newSec) { m_secPos = newSec; }
 	void   CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, const SectorPos& newSecPos, SectorAround& outDeleteSector, SectorAround& outCreateSector);
 
-	bool   UserOnUpdate(int32 curTime);                     // true : 이동 성공 , false: 이동 실패
+	bool   UserOnUpdate(uint32 curTime);                     // true : 이동 성공 , false: 이동 실패
 	bool   GainExp(uint32 GetExp, GainEXPResult& result);
 	bool   CanUseSkill(uint32 curTime, uint8 skillIndex);
 	bool   Move();
@@ -116,6 +116,7 @@ public:
 	static void Free(CUser* pUser);
 
 private:
+	void ItemSlotUpdate();
 	void InventoryItemLoad(ItemLoadData& Item);
 	void EquipmentItemLoad(ItemLoadData& Item);
 	void QuickSlotItemLoad(ItemLoadData& Item);
@@ -142,6 +143,8 @@ private:
 	uint64                 m_sessionID;
 	uint64                 m_accountID;
 	uint64                 m_characterUID;
+	uint32                 m_itemSlotUpdateTime;
+	uint32                 m_itemSlotUpdateTimeAccum;
 	int32                  m_currentExp;
 	int32                  m_requiredExp;
 	SkillInfo              m_skillInfo[UserConst::USER_SKILL_SLOT_COUNT];
