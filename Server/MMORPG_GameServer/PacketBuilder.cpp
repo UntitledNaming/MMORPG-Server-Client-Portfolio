@@ -111,7 +111,6 @@ CMessage* PacketBuilder::CreateMyCharacter(CUser* pUser)
 		*pMessage << static_cast<unsigned long>(pItem->itemID);
 		*pMessage << pItem->count;
 	}
-	
 
 	return pMessage;
 }

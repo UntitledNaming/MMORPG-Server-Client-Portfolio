@@ -10,6 +10,7 @@ void QuickSlot::Init(CUserItemStorage* Storage)
 		m_quickSlot[i] = ItemUID::ITEM_UID_INVALID_ID;
 	}
 	m_pStorage = Storage;
+	m_useCount = 0;
 }
 
 void QuickSlot::Destroy()
@@ -18,6 +19,7 @@ void QuickSlot::Destroy()
 	{
 		m_quickSlot[i] = ItemUID::ITEM_UID_INVALID_ID;
 	}
+	m_pStorage = nullptr;
 }
 
 bool QuickSlot::SetConsumable(int16 slotIndex, ITEM_UID InItemUID, ITEM_UID& OutItemUID)

@@ -10,6 +10,8 @@
 
 void Inventory::Init(CUserItemStorage* pStorage)
 {
+	m_useCount = 0;
+
 	for (int i = 0; i < UserInventory::INVENTORY_SLOT_MAX; i++)
 	{
 		m_inventory[i] = ItemUID::ITEM_UID_INVALID_ID;

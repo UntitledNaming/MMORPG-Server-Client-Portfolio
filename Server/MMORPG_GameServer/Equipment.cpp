@@ -8,22 +8,23 @@
 
 void Equipment::Init(CUserItemStorage* pStorage)
 {
-	for (int i = 0; i < (int)(EQUIP_SLOT::MAX)-1; i++)
+	for (int i = (int)EQUIP_SLOT::HELMET; i < (int)(EQUIP_SLOT::MAX); i++)
 	{
 		m_equipment[i] = ItemUID::ITEM_UID_INVALID_ID;
 	}
 
 	m_pStorage = pStorage;
-
+	m_useCount = 0;
 	// DB¿¡¼­ ÀåÂø Àåºñ ±Ü¾î¿Í ¼¼ÆÃ ¹× Ä³½Ã µ¥ÀÌÅÍ ¼¼ÆÃ
 
 }
 void Equipment::Destroy()
 {
-	for (int i = 0; i < (int)(EQUIP_SLOT::MAX)-1; i++)
+	for (int i = (int)EQUIP_SLOT::HELMET; i < (int)(EQUIP_SLOT::MAX); i++)
 	{
 		m_equipment[i] = ItemUID::ITEM_UID_INVALID_ID;
 	}
+
 	m_currentATK = 0;
 	m_currentDEF = 0;
 	m_currentMaxHP = 0;
@@ -43,10 +44,9 @@ bool Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& O
 	const UserItem* outitem = m_pStorage->FindItem(OutItemUID);
 	if (outitem)
 	{
-		m_useCount--;
-
 		// ItemTable Ã£¾Æ¼­ ±âº» ½ºÅÈ Ã£¾Æ¼­ »©±â
 		const ItemData* pData = ItemTable::GetItemData(outitem->itemID);
+
 		if (pData)
 		{
 			m_currentATK -= pData->baseStat.atk;
@@ -56,7 +56,10 @@ bool Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& O
 			m_currentHPRegenPerSec -= pData->baseStat.hpRegenPerSec;
 			m_currentMPRegenPerSec -= pData->baseStat.mpRegenPerSec;
 		}
+		else
+			__debugbreak();
 
+		m_useCount--;
 
 		// ·£´ý ½ºÅÈ »©±â
 		uint8 statCount = outitem->randomStatCount;
@@ -97,7 +100,7 @@ bool Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& O
 	
 	const UserItem* initem = m_pStorage->FindItem(InItemUID);
 	if (!initem)
-		return false;
+		__debugbreak();
 
 	// ItemTable¿¡¼­ ±âº» ½ºÅÈ Ã£¾Æ¼­ ´õÇÏ±â
 	const ItemData* pInItemData = ItemTable::GetItemData(initem->itemID);
@@ -110,7 +113,8 @@ bool Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& O
 		m_currentHPRegenPerSec += pInItemData->baseStat.hpRegenPerSec;
 		m_currentMPRegenPerSec += pInItemData->baseStat.mpRegenPerSec;
 	}
-
+	else
+		__debugbreak();
 
 	// ·£´ý ½ºÅÈ ´õÇÏ±â
 	uint8 statCount = initem->randomStatCount;
@@ -163,8 +167,6 @@ bool Equipment::UnEquippedItem(EQUIP_SLOT slotNum, ITEM_UID& OutItemUID)
 	if (outitem == nullptr)
 		return false;
 
-	m_useCount--;
-
 	// ItemTable Ã£¾Æ¼­ ±âº» ½ºÅÈ Ã£¾Æ¼­ »©±â
 	const ItemData* pData = ItemTable::GetItemData(outitem->itemID);
 	if (pData)
@@ -176,7 +178,8 @@ bool Equipment::UnEquippedItem(EQUIP_SLOT slotNum, ITEM_UID& OutItemUID)
 		m_currentHPRegenPerSec -= pData->baseStat.hpRegenPerSec;
 		m_currentMPRegenPerSec -= pData->baseStat.mpRegenPerSec;
 	}
-
+	else
+		__debugbreak();
 
 	// ·£´ý ½ºÅÈ »©±â
 	uint8 statCount = outitem->randomStatCount;
@@ -212,7 +215,7 @@ bool Equipment::UnEquippedItem(EQUIP_SLOT slotNum, ITEM_UID& OutItemUID)
 	}
 
 	m_equipment[(int)slotNum] = ItemUID::ITEM_UID_INVALID_ID;
-
+	m_useCount--;
 	return true;
 }
 

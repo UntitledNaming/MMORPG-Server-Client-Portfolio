@@ -57,6 +57,7 @@ void CUser::LoadDataFromDB(uint64 characterUID, uint64 accountID, uint16 level, 
 {
 	m_inventory.Init(&m_storage);
 	m_equipment.Init(&m_storage);
+	m_quickSlot.Init(&m_storage);
 	m_storage.Init();
 
 	m_itemSlotUpdateTime = USER_ITEM_SLOT_UPDATE_MIN_TIME + rand() % (USER_ITEM_SLOT_UPDATE_MAX_TIME - USER_ITEM_SLOT_UPDATE_MIN_TIME);
@@ -133,6 +134,9 @@ void CUser::UpdateRecovery(uint32 curTime)
 	// 누적 시간 증가
 	m_recoveryInfo.HP_accumulatedTimeMs += FieldConst::UPDATE_LOOP_TIME;
 	m_recoveryInfo.MP_accumulatedTimeMs += FieldConst::UPDATE_LOOP_TIME;
+
+	if (m_quickSlot.GetUseCount() > 2)
+		__debugbreak();
 
 	if (m_recoveryInfo.HP_accumulatedTimeMs >= USER_HP_REGEN_TIME * 1000)
 	{
