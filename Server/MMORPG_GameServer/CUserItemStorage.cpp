@@ -132,6 +132,10 @@ void CUserItemStorage::LoadItemFromDB(const ItemLoadData& Info)
 
 void CUserItemStorage::ItemSlotUpdate()
 {
+	// 저장소에 애초에 아이템 없으면 리턴
+	if (m_storage.empty())
+		return;
+
 	ItemSlotUpdateJob* pJob = new ItemSlotUpdateJob;
 	pJob->updateitems.reserve(UserItemStorage::MAX_ITEM_STORAGE_COUNT);
 

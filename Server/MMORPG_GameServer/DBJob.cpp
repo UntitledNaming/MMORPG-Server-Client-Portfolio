@@ -223,21 +223,16 @@ void ItemCountUpdateJob::Execute(DBTLS* InDBTLS)
 		__debugbreak();
 }
 
+void ItemSlotUpdateJob::Execute(DBTLS* InDBTLS)
+{
+
+}
+
 void CharacterProgressJob::Execute(DBTLS* InDBTLS)
 {
 	bool success = false;
-	success = InDBTLS->DB_Post_Query(result, "START TRANSACTION");
-	if (!success)
-		__debugbreak();
+	success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.character SET characterlevel = %u, curEXP = %d WHERE characterUID = %llu", level, curEXP, characterUID);
 
-	
-	success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.item SET slottype = %u, slotindex = %d WHERE characterUID = %llu", level, curEXP, characterUID);
-
-	if (!success)
-		__debugbreak();
-
-	// Ä¿¹Ô ³¡
-	success = InDBTLS->DB_Post_Query(result, "COMMIT");
 	if (!success)
 		__debugbreak();
 }

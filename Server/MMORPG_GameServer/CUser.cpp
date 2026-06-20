@@ -39,7 +39,6 @@ void CUser::Destroy()
 	//pJob->location = m_location;
 	//m_pDBManager->EnqueueDBJob(pJob);
 
-
 	m_equipment.Destroy();
 	m_inventory.Destroy();
 	m_quickSlot.Destroy();
