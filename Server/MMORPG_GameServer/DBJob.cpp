@@ -225,7 +225,59 @@ void ItemCountUpdateJob::Execute(DBTLS* InDBTLS)
 
 void ItemSlotUpdateJob::Execute(DBTLS* InDBTLS)
 {
+	// 쿼리 문자열 생성
+	std::string lastquery;
+	lastquery.reserve(ITEMSLOTUPDATE_SQL_FIXED + updateitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);     // INSERT INTO  ... VALUES(62) + ON DUPLICATE KEY UPDATE ... (78) = 160 + 아이템 1개당 문자열 크기(40) * 갯수 
 
+	lastquery = "UPDATE worlddb.item SET ";
+
+	std::string slottypeQuery;
+	std::string slotindexQuery;
+	std::string whereQuery;
+
+	slottypeQuery.reserve(updateitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
+	slotindexQuery.reserve(updateitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
+	whereQuery.reserve(updateitems.size() * 20);
+
+
+	slottypeQuery = "slottype = CASE itemUID " ;
+	slotindexQuery = "slotindex = CASE itemUID ";
+	whereQuery = "WHERE itemUID IN (";
+
+	for (size_t i = 0; i < updateitems.size(); i++)
+	{
+		char type[50] = {};
+		char index[50] = {};
+		char uid[50] = {};
+
+		if (i != updateitems.size() - 1)
+		{
+			int n1 = snprintf(type, sizeof(type), "WHEN %llu THEN %u ", updateitems[i].itemUID, updateitems[i].slotType);
+			int n2 = snprintf(index, sizeof(index), "WHEN %llu THEN %d ", updateitems[i].itemUID, updateitems[i].slotIndex);
+			int n3 = snprintf(uid, sizeof(uid), "%llu, ", updateitems[i].itemUID);
+
+		}
+		else
+		{
+			int n1 = snprintf(type, sizeof(type), "WHEN %llu THEN %u END, ", updateitems[i].itemUID, updateitems[i].slotType);
+			int n2 = snprintf(index, sizeof(index), "WHEN %llu THEN %d END ", updateitems[i].itemUID, updateitems[i].slotIndex);
+			int n3 = snprintf(uid, sizeof(uid), "%llu)", updateitems[i].itemUID);
+		}
+
+		slottypeQuery.append(type);
+		slotindexQuery.append(index);
+		whereQuery.append(uid);
+	}
+
+	lastquery += slottypeQuery;
+	lastquery += slotindexQuery;
+	lastquery += whereQuery;
+
+	// 아이템 UPDATE 쿼리 한방에 보내기
+	bool success = false;
+	success = InDBTLS->DB_Post_Query(result, lastquery.c_str());
+	if (!success)
+		__debugbreak();
 }
 
 void CharacterProgressJob::Execute(DBTLS* InDBTLS)
@@ -239,9 +291,77 @@ void CharacterProgressJob::Execute(DBTLS* InDBTLS)
 
 void LogOutJob::Execute(DBTLS* InDBTLS)
 {
-	bool success = false;
-	//success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.item SET count = %u WHERE itemUID = %llu", newCount, uid);
+	// 쿼리 문자열 생성
+	std::string lastquery;
+	lastquery.reserve(ITEMSLOTUPDATE_SQL_FIXED + updateitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);     // INSERT INTO  ... VALUES(62) + ON DUPLICATE KEY UPDATE ... (78) = 160 + 아이템 1개당 문자열 크기(40) * 갯수 
 
+	lastquery = "UPDATE worlddb.item SET ";
+
+	std::string slottypeQuery;
+	std::string slotindexQuery;
+	std::string whereQuery;
+
+	slottypeQuery.reserve(updateitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
+	slotindexQuery.reserve(updateitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
+	whereQuery.reserve(updateitems.size() * 20);
+
+
+	slottypeQuery = "slottype = CASE itemUID ";
+	slotindexQuery = "slotindex = CASE itemUID ";
+	whereQuery = "WHERE itemUID IN (";
+
+	for (size_t i = 0; i < updateitems.size(); i++)
+	{
+		char type[50] = {};
+		char index[50] = {};
+		char uid[50] = {};
+
+		if (i != updateitems.size() - 1)
+		{
+			int n1 = snprintf(type, sizeof(type), "WHEN %llu THEN %u ", updateitems[i].itemUID, updateitems[i].slotType);
+			int n2 = snprintf(index, sizeof(index), "WHEN %llu THEN %d ", updateitems[i].itemUID, updateitems[i].slotIndex);
+			int n3 = snprintf(uid, sizeof(uid), "%llu, ", updateitems[i].itemUID);
+
+		}
+		else
+		{
+			int n1 = snprintf(type, sizeof(type), "WHEN %llu THEN %u END, ", updateitems[i].itemUID, updateitems[i].slotType);
+			int n2 = snprintf(index, sizeof(index), "WHEN %llu THEN %d END ", updateitems[i].itemUID, updateitems[i].slotIndex);
+			int n3 = snprintf(uid, sizeof(uid), "%llu)", updateitems[i].itemUID);
+		}
+
+		slottypeQuery.append(type);
+		slotindexQuery.append(index);
+		whereQuery.append(uid);
+	}
+
+	lastquery += slottypeQuery;
+	lastquery += slotindexQuery;
+	lastquery += whereQuery;
+
+	/////////////////////////////////////////////////////////////////////////////////
+	// 쿼리 보내기
+	/////////////////////////////////////////////////////////////////////////////////
+	bool success = false;
+	success = InDBTLS->DB_Post_Query(result, "START TRANSACTION");
+	if (!success)
+		__debugbreak();
+
+	// 캐릭터 위치 저장
+	success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.character SET xpos = %f , ypos = %f, zpos = %f WHERE characterUID = %llu", location.xpos, location.ypos, location.zpos, characterUID);
+	if (!success)
+		__debugbreak();
+
+	// 아이템 저장(바뀐거 있을 때)
+	if (updateitems.size() != 0)
+	{
+		success = InDBTLS->DB_Post_Query(result, lastquery.c_str());
+		if (!success)
+			__debugbreak();
+	}
+
+	// 커밋 끝
+	success = InDBTLS->DB_Post_Query(result, "COMMIT");
 	if (!success)
 		__debugbreak();
 }

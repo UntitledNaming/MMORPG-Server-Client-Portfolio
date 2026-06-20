@@ -125,7 +125,6 @@ private:
 	bool UseConsumableItem(const UserItem* pUserItem, const ItemData* pItemData, uint16& newItemCount);
 	bool CanUseConsumalbIetem(uint32 curTime, CONSUMABLE_ITEM_TYPE itemType);
 	bool EquippedItem(int16 inventorySlotIndex, UseItemResult& result);
-	bool UnEquippedItem(EQUIP_SLOT equipSlot);
 	bool SlotTypeRangeCheck(SLOT_TYPE type);
 	bool SwapInventoryEquipment(int16 inventoryIndex, EQUIP_SLOT equipSlot);
 	bool SwapInventoryQuickSlot(int16 inventoryIndex, int16 quickSlotIndex);

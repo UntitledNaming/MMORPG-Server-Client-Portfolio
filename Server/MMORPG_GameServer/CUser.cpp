@@ -33,11 +33,14 @@ void CUser::Init(uint64 sessionID, CDBManager* pDBManager)
 
 void CUser::Destroy()
 {
-	//// todo : DB에 현재 위치 저장
-	//LogOutJob* pJob = new LogOutJob;
-	//pJob->characterUID = m_characterUID;
-	//pJob->location = m_location;
-	//m_pDBManager->EnqueueDBJob(pJob);
+	LogOutJob* pJob = new LogOutJob;
+	pJob->characterUID = m_characterUID;
+	pJob->location = m_location;
+	pJob->updateitems.reserve(UserItemStorage::MAX_ITEM_STORAGE_COUNT);
+	
+	m_storage.CollectDirtyItems(pJob->updateitems);
+
+	m_pDBManager->EnqueueDBJob(pJob);
 
 	m_equipment.Destroy();
 	m_inventory.Destroy();
@@ -54,7 +57,7 @@ void CUser::LoadDataFromDB(uint64 characterUID, uint64 accountID, uint16 level, 
 {
 	m_inventory.Init(&m_storage);
 	m_equipment.Init(&m_storage);
-	m_storage.Init(m_pDBManager);
+	m_storage.Init();
 
 	m_itemSlotUpdateTime = USER_ITEM_SLOT_UPDATE_MIN_TIME + rand() % (USER_ITEM_SLOT_UPDATE_MAX_TIME - USER_ITEM_SLOT_UPDATE_MIN_TIME);
 	m_itemSlotUpdateTimeAccum = 0;
@@ -87,7 +90,6 @@ void CUser::LoadDataFromDB(uint64 characterUID, uint64 accountID, uint16 level, 
 			QuickSlotItemLoad(item);
 			break;
 		}
-
 	}
 
 
@@ -334,6 +336,11 @@ bool CUser::GetConsumableItem(FieldDropItem& dropItem, PickUpConsumableResult& O
 	// 해당 UID를 인벤토리에 배치
 	m_inventory.InsertItemToSlot(retUID, emptyIndex);
 
+	// Storage에 해당 아이템 객체의 슬롯 타입과 위치 반영
+	m_storage.ExchangeSlotInfo(retUID, SLOT_TYPE::INVENTORY, emptyIndex);
+
+	// 더티 플래그는 아이템 생성할때 이미 false이고 굳이 true로 변경해서 update 해줄 필요 없음.
+
 	OutResult.itemID = dropItem.itemID;
 	OutResult.consumableResult.slotIndex = emptyIndex;
 	OutResult.consumableResult.newItemCount = dropItem.count;
@@ -386,11 +393,11 @@ bool CUser::GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResu
 		return false;
 	}
 
+	// 빈 index에 넣는데 실패하면 안됨.
 	if (!m_inventory.InsertItemToSlot(ID, ret))
-	{
-		m_inventory.ReturnSlotIndex(ret);
-		return false;
-	}
+		__debugbreak();
+
+	// 아웃 파라미터 반영
 	OutResult.itemID = dropItem.itemID;
 	OutResult.slotIndex = ret;
 	OutResult.count = dropItem.count;
@@ -402,7 +409,13 @@ bool CUser::GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResu
 		OutResult.randomStatResult[i].randomStatValue = dropItem.randomStat[i].randomStatValue;
 	}
 
+	// Storage에 반영
+	// Storage에 해당 아이템 객체의 슬롯 타입과 위치 반영
+	m_storage.ExchangeSlotInfo(ID, SLOT_TYPE::INVENTORY, ret);
 
+	// 더티 플래그는 아이템 생성할때 이미 false이고 굳이 true로 변경해서 update 해줄 필요 없음.
+
+	// Job 던지기
 	InsertItemJob* pJob = new InsertItemJob;
 	pJob->characterUID = m_characterUID;
 	pJob->itemUID = ID;
@@ -573,18 +586,14 @@ bool CUser::UseEquipmentItem(int16 slotIndex, UseItemResult& result)
 	}
 
 	if (!m_inventory.InsertItemToSlot(unEquippedItemUID, emptyIdx))
-	{
-		m_inventory.ReturnSlotIndex(emptyIdx);
-		return false;
-	}
+		__debugbreak();
+
 	result.resultType = USE_ITEM_RESULT::UNEQUIP;
 	result.unEquipResult.inventorySlotIdx = emptyIdx;
 
-	//ItemSwapJob* pJob = new ItemSwapJob;
-	//pJob->itemA.itemUID = unEquippedItemUID;
-	//pJob->itemA.newSlotIndex = emptyIdx;
-	//pJob->itemA.newSlotType = SLOT_TYPE::INVENTORY;
-	//m_pDBManager->EnqueueDBJob(pJob);
+	// storage에 기존 장착하던 장비의 slottype을 인벤토리와 해당 index로 변경 및 dirty flag true
+	m_storage.ExchangeSlotInfo(unEquippedItemUID, SLOT_TYPE::INVENTORY, emptyIdx);
+	m_storage.SetItemDirtyFlag(unEquippedItemUID, true);
 
 	return true;
 }
@@ -652,8 +661,8 @@ bool CUser::ItemSlotChange(SLOT_TYPE fromType, int16 fromIndex, SLOT_TYPE toType
 	{
 	case SLOT_TYPE::INVENTORY:
 	{
-		ITEM_UID retID = m_inventory.GetItemUID(fromIndex);
-		if (retID == ItemUID::ITEM_UID_INVALID_ID)
+		ITEM_UID retUID = m_inventory.GetItemUID(fromIndex);
+		if (retUID == ItemUID::ITEM_UID_INVALID_ID)
 			return false;
 	}
 	break;
@@ -921,8 +930,28 @@ void CUser::ItemSlotUpdate()
 	if (m_itemSlotUpdateTimeAccum < m_itemSlotUpdateTime)
 		return;
 
-	// Storage 클래스 호출해주기
-	m_storage.ItemSlotUpdate();
+	if (m_storage.IsStorageEmpty())
+	{
+		m_itemSlotUpdateTimeAccum = 0;
+		return;
+	}
+
+	ItemSlotUpdateJob* pJob = new ItemSlotUpdateJob;
+	pJob->updateitems.reserve(UserItemStorage::MAX_ITEM_STORAGE_COUNT);
+
+	// Storage 클래스 호출해서 update해야 할 아이템들 얻기
+	m_storage.CollectDirtyItems(pJob->updateitems);
+
+	if (pJob->updateitems.size() == 0)
+	{
+		delete pJob;
+		m_itemSlotUpdateTimeAccum = 0;
+		return;
+	}
+
+	m_pDBManager->EnqueueDBJob(pJob);
+
+	m_itemSlotUpdateTimeAccum = 0;
 }
 
 void CUser::InventoryItemLoad(ItemLoadData& Item)
@@ -932,7 +961,6 @@ void CUser::InventoryItemLoad(ItemLoadData& Item)
 
 	// 해당 index에 아이템 삽입
 	m_inventory.InsertItemToSlot(Item.itemUID, Item.slotIndex);
-
 }
 
 void CUser::EquipmentItemLoad(ItemLoadData& Item)
@@ -1044,14 +1072,14 @@ bool CUser::EquippedItem(int16 inventorySlotIndex, UseItemResult& result)
 		return false;
 
 	// 먼저 인벤토리 슬롯에서 제거
-	ITEM_UID removedUID;
-	if (!m_inventory.DeleteInventorySlot(inventorySlotIndex, removedUID))
+	ITEM_UID removedInventoryItemUID;
+	if (!m_inventory.DeleteInventorySlot(inventorySlotIndex, removedInventoryItemUID))
 		return false;
 
 
 	// 해당 아이템의 EQUIP_SLOT 체크 해서 해당 장비 슬롯에 장비 장착
 	ITEM_UID OutEquipItem;
-	if (!m_equipment.EquippedItem(pItemData->equipSlot, removedUID, OutEquipItem))
+	if (!m_equipment.EquippedItem(pItemData->equipSlot, removedInventoryItemUID, OutEquipItem))
 		return false;
 
 	uint8 slotUpdateCount = 0;
@@ -1064,15 +1092,16 @@ bool CUser::EquippedItem(int16 inventorySlotIndex, UseItemResult& result)
 	result.equipResult.resultSlot[slotUpdateCount].slotType = SLOT_TYPE::INVENTORY;
 	result.equipResult.resultSlot[slotUpdateCount].slotIndex = inventorySlotIndex;
 
-	//ItemSwapJob* pJob = new ItemSwapJob;
-	//pJob->itemA.itemUID = removedUID;
-	//pJob->itemA.newSlotType = SLOT_TYPE::EQUIPMENT;
-	//pJob->itemA.newSlotIndex = static_cast<int16>(pItemData->equipSlot);
+	// 기존 인벤토리에 있던 아이템의 slottype을 장비로 위치로 장비 슬롯 위치로 변경 및 dirty flag 켜서 DB 반영 가능하게
+	m_storage.ExchangeSlotInfo(removedInventoryItemUID, SLOT_TYPE::EQUIPMENT, static_cast<int16>(pItemData->equipSlot));
+	m_storage.SetItemDirtyFlag(removedInventoryItemUID, true);
 
 	// 해당 장비 슬롯에 장착된 장비가 없으면 그냥 리턴
 	if (OutEquipItem == ItemUID::ITEM_UID_INVALID_ID)
 	{
 		result.equipResult.resultSlot[slotUpdateCount].itemID = ItemUID::ITEM_UID_INVALID_ID;
+
+		// 기존에 장착중이던 장비 없으면 기존 인벤토리 아이템 index는 필요없으니 반납
 		m_inventory.ReturnSlotIndex(inventorySlotIndex);
 		return true;
 	}
@@ -1085,26 +1114,13 @@ bool CUser::EquippedItem(int16 inventorySlotIndex, UseItemResult& result)
 	if (pOutEquipItem == nullptr)
 		__debugbreak();
 
+	// 기존 장비 탭에 있던 장비의 slottype을 인벤토리로 바꾸고 index로 인벤토리 index로 변경 및 dirty flag 키기
+	m_storage.ExchangeSlotInfo(OutEquipItem, SLOT_TYPE::INVENTORY, inventorySlotIndex);
+	m_storage.SetItemDirtyFlag(OutEquipItem, true);
+
 	result.equipResult.resultSlot[slotUpdateCount].itemID = pOutEquipItem->itemID;
 
 	return true;
-}
-
-// 해당 장비 슬롯에 있는 장비 해제하려고 할 때 작동
-bool CUser::UnEquippedItem(EQUIP_SLOT equipSlot)
-{
-	// 장비 해제 실패하면 false 리턴
-	ITEM_UID retUID;
-	if (!m_equipment.UnEquippedItem(equipSlot, retUID))
-		return false;
-
-	// 인벤토리에 여유 공간 있는지 확인 없으면 false
-	int16 emptyIdx = m_inventory.GainEmptySlotIndex();
-	if (emptyIdx == -1)
-		return false;
-
-	// 있으면 해당 슬롯에 옮기기
-	return m_inventory.InsertItemToSlot(retUID, emptyIdx);
 }
 
 bool CUser::SlotTypeRangeCheck(SLOT_TYPE type)
@@ -1198,6 +1214,7 @@ bool CUser::SwapInventoryQuickSlot(int16 inventoryIndex, int16 quickSlotIndex)
 	m_quickSlot.ClearConsumable(quickSlotIndex, quickSlotUID);
 
 	// from Invalid는 상위 함수에서 걸러졌으니 여기서 Invalid면 To가 Invalid인 상황
+	// Quick -> Inventory
 	if (inventoryUID == ItemUID::ITEM_UID_INVALID_ID)
 	{
 		// to가 Inventory인데 빈 슬롯인 상황
@@ -1205,9 +1222,15 @@ bool CUser::SwapInventoryQuickSlot(int16 inventoryIndex, int16 quickSlotIndex)
 		// 퀵슬롯 UID가 인벤토리에 오니 해당 index는 할당 불가
 		m_inventory.EraseEmptyIndex(inventoryIndex);
 		m_inventory.InsertItemToSlot(quickSlotUID, inventoryIndex);
+
+		// 퀵슬롯에서 제거 후 인벤토리에 이동 시켰는데 인벤토리에는 아이템이 없는 상황이니 기존 퀵슬롯 아이템의 
+		// slottype과 index를 인벤토리로 변경
+		m_storage.ExchangeSlotInfo(quickSlotUID, SLOT_TYPE::INVENTORY, inventoryIndex);
+		m_storage.SetItemDirtyFlag(quickSlotUID, true);
 		return true;
 	}
 	
+	// Inventory -> Quick
 	else if (quickSlotUID == ItemUID::ITEM_UID_INVALID_ID)
 	{
 		// to가 QuickSlot인데 빈 슬롯인 상황
@@ -1215,6 +1238,9 @@ bool CUser::SwapInventoryQuickSlot(int16 inventoryIndex, int16 quickSlotIndex)
 		// 기존 인벤토리 아이템이 퀵슬롯으로 이동하니 해당 인벤토리 index 반환
 		m_inventory.ReturnSlotIndex(inventoryIndex);
 		m_quickSlot.SetConsumable(quickSlotIndex, inventoryUID, quickSlotUID);
+
+		m_storage.ExchangeSlotInfo(inventoryUID, SLOT_TYPE::QUICKSLOT, quickSlotIndex);
+		m_storage.SetItemDirtyFlag(inventoryUID, true);
 		return true;
 	}
 
@@ -1222,6 +1248,14 @@ bool CUser::SwapInventoryQuickSlot(int16 inventoryIndex, int16 quickSlotIndex)
 	ITEM_UID retQuickUID = ItemUID::ITEM_UID_INVALID_ID;
 	m_quickSlot.SetConsumable(quickSlotIndex, inventoryUID, retQuickUID);
 	m_inventory.InsertItemToSlot(quickSlotUID, inventoryIndex);
+
+	// 퀵슬롯 아이템의 slottype, index를 인벤토리로 변경
+	m_storage.ExchangeSlotInfo(quickSlotUID, SLOT_TYPE::INVENTORY, inventoryIndex);
+	m_storage.SetItemDirtyFlag(quickSlotUID, true);
+
+	// 인벤토리 아이템의 slottype, index를 퀵슬롯으로 변경
+	m_storage.ExchangeSlotInfo(inventoryUID, SLOT_TYPE::QUICKSLOT, quickSlotIndex);
+	m_storage.SetItemDirtyFlag(inventoryUID, true);
 	return true;
 }
 

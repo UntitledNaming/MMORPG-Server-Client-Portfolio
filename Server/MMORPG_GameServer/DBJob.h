@@ -9,6 +9,9 @@ class CUser;
 template<typename T>
 class LFQueueMul;
 
+constexpr size_t ITEMSLOTUPDATE_SQL_FIXED = 150;
+constexpr size_t ITEMSLOTUPDATE_SQL_PER_ITEM = 100;
+
 enum class PostAction
 {
 	None,

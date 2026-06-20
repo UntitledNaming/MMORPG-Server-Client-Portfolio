@@ -44,8 +44,6 @@ bool Inventory::ItemSlotChange(int16 fromIndex, int16 toIndex)
 	if (!(IndexRangeCheck(fromIndex) && IndexRangeCheck(toIndex)))
 		return false;
 
-
-
 	// to가 InvalidID인 경우 index 반환 및 사용할 index 제거
 	// from, to 모두 아이템이 있으면 index 반환 필요x
 	if (m_inventory[toIndex] == ItemUID::ITEM_UID_INVALID_ID)
@@ -54,6 +52,16 @@ bool Inventory::ItemSlotChange(int16 fromIndex, int16 toIndex)
 		m_slotIndexAllocator.erase(toIndex);
 		m_slotIndexAllocator.insert(fromIndex);
 	}
+
+	// Swap 전에 storage에 해당 UID들 slottype, index 변경 및 dirty flag 변경 toIndex에 아이템 없어도 그냥 리턴되니 문제x
+
+	// From에 있던 아이템의 index만 to로 변경
+	m_pStorage->ExchangeSlotInfo(m_inventory[fromIndex], SLOT_TYPE::INVENTORY, toIndex);
+	m_pStorage->SetItemDirtyFlag(m_inventory[fromIndex], true);
+
+	// To에 있던 아이템의 index만 from으로 변경
+	m_pStorage->ExchangeSlotInfo(m_inventory[toIndex], SLOT_TYPE::INVENTORY, fromIndex);
+	m_pStorage->SetItemDirtyFlag(m_inventory[toIndex], true);
 
 	// UID Swap 작업
 	ITEM_UID TempTo = m_inventory[toIndex];

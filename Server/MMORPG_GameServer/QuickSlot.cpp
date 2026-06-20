@@ -1,12 +1,15 @@
 #include <array>
+#include <unordered_map>
+#include "CUserItemStorage.h"
 #include "QuickSlot.h"
 
-void QuickSlot::Init()
+void QuickSlot::Init(CUserItemStorage* Storage)
 {
 	for (int i = 0; i < UserQuickSlot::QUICK_SLOT_MAX; i++)
 	{
 		m_quickSlot[i] = ItemUID::ITEM_UID_INVALID_ID;
 	}
+	m_pStorage = Storage;
 }
 
 void QuickSlot::Destroy()
@@ -52,6 +55,14 @@ bool QuickSlot::SwapSlot(int16 fromIndex, int16 toIndex)
 {
 	if (!(IndexRangeCheck(fromIndex) && IndexRangeCheck(toIndex)))
 		return false;
+
+	// From에 있던 아이템의 index만 to로 변경
+	m_pStorage->ExchangeSlotInfo(m_quickSlot[fromIndex], SLOT_TYPE::QUICKSLOT, toIndex);
+	m_pStorage->SetItemDirtyFlag(m_quickSlot[fromIndex], true);
+
+	// To에 있던 아이템의 index만 from으로 변경
+	m_pStorage->ExchangeSlotInfo(m_quickSlot[toIndex], SLOT_TYPE::QUICKSLOT, fromIndex);
+	m_pStorage->SetItemDirtyFlag(m_quickSlot[toIndex], true);
 
 	ITEM_UID Temp = m_quickSlot[toIndex];
 	m_quickSlot[toIndex] = m_quickSlot[fromIndex];

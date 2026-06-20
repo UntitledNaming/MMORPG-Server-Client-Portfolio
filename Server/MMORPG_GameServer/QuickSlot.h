@@ -10,7 +10,7 @@ public:
 	QuickSlot() = default;
 	~QuickSlot() = default;
 
-	void Init();
+	void Init(CUserItemStorage* Storage);
 	void Destroy();
 
 	bool     SetConsumable(int16 slotIndex, ITEM_UID InItemUID, ITEM_UID& OutItemUID);
@@ -26,6 +26,7 @@ private:
 
 private:
 	std::array<ITEM_UID, UserQuickSlot::QUICK_SLOT_MAX> m_quickSlot;
-	uint8    m_useCount = 0;
+	CUserItemStorage* m_pStorage = nullptr;
+	uint8             m_useCount = 0;
 };
 

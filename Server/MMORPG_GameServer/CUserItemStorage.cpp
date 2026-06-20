@@ -1,5 +1,4 @@
 #include <unordered_map>
-#include <mysql.h>
 #include <thread>
 #include "ContentsType.h"
 #include "ContentsStruct.h"
@@ -8,9 +7,6 @@
 #include "ItemUIDAllocator.h"
 #include "SectorPos.h"
 #include "FieldDropItemPool.h"
-#include "DBTLS.h"
-#include "DBJob.h"
-#include "CDBManager.h"
 #include "CUserItemStorage.h"
 
 CMPoolTLS<UserItem>* CUserItemStorage::m_itemPool = nullptr;
@@ -29,10 +25,9 @@ void CUserItemStorage::ItemPoolDestroy()
 	m_itemPool = nullptr;
 }
 
-void CUserItemStorage::Init(CDBManager* pDBManager)
+void CUserItemStorage::Init()
 {
 	m_storage.clear();
-	m_pDBManager = pDBManager;
 }
 
 void CUserItemStorage::Destroy()
@@ -65,7 +60,8 @@ bool CUserItemStorage::CreateItem(const BaseItemInfo& Info, ITEM_UID& OutItemUID
 	pItem->count = Info.count;
 	pItem->itemID = Info.itemID;
 	pItem->randomStatCount = Info.randomStatCount;
-
+	pItem->dirtyFlag = false;
+	pItem->itemUID = uid;
 	for (int i = 0; i < Info.randomStatCount; i++)
 	{
 		pItem->randomStat[i].randomStatType = Info.randomStat[i].randomStatType;
@@ -103,6 +99,33 @@ bool CUserItemStorage::ChangeItemCount(ITEM_UID ItemUID, uint16 NewCount)
 	return true;
 }
 
+bool CUserItemStorage::CollectDirtyItems(std::vector<ItemSlotUpdateData>& OutItems)
+{
+	if (m_storage.empty())
+		return false;
+
+	std::unordered_map<ITEM_UID, UserItem*>::iterator it = m_storage.begin();
+	for (; it != m_storage.end(); ++it)
+	{
+		UserItem* pItem = it->second;
+		if (!pItem->dirtyFlag)
+			continue;
+
+
+		// 플래그 켜져 있으면  Job에 넣기
+		ItemSlotUpdateData item = {};
+		item.itemUID = pItem->itemUID;
+		item.slotType = pItem->slotType;
+		item.slotIndex = pItem->slotIndex;
+
+		OutItems.push_back(item);
+
+		pItem->dirtyFlag = false;
+	}
+
+	return true;
+}
+
 const UserItem* CUserItemStorage::FindItem(ITEM_UID ItemUID) const
 {
 	std::unordered_map<ITEM_UID, UserItem*>::const_iterator it = m_storage.find(ItemUID);
@@ -112,7 +135,6 @@ const UserItem* CUserItemStorage::FindItem(ITEM_UID ItemUID) const
 	return it->second;
 }
 
-
 void CUserItemStorage::LoadItemFromDB(const ItemLoadData& Info)
 {
 	UserItem* pItem = m_itemPool->Alloc();
@@ -121,6 +143,9 @@ void CUserItemStorage::LoadItemFromDB(const ItemLoadData& Info)
 	pItem->count = Info.count;
 	pItem->itemID = Info.itemID;
 	pItem->randomStatCount = Info.randomStatCount;
+	pItem->dirtyFlag = false;
+	pItem->slotType = Info.slotType;
+	pItem->slotIndex = Info.slotIndex;
 
 	for (int i = 0; i < Info.randomStatCount; i++)
 	{
@@ -130,35 +155,24 @@ void CUserItemStorage::LoadItemFromDB(const ItemLoadData& Info)
 	m_storage.insert(std::pair<ITEM_UID, UserItem*>(pItem->itemUID, pItem));
 }
 
-void CUserItemStorage::ItemSlotUpdate()
+void CUserItemStorage::ExchangeSlotInfo(ITEM_UID itemUID, SLOT_TYPE slotType, int16 slotindex)
 {
-	// 저장소에 애초에 아이템 없으면 리턴
-	if (m_storage.empty())
+	std::unordered_map<ITEM_UID, UserItem*>::iterator it = m_storage.find(itemUID);
+	if (it == m_storage.end())
 		return;
 
-	ItemSlotUpdateJob* pJob = new ItemSlotUpdateJob;
-	pJob->updateitems.reserve(UserItemStorage::MAX_ITEM_STORAGE_COUNT);
+	UserItem* pItem = it->second;
+	pItem->slotType = slotType;
+	pItem->slotIndex = slotindex;
+}
 
-	std::unordered_map<ITEM_UID, UserItem*>::iterator it = m_storage.begin();
-	for (; it != m_storage.end(); ++it)
-	{
-		UserItem* pItem = it->second;
-		if (!pItem->dirtyFlag)
-			continue;
+void CUserItemStorage::SetItemDirtyFlag(ITEM_UID itemUID, bool flag)
+{
+	std::unordered_map<ITEM_UID, UserItem*>::iterator it = m_storage.find(itemUID);
+	if (it == m_storage.end())
+		return;
 
-		// 플래그 켜져 있으면  Job에 넣기
-		ItemSlotUpdateData item = {};
-		item.itemUID = pItem->itemUID;
-		item.slotType = pItem->slotType;
-		item.slotIndex = pItem->slotIndex;
-
-		pJob->updateitems.push_back(item);
-
-		pItem->dirtyFlag = false;
-	}
-
-
-	m_pDBManager->EnqueueDBJob(pJob);
+	it->second->dirtyFlag = flag;
 }
 
 uint16 CUserItemStorage::GetItemCount(ITEM_UID InItemUID)

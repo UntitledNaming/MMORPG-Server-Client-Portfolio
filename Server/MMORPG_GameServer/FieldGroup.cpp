@@ -681,6 +681,9 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 	}
 	else
 	{
+		if (!moveflag)
+			__debugbreak();
+
 		// ½ÌÅ© ¾ÈÆ²¾îÁ³À¸¸é Å¬¶óÀÇ ÁÂÇ¥¸¦ ¼­¹ö°¡ ¹Ï¾îÁÜ.
 		Location loc{ xpos, ypos, zpos };
 		pUser->SetLocation(loc);
