@@ -65,7 +65,7 @@ struct TCircularSnapBuffer
 struct FRandomStat
 {
     RANDOM_STAT_TYPE  RandomStatType;
-    uint16            RandomStatValue;
+    int16            RandomStatValue;
 };
 
 

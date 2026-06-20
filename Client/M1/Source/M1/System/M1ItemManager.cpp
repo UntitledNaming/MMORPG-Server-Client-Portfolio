@@ -5,6 +5,7 @@
 #include "Network\M1NetworkManager.h"
 #include "UI\M1DraggedItemWidget.h"
 #include "UI\M1ItemTooltipWidget.h"
+#include "UI\M1ItemSlotWidget.h"
 #include "System\M1SpawnManager.h"
 #include "Character\M1LocalPlayer.h"
 
@@ -385,6 +386,18 @@ void UM1ItemManager::TrySendSwapSlot(uint8 FromType, int16 FromIdx, uint8 ToType
 	if (bPendingSlotRequest == true)
 		return;
 
+	const SLOT_TYPE From = static_cast<SLOT_TYPE>(FromType);
+	const SLOT_TYPE To   = static_cast<SLOT_TYPE>(ToType);
+
+	// 스왑 허용 조합: 인벤↔인벤, 인벤↔퀵슬롯 만 (그 외는 클라에서 차단)
+	const bool bValidPair =
+		(From == SLOT_TYPE::INVENTORY && To == SLOT_TYPE::INVENTORY) ||
+		(From == SLOT_TYPE::INVENTORY && To == SLOT_TYPE::QUICKSLOT) ||
+		(From == SLOT_TYPE::QUICKSLOT && To == SLOT_TYPE::INVENTORY);
+
+	if (!bValidPair)
+		return;
+
 	if (IsSlotOnCoolTime(FromType, FromIdx))
 		return;
 
@@ -420,16 +433,60 @@ void UM1ItemManager::StartDrag(SLOT_TYPE Type, int16 Index, UM1DraggedItemWidget
 
 void UM1ItemManager::EndDrag()
 {
+	const SLOT_TYPE PrevType = DragStartSourceType;
+
 	bIsDragging = false;
 	DragStartSourceType = SLOT_TYPE::NONE;
 	DragStartSourceIndex = -1;
-	DragHoverType = SLOT_TYPE::NONE;
-	DragHoverIndex = -1;
+
 	if (ActiveDragWidget)
 	{
 		ActiveDragWidget->RemoveFromParent();
 		ActiveDragWidget = nullptr;
 	}
+
+	// 드래그 시작 시 숨겼던 소스 슬롯 아이콘을 즉시 복원
+	// (서버 거절/무효 스왑으로 패킷이 안 나가도 아이콘이 사라진 채 남지 않게)
+	switch (PrevType)
+	{
+	case SLOT_TYPE::INVENTORY:  OnInventoryChanged.Broadcast();  break;
+	case SLOT_TYPE::EQUIPMENT:  OnEquipmentChanged.Broadcast();  break;
+	case SLOT_TYPE::QUICKSLOT:  OnQuickSlotChanged.Broadcast();  break;
+	default: break;
+	}
+}
+
+void UM1ItemManager::RegisterSlotWidget(UM1ItemSlotWidget* Widget)
+{
+	if (Widget)
+		RegisteredSlots.AddUnique(Widget);
+}
+
+void UM1ItemManager::UnregisterSlotWidget(UM1ItemSlotWidget* Widget)
+{
+	RegisteredSlots.Remove(Widget);
+}
+
+bool UM1ItemManager::FindSlotUnderCursor(const FVector2D& AbsCursorPos, SLOT_TYPE& OutType, int16& OutIndex) const
+{
+	for (const TWeakObjectPtr<UM1ItemSlotWidget>& WeakWidget : RegisteredSlots)
+	{
+		UM1ItemSlotWidget* Widget = WeakWidget.Get();
+		if (!Widget || !Widget->IsVisible())   // 닫혀있는 탭(Collapsed/Hidden)은 제외
+			continue;
+
+		const FGeometry& Geo = Widget->GetCachedGeometry();
+		if (Geo.IsUnderLocation(AbsCursorPos))
+		{
+			OutType  = Widget->GetSlotType();
+			OutIndex = Widget->GetSlotIndex();
+			return true;
+		}
+	}
+
+	OutType  = SLOT_TYPE::NONE;
+	OutIndex = -1;
+	return false;
 }
 
 void UM1ItemManager::ShowTooltip(SLOT_TYPE Type, int16 Index, TSubclassOf<UM1ItemTooltipWidget> WidgetClass)
@@ -483,7 +540,7 @@ void  UM1ItemManager::ParseAndInitFromSpawn(CMessage* pMessage)
 	for (uint8 i = 0; i < invCount; ++i)
 	{
 		int16   slotIndex;
-		ITEM_ID itemID;
+		ITEM_ID itemID=0;
 		uint16  itemCount;
 		uint8   randomStatCount;
 
@@ -495,7 +552,7 @@ void  UM1ItemManager::ParseAndInitFromSpawn(CMessage* pMessage)
 
 		for (uint8 j = 0; j < randomStatCount; ++j)
 		{
-			uint8 statType; uint16 statValue;
+			uint8 statType; int16 statValue;
 			*pMessage >> statType >> statValue;
 			Inventory[slotIndex].RandomStats.Add({ static_cast<RANDOM_STAT_TYPE>(statType), statValue });
 		}
@@ -509,20 +566,20 @@ void  UM1ItemManager::ParseAndInitFromSpawn(CMessage* pMessage)
 	for (uint8 i = 0; i < equipCount; ++i)
 	{
 		uint8   equipSlot;
-		ITEM_ID itemID;
-		uint8   randomStatCount;
+		ITEM_ID equipitemID =0;
+		uint8   equiprandomStatCount;
 
-		*pMessage >> equipSlot >> itemID >> randomStatCount;
+		*pMessage >> equipSlot >> equipitemID >> equiprandomStatCount;
 
-		Equipment[equipSlot].ItemID = itemID;
+		Equipment[equipSlot].ItemID = equipitemID;
 		Equipment[equipSlot].Count = 1;
 		Equipment[equipSlot].RandomStats.Reset();
 
-		for (uint8 j = 0; j < randomStatCount; ++j)
+		for (uint8 j = 0; j < equiprandomStatCount; ++j)
 		{
-			uint8 statType; uint16 statValue;
-			*pMessage >> statType >> statValue;
-			Equipment[equipSlot].RandomStats.Add({ static_cast<RANDOM_STAT_TYPE>(statType), statValue });
+			uint8 equipstatType; int16 equipstatValue;
+			*pMessage >> equipstatType >> equipstatValue;
+			Equipment[equipSlot].RandomStats.Add({ static_cast<RANDOM_STAT_TYPE>(equipstatType), equipstatValue });
 		}
 	}
 
@@ -530,12 +587,14 @@ void  UM1ItemManager::ParseAndInitFromSpawn(CMessage* pMessage)
 	uint8 quickCount;
 	*pMessage >> quickCount;
 
-	for (uint8 i = 0; i < quickCount && i < (uint8)QuickSlot.Num(); ++i)
+	for (uint8 i = 0; i < quickCount; ++i)
 	{
-		ITEM_ID itemID; uint16 itemCount;
-		*pMessage >> itemID >> itemCount;
-		QuickSlot[i].ItemID = itemID;
-		QuickSlot[i].Count = itemCount;
+		uint8   quickslotIndex;
+		ITEM_ID quickitemID=0; 
+		int16   quickitemCount;
+		*pMessage >> quickslotIndex >> quickitemID >> quickitemCount;
+		QuickSlot[quickslotIndex].ItemID = quickitemID;
+		QuickSlot[quickslotIndex].Count = quickitemCount;
 	}
 
 	// ── 장비 스탯 반영 (장착 아이템 →EquipStat) ─────

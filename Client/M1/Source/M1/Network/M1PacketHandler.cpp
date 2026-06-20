@@ -38,10 +38,10 @@ void M1PacketHandler::Handle_SC_CREATE_MY_CHARACTER(CMessage* pMessage, UM1Netwo
 	float ypos;
 	float zpos;
 	float yaw;
-	uint16 hp;
-	uint16 mp;
+	int16 hp;
+	int16 mp;
 	uint16 level;
-	uint32 curexp;
+	int32 curexp;
 
 	*pMessage >> charid;
 	*pMessage >> xpos;
