@@ -28,7 +28,6 @@ public:
 	void OnReceiveMovementPacket(const FMovementSnapshot& Snapshot);
 	void OnReceiveSyncPacket(uint64 ServerTimestamp, FVector SyncPosition);
 	void OnReceiveAttackSwing(float FacingYaw, uint8 SwingIdx);
-	void OnReceiveAttackStop();
 
 	virtual void UpdateMoveDirection() override;
 	FName GetLeftAttackSectionName(uint8 SwingIndex) const;
@@ -37,6 +36,7 @@ public:
 private:
 	void UpdateInterpolation(float DeltaTime);
 	void UpdateStopCorrection(float DeltaTime);
+	void UpdateAttackPose(float DeltaTime);
 
 private:
 	TCircularSnapBuffer<FMovementSnapshot, 16> SnapshotBuffer;
@@ -45,6 +45,12 @@ private:
 private:
 	bool     bIsAttacking        = false;
 	bool     bNeedStopCorrection = false;
+
+	// swing 패킷이 끊기면 공격 포즈를 자가 해제하기 위한 타이머 (stop 프로토콜 대체)
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	float    AttackPoseHoldSeconds = 1.2f;   // swing 1타 간격보다 약간 길게
+	float    AttackPoseRemaining   = 0.f;
+
 	float    StopTargetYaw       = 0.f;
 	FVector  StopTargetLocation  = FVector::ZeroVector;
 

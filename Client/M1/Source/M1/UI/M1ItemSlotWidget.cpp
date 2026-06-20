@@ -110,15 +110,27 @@ FReply UM1ItemSlotWidget::NativeOnMouseButtonUp(const FGeometry& GeoMetry, const
 	const int16     SrcIndex = ItemManager->GetDragStartSourceIndex();
 
 	// 뗀 순간 커서 좌표로 어떤 슬롯 위에 있는지 히트테스트 (캡처 중엔 Enter/Leave가 안 오므로 좌표로 판정)
+	const FVector2D UpPos = PointerEvent.GetScreenSpacePosition();
+
 	SLOT_TYPE TgtType  = SLOT_TYPE::NONE;
 	int16     TgtIndex = -1;
-	const bool bOverSlot = ItemManager->FindSlotUnderCursor(
-		PointerEvent.GetScreenSpacePosition(), TgtType, TgtIndex);
+	const bool bOverSlot = ItemManager->FindSlotUnderCursor(UpPos, TgtType, TgtIndex);
+
+	// 캡처 덕에 Up은 항상 소스 슬롯(this)으로 돌아온다.
+	// 빠른 클릭이면 커서가 소스 슬롯을 벗어나지 않는데, FindSlotUnderCursor는
+	// GetCachedGeometry()(직전 페인트 기준)를 써서 가끔 히트 실패 → Delete로 빠진다.
+	// 이벤트로 들어온 '신선한' GeoMetry로 소스 슬롯 위인지 먼저 확정해 오삭제를 막는다.
+	const bool bOverSource = GeoMetry.IsUnderLocation(UpPos);
 
 	// 드래그 종료 (숨긴 소스 아이콘은 EndDrag의 Broadcast로 즉시 복원)
 	ItemManager->EndDrag();
 
-	if (!bOverSlot)
+	if (bOverSource)
+	{
+		// 커서가 소스 슬롯 위 → 무조건 사용 (빠른 클릭 오삭제 방지)
+		ItemManager->TrySendUseItem(static_cast<uint8>(SrcType), SrcIndex);
+	}
+	else if (!bOverSlot)
 	{
 		// 슬롯/패널 밖에서 뗌 → 삭제
 		ItemManager->TrySendDeleteItem(static_cast<uint8>(SrcType), SrcIndex);

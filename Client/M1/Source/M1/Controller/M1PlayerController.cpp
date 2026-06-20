@@ -525,21 +525,6 @@ void AM1PlayerController::SendLeftAttackSwingPacket(float FacingYaw, uint8 Swing
     CMessage::Free(pMessage);
 }
 
-void AM1PlayerController::SendLeftAttackStopPacket()
-{
-    if (!NetworkManager)
-        return;
-
-    if (!M1Player || M1Player->IsDead())
-        return;
-
-    CMessage* pMessage = CMessage::Alloc();
-    pMessage->Clear(1);
-    *pMessage << FieldProtocol::PACKET_CS_STOP_LEFT_ATTACK;
-    NetworkManager->SendPacket(pMessage, static_cast<uint8>(ERouteType::GROUP), ServiceID::NONE_SERVICE);
-    CMessage::Free(pMessage);
-}
-
 void AM1PlayerController::SendUseSkillPacket(uint8 SkillSlot)
 {
     if (!NetworkManager)

@@ -217,15 +217,6 @@ void AM1SpawnManager::OnOtherPlayerAttackSwing(uint64 EntityID, float FacingYaw,
     (*Found)->OnReceiveAttackSwing(FacingYaw, SwingIdx);
 }
 
-void AM1SpawnManager::OnOtherPlayerAttackStop(uint64 EntityID)
-{
-    AM1OtherPlayer** Found = PlayerMap.Find(EntityID);
-    if (Found == nullptr || *Found == nullptr)
-        return;
-
-    (*Found)->OnReceiveAttackStop();
-}
-
 void AM1SpawnManager::OnMonsterMove(uint64 EntityID, FMonsterMove& Data)
 {
     AM1Monster** Found = MonsterMap.Find(EntityID);

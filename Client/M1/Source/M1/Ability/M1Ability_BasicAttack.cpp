@@ -72,9 +72,6 @@ void UM1Ability_BasicAttack::OnMontageEnded(UAnimMontage* Montage, bool bInterru
             UAnimInstance* AnimInst = CachedOwner->GetMesh()->GetAnimInstance();
             if (AnimInst)
                 AnimInst->OnMontageEnded.RemoveDynamic(this, &UM1Ability_BasicAttack::OnMontageEnded);
-
-            AM1PlayerController* PC = Cast<AM1PlayerController>(CachedOwner->GetController());
-            if (PC) PC->SendLeftAttackStopPacket();
         }
 
         CachedOwner = nullptr;

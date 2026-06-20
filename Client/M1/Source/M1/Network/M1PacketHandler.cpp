@@ -205,16 +205,6 @@ void M1PacketHandler::Handle_SC_SWING_ATTACK(CMessage* pMessage, UM1NetworkManag
 	SpawnManager->OnOtherPlayerAttackSwing(id, facingYaw, swingidx);
 }
 
-void M1PacketHandler::Handle_SC_STOP_ATTACK(CMessage* pMessage, UM1NetworkManager* NetworkManager)
-{
-	uint64 id;
-
-	*pMessage >> id;
-
-	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
-	SpawnManager->OnOtherPlayerAttackStop(id);
-}
-
 void M1PacketHandler::Handle_SC_ATTACK_HIT_RESULT(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
 	uint8 PlayerHitCount;

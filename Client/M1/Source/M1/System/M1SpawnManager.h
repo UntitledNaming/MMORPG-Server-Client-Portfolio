@@ -48,7 +48,6 @@ public:
 	void SyncOtherPlayer(uint64 EntityID, FVector& Location, uint64 ServerTimestamp);
 	void UpdateOtherPlayerMovementInput(uint64 EntityID, FMovementSnapshot& Snapshot);
 	void OnOtherPlayerAttackSwing(uint64 EntityID, float FacingYaw, uint8 SwingIdx);
-	void OnOtherPlayerAttackStop(uint64 EntityID);
 	void ProcessClientAttackHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg);
 	void ProcessClientSingleTargetHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg);
 	void ApplyPlayerHitResult(uint64 EntityID, int32 NewHP);

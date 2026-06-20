@@ -393,7 +393,8 @@ void UM1ItemManager::TrySendSwapSlot(uint8 FromType, int16 FromIdx, uint8 ToType
 	const bool bValidPair =
 		(From == SLOT_TYPE::INVENTORY && To == SLOT_TYPE::INVENTORY) ||
 		(From == SLOT_TYPE::INVENTORY && To == SLOT_TYPE::QUICKSLOT) ||
-		(From == SLOT_TYPE::QUICKSLOT && To == SLOT_TYPE::INVENTORY);
+		(From == SLOT_TYPE::QUICKSLOT && To == SLOT_TYPE::INVENTORY) ||
+		(From == SLOT_TYPE::QUICKSLOT && To == SLOT_TYPE::QUICKSLOT);
 
 	if (!bValidPair)
 		return;

@@ -63,7 +63,6 @@ private:
 
 public:
 	void SendLeftAttackSwingPacket(float FacingYaw, uint8 SwingIdx);
-	void SendLeftAttackStopPacket();
 	void SendUseSkillPacket(uint8 SkillSlot);
 
 private:

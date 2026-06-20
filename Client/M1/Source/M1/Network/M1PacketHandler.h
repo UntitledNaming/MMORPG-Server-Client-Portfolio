@@ -45,9 +45,6 @@ public:
 	// 서버가 보낸 "공격 시작" 처리
 	static void Handle_SC_SWING_ATTACK(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 
-	// 서버가 보낸 "공격 종료" 처리
-	static void Handle_SC_STOP_ATTACK(CMessage* pMessage, UM1NetworkManager* NetworkManager);
-
 	// 서버가 보낸 "피격 결과 (HP 갱신)" 처리
 	static void Handle_SC_ATTACK_HIT_RESULT(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 

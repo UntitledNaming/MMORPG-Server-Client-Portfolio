@@ -56,6 +56,22 @@ void AM1OtherPlayer::Tick(float DeltaTime)
 
 	if (bNeedStopCorrection)
 		UpdateStopCorrection(DeltaTime);
+
+	UpdateAttackPose(DeltaTime);
+}
+
+void AM1OtherPlayer::UpdateAttackPose(float DeltaTime)
+{
+    if (!bIsAttacking)
+        return;
+
+    AttackPoseRemaining -= DeltaTime;
+    if (AttackPoseRemaining > 0.f)
+        return;
+
+    // 연타가 끊겨 더 이상 swing 패킷이 오지 않음 → 공격 포즈 해제
+    bIsAttacking = false;
+    SetUseUpperBodyWhenMovingFlag(false);
 }
 
 void AM1OtherPlayer::OnReceiveMovementPacket(const FMovementSnapshot& Snapshot)
@@ -85,6 +101,7 @@ void AM1OtherPlayer::UpdateMoveDirection()
 void AM1OtherPlayer::OnReceiveAttackSwing(float FacingYaw, uint8 SwingIdx)
 {
     bIsAttacking = true;
+    AttackPoseRemaining = AttackPoseHoldSeconds;   // swing 올 때마다 포즈 유지 타이머 갱신
     SetActorRotation(FRotator(0.f, FacingYaw, 0.f));
 
     if (GetMoveFlag())
@@ -93,12 +110,6 @@ void AM1OtherPlayer::OnReceiveAttackSwing(float FacingYaw, uint8 SwingIdx)
     }
 
     PlayLeftAttackSectionOnly(SwingIdx);
-}
-
-void AM1OtherPlayer::OnReceiveAttackStop()
-{
-    bIsAttacking = false;
-    SetUseUpperBodyWhenMovingFlag(false);
 }
 
 void AM1OtherPlayer::OnReceiveSyncPacket(uint64 ServerTimestamp, FVector SyncPosition)
