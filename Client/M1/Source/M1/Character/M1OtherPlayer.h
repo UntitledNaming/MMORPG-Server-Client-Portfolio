@@ -59,6 +59,9 @@ private:
 
 	FVector  PrevLocation        = FVector::ZeroVector;
 
+	// RawMove(before/데모) 추측항법 이동 방향
+	float    RawMoveYaw          = 0.f;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TObjectPtr<class UAnimMontage> LeftAttackMontage;
 };

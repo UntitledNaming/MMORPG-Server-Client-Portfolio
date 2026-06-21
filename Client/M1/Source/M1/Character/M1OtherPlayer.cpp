@@ -4,6 +4,17 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "System\M1GameInstance.h"
 #include "ContentsDefine.h"
+#include "HAL/IConsoleManager.h"
+
+// 이동 동기화 before/after 데모 토글.
+//  0 = 스냅샷 보간(after, 부드러움)
+//  1 = 추측항법(before): moveflag/yaw만으로 로컬 이동(위치 보정 없음 → 드리프트)
+// 게임 중 콘솔(~)에서 "M1.RawMove 1" / "M1.RawMove 0" 으로 전환 → 같은 빌드로 두 영상 촬영.
+static TAutoConsoleVariable<int32> CVarOtherPlayerRawMove(
+    TEXT("M1.RawMove"),
+    0,
+    TEXT("0=snapshot interpolation, 1=raw direct-apply (before/after demo)"),
+    ECVF_Default);
 
 AM1OtherPlayer::AM1OtherPlayer()
 {
@@ -50,7 +61,18 @@ void AM1OtherPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	UpdateInterpolation(DeltaTime);
+	if (CVarOtherPlayerRawMove.GetValueOnGameThread() == 0)
+	{
+		UpdateInterpolation(DeltaTime);
+	}
+	else if (bRenderMoving)
+	{
+		// before(데모): 추측항법 — 받은 방향(RawMoveYaw)으로 속도만큼 계속 전진.
+		// 위치 보정이 없어 시간이 지날수록 실제 위치와 어긋남(드리프트).
+		const FVector Dir = FRotator(0.f, RawMoveYaw, 0.f).Vector();
+		AddActorWorldOffset(Dir * UserConst::WALK_SPEED * DeltaTime, false);
+	}
+
 	UpdateMoveDirection();
 	UpdateAttackPose(DeltaTime);
 }
@@ -71,6 +93,21 @@ void AM1OtherPlayer::UpdateAttackPose(float DeltaTime)
 
 void AM1OtherPlayer::OnReceiveMovementPacket(const FMovementSnapshot& Snapshot)
 {
+	// before(데모): 위치(Position)는 안 쓰고 moveflag/yaw만으로 추측항법.
+	//  moveflag false→true=이동 시작, true→false=정지. yaw=이동/시선 방향.
+	//  Tick에서 RawMoveYaw 방향으로 전진하고, 패킷마다 방향을 갱신(이동 중 방향 변경 반영).
+	if (CVarOtherPlayerRawMove.GetValueOnGameThread() != 0)
+	{
+		bRenderMoving = Snapshot.bMoving;
+		if (Snapshot.bMoving)
+		{
+			RawMoveYaw = Snapshot.MoveYaw;
+			if (!bIsAttacking)
+				SetActorRotation(FRotator(0.f, RawMoveYaw, 0.f));
+		}
+		return;
+	}
+
 	SnapshotBuffer.Add(Snapshot);
 }
 
