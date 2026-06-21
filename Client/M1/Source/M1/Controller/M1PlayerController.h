@@ -54,6 +54,7 @@ private:
 	void DoMove(float Right, float Forward);
 	void DoLook(float Yaw, float Pitch);
 	void QuitGame();
+	void ToggleRawMove();   // before/after 데모 토글(F8)
 
 	void TrySendMovementPacket();
 

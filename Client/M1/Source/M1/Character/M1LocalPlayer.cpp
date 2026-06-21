@@ -19,7 +19,7 @@ AM1LocalPlayer::AM1LocalPlayer()
 
 	GetCharacterMovement()->JumpZVelocity = 500.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MaxWalkSpeed = UserConst::WALK_SPEED;   // 시스템(서버/봇/보간/추측항법)과 동일 속도로 묶음(드리프트 방지)
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;

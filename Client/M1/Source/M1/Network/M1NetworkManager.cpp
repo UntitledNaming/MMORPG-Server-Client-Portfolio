@@ -197,6 +197,7 @@ void UM1NetworkManager::InitFunctorArray()
 	M1FunctorArray[FieldProtocol::PACKET_SC_MOVE_MONSTER]           = &M1PacketHandler::Handle_SC_MOVE_MONSTER;
 	M1FunctorArray[FieldProtocol::PACKET_SC_STOP_MONSTER]           = &M1PacketHandler::Handle_SC_STOP_MONSTER;
 	M1FunctorArray[FieldProtocol::PACKET_SC_HIT_TOPLAYER]              = &M1PacketHandler::Handle_SC_HIT_TOPLAYER;
+	M1FunctorArray[FieldProtocol::PACKET_SC_HIT_TO_OTHERPLAYER]        = &M1PacketHandler::Handle_SC_HIT_TO_OTHERPLAYER;
 	M1FunctorArray[AuthProtocol::PACKET_SC_GAME_LOGIN_RES]             = &M1PacketHandler::Handle_SC_LOGIN_RES;
 	M1FunctorArray[FieldProtocol::PACKET_SC_CHANGE_CHARACTER_MOVEMODE] = &M1PacketHandler::Handle_SC_CHANGE_CHARACTER_MOVEMODE;
 	M1FunctorArray[FieldProtocol::PACKET_SC_CREATE_FIELD_DROP_ITEM]    = &M1PacketHandler::Handle_SC_CREATE_FIELD_DROP_ITEM;

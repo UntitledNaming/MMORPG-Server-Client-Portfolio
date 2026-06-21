@@ -5,6 +5,7 @@
 #include "System\M1GameInstance.h"
 #include "ContentsDefine.h"
 #include "HAL/IConsoleManager.h"
+#include "TimerManager.h"
 
 // 이동 동기화 before/after 데모 토글.
 //  0 = 스냅샷 보간(after, 부드러움)
@@ -16,6 +17,9 @@ static TAutoConsoleVariable<int32> CVarOtherPlayerRawMove(
     TEXT("0=snapshot interpolation, 1=raw direct-apply (before/after demo)"),
     ECVF_Default);
 
+// before 데모(추측항법): 추측 위치가 서버 좌표에서 이만큼(cm) 벌어지면 그 좌표로 스냅 → 역행(snapback)
+static constexpr float RAW_SNAP_THRESHOLD = 200.f;
+
 AM1OtherPlayer::AM1OtherPlayer()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -25,11 +29,14 @@ void AM1OtherPlayer::ApplySpawnData(const FM1SpawnData& Data)
 {
     Super::ApplySpawnData(Data);
 
-    // 스폰 시 MoveFlag로 이동 애니를 미리 켜지 않는다. 위치 궤적(스냅샷)이 쌓여
-    // 보간이 실제 이동을 만들 때 bRenderMoving이 파생되며 자연히 켜진다.
-    // (미리 켜면 데이터 도착 전까지 '제자리 걷기(treadmill)'가 보임)
-    InitOverheadStatus(TEXT("GreyStone"), HP, MaxHP);
-    SetOverheadVisible(true);
+    // 타 캐릭은 절대 HP를 안 받음(스폰 패킷에서 제거됨). HP=0이면 IsDead()/사망애니가 오작동하므로 1로.
+    HP = 1;
+    MaxHP = 1;
+
+    // 스폰 시 MoveFlag로 이동 애니를 미리 켜지 않는다(treadmill 방지).
+    // HP바는 기본 숨김 → 피격 시 ShowHitRatio로 ratio 띄우고 일정시간 후 자동 숨김.
+    InitOverheadStatus(TEXT("GreyStone"), 0, 1);
+    SetOverheadVisible(false);
 }
 
 float AM1OtherPlayer::GetMoveSpeed()
@@ -43,11 +50,17 @@ bool  AM1OtherPlayer::GetMoveFlag()
 	return bRenderMoving;
 }
 
-void  AM1OtherPlayer::SetHP(int32 NewHP)
+void AM1OtherPlayer::ShowHitRatio(uint8 Ratio)
 {
-    Super::SetHP(NewHP);
+    // 피격 시 overhead 바를 ratio(0~100)로 채워 표시. 마지막 피격 후 OverheadHideDelay 지나면 숨김.
+    SetOverheadHP((int32)Ratio, 100);
+    SetOverheadVisible(true);
+    GetWorldTimerManager().SetTimer(OverheadHideTimer, this, &AM1OtherPlayer::HideOverhead, OverheadHideDelay, false);
+}
 
-    SetOverheadHP(NewHP, MaxHP);
+void AM1OtherPlayer::HideOverhead()
+{
+    SetOverheadVisible(false);
 }
 
 void AM1OtherPlayer::BeginPlay()
@@ -105,6 +118,12 @@ void AM1OtherPlayer::OnReceiveMovementPacket(const FMovementSnapshot& Snapshot)
 			if (!bIsAttacking)
 				SetActorRotation(FRotator(0.f, RawMoveYaw, 0.f));
 		}
+
+		// 추측 위치가 서버 좌표에서 크게 벗어나면 그 좌표로 스냅 → 역행(snapback)
+		const float Drift = FVector::Dist2D(GetActorLocation(), Snapshot.Position);
+		if (Drift > RAW_SNAP_THRESHOLD)
+			SetActorLocation(Snapshot.Position, false, nullptr, ETeleportType::None);
+
 		return;
 	}
 
@@ -165,8 +184,6 @@ void AM1OtherPlayer::OnReceiveSyncPacket(uint64 ServerTimestamp, FVector SyncPos
 void AM1OtherPlayer::UpdateInterpolation(float /*DeltaTime*/)
 {
     // 진실은 스냅샷 버퍼 하나. 저장된 이동상태(bMoving/정지수렴) 없이 매 프레임 파생한다.
-    // 외삽 안 함 → 항상 '과거'를 그리므로 오버슈트/정지수렴이 필요 없다.
-
     if (SnapshotBuffer.Count == 0) return;
 
     // 시간 동기화 체크(RTT 응답 한번도 못받았으면 보간X)

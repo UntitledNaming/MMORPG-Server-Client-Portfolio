@@ -20,6 +20,7 @@
 #include "Components/WidgetComponent.h"
 #include "UI\M1MainHUDWidget.h"
 #include "System\M1ItemManager.h"
+#include "HAL/IConsoleManager.h"
 
 AM1PlayerController::AM1PlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -107,6 +108,7 @@ void AM1PlayerController::SetupInputComponent()
     }
 
     InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AM1PlayerController::QuitGame);
+    InputComponent->BindKey(EKeys::F8, IE_Pressed, this, &AM1PlayerController::ToggleRawMove);   // before/after 데모 토글
 }
 
 void AM1PlayerController::PlayerTick(float DeltaTime)
@@ -406,6 +408,23 @@ void AM1PlayerController::QuitGame()
         EQuitPreference::Quit,
         true
     );
+}
+
+void AM1PlayerController::ToggleRawMove()
+{
+    // before/after 데모: 콘솔 없이 F8로 M1.RawMove(0=보간 / 1=추측항법) 전환.
+    // cvar는 이름으로 찾으니 다른 파일의 static이어도 접근 가능. Shipping에서도 동작.
+    IConsoleVariable* CVar = IConsoleManager::Get().FindConsoleVariable(TEXT("M1.RawMove"));
+    if (CVar == nullptr)
+        return;
+
+    const int32 NewVal = (CVar->GetInt() == 0) ? 1 : 0;
+    CVar->Set(NewVal);
+
+    if (GEngine)
+        GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow,
+            FString::Printf(TEXT("M1.RawMove = %d  (%s)"), NewVal,
+                NewVal ? TEXT("BEFORE / raw") : TEXT("AFTER / interp")));
 }
 
 void AM1PlayerController::TrySendMovementPacket()

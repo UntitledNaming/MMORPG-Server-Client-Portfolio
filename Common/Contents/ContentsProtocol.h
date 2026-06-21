@@ -231,8 +231,8 @@ namespace FieldProtocol
     //  1   -   MonsterHitCount   (uint8)
     //  per hit:
     //  8   -   CharacterID       (uint64)
-    //  2   -   NewHP             (int16)      // ÇÇ°Ý ´ë»óÀÌ ³ª¸é ÀÌ º¯¼ö »ç¿ë
-    //  1   -   NewRatio          (uint8)      // ÇÇ°Ý ´ë»óÀÌ other¸é ÀÌ º¯¼ö »ç¿ë
+    //  2   -   NewHP             (int16)      // ï¿½Ç°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+    //  1   -   NewRatio          (uint8)      // ï¿½Ç°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ otherï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
     //  per hit:
     //  8   -   MonsterID         (uint64)
     //  2   -   NewHP             (int16)

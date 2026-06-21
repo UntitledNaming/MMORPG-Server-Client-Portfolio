@@ -18,7 +18,9 @@ public:
 	virtual void  ApplySpawnData(const FM1SpawnData& Data) override;
 	virtual float GetMoveSpeed() override;
 	virtual bool  GetMoveFlag()  override;
-	virtual void  SetHP(int32 NewHP) override;
+
+	// 피격 시 overhead 바를 ratio(0~100)로 띄우고 일정시간 후 자동 숨김
+	void  ShowHitRatio(uint8 Ratio);
 
 protected:
 	virtual void BeginPlay() override;
@@ -37,6 +39,7 @@ private:
 	void UpdateInterpolation(float DeltaTime);
 	void UpdateAttackPose(float DeltaTime);
 	void ApplyPose(const FVector& Pos);   // 위치 전용(회전은 호출부에서 이동 중일 때만)
+	void HideOverhead();                  // overhead 일시표시 타임아웃 콜백
 
 private:
 	TCircularSnapBuffer<FMovementSnapshot, 16> SnapshotBuffer;
@@ -61,6 +64,11 @@ private:
 
 	// RawMove(before/데모) 추측항법 이동 방향
 	float    RawMoveYaw          = 0.f;
+
+	// overhead HP바 일시표시: 마지막 피격 후 OverheadHideDelay 지나면 숨김
+	FTimerHandle OverheadHideTimer;
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	float    OverheadHideDelay   = 5.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TObjectPtr<class UAnimMontage> LeftAttackMontage;

@@ -66,8 +66,11 @@ public:
 	// 서버가 보낸 "몬스터 정지" 처리
 	static void Handle_SC_STOP_MONSTER(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 
-	// 서버가 보낸 "몬스터 공격" 처리
+	// 서버가 보낸 "몬스터 공격" 처리 (타겟 본인 = 절대 HP)
 	static void Handle_SC_HIT_TOPLAYER(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+
+	// 서버가 보낸 "몬스터 공격(관전)" 처리 (타인 = ratio overhead)
+	static void Handle_SC_HIT_TO_OTHERPLAYER(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 
 	// 서버가 보낸 "이동 모드 변경" 처리
 	static void Handle_SC_CHANGE_CHARACTER_MOVEMODE(CMessage* pMessage, UM1NetworkManager* NetworkManager);

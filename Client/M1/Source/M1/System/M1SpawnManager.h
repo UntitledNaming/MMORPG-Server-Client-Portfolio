@@ -50,7 +50,7 @@ public:
 	void OnOtherPlayerAttackSwing(uint64 EntityID, float FacingYaw, uint8 SwingIdx);
 	void ProcessClientAttackHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg);
 	void ProcessClientSingleTargetHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg);
-	void ApplyPlayerHitResult(uint64 EntityID, int32 NewHP);
+	void ApplyPlayerHitResult(uint64 EntityID, int32 NewHP, uint8 NewRatio);
 	void ApplyMonsterHitResult(uint64 EntityID, int32 NewHP);
 	void OnMyPlayerSkillResponse(EAbilitySlot Slot, bool bSuccess);
 	void OnOtherCharacterUseSkill(uint64 EntityID, EAbilitySlot Slot);

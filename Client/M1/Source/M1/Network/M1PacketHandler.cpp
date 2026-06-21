@@ -80,16 +80,12 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 	float ypos;
 	float zpos;
 	float yaw;
-	uint16 hp;
-	uint16 maxhp;
 
 	*pMessage >> id;
 	*pMessage >> xpos;
 	*pMessage >> ypos;
 	*pMessage >> zpos;
 	*pMessage >> yaw;
-	*pMessage >> hp;
-	*pMessage >> maxhp;
 	*pMessage >> moveflag;
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
@@ -101,8 +97,6 @@ void M1PacketHandler::Handle_SC_CREATE_0THER_CHARACTER(CMessage* pMessage, UM1Ne
 	Data.EntityID = id;
 	Data.Location = Location;
 	Data.Rotation = Rotation;
-	Data.HP = hp;
-	Data.MaxHP = maxhp;
 	Data.MoveFlag = moveflag;
 	SpawnManager->SpawnOtherPlayer(Data);
 }
@@ -217,9 +211,11 @@ void M1PacketHandler::Handle_SC_ATTACK_HIT_RESULT(CMessage* pMessage, UM1Network
 	{
 		uint64 id;
 		uint16 newHp;
+		uint8  newRatio;
 		*pMessage >> id;
 		*pMessage >> newHp;
-		SpawnManager->ApplyPlayerHitResult(id, (int32)newHp);
+		*pMessage >> newRatio;
+		SpawnManager->ApplyPlayerHitResult(id, (int32)newHp, newRatio);   // 본인=newHp / 타인=ratio
 	}
 
 	for (uint8 i = 0; i < MonsterHitCount; ++i)
@@ -348,7 +344,22 @@ void M1PacketHandler::Handle_SC_HIT_TOPLAYER(CMessage* pMessage, UM1NetworkManag
 
 	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
 	SpawnManager->OnMonsterAttack(monsterid, targetid);
-	SpawnManager->ApplyPlayerHitResult(targetid, (int32)newhp);
+	SpawnManager->ApplyPlayerHitResult(targetid, (int32)newhp, 0);   // 본인(타겟)에게 절대 HP
+}
+
+void M1PacketHandler::Handle_SC_HIT_TO_OTHERPLAYER(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint64 monsterid;
+	uint64 targetid;
+	uint8  ratio;
+
+	*pMessage >> monsterid;
+	*pMessage >> targetid;
+	*pMessage >> ratio;
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	SpawnManager->OnMonsterAttack(monsterid, targetid);
+	SpawnManager->ApplyPlayerHitResult(targetid, 0, ratio);   // 관전: 타인 overhead에 ratio 표시
 }
 
 void M1PacketHandler::Handle_SC_CHANGE_CHARACTER_MOVEMODE(CMessage* pMessage, UM1NetworkManager* NetworkManager)

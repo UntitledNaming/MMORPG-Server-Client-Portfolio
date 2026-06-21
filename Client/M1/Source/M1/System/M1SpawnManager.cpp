@@ -432,11 +432,11 @@ void AM1SpawnManager::ProcessClientAttackHit(FVector Origin, FVector Forward, fl
     }
 }
 
-void AM1SpawnManager::ApplyPlayerHitResult(uint64 EntityID, int32 NewHP)
+void AM1SpawnManager::ApplyPlayerHitResult(uint64 EntityID, int32 NewHP, uint8 NewRatio)
 {
     if (EntityID == MyID)
     {
-        MyPlayer->SetHP(NewHP);
+        MyPlayer->SetHP(NewHP);            // 본인: 절대 HP -> HUD
 
         if (MyPlayer->IsDead())
         {
@@ -450,11 +450,11 @@ void AM1SpawnManager::ApplyPlayerHitResult(uint64 EntityID, int32 NewHP)
         return;
     }
 
-    if (AM1Character* Character = FindPlayer(EntityID))
+    // 타인: ratio -> overhead 일시 표시(피격 안 오면 일정시간 후 자동 숨김)
+    if (AM1OtherPlayer* Other = Cast<AM1OtherPlayer>(FindPlayer(EntityID)))
     {
-        Character->SetHP(NewHP);
-        Character->TriggerHitReact(0.f);
-        return;
+        Other->ShowHitRatio(NewRatio);
+        Other->TriggerHitReact(0.f);
     }
 }
 
