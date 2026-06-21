@@ -235,7 +235,13 @@ CMessage* PacketBuilder::HitTarget(uint8 hitPlayerCount, uint8 hitMonsterCount, 
 		*pMessage << hitPlayerArray[i]->GetSessionID();
 		*pMessage << hitPlayerArray[i]->GetHP();
 		float ratio = (float)hitPlayerArray[i]->GetHP() / hitPlayerArray[i]->GetMaxHP(curTime) * 100.f;
-		*pMessage << (uint8)ratio;
+		
+		if (ratio == 0 && hitPlayerArray[i]->IsAlive())
+		{
+			*pMessage << (uint8)1;
+		}
+		else
+			*pMessage << (uint8)ratio;
 	}
 
 	for (int i = 0; i < hitMonsterCount; i++)
@@ -349,15 +355,21 @@ CMessage* PacketBuilder::AttackMonsterToMe(CMonster* pMonster, uint64 TargetID, 
 	return pMessage;
 }
 
-CMessage* PacketBuilder::AttackMonsterToOther(CMonster* pMonster, uint64 TargetID, uint8 newRatio)
+CMessage* PacketBuilder::AttackMonsterToOther(CMonster* pMonster, CUser* pTarget)
 {
 	CMessage* pMessage = CMessage::Alloc();
 	pMessage->Clear(1);
 
 	*pMessage << FieldProtocol::PACKET_SC_HIT_TO_OTHERPLAYER;
 	*pMessage << pMonster->GetMonsterID();
-	*pMessage << TargetID;
-	*pMessage << newRatio;
+	*pMessage << pTarget->GetSessionID();
+
+	float ratio = (float)pTarget->GetHP() / pTarget->GetMaxHP(timeGetTime());
+	if (ratio == 0 && pTarget->IsAlive())
+		*pMessage << (uint8)1;
+	else
+		*pMessage << (uint8)ratio;
+
 
 	return pMessage;
 }

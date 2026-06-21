@@ -27,7 +27,7 @@ public:
 	static CMessage* MoveMonster(CMonster* pMonster, const Location& DesLocation);
 	static CMessage* StopMonster(CMonster* pMonster, const Location& StopLocation);
 	static CMessage* AttackMonsterToMe(CMonster* pMonster, uint64 TargetID, int16 newHP);
-	static CMessage* AttackMonsterToOther(CMonster* pMonster, uint64 TargetID, uint8 newRatio);
+	static CMessage* AttackMonsterToOther(CMonster* pMonster, CUser* pTarget);
 
 
 	static CMessage* CreateFieldDropItem(FieldDropItem* pItem);

@@ -103,8 +103,7 @@ void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, int
 
 
 	// 피격 대상 주변 클라 들에게는 피격 대상의 newRatio만 보내기
-	float ratio = (float)pTarget->GetHP() / pTarget->GetMaxHP(timeGetTime()) * 100;
-	CMessage* pAttackMonsterToOtehr = PacketBuilder::AttackMonsterToOther(pMonster, pTarget->GetSessionID(), (uint8)ratio);
+	CMessage* pAttackMonsterToOther = PacketBuilder::AttackMonsterToOther(pMonster, pTarget);
 
 	// 몬스터와 타겟 주변 섹터에 해당 메세지 뿌리기(타겟 때리는 애니 + 피격 대상 hp 깎기 같이 나감)
 	SectorPos sendflagArray[20];
@@ -121,7 +120,7 @@ void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, int
 		int16 secX = monsterAround.m_Around[i].GetX();
 		int16 secY = monsterAround.m_Around[i].GetY();
 
-		SendPacket_SectorOne(pAttackMonsterToOtehr, secX, secY, nullptr);
+		SendPacket_SectorOne(pAttackMonsterToOther, secX, secY, nullptr);
 		sendflagArray[pushCount++] = SectorPos{ secX , secY };
 	}
 
@@ -134,10 +133,11 @@ void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, int
 		if (SectorPos::IsAlreadyPushed(sendflagArray, pushCount, secX, secY))
 			continue;
 
-		SendPacket_SectorOne(pAttackMonsterToOtehr, secX, secY, pTarget);
+		SendPacket_SectorOne(pAttackMonsterToOther, secX, secY, pTarget);
 		sendflagArray[pushCount++] = SectorPos{ secX , secY };
 	}
 
+	CMessage::Free(pAttackMonsterToOther);
 }
 
 void FieldGroup::SendMonsterStop(CMonster* pMonster)
@@ -318,6 +318,10 @@ void FieldGroup::OnRecv(UINT64 sessionID, CMessage* pMessage)
 
 	case PACKET_CS_SWAP_SLOT:
 		HandleSwapSlot(sessionID, pMessage);
+		break;
+
+	case PACKET_CS_RESPAWN_REQ:
+		HandleRespawn(sessionID, pMessage);
 		break;
 	}
 }
@@ -647,6 +651,9 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 		__debugbreak();
 
 	pUser = it->second;
+	if(!pUser->IsAlive())
+		return;
+
 
 	pUser->SetMoveYaw(movementyaw);
 	pUser->SetMoveFlag(moveflag);
@@ -736,6 +743,9 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 		__debugbreak();
 
 	pUser = it->second;
+	if (!pUser->IsAlive())
+		return;
+
 
 	// 공격자의 위치, 공격 타입을 매개인자로 전달하여 피격자들 찾기
 	HitSearchInfo info;
@@ -837,6 +847,9 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 		__debugbreak();
 
 	pUser = it->second;
+	if (!pUser->IsAlive())
+		return;
+
 
 	bool Success = false;
 
@@ -946,6 +959,9 @@ void FieldGroup::HandlePickUpItems(uint64 sessionID, CMessage* pMessage)
 		__debugbreak();
 
 	pUser = it->second;
+	if (!pUser->IsAlive())
+		return;
+
 
 	uint64 dropID;
 	*pMessage >> dropID;
@@ -1018,6 +1034,8 @@ void FieldGroup::HandleUseItem(uint64 sessionID, CMessage* pMessage)
 		return;
 
 	CUser* pUser = it->second;
+	if (!pUser->IsAlive())
+		return;
 
 	// 유저 함수 호출 및 결과 구조체 레퍼런스 전달
 	UseItemResult result;
@@ -1099,6 +1117,9 @@ void FieldGroup::HandleSwapSlot(uint64 sessionID, CMessage* pMessage)
 		return;
 
 	CUser* pUser = it->second;
+	if (!pUser->IsAlive())
+		return;
+
 
 	// 유저에 함수 호출
 	bool Success = pUser->ItemSlotChange(static_cast<SLOT_TYPE>(fromtype), fromslotIndex, static_cast<SLOT_TYPE>(totype), toslotIndex);
@@ -1107,6 +1128,20 @@ void FieldGroup::HandleSwapSlot(uint64 sessionID, CMessage* pMessage)
 	CMessage* pSwapItem = PacketBuilder::SwapSlot(Success);
 	SendPacket(sessionID, pSwapItem);
 	CMessage::Free(pSwapItem);
+}
+
+void FieldGroup::HandleRespawn(uint64 sessionID, CMessage* pMessage)
+{
+	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
+	if (it == m_userLookUpTable.end())
+		return;
+
+	CUser* pUser = it->second;
+	if (pUser->IsAlive())
+		return;
+
+
+
 }
 
 void FieldGroup::UserUpdate()

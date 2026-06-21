@@ -469,37 +469,40 @@ namespace FieldProtocol
 
     constexpr uint16 PACKET_SC_GAIN_EXP = 1037;
     //---------------------------------------------------------------
-    //  Level Up Msg    					    Server -> Client
+    //  Level Up Msg    					Server -> Client
     //
-    //  1   -  LevelUp                   (bool)
-    //  4   -  CurExp                    (int32)
-    // 
-    //  if LevelUp True
-    //  2   -  CurLevel                  (uint16) 
-    //  2   -  HP                        (int16)
-    //  2   -  MP                        (int16)
+    //  1   -  LevelUp                    (bool)
+    //  4   -  CurExp                     (int32)
+    //                                    
+    //  if LevelUp True                   
+    //  2   -  CurLevel                   (uint16) 
+    //  2   -  HP                         (int16)
+    //  2   -  MP                         (int16)
     //---------------------------------------------------------------
 
     constexpr uint16 PACKET_CS_RESPAWN_REQ = 1038;
     //---------------------------------------------------------------
-    //  Respawn Msg    					    Server -> Client
+    //  Respawn Msg    					    Client -> Server
     //
     //  (no payload)
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_RESPAWN_RES = 1039;
+    constexpr uint16 PACKET_SC_RESPAWN_RES_TO_ME = 1039;
     //---------------------------------------------------------------
     //  Respawn Msg    					    Server -> Client
     //  
-    //  4   -  Xpos                      (float)
-    //  4   -  Ypos                      (float)
-    //  4   -  Zpos                      (float)
-    //  2   -  HP                        (uint16)
-    //  2   -  MP                        (uint16)
+    //  2   -  HP                        (int16)
+    //  2   -  MP                        (int16)
     //---------------------------------------------------------------
 
+    constexpr uint16 PACKET_SC_RESPAWN_RES_TO_OTHER = 1040;
+    //---------------------------------------------------------------
+    //  Respawn Msg    					    Server -> Client
+    //  
+    //  (no payload)
+    //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_HIT_TO_OTHERPLAYER = 1040;
+    constexpr uint16 PACKET_SC_HIT_TO_OTHERPLAYER = 1041;
     //---------------------------------------------------------------
     //  Monster Attack Msg 					Server -> Client
     //

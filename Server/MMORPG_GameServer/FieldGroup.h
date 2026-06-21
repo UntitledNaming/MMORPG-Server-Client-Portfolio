@@ -211,6 +211,7 @@ private:
 	void HandleUseItem(uint64 sessionID, CMessage* pMessage);
 	void HandleDeleteItem(uint64 sessionID, CMessage* pMessage);
 	void HandleSwapSlot(uint64 sessionID, CMessage* pMessage);
+	void HandleRespawn(uint64 sessionID, CMessage* pMessage);
 
 	///////////////////////////////////
     // 프레임 로직 처리 함수         //
