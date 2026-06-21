@@ -14,23 +14,22 @@ void AM1OtherPlayer::ApplySpawnData(const FM1SpawnData& Data)
 {
     Super::ApplySpawnData(Data);
 
-    bMoving = Data.MoveFlag;
-
+    // 스폰 시 MoveFlag로 이동 애니를 미리 켜지 않는다. 위치 궤적(스냅샷)이 쌓여
+    // 보간이 실제 이동을 만들 때 bRenderMoving이 파생되며 자연히 켜진다.
+    // (미리 켜면 데이터 도착 전까지 '제자리 걷기(treadmill)'가 보임)
     InitOverheadStatus(TEXT("GreyStone"), HP, MaxHP);
     SetOverheadVisible(true);
 }
 
 float AM1OtherPlayer::GetMoveSpeed()
 {
-	return GetCharacterMovement()->MaxWalkSpeed;
+	// 애니 블렌드스페이스용 속도. 저장 안 하고 파생값으로 제공.
+	return bRenderMoving ? UserConst::WALK_SPEED : 0.f;
 }
 
 bool  AM1OtherPlayer::GetMoveFlag()
 {
-    if (bNeedStopCorrection)
-        return true;
-
-	return bMoving;
+	return bRenderMoving;
 }
 
 void  AM1OtherPlayer::SetHP(int32 NewHP)
@@ -53,10 +52,6 @@ void AM1OtherPlayer::Tick(float DeltaTime)
 
 	UpdateInterpolation(DeltaTime);
 	UpdateMoveDirection();
-
-	if (bNeedStopCorrection)
-		UpdateStopCorrection(DeltaTime);
-
 	UpdateAttackPose(DeltaTime);
 }
 
@@ -114,19 +109,14 @@ void AM1OtherPlayer::OnReceiveAttackSwing(float FacingYaw, uint8 SwingIdx)
 
 void AM1OtherPlayer::OnReceiveSyncPacket(uint64 ServerTimestamp, FVector SyncPosition)
 {
-    if (SnapshotBuffer.Count == 0) return;
+    // 서버 강제 위치보정: 히스토리 버리고 보정 위치 1개로 재시작.
+    //  → 다음 프레임 보간 분기(가장 오래된/최신 스냅샷 hold)가 이 위치로 스냅.
+    //    별도 수렴 로직 불필요.
+    const float LastMoveYaw = (SnapshotBuffer.Count > 0) ? SnapshotBuffer.Last().MoveYaw : GetActorRotation().Yaw;
+    const bool  LastbMoving = (SnapshotBuffer.Count > 0) ? SnapshotBuffer.Last().bMoving : false;
 
-    // 버퍼 초기화 전 마지막 상태 보존
-    const FMovementSnapshot& Last = SnapshotBuffer.Last();
-    float LastMoveYaw = Last.MoveYaw;
-    bool  LastbMoving = Last.bMoving;
-
-    // 기존 상태 전부 초기화
     SnapshotBuffer.Reset();
-    bNeedStopCorrection = false;
-    StopTargetLocation = FVector::ZeroVector;
 
-    // 위치만 보정된 새 스냅샷 적재
     FMovementSnapshot Snap;
     Snap.ServerTimestamp = ServerTimestamp;
     Snap.Position = SyncPosition;
@@ -135,205 +125,86 @@ void AM1OtherPlayer::OnReceiveSyncPacket(uint64 ServerTimestamp, FVector SyncPos
     SnapshotBuffer.Add(Snap);
 }
 
-void AM1OtherPlayer::UpdateInterpolation(float DeltaTime)
+void AM1OtherPlayer::UpdateInterpolation(float /*DeltaTime*/)
 {
-    // 보간은 스냅샷 2개가 필요하니 버퍼 비어있거나 1개밖에 없으면 pass
-    if (SnapshotBuffer.Count < 2) {  return; }
+    // 진실은 스냅샷 버퍼 하나. 저장된 이동상태(bMoving/정지수렴) 없이 매 프레임 파생한다.
+    // 외삽 안 함 → 항상 '과거'를 그리므로 오버슈트/정지수렴이 필요 없다.
+
+    if (SnapshotBuffer.Count == 0) return;
 
     // 시간 동기화 체크(RTT 응답 한번도 못받았으면 보간X)
     if (NetworkManager == nullptr || !(NetworkManager->GetSpawnManager()->GetRTTRecv()))
-    { return; }
+        return;
 
-    // RenderTime 계산시 GetServerTimeMs는 클라에서 측정한 UTC값 + 편도 레이턴시 값을 반환함.
-    // 편도 레이턴시가 들어가는 이유는 클라는 서버 시간 기준 100ms 전을 렌더링하는 느낌으로 갈건데
-    // 서버에서 찍은 stamp가 1000ms이고 편도가 50ms 레이턴시 걸려서 클라가 시간 측정시 1050ms일건데
-    // 실제 rendertime은 1050ms + 50ms - 100ms = 950ms로 해야 딱 클라가 stamp찍은 1050ms에서 100ms 전 시간이 나옴
-    // 레이턴시가 없으면 rendertime이 900ms가 나올것이고 100ms를 벗어남.
-    const uint64 ServerTimeMs   = NetworkManager->GetSpawnManager()->GetServerTimeMs();
-    const uint64 DelayMs        = (uint64)SnapShotProc::INTERP_DELAY_MS;
-    uint64       RenderTime     = (ServerTimeMs > DelayMs) ? (ServerTimeMs - DelayMs) : 0;
+    // 렌더 기준시각 = 서버시간 - 보간지연. (GetServerTimeMs는 클라UTC + 편도레이턴시 반환)
+    const uint64 ServerTimeMs = NetworkManager->GetSpawnManager()->GetServerTimeMs();
+    const uint64 DelayMs      = (uint64)SnapShotProc::INTERP_DELAY_MS;
+    uint64       RenderTime   = (ServerTimeMs > DelayMs) ? (ServerTimeMs - DelayMs) : 0;
 
-    // ClockOffset 역방향 보정 또는 시스템 클럭 후퇴로 RenderTime이 줄어들면
-    // 보간 위치가 역행해서 캐릭터가 뒤로 순간이동하는 현상이 발생하므로 단조 증가 보장
-    if (RenderTime < LastRenderTimeMs) RenderTime = LastRenderTimeMs;
-    else LastRenderTimeMs = RenderTime;
+    // 클럭 재동기/후퇴로 RenderTime이 줄면 위치가 역행하니 단조 증가 보장
+    RenderTime = FMath::Max(RenderTime, LastRenderTimeMs);
+    LastRenderTimeMs = RenderTime;
 
-
-    // 스냅샷 버퍼의 []에 들어가는 값은 head로 부터 떨어진 offset임.
-    // 현재 head에 있는 즉, 가장 오래된 snapshot의 시간값보다 rendertime이 작으면 아직 render할 시간 아니니 리턴
-    if (RenderTime < SnapshotBuffer[0].ServerTimestamp)
-    {  return; }
-
-    // 스냅샷 버퍼의 마지막 스냅샷에 찍힌 서버 시간보다 RenderTime이 크면 아직 새로운 패킷이 안온 상태임.
-    if (RenderTime >= SnapshotBuffer.Last().ServerTimestamp)
+    // (1) 아직 가장 오래된 스냅샷 시각도 안 됐으면: 그 위치에서 대기
+    if (RenderTime <= SnapshotBuffer[0].ServerTimestamp)
     {
-        const FMovementSnapshot& Last = SnapshotBuffer.Last();
-
-        // 마지막 스냅샷이 정지 패킷인데 현재 캐릭터는 이동중이라면 정지 수렴 처리
-        if (!Last.bMoving && bMoving)
-        {
-            bMoving = false;
-            StopTargetLocation = Last.Position;
-            StopTargetYaw      = Last.MoveYaw;
-            bNeedStopCorrection = true;
-        }
-        // 이동중인데 패킷이 아직 안 온 경우: 마지막 방향/속도로 외삽(최대 200ms 캡)
-        else if (Last.bMoving && bMoving)
-        {
-            float ElapsedSec = FMath::Min((float)(RenderTime - Last.ServerTimestamp) / 1000.f, 0.2f);
-            FVector ForwardDir = FRotator(0.f, Last.MoveYaw, 0.f).Vector();
-            FVector ExtrapPos  = Last.Position + ForwardDir * UserConst::WALK_SPEED * ElapsedSec;
-
-            if (!bIsAttacking)
-                SetActorLocationAndRotation(ExtrapPos, FRotator(0.f, Last.MoveYaw, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
-            else
-                SetActorLocation(ExtrapPos, false, nullptr, ETeleportType::TeleportPhysics);
-        }
-
+        ApplyPose(SnapshotBuffer[0].Position);
+        bRenderMoving = false;
         return;
     }
 
-    // 스냅샷 버퍼를 순회
-    int32 PrevIdx = -1;
-    for (int32 i = 0; i < SnapshotBuffer.Count - 1; i++)
+    // (2) 최신 스냅샷보다 미래면 버퍼가 마름(정지 후 패킷 끊김 / 레이턴시로 늦게 와 RenderTime이 추월):
+    //     외삽하지 않고 '최신(=실제 정지) 위치'에 핀. 늦은 스냅샷도 위치는 살려 어긋남 방지.
+    const FMovementSnapshot& Newest = SnapshotBuffer.Last();
+    if (RenderTime >= Newest.ServerTimestamp)
     {
-        // 순회하면서 RenderTime을 끼고 있는 2개의 Snapshot을 찾기
-        // RenderTime이 1100ms면 ServerTimestamp 1050ms인 스냅샷과 1150ms인 스냅샷을 찾는 것임.
-        if (SnapshotBuffer[i].ServerTimestamp <= RenderTime &&
-            SnapshotBuffer[i + 1].ServerTimestamp >= RenderTime)
-        {
-            PrevIdx = i;
-            break;
-        }
-    }
-
-    // 스냅샷을 못찾았으면 리턴
-    if (PrevIdx == -1)
-    {
-        // 타임스탬프 순서가 어긋난 경우 등 원인 파악용 상세 로그 (최초 발생 시마다 출력)
-        FString BufDump;
-        for (int32 i = 0; i < SnapshotBuffer.Count; ++i)
-            BufDump += FString::Printf(TEXT("[%d]%llu(m=%d) "), i, SnapshotBuffer[i].ServerTimestamp, (int32)SnapshotBuffer[i].bMoving);
-        if (GEngine)
-        {
-            GEngine->AddOnScreenDebugMessage(
-                (int32)EntityID + 10000,
-                5.f,
-                FColor::Red,
-                FString::Printf(TEXT("[OP %llu] NoPair! RT=%llu Buf=%d | %s"),
-                    EntityID, RenderTime, SnapshotBuffer.Count, *BufDump));
-        }
+        ApplyPose(Newest.Position);
+        // 버퍼 마름. 마지막 의도가 이동이면 walk + 이동방향 회전 유지, 정지면 시선 그대로.
+        bRenderMoving = Newest.bMoving;
+        if (bRenderMoving && !bIsAttacking)
+            SetActorRotation(FRotator(0.f, Newest.MoveYaw, 0.f));
         return;
     }
 
-
-    // RenderTime 이전 스냅샷과 직후 Snapshot을 참조
-    const FMovementSnapshot& Prev = SnapshotBuffer[PrevIdx];
-    const FMovementSnapshot& Next = SnapshotBuffer[PrevIdx + 1];
-
-
-    // 이전 Snapshot이 정지 플래그, 다음 스냅샷은 이동 플래그, 현재 해당 캐릭터는 정지한 상태면
-    // 이동 시작작업 할 것임.
-    // 이동 플래그를 true로 변경하고 수렴 플래그 끄기
-    if (!Prev.bMoving && Next.bMoving && !bMoving)
+    // (3) RenderTime을 끼는 가장 가까운 두 스냅샷 A(이전)·B(이후)를 찾아 그 사이를 보간.
+    //     오래된 스냅샷이 앞에 남아있어도 '가장 타이트한 쌍'을 고르므로 무해.
+    int32 i = 0;
+    while (i + 1 < SnapshotBuffer.Count &&
+           SnapshotBuffer[i + 1].ServerTimestamp <= RenderTime)
     {
-        bMoving = true;
-        bNeedStopCorrection = false;
-        if (!bIsAttacking)
-            SetActorRotation(FRotator(0.f, Next.MoveYaw, 0.f));
-        GetCharacterMovement()->MaxWalkSpeed = UserConst::WALK_SPEED;
+        ++i;
     }
-    else if (Prev.bMoving && Next.bMoving && !bMoving)
+    const FMovementSnapshot& A = SnapshotBuffer[i];
+    const FMovementSnapshot& B = SnapshotBuffer[i + 1];
+
+    const float Alpha = FMath::Clamp(
+        (float)(RenderTime - A.ServerTimestamp) /
+        (float)(B.ServerTimestamp - A.ServerTimestamp), 0.f, 1.f);
+
+    // 이동 여부 = 지나는 구간의 양 끝 중 하나라도 이동이면 이동.
+    //  - [이동→정지] 구간: 정지점으로 미끄러지는 동안에도 walk 유지(자연스런 감속)
+    //  - [정지→이동] 구간: 재이동 첫 순간부터 walk. (예전 freeze가 났던 자리)
+    bRenderMoving = (A.bMoving || B.bMoving);
+
+    const FVector Pos = FMath::Lerp(A.Position, B.Position, Alpha);
+    ApplyPose(Pos);
+
+    // 이동 중 + 공격 아닐 때만 이동방향으로 회전. 정지(idle)/공격 중엔 현재 시선 유지.
+    // (정지 시 MoveYaw로 회전시키면 공격 종료 순간 마지막 이동방향으로 시선이 휙 돌아감)
+    if (bRenderMoving && !bIsAttacking)
     {
-        // stop→move 경계를 RenderTime이 이미 지나쳐서 Prev도 이동 스냅샷인 경우
-        bMoving = true;
-        bNeedStopCorrection = false;
-        if (!bIsAttacking)
-            SetActorRotation(FRotator(0.f, Prev.MoveYaw, 0.f));
-        GetCharacterMovement()->MaxWalkSpeed = UserConst::WALK_SPEED;
+        const float DeltaYaw = FMath::FindDeltaAngleDegrees(A.MoveYaw, B.MoveYaw);
+        const float Yaw      = A.MoveYaw + DeltaYaw * Alpha;
+        SetActorRotation(FRotator(0.f, Yaw, 0.f));
     }
-
-
-    // 이전 스냅샷이 이동 플래그 다음 스냅샷은 정지 플래그 현재 해당 캐릭터가 이동중이라면
-    // 이동 플래그 끄고 정지 스냅샷 위치를 정지할 타겟 위치로 설정하고 수렴 플래그 키기
-    // 정지 스냅샷의 이동방향에 맞춰서 캐릭터를 그 위치로 수렴시키기 위해 StopTargetYaw도 NextMoveYaw로 설정
-    // 바로 다음 함수에서 수렴 처리할것임.
-    else if (Prev.bMoving && !Next.bMoving && bMoving)
-    {
-        bMoving = false;
-        StopTargetLocation = Next.Position;
-        bNeedStopCorrection = true;
-        StopTargetYaw = Next.MoveYaw;
-        return;
-    }
-
-    // 이동하지 않으면 리턴
-    if (!bMoving)
-    {
-        GetCharacterMovement()->MaxWalkSpeed = 0;
-        return;
-    }
-
-    // 이동한다면 보간 처리
-
-
-    // 이전 스냅샷을 기준으로 RenderTime이 이전 스냅샷의 서버스탬프와 이후 스냅샷의 서버 스탬프 사이에 어디에 위치해있는지 찾아서 이를 0 ~ 1 소수점으로 정규화
-    // 예를 들어 이전 서버 스탬프가 1000ms, Render Time이 1060ms, 이후 서버 스탬프가 1100ms면 대충 RenderTime이 이전, 이후 스냅샷 사이에 60%정도에 위치함.
-    float Alpha = (float)(RenderTime - Prev.ServerTimestamp)
-        / (float)(Next.ServerTimestamp - Prev.ServerTimestamp);
-    Alpha = FMath::Clamp(Alpha, 0.f, 1.f);
-
-
-    // 이 Alpha 비율값을 가지고 이전 스냅샷의 위치와 이후 스냅샷 위치 사이에서 60% 위치한 위치값 계산
-    FVector InterpPos = FMath::Lerp(Prev.Position, Next.Position, Alpha);
-
-    // 방향도 이전 이동방향과 이후 이동방향을 보간함.(공격 안하고 있을 때)
-    float DeltaYaw;
-    float InterpYaw = GetActorRotation().Yaw;
-
-    if (!bIsAttacking)
-    {
-        DeltaYaw = FMath::FindDeltaAngleDegrees(Prev.MoveYaw, Next.MoveYaw); // 이전 이동방향과 이후 이동방향 사잇값을 계산
-        InterpYaw = Prev.MoveYaw + DeltaYaw * Alpha;                         // 해당 사잇값에 alpha를 곱해서 나온값을 이전 이동방향값에 더해서 보간
-    }
-
-    // TeleportPhysics: 매 프레임 velocity를 0으로 초기화해서
-    // CharacterMovement가 보간 사이 갭에서 캐릭터를 앞으로 밀어버리는 현상 방지
-    SetActorLocationAndRotation(InterpPos, FRotator(0.f, InterpYaw, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
-
 }
 
-void AM1OtherPlayer::UpdateStopCorrection(float DeltaTime)
+void AM1OtherPlayer::ApplyPose(const FVector& Pos)
 {
-    // 현재 위치에서 정지 위치 사이에 위치값을 Next로 지정해서 거기로 옮기기
-    FVector Current = GetActorLocation();
-    FVector Next = FMath::VInterpTo(Current, StopTargetLocation, DeltaTime, SnapShotProc::CORRECTION_INTERP_SPEED);
-
-    // 방향도 현재 캐릭터 방향과 정지 스냅샷의 이동방향을 보간해서 서서히 정지 스냅샷의 방향으로 시선 이동하게 함.
-    float CurrentYaw;
-    float DeltaYaw;
-    float InterpYaw;
-    
-    if (bIsAttacking)
-    {
-        InterpYaw = GetActorRotation().Yaw;
-    }
-    else
-    {
-        CurrentYaw = GetActorRotation().Yaw;
-        DeltaYaw = FMath::FindDeltaAngleDegrees(CurrentYaw, StopTargetYaw);
-        InterpYaw = CurrentYaw + DeltaYaw * DeltaTime * SnapShotProc::CORRECTION_INTERP_SPEED;
-    }
-
-    SetActorLocationAndRotation(Next, FRotator(0.f, InterpYaw, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
-
-    // 만약 다음 이동할 위치가 정지 위치랑 거의 차이없으면 그냥 정지 위치로 이동
-    // VInterpTo는 수학적으로 완전히 TargetPos에 도달 못해서 작아지면 그냥 그 위치로 맞춰야 함.
-    if (FVector::Dist(Next, StopTargetLocation) < 1.f)
-    {
-        SetActorLocationAndRotation(StopTargetLocation, FRotator(0.f, StopTargetYaw, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
-        bNeedStopCorrection = false;
-    }
+    // 위치 전용. 회전은 호출부에서 '이동 중'일 때만 적용(정지/공격 중엔 시선 유지).
+    // TeleportPhysics: 매 프레임 velocity를 0으로 만들어 CharacterMovement가
+    // 보간 갭에서 캐릭터를 앞으로 밀어버리는 현상 방지.
+    SetActorLocation(Pos, false, nullptr, ETeleportType::TeleportPhysics);
 }
 
 FName AM1OtherPlayer::GetLeftAttackSectionName(uint8 SwingIndex) const

@@ -35,8 +35,8 @@ public:
 	
 private:
 	void UpdateInterpolation(float DeltaTime);
-	void UpdateStopCorrection(float DeltaTime);
 	void UpdateAttackPose(float DeltaTime);
+	void ApplyPose(const FVector& Pos);   // 위치 전용(회전은 호출부에서 이동 중일 때만)
 
 private:
 	TCircularSnapBuffer<FMovementSnapshot, 16> SnapshotBuffer;
@@ -44,15 +44,15 @@ private:
 
 private:
 	bool     bIsAttacking        = false;
-	bool     bNeedStopCorrection = false;
+
+	// 보간에서 '매 프레임 파생'되는 이동 여부. 전이 판단에 쓰는 저장상태가 아니라
+	// 애니메이션으로 내보내는 출력값(읽어서 분기하지 않음 → 상태 동기화 버그 차단)
+	bool     bRenderMoving       = false;
 
 	// swing 패킷이 끊기면 공격 포즈를 자가 해제하기 위한 타이머 (stop 프로토콜 대체)
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	float    AttackPoseHoldSeconds = 1.2f;   // swing 1타 간격보다 약간 길게
 	float    AttackPoseRemaining   = 0.f;
-
-	float    StopTargetYaw       = 0.f;
-	FVector  StopTargetLocation  = FVector::ZeroVector;
 
 	// RenderTime이 역행하지 않도록 보장 (ClockOffset 역방향 보정 / 시스템 클럭 후퇴 방어)
 	uint64   LastRenderTimeMs    = 0;

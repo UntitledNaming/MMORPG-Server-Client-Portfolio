@@ -57,7 +57,7 @@ namespace ClientMovement
 
 namespace SnapShotProc
 {
-	constexpr float INTERP_DELAY_MS = 150.f;
+	constexpr float INTERP_DELAY_MS = 250.f;
 	constexpr float CORRECTION_INTERP_SPEED = 10.f;
 }
 
