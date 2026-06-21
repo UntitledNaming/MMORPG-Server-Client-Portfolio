@@ -126,8 +126,6 @@ CMessage* PacketBuilder::CreateOtherCharacter(CUser* pUser)
 	*pMessage << pUser->GetY();
 	*pMessage << pUser->GetZ();
 	*pMessage << pUser->GetMoveYaw();
-	*pMessage << pUser->GetHP();
-	*pMessage << pUser->GetMaxHP(timeGetTime());
 	*pMessage << pUser->GetMoveFlag();
 
 	return pMessage;
@@ -222,17 +220,6 @@ CMessage* PacketBuilder::AttackLeftSwing(uint64 sessionID, float attackYaw, uint
 	return pMessage;
 }
 
-CMessage* PacketBuilder::StopLeftSwing(CUser* pUser)
-{
-	CMessage* pMessage = CMessage::Alloc();
-	pMessage->Clear(1);
-
-	*pMessage << FieldProtocol::PACKET_SC_STOP_LEFT_ATTACK;
-	*pMessage << pUser->GetSessionID();
-
-	return pMessage;
-}
-
 CMessage* PacketBuilder::HitTarget(uint8 hitPlayerCount, uint8 hitMonsterCount, std::vector<CUser*>& hitPlayerArray, std::vector<CMonster*>& hitMonsterArray)
 {
 	CMessage* pMessage = CMessage::Alloc();
@@ -242,10 +229,13 @@ CMessage* PacketBuilder::HitTarget(uint8 hitPlayerCount, uint8 hitMonsterCount, 
 	*pMessage << hitPlayerCount;
 	*pMessage << hitMonsterCount;
 
+	uint32 curTime = timeGetTime();
 	for (int i = 0; i < hitPlayerCount; i++)
 	{
 		*pMessage << hitPlayerArray[i]->GetSessionID();
 		*pMessage << hitPlayerArray[i]->GetHP();
+		float ratio = (float)hitPlayerArray[i]->GetHP() / hitPlayerArray[i]->GetMaxHP(curTime) * 100.f;
+		*pMessage << (uint8)ratio;
 	}
 
 	for (int i = 0; i < hitMonsterCount; i++)
@@ -346,7 +336,7 @@ CMessage* PacketBuilder::StopMonster(CMonster* pMonster, const Location& StopLoc
 	return pMessage;
 }
 
-CMessage* PacketBuilder::AttackMonster(CMonster* pMonster, uint64 TargetID, int16 newHP)
+CMessage* PacketBuilder::AttackMonsterToMe(CMonster* pMonster, uint64 TargetID, int16 newHP)
 {
 	CMessage* pMessage = CMessage::Alloc();
 	pMessage->Clear(1);
@@ -355,6 +345,19 @@ CMessage* PacketBuilder::AttackMonster(CMonster* pMonster, uint64 TargetID, int1
 	*pMessage << pMonster->GetMonsterID();
 	*pMessage << TargetID;
 	*pMessage << newHP;
+
+	return pMessage;
+}
+
+CMessage* PacketBuilder::AttackMonsterToOther(CMonster* pMonster, uint64 TargetID, uint8 newRatio)
+{
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+
+	*pMessage << FieldProtocol::PACKET_SC_HIT_TO_OTHERPLAYER;
+	*pMessage << pMonster->GetMonsterID();
+	*pMessage << TargetID;
+	*pMessage << newRatio;
 
 	return pMessage;
 }

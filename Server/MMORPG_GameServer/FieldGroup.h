@@ -206,7 +206,6 @@ private:
 	void HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMessage);
 	void HandleRTTMessage(uint64 sessionID, CMessage* pMessage);
 	void HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage);
-	void HandleLeftAttackStop(uint64 sessionID, CMessage* pMessage);
 	void HandleSkillUse(uint64 sessionID, CMessage* pMessage);
 	void HandlePickUpItems(uint64 sessionID, CMessage* pMessage);
 	void HandleUseItem(uint64 sessionID, CMessage* pMessage);

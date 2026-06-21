@@ -125,7 +125,6 @@ void CUser::LoadDataFromDB(uint64 characterUID, uint64 accountID, uint16 level, 
 	m_mp = GetMaxMP(curTime);
 
 	m_recvTime = timeGetTime();
-	m_lastSyncCheckTime = timeGetTime();
 	m_syncCount = 0;
 }
 
@@ -269,7 +268,10 @@ bool CUser::GainExp(uint32 GetExp, GainEXPResult& result)
 			result.curMP = m_mp;
 
 			if (m_level == UserConst::USER_MAX_LEVEL)
+			{
 				result.curEXP = 0;
+				m_currentExp = 0;
+			}
 			else
 				result.curEXP = m_currentExp;
 

@@ -101,8 +101,6 @@ namespace FieldProtocol
     //	4	-	Ypos			(float)
     //	4	-	Zpos			(float)
     //  4   -   MoveYaw         (float)  
-    //  2   -   HP              (int16) 
-    //  2   -   MaxHP           (int16) 
     //  1   -   MoveFlag        (bool)
     //
     //---------------------------------------------------------------
@@ -215,14 +213,6 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_CS_STOP_LEFT_ATTACK = 1012;
-    //---------------------------------------------------------------
-    //  Attack Stop Msg                       Client -> Server
-    //
-    //  (no payload)
-    //
-    //---------------------------------------------------------------
-
     constexpr uint16 PACKET_SC_SWING_LEFT_ATTACK = 1013;
     //---------------------------------------------------------------
     //  Attack Start Broadcast                Server -> Client
@@ -233,15 +223,6 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_STOP_LEFT_ATTACK = 1014;
-    //---------------------------------------------------------------
-    //  Attack Stop Broadcast                 Server -> Client
-    //
-    //  8   -   CharacterID     (uint64)
-    //
-    //---------------------------------------------------------------
-
-
     constexpr uint16 PACKET_SC_ATTACK_HIT_RESULT = 1015;
     //---------------------------------------------------------------
     //  Attack Hit Result Broadcast           Server -> Client
@@ -250,8 +231,8 @@ namespace FieldProtocol
     //  1   -   MonsterHitCount   (uint8)
     //  per hit:
     //  8   -   CharacterID       (uint64)
-    //  2   -   NewHP             (int16)
-    //      
+    //  2   -   NewHP             (int16)      // 피격 대상이 나면 이 변수 사용
+    //  1   -   NewRatio          (uint8)      // 피격 대상이 other면 이 변수 사용
     //  per hit:
     //  8   -   MonsterID         (uint64)
     //  2   -   NewHP             (int16)
@@ -515,6 +496,18 @@ namespace FieldProtocol
     //  4   -  Zpos                      (float)
     //  2   -  HP                        (uint16)
     //  2   -  MP                        (uint16)
+    //---------------------------------------------------------------
+
+
+    constexpr uint16 PACKET_SC_HIT_TO_OTHERPLAYER = 1040;
+    //---------------------------------------------------------------
+    //  Monster Attack Msg 					Server -> Client
+    //
+    //
+    //	8	-	MonsterID		(uint64)
+    //	8	-	TargetID	 	(uint64)
+    //	1	-	TargetHPRatio 	(uint8)
+    //
     //---------------------------------------------------------------
 }
 

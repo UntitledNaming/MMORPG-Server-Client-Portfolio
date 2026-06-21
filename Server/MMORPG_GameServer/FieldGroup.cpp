@@ -96,9 +96,17 @@ void FieldGroup::SendMonsterTargetUpdate(CMonster* pMonster)
 
 void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, int16 newHP)
 {
-	CMessage* pAttackMonster = PacketBuilder::AttackMonster(pMonster, pTarget->GetSessionID(), newHP);
+	// 피격 대상인 클라에게는 hp 담아서 보내기
+	CMessage* pAttackMonsterToMe = PacketBuilder::AttackMonsterToMe(pMonster, pTarget->GetSessionID(), newHP);
+	SendPacket(pTarget->GetSessionID(), pAttackMonsterToMe);
+	CMessage::Free(pAttackMonsterToMe);
 
-	// 몬스터와 타겟 주변 섹터에 해당 메세지 뿌리기
+
+	// 피격 대상 주변 클라 들에게는 피격 대상의 newRatio만 보내기
+	float ratio = (float)pTarget->GetHP() / pTarget->GetMaxHP(timeGetTime()) * 100;
+	CMessage* pAttackMonsterToOtehr = PacketBuilder::AttackMonsterToOther(pMonster, pTarget->GetSessionID(), (uint8)ratio);
+
+	// 몬스터와 타겟 주변 섹터에 해당 메세지 뿌리기(타겟 때리는 애니 + 피격 대상 hp 깎기 같이 나감)
 	SectorPos sendflagArray[20];
 	int pushCount = 0;
 
@@ -113,7 +121,7 @@ void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, int
 		int16 secX = monsterAround.m_Around[i].GetX();
 		int16 secY = monsterAround.m_Around[i].GetY();
 
-		SendPacket_SectorOne(pAttackMonster, secX, secY, nullptr);
+		SendPacket_SectorOne(pAttackMonsterToOtehr, secX, secY, nullptr);
 		sendflagArray[pushCount++] = SectorPos{ secX , secY };
 	}
 
@@ -126,11 +134,10 @@ void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, int
 		if (SectorPos::IsAlreadyPushed(sendflagArray, pushCount, secX, secY))
 			continue;
 
-		SendPacket_SectorOne(pAttackMonster, secX, secY, nullptr);
+		SendPacket_SectorOne(pAttackMonsterToOtehr, secX, secY, pTarget);
 		sendflagArray[pushCount++] = SectorPos{ secX , secY };
 	}
 
-	CMessage::Free(pAttackMonster);
 }
 
 void FieldGroup::SendMonsterStop(CMonster* pMonster)
@@ -291,10 +298,6 @@ void FieldGroup::OnRecv(UINT64 sessionID, CMessage* pMessage)
 
 	case PACKET_CS_SWING_LEFT_ATTACK:
 		HandleLeftAttackSwing(sessionID, pMessage);
-		break;
-
-	case PACKET_CS_STOP_LEFT_ATTACK:
-		HandleLeftAttackStop(sessionID, pMessage);
 		break;
 
 	case PACKET_CS_USE_SKILL:
@@ -813,26 +816,6 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 		m_sectors[pHitMonster->GetSectorY()][pHitMonster->GetSectorX()].RemoveMonster(pHitMonster);
 
 	}
-}
-
-void FieldGroup::HandleLeftAttackStop(uint64 sessionID, CMessage* pMessage)
-{
-	float attackyaw;
-
-	*pMessage >> attackyaw;
-
-	CUser* pUser = nullptr;
-
-	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
-	if (it == m_userLookUpTable.end())
-		__debugbreak();
-
-	pUser = it->second;
-
-	// 공격자 스윙 정지 메세지 뿌리기
-	CMessage* pSwingStop = PacketBuilder::StopLeftSwing(pUser);
-	SendPacket_SectorAround(pSwingStop, pUser);
-	CMessage::Free(pSwingStop);
 }
 
 void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
