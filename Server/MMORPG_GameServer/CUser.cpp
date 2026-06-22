@@ -50,7 +50,9 @@ void CUser::Destroy()
 
 void CUser::ResPawn()
 {
-	
+	uint32 curTime = timeGetTime();
+	m_hp = GetMaxHP(curTime);
+	m_mp = GetMaxMP(curTime);
 }
 
 void CUser::LoadDataFromDB(uint64 characterUID, uint64 accountID, uint16 level, int32 curExp, Location& location, std::vector<ItemLoadData>& items)

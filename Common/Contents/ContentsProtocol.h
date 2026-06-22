@@ -499,7 +499,7 @@ namespace FieldProtocol
     //---------------------------------------------------------------
     //  Respawn Msg    					    Server -> Client
     //  
-    //  (no payload)
+    //	8	-	CharacterID	 	(uint64)
     //---------------------------------------------------------------
 
     constexpr uint16 PACKET_SC_HIT_TO_OTHERPLAYER = 1041;

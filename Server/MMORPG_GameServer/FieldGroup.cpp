@@ -437,9 +437,6 @@ void FieldGroup::SendPacket_SectorOne(CMessage* pMessage, uint16 xpos, uint16 yp
 
 void FieldGroup::SendPacket_SectorAround(CMessage* pMessage, CUser* pUser, bool userSend)
 {
-	uint32 secX = pUser->GetSectorXpos();
-	uint32 secY = pUser->GetSectorYpos();
-
 	SectorAround around;
 	SectorPos::SectorFind(around, pUser->GetSectorPos());
 
@@ -547,7 +544,8 @@ void FieldGroup::CollectHitTarget(CUser* attacker, HitSearchInfo& hitInfo, HitRe
 				{
 					CUser* targetPlayer = m_sectors[sy][sx].GetUser(i);
 
-					if (targetPlayer == attacker || targetPlayer->GetHP() <= 0 )
+					// 타겟이 공격자와 같으면 pass or 타겟이 죽었으면 pass
+					if (targetPlayer == attacker || targetPlayer->IsAlive() <= 0 )
 						continue;
 
 					switch (hitInfo.shape)
@@ -1140,8 +1138,18 @@ void FieldGroup::HandleRespawn(uint64 sessionID, CMessage* pMessage)
 	if (pUser->IsAlive())
 		return;
 
+	// 리스폰 처리
+	pUser->ResPawn();
 
+	// 본인에게 메세지 보내기
+	CMessage* respawnToMeMsg = PacketBuilder::RespawnToMe(pUser->GetHP(), pUser->GetMP());
+	SendPacket(sessionID, respawnToMeMsg);
+	CMessage::Free(respawnToMeMsg);
 
+	// 주변에게 뿌리기
+	CMessage* respawnToOtherMsg = PacketBuilder::RespawnToOther(pUser->GetSessionID());
+	SendPacket_SectorAround(respawnToOtherMsg, pUser);
+	CMessage::Free(respawnToOtherMsg);
 }
 
 void FieldGroup::UserUpdate()

@@ -39,5 +39,8 @@ public:
 	static CMessage* SwapSlot(bool Success);
 
 	static CMessage* GainExp(GainEXPResult& result);
+
+	static CMessage* RespawnToMe(int16 HP, int16 MP);
+	static CMessage* RespawnToOther(uint64 CharacterID);
 };
 

@@ -530,3 +530,26 @@ CMessage* PacketBuilder::GainExp(GainEXPResult& result)
 	}
 	return pMessage;
 }
+
+CMessage* PacketBuilder::RespawnToMe(int16 HP, int16 MP)
+{
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+
+	*pMessage << FieldProtocol::PACKET_SC_RESPAWN_RES_TO_ME;
+	*pMessage << HP;
+	*pMessage << MP;
+
+	return pMessage;
+}
+
+CMessage* PacketBuilder::RespawnToOther(uint64 CharacterID)
+{
+	CMessage* pMessage = CMessage::Alloc();
+	pMessage->Clear(1);
+
+	*pMessage << FieldProtocol::PACKET_SC_RESPAWN_RES_TO_OTHER;
+	*pMessage << CharacterID;
+
+	return pMessage;
+}
