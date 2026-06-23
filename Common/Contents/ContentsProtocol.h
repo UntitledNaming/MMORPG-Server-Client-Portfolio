@@ -231,8 +231,8 @@ namespace FieldProtocol
     //  1   -   MonsterHitCount   (uint8)
     //  per hit:
     //  8   -   CharacterID       (uint64)
-    //  2   -   NewHP             (int16)      // �ǰ� ����� ���� �� ���� ���
-    //  1   -   NewRatio          (uint8)      // �ǰ� ����� other�� �� ���� ���
+    //  2   -   NewHP             (int16)      
+    //  1   -   NewRatio          (uint8)      
     //  per hit:
     //  8   -   MonsterID         (uint64)
     //  2   -   NewHP             (int16)
@@ -403,9 +403,6 @@ namespace FieldProtocol
     //  Pick Up Items Msg 					    Server -> Client
     //
     //  4   -  ItemID                  (uint32)
-    //  2   -  UpdateSlotCount         (uint16)
-    // 
-    //  per 
     //  2   -  SlotIndex               (int16)
     //  2   -  NewItemCount            (uint16)
     //  

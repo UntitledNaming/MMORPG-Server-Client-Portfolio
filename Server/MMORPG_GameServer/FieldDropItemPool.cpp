@@ -21,7 +21,7 @@ void FieldDropItemPool::Destroy()
 
 FieldDropItem* FieldDropItemPool::CreateItem(const Location& dropLocation)
 {
-    ITEM_ID retID = ItemIDConst::MAGIC_WEAPON;//GetItemID();
+    ITEM_ID retID = GetItemID();
     if (retID == 0)
         return nullptr;
 

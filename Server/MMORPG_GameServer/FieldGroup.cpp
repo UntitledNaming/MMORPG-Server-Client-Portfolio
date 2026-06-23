@@ -120,7 +120,7 @@ void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, int
 		int16 secX = monsterAround.m_Around[i].GetX();
 		int16 secY = monsterAround.m_Around[i].GetY();
 
-		SendPacket_SectorOne(pAttackMonsterToOther, secX, secY, nullptr);
+		SendPacket_SectorOne(pAttackMonsterToOther, secX, secY, pTarget);
 		sendflagArray[pushCount++] = SectorPos{ secX , secY };
 	}
 
