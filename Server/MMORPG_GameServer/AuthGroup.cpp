@@ -1,4 +1,4 @@
-#include <windows.h>
+ï»¿#include <windows.h>
 #include <string>
 #include <unordered_map>
 #include <array>
@@ -66,16 +66,16 @@ void AuthGroup::OnClientJoin(uint64 sessionID)
 
 void AuthGroup::OnClientLeave(uint64 sessionID)
 {
-	// NonUserMap¿¡¼­ Ã£±â
+	// NonUserMapì—ì„œ ì°¾ê¸°
 	std::unordered_map<uint64, DWORD>::iterator it = m_nonuserTable.find(sessionID);
 	if (it != m_nonuserTable.end())
 	{
-		// Á¦°Å
+		// ì œê±°
 		m_nonuserTable.erase(it);
 		return;
 	}
 
-	// NonUserMap¿¡ ¾øÀ¸¸é UserMap¿¡¼­ Ã£±â
+	// NonUserMapì— ì—†ìœ¼ë©´ UserMapì—ì„œ ì°¾ê¸°
 	std::unordered_map<uint64, CUser*>::iterator it2 = m_userTable.find(sessionID);
 	if (it2 == m_userTable.end())
 		__debugbreak();
@@ -114,7 +114,7 @@ void AuthGroup::OnUpdate()
 
 	// UserTimeOut
 
-	// DBManager°¡ Àü´ŞÇÑ À¯Àú Á¤º¸ ²¨³»¼­ ¼¼ÆÃ ÈÄ FieldGroupÀ¸·Î Àü¼Û
+	// DBManagerê°€ ì „ë‹¬í•œ ìœ ì € ì •ë³´ êº¼ë‚´ì„œ ì„¸íŒ… í›„ FieldGroupìœ¼ë¡œ ì „ì†¡
 	while (m_pDBJobQueue->GetUseSize() > 0)
 	{
 		DBJob* pJob = nullptr;
@@ -123,10 +123,10 @@ void AuthGroup::OnUpdate()
 		if (pJob == nullptr)
 			__debugbreak();
 
-		// Job¿¡ ÀûÈù ¼¼¼ÇID°¡ ÇöÀç ±×·ì¿¡ ÀÖ´ÂÁö Ã¼Å©
+		// Jobì— ì íŒ ì„¸ì…˜IDê°€ í˜„ì¬ ê·¸ë£¹ì— ìˆëŠ”ì§€ ì²´í¬
 		std::unordered_map<uint64, CUser*>::iterator it = m_userTable.find(pJob->sessionID);
 
-		// ¾øÀ¸¸é Job °¡Á®¿À´Â µ¿¾È ¿¬°á ²÷°åÀ¸´Ï pass
+		// ì—†ìœ¼ë©´ Job ê°€ì ¸ì˜¤ëŠ” ë™ì•ˆ ì—°ê²° ëŠê²¼ìœ¼ë‹ˆ pass
 		if (it == m_userTable.end())
 		{
 			delete pJob;
@@ -135,14 +135,14 @@ void AuthGroup::OnUpdate()
 
 		CUser* pUser = it->second;
 
-		// ÇöÀç À¯Àú ±×·ì¿¡ ÀÖÀ¸¸é Job¿¡ À¯Àú °´Ã¼ Àü´Ş
+		// í˜„ì¬ ìœ ì € ê·¸ë£¹ì— ìˆìœ¼ë©´ Jobì— ìœ ì € ê°ì²´ ì „ë‹¬
 		PostAction ret = pJob->OnComplete(this, pUser);
 		if (ret == PostAction::MoveToField)
 		{
 			std::wstring field = L"Field";
 
-			// GroupMoveÇÏ´Âµ¥ ¼¼¼ÇÀÌ Release ÇÃ·¡±× ÄÑÁ®¼­ À¯È¿ÇÏÁö ¾ÊÀ» ¼ö ÀÖÀ½.
-			// ¾îÂ÷ÇÇ À¯Àú °´Ã¼ »èÁ¦´Â Release ÀÛ¾÷ÇÒ¶§ OnClientLeave·Î ¿Ã°ÍÀÓ.
+			// GroupMoveí•˜ëŠ”ë° ì„¸ì…˜ì´ Release í”Œë˜ê·¸ ì¼œì ¸ì„œ ìœ íš¨í•˜ì§€ ì•Šì„ ìˆ˜ ìˆìŒ.
+			// ì–´ì°¨í”¼ ìœ ì € ê°ì²´ ì‚­ì œëŠ” Release ì‘ì—…í• ë•Œ OnClientLeaveë¡œ ì˜¬ê²ƒì„.
 			GroupMove(field, pUser->GetSessionID(), pUser);
 		}
 
@@ -158,13 +158,13 @@ void AuthGroup::LoginRequestProc(uint64 sessionID, CMessage* pMessage)
 	CUser* pUser = CUser::Alloc();
 	pUser->Init(sessionID, m_DBManagerPtr);
 
-	// todo : Redis¿¡ ÅäÅ« Á¶È¸
+	// todo : Redisì— í† í° ì¡°íšŒ
 
-	// todo : ÀÎÁõ ½ÇÆĞ¸é ¿¬°á ²÷±â
+	// todo : ì¸ì¦ ì‹¤íŒ¨ë©´ ì—°ê²° ëŠê¸°
 
-	// todo : ¼º°øÀÌ À¯Àú °´Ã¼¿¡ ÀúÀå
+	// todo : ì„±ê³µì´ ìœ ì € ê°ì²´ì— ì €ì¥
 
-	// todo : ¼º°ø½Ã DB¿¡¼­ Redis¿¡¼­ °¡Á®¿Â AccountID¿¡ ÇØ´çÇÏ´Â ÇØ´ç °èÁ¤ÀÌ ¼ÒÀ¯ÇÑ Ä³¸¯ÅÍ ÀÌ¸§, ·¹º§, ¿ÜÇüÁ¤º¸ µîÀ» °¡Á®¿Í Å¬¶ó¿¡°Ô Send
+	// todo : ì„±ê³µì‹œ DBì—ì„œ Redisì—ì„œ ê°€ì ¸ì˜¨ AccountIDì— í•´ë‹¹í•˜ëŠ” í•´ë‹¹ ê³„ì •ì´ ì†Œìœ í•œ ìºë¦­í„° ì´ë¦„, ë ˆë²¨, ì™¸í˜•ì •ë³´ ë“±ì„ ê°€ì ¸ì™€ í´ë¼ì—ê²Œ Send
 
 	m_userTable.insert(std::pair<uint64, CUser*>(sessionID, pUser));
 }
@@ -174,14 +174,14 @@ void AuthGroup::CharacterSelectProc(uint64 sessionID, CMessage* pMessage)
 	uint64 characteruid;
 	*pMessage >> characteruid;
 
-	// todo : characterUID¿¡ ´ëÇÑ °ËÁõ.
+	// todo : characterUIDì— ëŒ€í•œ ê²€ì¦.
 
 	CharacterSelectJob* pJob = new CharacterSelectJob;
 	pJob->sessionID = sessionID;
 	pJob->characterUID = characteruid;
-	pJob->accountID = characteruid;   // AccountID¶û CharacterUID¸¦ ÅëÀÏ ½ÃÅ°´Â °¡Á¤(¿ø·¡´Â ´Ù¸§)
+	pJob->accountID = characteruid;   // AccountIDë‘ CharacterUIDë¥¼ í†µì¼ ì‹œí‚¤ëŠ” ê°€ì •(ì›ë˜ëŠ” ë‹¤ë¦„)
 	pJob->replyTo = m_pDBJobQueue;
 
-	// DB Manager¿¡°Ô Job Àü´Ş
+	// DB Managerì—ê²Œ Job ì „ë‹¬
 	m_DBManagerPtr->EnqueueDBJob(pJob);
 }

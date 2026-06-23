@@ -1,4 +1,4 @@
-#include <windows.h>
+ï»¿#include <windows.h>
 #include "ItemUIDAllocator.h"
 
 UIDRange ItemUIDAllocator::m_curRange{};
@@ -14,6 +14,6 @@ ITEM_UID   ItemUIDAllocator::Alloc()
 	if (m_curRange.allocID > m_curRange.lastID)
 		return ItemUID::ITEM_UID_INVALID_ID;
 
-	// todo : ÃßÈÄ ¿©·¯ ±×·ì¿¡¼­ »ç¿ë½Ã Interlock ÇÊ¿ä
+	// todo : ì¶”í›„ ì—¬ëŸ¬ ê·¸ë£¹ì—ì„œ ì‚¬ìš©ì‹œ Interlock í•„ìš”
 	return m_curRange.allocID++;
 }

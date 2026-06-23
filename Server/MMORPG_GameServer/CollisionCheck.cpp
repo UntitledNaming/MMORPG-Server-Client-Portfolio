@@ -1,4 +1,4 @@
-#include <cmath>
+ï»¿#include <cmath>
 #include "ContentsStruct.h"
 #include "CollisionCheck.h"
 
@@ -7,10 +7,10 @@ bool CollisionCheck::IsInCircle(const Location& attackerLocation, const Location
 	float dx = targetLocation.xpos - attackerLocation.xpos;
 	float dy = targetLocation.ypos - attackerLocation.ypos;
 
-	float distSq = dx * dx + dy * dy; // °Å¸® Á¦°ö
-	float rangeSq = range * range;    // »ç°Å¸® Á¦°ö
+	float distSq = dx * dx + dy * dy; // ê±°ë¦¬ ì œê³±
+	float rangeSq = range * range;    // ì‚¬ê±°ë¦¬ ì œê³±
 
-	// »ç°Å¸® ¹ÛÀÌ¸é false
+	// ì‚¬ê±°ë¦¬ ë°–ì´ë©´ false
 	if (distSq > rangeSq)
 		return false;
 
@@ -22,14 +22,14 @@ bool CollisionCheck::IsInCone(const Location& attackerLocation, const Location& 
 	float dx = targetLocation.xpos - attackerLocation.xpos;
 	float dy = targetLocation.ypos - attackerLocation.ypos;
 
-	float distSq = dx * dx + dy * dy; // °Å¸® Á¦°ö
-	float rangeSq = range * range;    // »ç°Å¸® Á¦°ö
+	float distSq = dx * dx + dy * dy; // ê±°ë¦¬ ì œê³±
+	float rangeSq = range * range;    // ì‚¬ê±°ë¦¬ ì œê³±
 
-	// »ç°Å¸® ¹ÛÀÌ¸é false
+	// ì‚¬ê±°ë¦¬ ë°–ì´ë©´ false
 	if (distSq > rangeSq)
 		return false;
 
-	// °ø°ÝÀÚ¿Í °Å¸®°¡ ¸Å¿ì °¡±î¿ì¸é ¹æÇâ»ó°ü¾øÀÌ ¸Â´Â Ã³¸®
+	// ê³µê²©ìžì™€ ê±°ë¦¬ê°€ ë§¤ìš° ê°€ê¹Œìš°ë©´ ë°©í–¥ìƒê´€ì—†ì´ ë§žëŠ” ì²˜ë¦¬
 	if (distSq <= 0.0001f)
 		return true;
 
@@ -39,23 +39,23 @@ bool CollisionCheck::IsInCone(const Location& attackerLocation, const Location& 
 	forward.m_xpos = cosf(halfattackRad);
 	forward.m_ypos = sinf(halfattackRad);
 
-	// °ø°Ý ¹æÇâ ´ÜÀ§ º¤ÅÍ¿Í ³» À§Ä¡¿¡¼­ Å¸°Ù ¹æÇâÀ¸·ÎÀÇ À§Ä¡º¤ÅÍÀÇ ³»Àû
-	// ´Ù¸¥ ¸»·Î ³» À§Ä¡¿¡¼­ Å¸°Ù ¹æÇâÀ¸·ÎÀÇ º¤ÅÍ¸¦ °ø°Ý ¹æÇâ ´ÜÀ§ º¤ÅÍ À§·Î Åõ¿µ½ÃÅ²°ª
+	// ê³µê²© ë°©í–¥ ë‹¨ìœ„ ë²¡í„°ì™€ ë‚´ ìœ„ì¹˜ì—ì„œ íƒ€ê²Ÿ ë°©í–¥ìœ¼ë¡œì˜ ìœ„ì¹˜ë²¡í„°ì˜ ë‚´ì 
+	// ë‹¤ë¥¸ ë§ë¡œ ë‚´ ìœ„ì¹˜ì—ì„œ íƒ€ê²Ÿ ë°©í–¥ìœ¼ë¡œì˜ ë²¡í„°ë¥¼ ê³µê²© ë°©í–¥ ë‹¨ìœ„ ë²¡í„° ìœ„ë¡œ íˆ¬ì˜ì‹œí‚¨ê°’
 	// forwrad . toTarget = |forward| * |toTarget| * cosTheta;
 	float dot = dx * forward.m_xpos + dy * forward.m_ypos;
 
 	if (dot <= 0.f)
 		return false;
 
-	// forward´Â ´ÜÀ§ º¤ÅÍÀÓ.
+	// forwardëŠ” ë‹¨ìœ„ ë²¡í„°ìž„.
 	// dot = |toTarget| * cosTheta;
 	// cosTheta = dot / | toTarget|
-	// cosTheta´Â °ø°Ý ¹æÇâ º¤ÅÍ¿Í °ø°ÝÀÚ À§Ä¡¿¡¼­ Å¸°Ù¹æÇâÀ¸·ÎÀÇ º¤ÅÍÀÇ »çÀÕ°¢ÀÓ.
-	// ÀÌ °¢µµ°¡ ¼³Á¤ÇÑ °ª ¾Æ·¡¿©¾ß ÇÔ.
-	// »çÀÕ°¢ <= HalfAngleÀ» ¸¸Á·ÇÏ·Á¸é cos°ªÀ» ÃëÇÏ¸é cos(»çÀÕ°¢) >= cos(HalfAngle)ÀÓ
+	// cosThetaëŠ” ê³µê²© ë°©í–¥ ë²¡í„°ì™€ ê³µê²©ìž ìœ„ì¹˜ì—ì„œ íƒ€ê²Ÿë°©í–¥ìœ¼ë¡œì˜ ë²¡í„°ì˜ ì‚¬ìž‡ê°ìž„.
+	// ì´ ê°ë„ê°€ ì„¤ì •í•œ ê°’ ì•„ëž˜ì—¬ì•¼ í•¨.
+	// ì‚¬ìž‡ê° <= HalfAngleì„ ë§Œì¡±í•˜ë ¤ë©´ cosê°’ì„ ì·¨í•˜ë©´ cos(ì‚¬ìž‡ê°) >= cos(HalfAngle)ìž„
 	// cosTheta = dot / sqrt(distSq)
-	// Áö±Ý cosTheta >= cosHalfAngleÀ» ¸¸Á·ÇØ¾ß ¹üÀ§ ¾ÈÀÓ.
-	// dot / sqrt(distSq) >= cosHalfAngle ÀÎµ¥ ¾çº¯ Á¦°öÇÏ¸é
+	// ì§€ê¸ˆ cosTheta >= cosHalfAngleì„ ë§Œì¡±í•´ì•¼ ë²”ìœ„ ì•ˆìž„.
+	// dot / sqrt(distSq) >= cosHalfAngle ì¸ë° ì–‘ë³€ ì œê³±í•˜ë©´
 	// dot * dot / distSq >= cosHalfAngle * cosHalfAngle
 	// dot * dot >= distSq * cosHalfAngle * cosHalfAngle
 	float cosHalfAngle = cosf(halfAngleDegree * FieldConst::Pi / 180.0f);

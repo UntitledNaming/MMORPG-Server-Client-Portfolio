@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "SectorPos.h"
 #include "ContentsType.h"
 #include "ContentsStruct.h"
@@ -58,7 +58,7 @@ public:
 	void   SetNewSectorPos(const SectorPos& newSec) { m_secPos = newSec; }
 	void   CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, const SectorPos& newSecPos, SectorAround& outDeleteSector, SectorAround& outCreateSector);
 
-	bool   UserOnUpdate(uint32 curTime);                     // true : ÀÌµ¿ ¼º°ø , false: ÀÌµ¿ ½ÇÆĞ
+	bool   UserOnUpdate(uint32 curTime);                     // true : ì´ë™ ì„±ê³µ , false: ì´ë™ ì‹¤íŒ¨
 	bool   GainExp(uint32 GetExp, GainEXPResult& result);
 	bool   CanUseSkill(uint32 curTime, uint8 skillIndex);
 	bool   Move();
@@ -147,13 +147,13 @@ private:
 	int32                  m_currentExp;
 	int32                  m_requiredExp;
 	SkillInfo              m_skillInfo[UserConst::USER_SKILL_SLOT_COUNT];
-	Location               m_location;                                                        // Ä³¸¯ÅÍ À§Ä¡
+	Location               m_location;                                                        // ìºë¦­í„° ìœ„ì¹˜
 	SectorPos              m_secPos;           
 	uint16                 m_level;
 	uint16                 m_arrayIdx;     
-	int16                  m_hp;                                                              // Ä³¸¯ÅÍ HP
-	int16                  m_mp;                                                              // Ä³¸¯ÅÍ MP
-	UserStat               m_baseStat;                                                        // À¯Àú ±âº» ½ºÅÈ(Å¬·¡½º, ·¹º§ ±â¹İ)
+	int16                  m_hp;                                                              // ìºë¦­í„° HP
+	int16                  m_mp;                                                              // ìºë¦­í„° MP
+	UserStat               m_baseStat;                                                        // ìœ ì € ê¸°ë³¸ ìŠ¤íƒ¯(í´ë˜ìŠ¤, ë ˆë²¨ ê¸°ë°˜)
 	Inventory              m_inventory;                                                       // Inventory
 	Equipment              m_equipment;                                                       // Currently Equipped Items Slots
 	QuickSlot              m_quickSlot;                                                       // Consumable Item Slots
@@ -161,8 +161,8 @@ private:
 	RecoveryInfo           m_recoveryInfo;    
 	ConsumableCooltimeInfo m_consumableCooltimeInfo;
 	bool                   m_moveFlag;
-	float                  m_movementYaw;                                                     // Ä³¸¯ÅÍ ÀÌµ¿ ¹æÇâ, ÀÌµ¿ Ã³¸®½Ã »ç¿ë
-	float                  m_maxWalkSpeed;                                                    // Ä³¸¯ÅÍ ÃÖ´ë ÀÌµ¿ ¼Óµµ(ÀÌº¥Æ® ¹ß»ı½Ã º¯È­ °ª)
+	float                  m_movementYaw;                                                     // ìºë¦­í„° ì´ë™ ë°©í–¥, ì´ë™ ì²˜ë¦¬ì‹œ ì‚¬ìš©
+	float                  m_maxWalkSpeed;                                                    // ìºë¦­í„° ìµœëŒ€ ì´ë™ ì†ë„(ì´ë²¤íŠ¸ ë°œìƒì‹œ ë³€í™” ê°’)
 	float                  m_moveSpeed;
 };
 

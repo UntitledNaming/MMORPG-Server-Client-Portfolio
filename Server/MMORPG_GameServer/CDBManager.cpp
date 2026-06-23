@@ -1,4 +1,4 @@
-#include <windows.h>
+ï»¿#include <windows.h>
 #include <thread>
 #include <string>
 #include <mysql.h>
@@ -54,7 +54,7 @@ void CDBManager::DBThread()
 			DBJob* pJob = nullptr;
 			m_pDBQue->Dequeue(pJob);
 
-			// Á¾·á ÀÌº¥Æ®¸é Å»Ãâ
+			// ì¢…ë£Œ ì´ë²¤íŠ¸ë©´ íƒˆì¶œ
 			if ((int)pJob == 1)
 			{
 				endflag = true;
@@ -62,17 +62,17 @@ void CDBManager::DBThread()
 			}
 
 
-			// ±×°Ô ¾Æ´Ï¸é JobÃ³¸®
+			// ê·¸ê²Œ ì•„ë‹ˆë©´ Jobì²˜ë¦¬
 			pJob->Execute(m_pDBTLS);
 
-			// ¸¸¾à replyTo°¡ nullptrÀÌ ¾Æ´Ï¸é ÇØ´ç Å¥¿¡ Job ´Ù½Ã ³Ö¾îÁÖ±â
+			// ë§Œì•½ replyToê°€ nullptrì´ ì•„ë‹ˆë©´ í•´ë‹¹ íì— Job ë‹¤ì‹œ ë„£ì–´ì£¼ê¸°
 			if (pJob->replyTo != nullptr)
 			{
 				pJob->replyTo->Enqueue(pJob);
 				continue;
 			}
 
-			// replyTo¾øÀ¸¸é ¿©±â¼­ °´Ã¼ Áö¿ì±â
+			// replyToì—†ìœ¼ë©´ ì—¬ê¸°ì„œ ê°ì²´ ì§€ìš°ê¸°
 			delete pJob;
 		}
 	}

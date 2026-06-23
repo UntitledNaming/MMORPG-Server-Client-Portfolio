@@ -1,0 +1,10 @@
+# Server 하위 C/C++ 소스는 UTF-8 BOM으로 통일.
+# 한글 주석이 들어가는데 BOM이 없으면 PC/노트북의 VS·시스템 로캘 차이로 CP949로 잘못 열려 깨질 수 있다.
+# BOM이 있으면 어느 환경에서든 UTF-8로 정확히 열리고, MSVC(C++14)도 /utf-8 없이 인식한다.
+root = true
+
+[*.{cpp,h,c,hpp,cxx,cc,inl}]
+charset = utf-8-bom
+end_of_line = crlf
+trim_trailing_whitespace = false
+insert_final_newline = false

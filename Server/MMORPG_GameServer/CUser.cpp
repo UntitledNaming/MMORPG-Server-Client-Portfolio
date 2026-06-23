@@ -1,4 +1,4 @@
-#include <string>
+ï»¿#include <string>
 #include <windows.h>
 #include <unordered_map>
 #include <array>
@@ -65,23 +65,23 @@ void CUser::LoadDataFromDB(uint64 characterUID, uint64 accountID, uint16 level, 
 	m_itemSlotUpdateTime = USER_ITEM_SLOT_UPDATE_MIN_TIME + rand() % (USER_ITEM_SLOT_UPDATE_MAX_TIME - USER_ITEM_SLOT_UPDATE_MIN_TIME);
 	m_itemSlotUpdateTimeAccum = 0;
 
-	// ¾ÆÀÌÅÛ ÀÎº¥Åä¸® »ğÀÔ
-	// ¾ÆÀÌÅÛ Àåºñ ÅÇ »ğÀÔ
-	// ¾ÆÀÌÅÛ Äü½½·Ô »ğÀÔ
-	// ÀúÀå¼Ò¿¡ ³Ö±â
+	// ì•„ì´í…œ ì¸ë²¤í† ë¦¬ ì‚½ì…
+	// ì•„ì´í…œ ì¥ë¹„ íƒ­ ì‚½ì…
+	// ì•„ì´í…œ í€µìŠ¬ë¡¯ ì‚½ì…
+	// ì €ì¥ì†Œì— ë„£ê¸°
 	std::vector<ItemLoadData>::iterator it = items.begin();
 	for (; it != items.end(); ++it)
 	{
 		ItemLoadData& item = *it;
 		
-		// ·ÎµåÇÑ µ¥ÀÌÅÍ ÀúÀå¼Ò¿¡ ³Ö±â. ±×·¡¾ß Àåºñ ³ÖÀ» ¶§ ÀúÀå¼Ò¿¡¼­ Ã£¾Æ¼­ Ã³¸® °¡´ÉÇÔ.
+		// ë¡œë“œí•œ ë°ì´í„° ì €ì¥ì†Œì— ë„£ê¸°. ê·¸ë˜ì•¼ ì¥ë¹„ ë„£ì„ ë•Œ ì €ì¥ì†Œì—ì„œ ì°¾ì•„ì„œ ì²˜ë¦¬ ê°€ëŠ¥í•¨.
 		m_storage.LoadItemFromDB(item);
 
-		// ¾ÆÀÌÅÛ Å¸ÀÔ ÆÇ´Ü
+		// ì•„ì´í…œ íƒ€ì… íŒë‹¨
 		switch (item.slotType)
 		{
 		case SLOT_TYPE::INVENTORY:
-			// ÇØ´ç index¿¡ ÀÎº¥Åä¸® ¾ÆÀÌÅÛ
+			// í•´ë‹¹ indexì— ì¸ë²¤í† ë¦¬ ì•„ì´í…œ
 			InventoryItemLoad(item);
 			break;
 
@@ -98,10 +98,10 @@ void CUser::LoadDataFromDB(uint64 characterUID, uint64 accountID, uint16 level, 
 
 	SkillInfoInit();
 
-	// ¸®Ä¿¹ö¸® Á¤º¸ ÃÊ±âÈ­
+	// ë¦¬ì»¤ë²„ë¦¬ ì •ë³´ ì´ˆê¸°í™”
 	m_recoveryInfo.Init();
 
-	// ¼ÒºñÇ° ÄğÅ¸ÀÓ ÃÊ±âÈ­
+	// ì†Œë¹„í’ˆ ì¿¨íƒ€ì„ ì´ˆê¸°í™”
 	m_consumableCooltimeInfo.Init();
 
 	m_characterUID = characterUID;
@@ -114,14 +114,14 @@ void CUser::LoadDataFromDB(uint64 characterUID, uint64 accountID, uint16 level, 
 	m_maxWalkSpeed = WALK_SPEED;
 	m_moveSpeed = m_maxWalkSpeed / FieldConst::UPDATE_FRAME;
 
-	// ¼½ÅÍÂÊ º¯¼ö ÃÊ±âÈ­
+	// ì„¹í„°ìª½ ë³€ìˆ˜ ì´ˆê¸°í™”
 	m_secPos.SetPos(SectorPos((m_location.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (m_location.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE));
 	m_arrayIdx = 0;
 
-	// ·¹º§¿¡ µû¸¥ ÃÊ±âÈ­
+	// ë ˆë²¨ì— ë”°ë¥¸ ì´ˆê¸°í™”
 	BaseStatInit(m_level);
 
-	// ·¹º§ ¹× Àåºñ ¼¼ÆÃ ´Ù ÇÏ°í ³ª¼­ hp, mp ¼³Á¤
+	// ë ˆë²¨ ë° ì¥ë¹„ ì„¸íŒ… ë‹¤ í•˜ê³  ë‚˜ì„œ hp, mp ì„¤ì •
 	uint32 curTime = timeGetTime();
 	m_hp = GetMaxHP(curTime);
 	m_mp = GetMaxMP(curTime);
@@ -132,7 +132,7 @@ void CUser::LoadDataFromDB(uint64 characterUID, uint64 accountID, uint16 level, 
 
 void CUser::UpdateRecovery(uint32 curTime)
 {
-	// ´©Àû ½Ã°£ Áõ°¡
+	// ëˆ„ì  ì‹œê°„ ì¦ê°€
 	m_recoveryInfo.HP_accumulatedTimeMs += FieldConst::UPDATE_LOOP_TIME;
 	m_recoveryInfo.MP_accumulatedTimeMs += FieldConst::UPDATE_LOOP_TIME;
 
@@ -213,26 +213,26 @@ bool CUser::UserOnUpdate(uint32 curTime)
 
 	UpdateRecovery(curTime);
 
-	// ¾ÆÀÌÅÛ ½½·Ô ¾÷µ¥ÀÌÆ® Ã¼Å©
+	// ì•„ì´í…œ ìŠ¬ë¡¯ ì—…ë°ì´íŠ¸ ì²´í¬
 	ItemSlotUpdate();
 
-	// ¼½ÅÍ º¯°æÀº FieldGroupÀÌ Move°¡ ¼º°øÇÏ¸é ±×¶§ ÇÒ °ÍÀÓ.
+	// ì„¹í„° ë³€ê²½ì€ FieldGroupì´ Moveê°€ ì„±ê³µí•˜ë©´ ê·¸ë•Œ í•  ê²ƒì„.
 	return Move();
 }
 
 bool CUser::GainExp(uint32 GetExp, GainEXPResult& result)
 {
-	// ·¹º§ Max Ã¡À¸¸é ±×³É ¸®ÅÏ
+	// ë ˆë²¨ Max ì°¼ìœ¼ë©´ ê·¸ëƒ¥ ë¦¬í„´
 	if (m_level >= UserConst::USER_MAX_LEVEL)
 		return false;
 
-	// °æÇèÄ¡ ¿Ã¸®±â
+	// ê²½í—˜ì¹˜ ì˜¬ë¦¬ê¸°
 	m_currentExp += GetExp;
 
 	CharacterProgressJob* pJob = new CharacterProgressJob;
 	pJob->characterUID = m_characterUID;
 
-	// ÇÊ¿ä °æÇèÄ¡ ´ú Ã¡À¸¸é ±×³É ¸®ÅÏ
+	// í•„ìš” ê²½í—˜ì¹˜ ëœ ì°¼ìœ¼ë©´ ê·¸ëƒ¥ ë¦¬í„´
 	if (m_currentExp < m_requiredExp)
 	{
 		result.levelUp = false;
@@ -246,7 +246,7 @@ bool CUser::GainExp(uint32 GetExp, GainEXPResult& result)
 
 	result.levelUp = true;
 
-	// ·¹º§¾÷ ÇßÀ» ¶§ ÃÊ°úºĞ¿¡ ´ëÇÑ Ã³¸®
+	// ë ˆë²¨ì—… í–ˆì„ ë•Œ ì´ˆê³¼ë¶„ì— ëŒ€í•œ ì²˜ë¦¬
 	while (true)
 	{
 		m_currentExp -= m_requiredExp;
@@ -254,8 +254,8 @@ bool CUser::GainExp(uint32 GetExp, GainEXPResult& result)
 
 		BaseStatInit(m_level);
 
-		// ·¹º§¾÷¿¡ ´ëÇÑ ½ºÅÈ ÃÊ±âÈ­ ÈÄ ÇØ´ç ·¹º§ÀÌ Max¸é hp, mp ÃÊ±âÈ­ ÈÄ curExp = 0 ÈÄ Å»Ãâ
-		// ÀÜ¿© °æÇèÄ¡°¡ ÇÊ¿ä °æÇèÄ¡º¸´Ù ÀÛÀ¸¸é ¹İ¿µ ÈÄ Å»Ãâ
+		// ë ˆë²¨ì—…ì— ëŒ€í•œ ìŠ¤íƒ¯ ì´ˆê¸°í™” í›„ í•´ë‹¹ ë ˆë²¨ì´ Maxë©´ hp, mp ì´ˆê¸°í™” í›„ curExp = 0 í›„ íƒˆì¶œ
+		// ì”ì—¬ ê²½í—˜ì¹˜ê°€ í•„ìš” ê²½í—˜ì¹˜ë³´ë‹¤ ì‘ìœ¼ë©´ ë°˜ì˜ í›„ íƒˆì¶œ
 		if (m_level == UserConst::USER_MAX_LEVEL || m_requiredExp > m_currentExp)
 		{
 			uint32 curTime = timeGetTime();
@@ -292,7 +292,7 @@ bool CUser::CanUseSkill(uint32 curTime, uint8 skillIndex)
 	if (skillIndex >= USER_SKILL_SLOT_COUNT )
 		return false;
 
-	// mp ¹× ÄğÅ¸ÀÓ Ã¼Å©
+	// mp ë° ì¿¨íƒ€ì„ ì²´í¬
 	if (m_mp < g_skillData[skillIndex].RequiredMana
 		|| (g_skillData[skillIndex].CoolTime > curTime - m_skillInfo[skillIndex].m_skillLastRecvTime))
 		return false;
@@ -324,30 +324,30 @@ bool CUser::IsAlive()
 	return true;
 }
 
-// ÇÊµå¿¡ ÀÖ´Â µå¶ø ¾ÆÀÌÅÛ ¸ÔÀ¸·Á°í ÇÒ ¶§ ÀÛµ¿
+// í•„ë“œì— ìˆëŠ” ë“œë ì•„ì´í…œ ë¨¹ìœ¼ë ¤ê³  í•  ë•Œ ì‘ë™
 bool CUser::GetConsumableItem(FieldDropItem& dropItem, PickUpConsumableResult& OutResult)
 {
-	// ±×³É ºó ½½·Ô Ã£¾Æ¼­ °Å±â¿¡ ¾ÆÀÌÅÛ ³Ö±â
+	// ê·¸ëƒ¥ ë¹ˆ ìŠ¬ë¡¯ ì°¾ì•„ì„œ ê±°ê¸°ì— ì•„ì´í…œ ë„£ê¸°
 	int16 emptyIndex = m_inventory.GainEmptySlotIndex();
 	if (emptyIndex == -1)
 		return false;
 
-	// ½½·Ô ÀÖÀ¸¸é °Å±â¿¡ ¾ÆÀÌÅÛ ³Ö±â
+	// ìŠ¬ë¡¯ ìˆìœ¼ë©´ ê±°ê¸°ì— ì•„ì´í…œ ë„£ê¸°
 	ITEM_UID retUID;
 	if (!m_storage.CreateItem(dropItem, retUID))
 	{
-		// ÀúÀå¼Ò °¡µæ Ã¡À¸¸é false ¸®ÅÏ 
+		// ì €ì¥ì†Œ ê°€ë“ ì°¼ìœ¼ë©´ false ë¦¬í„´ 
 		m_inventory.ReturnSlotIndex(emptyIndex);
 		return false;
 	}
 
-	// ÇØ´ç UID¸¦ ÀÎº¥Åä¸®¿¡ ¹èÄ¡
+	// í•´ë‹¹ UIDë¥¼ ì¸ë²¤í† ë¦¬ì— ë°°ì¹˜
 	m_inventory.InsertItemToSlot(retUID, emptyIndex);
 
-	// Storage¿¡ ÇØ´ç ¾ÆÀÌÅÛ °´Ã¼ÀÇ ½½·Ô Å¸ÀÔ°ú À§Ä¡ ¹İ¿µ
+	// Storageì— í•´ë‹¹ ì•„ì´í…œ ê°ì²´ì˜ ìŠ¬ë¡¯ íƒ€ì…ê³¼ ìœ„ì¹˜ ë°˜ì˜
 	m_storage.ExchangeSlotInfo(retUID, SLOT_TYPE::INVENTORY, emptyIndex);
 
-	// ´õÆ¼ ÇÃ·¡±×´Â ¾ÆÀÌÅÛ »ı¼ºÇÒ¶§ ÀÌ¹Ì falseÀÌ°í ±»ÀÌ true·Î º¯°æÇØ¼­ update ÇØÁÙ ÇÊ¿ä ¾øÀ½.
+	// ë”í‹° í”Œë˜ê·¸ëŠ” ì•„ì´í…œ ìƒì„±í• ë•Œ ì´ë¯¸ falseì´ê³  êµ³ì´ trueë¡œ ë³€ê²½í•´ì„œ update í•´ì¤„ í•„ìš” ì—†ìŒ.
 
 	OutResult.itemID = dropItem.itemID;
 	OutResult.consumableResult.slotIndex = emptyIndex;
@@ -387,25 +387,25 @@ bool CUser::GetConsumableItem(FieldDropItem& dropItem, PickUpConsumableResult& O
 
 bool CUser::GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResult)
 {
-	// ¿©À¯ °ø°£ ¾øÀ¸¸é false ¸®ÅÏ
+	// ì—¬ìœ  ê³µê°„ ì—†ìœ¼ë©´ false ë¦¬í„´
 	int16 ret = m_inventory.GainEmptySlotIndex();
 	if (ret == -1)
 		return false;
 
-	// ¿©À¯ºĞ ÀÖÀ¸¸é Storage¿¡ CreateItem
+	// ì—¬ìœ ë¶„ ìˆìœ¼ë©´ Storageì— CreateItem
 	ITEM_UID ID;
 	if (!m_storage.CreateItem(dropItem, ID))
 	{
-		// ÀúÀå¼Ò °¡µæ Ã¡À¸¸é ¸®ÅÏ
+		// ì €ì¥ì†Œ ê°€ë“ ì°¼ìœ¼ë©´ ë¦¬í„´
 		m_inventory.ReturnSlotIndex(ret);
 		return false;
 	}
 
-	// ºó index¿¡ ³Ö´Âµ¥ ½ÇÆĞÇÏ¸é ¾ÈµÊ.
+	// ë¹ˆ indexì— ë„£ëŠ”ë° ì‹¤íŒ¨í•˜ë©´ ì•ˆë¨.
 	if (!m_inventory.InsertItemToSlot(ID, ret))
 		__debugbreak();
 
-	// ¾Æ¿ô ÆÄ¶ó¹ÌÅÍ ¹İ¿µ
+	// ì•„ì›ƒ íŒŒë¼ë¯¸í„° ë°˜ì˜
 	OutResult.itemID = dropItem.itemID;
 	OutResult.slotIndex = ret;
 	OutResult.count = dropItem.count;
@@ -417,13 +417,13 @@ bool CUser::GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResu
 		OutResult.randomStatResult[i].randomStatValue = dropItem.randomStat[i].randomStatValue;
 	}
 
-	// Storage¿¡ ¹İ¿µ
-	// Storage¿¡ ÇØ´ç ¾ÆÀÌÅÛ °´Ã¼ÀÇ ½½·Ô Å¸ÀÔ°ú À§Ä¡ ¹İ¿µ
+	// Storageì— ë°˜ì˜
+	// Storageì— í•´ë‹¹ ì•„ì´í…œ ê°ì²´ì˜ ìŠ¬ë¡¯ íƒ€ì…ê³¼ ìœ„ì¹˜ ë°˜ì˜
 	m_storage.ExchangeSlotInfo(ID, SLOT_TYPE::INVENTORY, ret);
 
-	// ´õÆ¼ ÇÃ·¡±×´Â ¾ÆÀÌÅÛ »ı¼ºÇÒ¶§ ÀÌ¹Ì falseÀÌ°í ±»ÀÌ true·Î º¯°æÇØ¼­ update ÇØÁÙ ÇÊ¿ä ¾øÀ½.
+	// ë”í‹° í”Œë˜ê·¸ëŠ” ì•„ì´í…œ ìƒì„±í• ë•Œ ì´ë¯¸ falseì´ê³  êµ³ì´ trueë¡œ ë³€ê²½í•´ì„œ update í•´ì¤„ í•„ìš” ì—†ìŒ.
 
-	// Job ´øÁö±â
+	// Job ë˜ì§€ê¸°
 	InsertItemJob* pJob = new InsertItemJob;
 	pJob->characterUID = m_characterUID;
 	pJob->itemUID = ID;
@@ -455,17 +455,17 @@ bool CUser::GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResu
 	return true;
 }
 
-// ¾ÆÀÌÅÛÀ» ÀÎº¥Åä¸® ¹Ù±ùÀ¸·Î ¹ö¸± ¶§ ÀÛµ¿
+// ì•„ì´í…œì„ ì¸ë²¤í† ë¦¬ ë°”ê¹¥ìœ¼ë¡œ ë²„ë¦´ ë•Œ ì‘ë™
 bool CUser::DeleteItem(int16 slotIndex, SLOT_TYPE slotType)
 {
 	ITEM_UID retID;
 
-	// ½½·Ô Å¸ÀÔ¿¡ µû¶ó ÇØ´ç À§Ä¡¿¡¼­ UID Á¦°Å
+	// ìŠ¬ë¡¯ íƒ€ì…ì— ë”°ë¼ í•´ë‹¹ ìœ„ì¹˜ì—ì„œ UID ì œê±°
 	switch (slotType)
 	{
 	case SLOT_TYPE::INVENTORY:
 	{
-		// ÀÌ¹Ì ºñ¿öÁ® ÀÖ°Å³ª index ÀÌ»óÇÏ¸é false ¸®ÅÏ
+		// ì´ë¯¸ ë¹„ì›Œì ¸ ìˆê±°ë‚˜ index ì´ìƒí•˜ë©´ false ë¦¬í„´
 		if (!m_inventory.DeleteInventorySlot(slotIndex, retID))
 			return false;
 
@@ -473,7 +473,7 @@ bool CUser::DeleteItem(int16 slotIndex, SLOT_TYPE slotType)
 		if (pItem == nullptr)
 			__debugbreak();
 
-		// Á¦°Å ¼º°øÇÏ¸é ÀÎº¥Åä¸®¿¡ ÇØ´ç index ÇÒ´çÀÚ¿¡ ¹İÈ¯
+		// ì œê±° ì„±ê³µí•˜ë©´ ì¸ë²¤í† ë¦¬ì— í•´ë‹¹ index í• ë‹¹ìì— ë°˜í™˜
 		m_inventory.ReturnSlotIndex(slotIndex);
 		break;
 	}
@@ -497,7 +497,7 @@ bool CUser::DeleteItem(int16 slotIndex, SLOT_TYPE slotType)
 		return false;
 	}
 
-	// Storage¿¡¼­ Á¦°Å(INVALID_ID¸é fale ¸®ÅÏµÊ)
+	// Storageì—ì„œ ì œê±°(INVALID_IDë©´ fale ë¦¬í„´ë¨)
 	if (!m_storage.DeleteItem(retID))
 		return false;
 
@@ -508,7 +508,7 @@ bool CUser::DeleteItem(int16 slotIndex, SLOT_TYPE slotType)
 	return true;
 }
 
-// ÇØ´ç ¾ÆÀÌÅÛ ½½·Ô¿¡ ´ëÇØ¼­ ¿ìÅ¬¸¯ ÇÒ¶§ È¤Àº ÇØ´ç ¹öÆ° ´©¸¦ ¶§ ÀÛµ¿
+// í•´ë‹¹ ì•„ì´í…œ ìŠ¬ë¡¯ì— ëŒ€í•´ì„œ ìš°í´ë¦­ í• ë•Œ í˜¹ì€ í•´ë‹¹ ë²„íŠ¼ ëˆ„ë¥¼ ë•Œ ì‘ë™
 bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 {
 	ITEM_UID retID = m_inventory.GetItemUID(slotIndex);
@@ -523,10 +523,10 @@ bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 	if (pItemData == nullptr)
 		return false;
 
-	// ÇØ´ç ¾ÆÀÌÅÛ Å¸ÀÔÀÌ ConsumableÀÌ¸é ¾ÆÀÌÅÛ »ç¿ëÇØ¼­ Àû¿ë ÈÄ Count 0 ÀÌ¸é ¾ÆÀÌÅÛ »èÁ¦
+	// í•´ë‹¹ ì•„ì´í…œ íƒ€ì…ì´ Consumableì´ë©´ ì•„ì´í…œ ì‚¬ìš©í•´ì„œ ì ìš© í›„ Count 0 ì´ë©´ ì•„ì´í…œ ì‚­ì œ
 	if (pItemData->itemType == ITEM_TYPE::CONSUMABLE)
 	{
-		// ¼Ò¸ğÇ° ¾ÆÀÌÅÛ »ç¿ë
+		// ì†Œëª¨í’ˆ ì•„ì´í…œ ì‚¬ìš©
 		uint16 newItemCount = 0;
 		if (!UseConsumableItem(pUserData, pItemData, newItemCount))
 			return false;
@@ -536,7 +536,7 @@ bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 		result.consumableResult.newItenCount = newItemCount;
 		result.consumableResult.slotIndex = slotIndex;
 
-		// »ç¿ë ÈÄ Ä«¿îÆ®°¡ 0ÀÌ ¾Æ´Ï¸é Áö¿ï ÇÊ¿ä¾øÀ¸´Ï ¸®ÅÏ
+		// ì‚¬ìš© í›„ ì¹´ìš´íŠ¸ê°€ 0ì´ ì•„ë‹ˆë©´ ì§€ìš¸ í•„ìš”ì—†ìœ¼ë‹ˆ ë¦¬í„´
 		if (newItemCount != 0)
 		{
 			ItemCountUpdateJob* pJob = new ItemCountUpdateJob;
@@ -546,7 +546,7 @@ bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 			return true;
 		}
 
-		// ´Ù »ç¿ëÇßÀ¸¸é ¾ÆÀÌÅÛ »èÁ¦
+		// ë‹¤ ì‚¬ìš©í–ˆìœ¼ë©´ ì•„ì´í…œ ì‚­ì œ
 		ITEM_UID retUID;
 		if (!m_inventory.DeleteInventorySlot(slotIndex, retUID))
 			__debugbreak();
@@ -562,7 +562,7 @@ bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 		return true;
 	}
 
-	// Àåºñ ¾ÆÀÌÅÛÀÌ¸é ÇØ´ç ½½·Ô¿¡ ÀåÂø ÇÏ±â
+	// ì¥ë¹„ ì•„ì´í…œì´ë©´ í•´ë‹¹ ìŠ¬ë¡¯ì— ì¥ì°© í•˜ê¸°
 	else if (pItemData->itemType == ITEM_TYPE::EQUIPMENT)
 		return EquippedItem(slotIndex, result);
 
@@ -570,22 +570,22 @@ bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 	return false;
 }
 
-// ÇØ´ç Àåºñ ½½·Ô¿¡ ´ëÇØ¼­ ¿ìÅ¬¸¯ ÇÏ¸é Àåºñ ÇØÁ¦
+// í•´ë‹¹ ì¥ë¹„ ìŠ¬ë¡¯ì— ëŒ€í•´ì„œ ìš°í´ë¦­ í•˜ë©´ ì¥ë¹„ í•´ì œ
 bool CUser::UseEquipmentItem(int16 slotIndex, UseItemResult& result)
 {
-	// ÇØ´ç ½½·Ô¿¡ ´ëÇÑ UID ¾ò´Âµ¥ ¾øÀ¸¸é ±×³É false ¸®ÅÏ
+	// í•´ë‹¹ ìŠ¬ë¡¯ì— ëŒ€í•œ UID ì–»ëŠ”ë° ì—†ìœ¼ë©´ ê·¸ëƒ¥ false ë¦¬í„´
 	ITEM_UID retID = m_equipment.GetEquippedItem(static_cast<EQUIP_SLOT>(slotIndex));
 	if (retID == ItemUID::ITEM_UID_INVALID_ID)
 		return false;
 
-	// ¸¸¾à Àåºñ°¡ ÀÖ´Ù¸é ÀåÂø ÇØÁ¦
+	// ë§Œì•½ ì¥ë¹„ê°€ ìˆë‹¤ë©´ ì¥ì°© í•´ì œ
 
-	// Àåºñ ÀåÂø ÇØÁ¦ ½Ã ÀÎº¥Åä¸® ½½·Ô ¿©À¯ºĞ È®ÀÎ
+	// ì¥ë¹„ ì¥ì°© í•´ì œ ì‹œ ì¸ë²¤í† ë¦¬ ìŠ¬ë¡¯ ì—¬ìœ ë¶„ í™•ì¸
 	int16 emptyIdx = m_inventory.GainEmptySlotIndex();
 	if (emptyIdx == -1)
 		return false;
 
-	// ÀÎº¥Åä¸® ¿©À¯ ÀÖÀ¸¸é ±âÁ¸ Àåºñ ÅÇ¿¡¼­ »©°í ÀÎº¥Åä¸®¿¡ »ğÀÔ
+	// ì¸ë²¤í† ë¦¬ ì—¬ìœ  ìˆìœ¼ë©´ ê¸°ì¡´ ì¥ë¹„ íƒ­ì—ì„œ ë¹¼ê³  ì¸ë²¤í† ë¦¬ì— ì‚½ì…
 	ITEM_UID unEquippedItemUID;
 	if (!m_equipment.UnEquippedItem(static_cast<EQUIP_SLOT>(slotIndex), unEquippedItemUID))
 	{
@@ -599,21 +599,21 @@ bool CUser::UseEquipmentItem(int16 slotIndex, UseItemResult& result)
 	result.resultType = USE_ITEM_RESULT::UNEQUIP;
 	result.unEquipResult.inventorySlotIdx = emptyIdx;
 
-	// storage¿¡ ±âÁ¸ ÀåÂøÇÏ´ø ÀåºñÀÇ slottypeÀ» ÀÎº¥Åä¸®¿Í ÇØ´ç index·Î º¯°æ ¹× dirty flag true
+	// storageì— ê¸°ì¡´ ì¥ì°©í•˜ë˜ ì¥ë¹„ì˜ slottypeì„ ì¸ë²¤í† ë¦¬ì™€ í•´ë‹¹ indexë¡œ ë³€ê²½ ë° dirty flag true
 	m_storage.ExchangeSlotInfo(unEquippedItemUID, SLOT_TYPE::INVENTORY, emptyIdx);
 	m_storage.SetItemDirtyFlag(unEquippedItemUID, true);
 
 	return true;
 }
 
-// Äü ½½·Ô¿¡¼­ ÇØ´ç ¹öÆ° ´©¸£¸é ÇØ´ç ¼Ò¸ğÇ° »ç¿ë
+// í€µ ìŠ¬ë¡¯ì—ì„œ í•´ë‹¹ ë²„íŠ¼ ëˆ„ë¥´ë©´ í•´ë‹¹ ì†Œëª¨í’ˆ ì‚¬ìš©
 bool CUser::UseQuickSlotItem(int16 slotIndex, UseItemResult& result)
 {
 	ITEM_UID retUID = m_quickSlot.GetQuickSlotItem(slotIndex);
 	if(retUID == ItemUID::ITEM_UID_INVALID_ID)
 		return false;
 
-	// storage¿¡¼­ ÇØ´ç ¾ÆÀÌÅÛ Ã£±â
+	// storageì—ì„œ í•´ë‹¹ ì•„ì´í…œ ì°¾ê¸°
 	const UserItem* pUserItem = m_storage.FindItem(retUID);
 	if (pUserItem == nullptr)
 		return false;
@@ -622,7 +622,7 @@ bool CUser::UseQuickSlotItem(int16 slotIndex, UseItemResult& result)
 	if (pItem == nullptr)
 		return false;
 
-	// ¼Ò¸ğ ¾ÆÀÌÅÛ »ç¿ë
+	// ì†Œëª¨ ì•„ì´í…œ ì‚¬ìš©
 	uint16 newItemCount = 0;
 	if (!UseConsumableItem(pUserItem, pItem, newItemCount))
 		return false;
@@ -632,7 +632,7 @@ bool CUser::UseQuickSlotItem(int16 slotIndex, UseItemResult& result)
 	result.consumableResult.slotIndex = slotIndex;
 	result.consumableResult.newItenCount = newItemCount;
 
-	// ¸¸¾à Äü½½·ÔÀÇ ¾ÆÀÌÅÛ ´Ù ½èÀ¸¸é Äü½½·Ô ¹× storage¿¡¼­ Á¦°Å
+	// ë§Œì•½ í€µìŠ¬ë¡¯ì˜ ì•„ì´í…œ ë‹¤ ì¼ìœ¼ë©´ í€µìŠ¬ë¡¯ ë° storageì—ì„œ ì œê±°
 	if (newItemCount != 0)
 	{
 		ItemCountUpdateJob* pJob = new ItemCountUpdateJob;
@@ -657,14 +657,14 @@ bool CUser::UseQuickSlotItem(int16 slotIndex, UseItemResult& result)
 	return true;
 }
 
-// ³» ¾ÆÀÌÅÛ ½½·Ô À§Ä¡ ¹Ù²Ü ¶§ ÀÛµ¿
+// ë‚´ ì•„ì´í…œ ìŠ¬ë¡¯ ìœ„ì¹˜ ë°”ê¿€ ë•Œ ì‘ë™
 bool CUser::ItemSlotChange(SLOT_TYPE fromType, int16 fromIndex, SLOT_TYPE toType, int16 toIndex)
 {
-	// ½½·Ô Å¸ÀÔ ¹üÀ§ Ã¼Å©
+	// ìŠ¬ë¡¯ íƒ€ì… ë²”ìœ„ ì²´í¬
 	if ((!SlotTypeRangeCheck(fromType)) || (!SlotTypeRangeCheck(toType)))
 		return false;
 
-	// todo : fromÀÌ InvalidID¸é ºñÁ¤»ó À¯Àú·Î ÆÇ´ÜÇØ¼­ ²÷±â
+	// todo : fromì´ InvalidIDë©´ ë¹„ì •ìƒ ìœ ì €ë¡œ íŒë‹¨í•´ì„œ ëŠê¸°
 	switch (fromType)
 	{
 	case SLOT_TYPE::INVENTORY:
@@ -695,7 +695,7 @@ bool CUser::ItemSlotChange(SLOT_TYPE fromType, int16 fromIndex, SLOT_TYPE toType
 		return false;
 	}
 
-	// from Å¸ÀÔ°ú to Å¸ÀÔÀÌ °°À¸¸é from Å¸ÀÔ¸¸ Ã¼Å©ÇØ¼­ ÀÎº¥Åä¸®¸é ÀÎº¥Åä¸® ÀÌµ¿, Äü ½½·ÔÀÌ¸é Äü½½·Ô ÀÌµ¿
+	// from íƒ€ì…ê³¼ to íƒ€ì…ì´ ê°™ìœ¼ë©´ from íƒ€ì…ë§Œ ì²´í¬í•´ì„œ ì¸ë²¤í† ë¦¬ë©´ ì¸ë²¤í† ë¦¬ ì´ë™, í€µ ìŠ¬ë¡¯ì´ë©´ í€µìŠ¬ë¡¯ ì´ë™
 	if (fromType == toType)
 	{
 		switch (fromType)
@@ -707,23 +707,23 @@ bool CUser::ItemSlotChange(SLOT_TYPE fromType, int16 fromIndex, SLOT_TYPE toType
 			return m_quickSlot.SwapSlot(fromIndex, toIndex);
 
 		case SLOT_TYPE::EQUIPMENT:
-			return false; // Àåºñ ½½·Ô³¢¸® ÀÌµ¿ ±İÁö
+			return false; // ì¥ë¹„ ìŠ¬ë¡¯ë¼ë¦¬ ì´ë™ ê¸ˆì§€
 
 		default:
 			return false;
 		}
 	}
 
-	// ÀÎº¥Åä¸®¿¡¼­ Äü ½½·Ô ÀÌµ¿
+	// ì¸ë²¤í† ë¦¬ì—ì„œ í€µ ìŠ¬ë¡¯ ì´ë™
 	else if (fromType == SLOT_TYPE::INVENTORY && toType == SLOT_TYPE::QUICKSLOT)
 		return SwapInventoryQuickSlot(fromIndex, toIndex);
 
-	// Äü ½½·Ô¿¡¼­ ÀÎº¥Åä¸® ÀÌµ¿
+	// í€µ ìŠ¬ë¡¯ì—ì„œ ì¸ë²¤í† ë¦¬ ì´ë™
 	else if (fromType == SLOT_TYPE::QUICKSLOT && toType == SLOT_TYPE::INVENTORY)
 		return SwapInventoryQuickSlot(toIndex, fromIndex);
 
 
-	// ±× ¿ÜÀÇ ÀÌµ¿Àº ºÒ°¡
+	// ê·¸ ì™¸ì˜ ì´ë™ì€ ë¶ˆê°€
 	return false;
 }
 
@@ -743,7 +743,7 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime)
 	{
 		int16 targetDef = target->GetDef(curTime);
 
-		// µ¥¹ÌÁö ³·¾Æµµ 1µô µé¾î°¨.
+		// ë°ë¯¸ì§€ ë‚®ì•„ë„ 1ë”œ ë“¤ì–´ê°.
 		if (damage <= targetDef)
 			damage = 1;
 		else
@@ -765,7 +765,7 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime)
 	}
 
 	case ESkillDamageType::TrueDamage:
-		// ¹æ¾î·Â ¹«½Ã
+		// ë°©ì–´ë ¥ ë¬´ì‹œ
 		break;
 	}
 
@@ -788,7 +788,7 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CMonster* target, uint32 curTime
 	{
 		uint16 targetDef = target->GetDef();
 
-		// µ¥¹ÌÁö ³·¾Æµµ 1µô µé¾î°¨.
+		// ë°ë¯¸ì§€ ë‚®ì•„ë„ 1ë”œ ë“¤ì–´ê°.
 		if (damage <= targetDef)
 			damage = 1;
 		else
@@ -810,7 +810,7 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CMonster* target, uint32 curTime
 	}
 
 	case ESkillDamageType::TrueDamage:
-		// ¹æ¾î·Â ¹«½Ã
+		// ë°©ì–´ë ¥ ë¬´ì‹œ
 		break;
 	}
 
@@ -824,7 +824,7 @@ uint32 CUser::CalBaseAttackDamage(CUser* target, uint32 curTime)
 
 	int16 atk = GetAtk(curTime);
 
-	// if swing index¸¶´Ù µ¥¹ÌÁö ¹èÀ² ´Ù¸£°Ô ÇÏ°í ½ÍÀ¸¸é ratio ¼öÁ¤
+	// if swing indexë§ˆë‹¤ ë°ë¯¸ì§€ ë°°ìœ¨ ë‹¤ë¥´ê²Œ í•˜ê³  ì‹¶ìœ¼ë©´ ratio ìˆ˜ì •
 
 	float ratio = 1.0f;
 
@@ -844,7 +844,7 @@ uint32 CUser::CalBaseAttackDamage(CMonster* target, uint32 curTime)
 
 	int16 atk = GetAtk(curTime);
 
-	// if swing index¸¶´Ù µ¥¹ÌÁö ¹èÀ² ´Ù¸£°Ô ÇÏ°í ½ÍÀ¸¸é ratio ¼öÁ¤
+	// if swing indexë§ˆë‹¤ ë°ë¯¸ì§€ ë°°ìœ¨ ë‹¤ë¥´ê²Œ í•˜ê³  ì‹¶ìœ¼ë©´ ratio ìˆ˜ì •
 
 	float ratio = 1.0f;
 
@@ -861,8 +861,8 @@ int16 CUser::GetDef(uint32 curTime)
 {
 	uint16 def = m_baseStat.m_def + m_equipment.GetDEF();
 
-	// ¹öÇÁ À¯È¿¼º Ã¼Å©
-	// ¹öÇÁ ¾ÆÁ÷ ÄÑÁ®ÀÖÀ¸¸é¼­ ¸¸·á½Ã°£ÀÌ ¾ÈµÇ¾úÀ¸¸é def Áõ°¡
+	// ë²„í”„ ìœ íš¨ì„± ì²´í¬
+	// ë²„í”„ ì•„ì§ ì¼œì ¸ìˆìœ¼ë©´ì„œ ë§Œë£Œì‹œê°„ì´ ì•ˆë˜ì—ˆìœ¼ë©´ def ì¦ê°€
 
 	for (int i = 0; i < USER_BUFF_SKILL_SLOT_COUNT; i++)
 	{
@@ -870,7 +870,7 @@ int16 CUser::GetDef(uint32 curTime)
 			def += ClientAttack::BUFF_DEF_ADD_AMOUNT;
 	}
 
-	// Å¸ ¹öÇÁ/µğ¹öÇÁ ½ºÅ³ À¯È¿¼º Ã¼Å©
+	// íƒ€ ë²„í”„/ë””ë²„í”„ ìŠ¤í‚¬ ìœ íš¨ì„± ì²´í¬
 
 	return def;
 }
@@ -879,8 +879,8 @@ int16 CUser::GetAtk(uint32 curTime)
 {
 	uint16 atk = m_baseStat.m_atk + m_equipment.GetATK();
 
-	// ¹öÇÁ À¯È¿¼º Ã¼Å©
-	// ¹öÇÁ ¾ÆÁ÷ ÄÑÁ®ÀÖÀ¸¸é¼­ ¸¸·á½Ã°£ÀÌ ¾ÈµÇ¾úÀ¸¸é def Áõ°¡
+	// ë²„í”„ ìœ íš¨ì„± ì²´í¬
+	// ë²„í”„ ì•„ì§ ì¼œì ¸ìˆìœ¼ë©´ì„œ ë§Œë£Œì‹œê°„ì´ ì•ˆë˜ì—ˆìœ¼ë©´ def ì¦ê°€
 
 	for (int i = 0; i < USER_BUFF_SKILL_SLOT_COUNT; i++)
 	{
@@ -888,7 +888,7 @@ int16 CUser::GetAtk(uint32 curTime)
 			atk += ClientAttack::BUFF_ATK_ADD_AMOUNT;
 	}
 
-	// Å¸ ¹öÇÁ/µğ¹öÇÁ ½ºÅ³ À¯È¿¼º Ã¼Å©
+	// íƒ€ ë²„í”„/ë””ë²„í”„ ìŠ¤í‚¬ ìœ íš¨ì„± ì²´í¬
 
 	return atk;
 }
@@ -947,7 +947,7 @@ void CUser::ItemSlotUpdate()
 	ItemSlotUpdateJob* pJob = new ItemSlotUpdateJob;
 	pJob->updateitems.reserve(UserItemStorage::MAX_ITEM_STORAGE_COUNT);
 
-	// Storage Å¬·¡½º È£ÃâÇØ¼­ updateÇØ¾ß ÇÒ ¾ÆÀÌÅÛµé ¾ò±â
+	// Storage í´ë˜ìŠ¤ í˜¸ì¶œí•´ì„œ updateí•´ì•¼ í•  ì•„ì´í…œë“¤ ì–»ê¸°
 	m_storage.CollectDirtyItems(pJob->updateitems);
 
 	if (pJob->updateitems.size() == 0)
@@ -964,16 +964,16 @@ void CUser::ItemSlotUpdate()
 
 void CUser::InventoryItemLoad(ItemLoadData& Item)
 {
-	// »ğÀÔÇÒ index´Â indexAllocator¿¡¼­ Á¦°Å
+	// ì‚½ì…í•  indexëŠ” indexAllocatorì—ì„œ ì œê±°
 	m_inventory.EraseEmptyIndex(Item.slotIndex);
 
-	// ÇØ´ç index¿¡ ¾ÆÀÌÅÛ »ğÀÔ
+	// í•´ë‹¹ indexì— ì•„ì´í…œ ì‚½ì…
 	m_inventory.InsertItemToSlot(Item.itemUID, Item.slotIndex);
 }
 
 void CUser::EquipmentItemLoad(ItemLoadData& Item)
 {
-	// ÇØ´ç index¿¡ Àåºñ ÅÇ »ğÀÔ
+	// í•´ë‹¹ indexì— ì¥ë¹„ íƒ­ ì‚½ì…
 	ITEM_UID retID;
 	m_equipment.EquippedItem(static_cast<EQUIP_SLOT>(Item.slotIndex), Item.itemUID, retID);
 }
@@ -1007,15 +1007,15 @@ void CUser::BaseStatInit(uint16 level)
 
 bool CUser::UseConsumableItem(const UserItem* pUserItem, const ItemData* pItemData, uint16& newItemCount)
 {
-	// ÄğÅ¸ÀÓ ´Ù µÈ°ÇÁö Ã¼Å©
+	// ì¿¨íƒ€ì„ ë‹¤ ëœê±´ì§€ ì²´í¬
 	uint32 curTime = timeGetTime();
 	CONSUMABLE_ITEM_TYPE consumeType = pItemData->consumableType;
 	if (!CanUseConsumalbIetem(curTime, consumeType))
 		return false;
 
-	// ÄğÅ¸ÀÓ Áö³µÀ¸¸é »ç¿ëÃ³¸®
+	// ì¿¨íƒ€ì„ ì§€ë‚¬ìœ¼ë©´ ì‚¬ìš©ì²˜ë¦¬
 
-	// ¼Ò¸ğÇ° »ç¿ë ÅëÇÑ È¿°ú Ã³¸®
+	// ì†Œëª¨í’ˆ ì‚¬ìš© í†µí•œ íš¨ê³¼ ì²˜ë¦¬
 	switch (consumeType)
 	{
 	case CONSUMABLE_ITEM_TYPE::SMALL_HP_POTION:
@@ -1039,7 +1039,7 @@ bool CUser::UseConsumableItem(const UserItem* pUserItem, const ItemData* pItemDa
 		break;
 	}
 
-	// ¾ÆÀÌÅÛ Ä«¿îÆ® °¨¼Ò
+	// ì•„ì´í…œ ì¹´ìš´íŠ¸ ê°ì†Œ
 	uint16 newCount = pUserItem->count;
 	if (!m_storage.ChangeItemCount(pUserItem->itemUID, --newCount))
 		return false;
@@ -1057,35 +1057,35 @@ bool CUser::CanUseConsumalbIetem(uint32 curTime, CONSUMABLE_ITEM_TYPE itemType)
 	return false;
 }
 
-// ÇØ´ç ÀÎº¥Åä¸® ½½·Ô¿¡ ÀÖ´Â Àåºñ ÀåÂøÇÏ·Á°í ÇÒ ¶§ ÀÛµ¿(ÀÎº¥Åä¸®¿¡ Àåºñ ¿ìÅ¬¸¯½Ã ÀÛµ¿)
+// í•´ë‹¹ ì¸ë²¤í† ë¦¬ ìŠ¬ë¡¯ì— ìˆëŠ” ì¥ë¹„ ì¥ì°©í•˜ë ¤ê³  í•  ë•Œ ì‘ë™(ì¸ë²¤í† ë¦¬ì— ì¥ë¹„ ìš°í´ë¦­ì‹œ ì‘ë™)
 bool CUser::EquippedItem(int16 inventorySlotIndex, UseItemResult& result)
 {
-	// UID È¹µæ ½ÇÆĞ ÇßÀ¸¸é false ¸®ÅÏ
+	// UID íšë“ ì‹¤íŒ¨ í–ˆìœ¼ë©´ false ë¦¬í„´
 	ITEM_UID retID = m_inventory.GetItemUID(inventorySlotIndex);
 	if (retID == ItemUID::ITEM_UID_INVALID_ID)
 		return false;
 
-	// ÇØ´ç ½½·ÔÀÇ ¾ÆÀÌÅÛ Å¸ÀÔ Ã¼Å© ConsumableÀ» false ¸®ÅÏ
+	// í•´ë‹¹ ìŠ¬ë¡¯ì˜ ì•„ì´í…œ íƒ€ì… ì²´í¬ Consumableì„ false ë¦¬í„´
 	const UserItem* pUserItem = m_storage.FindItem(retID);
 	if (pUserItem == nullptr)
 		return false;
 
-	// ¾ÆÀÌÅÛ Å×ÀÌºí¿¡ ¾ÖÃÊ¿¡ ¾ø´Â ID¸é ¼­¹ö ¹®Á¦
+	// ì•„ì´í…œ í…Œì´ë¸”ì— ì• ì´ˆì— ì—†ëŠ” IDë©´ ì„œë²„ ë¬¸ì œ
 	const ItemData* pItemData = ItemTable::GetItemData(pUserItem->itemID);
 	if (pItemData == nullptr)
 		return false;
 
-	// Å¸ÀÔÀÌ Àåºñ Å¸ÀÔ ¾Æ´Ï¸é false ¸®ÅÏ
+	// íƒ€ì…ì´ ì¥ë¹„ íƒ€ì… ì•„ë‹ˆë©´ false ë¦¬í„´
     if (pItemData->itemType != ITEM_TYPE::EQUIPMENT)
 		return false;
 
-	// ¸ÕÀú ÀÎº¥Åä¸® ½½·Ô¿¡¼­ Á¦°Å
+	// ë¨¼ì € ì¸ë²¤í† ë¦¬ ìŠ¬ë¡¯ì—ì„œ ì œê±°
 	ITEM_UID removedInventoryItemUID;
 	if (!m_inventory.DeleteInventorySlot(inventorySlotIndex, removedInventoryItemUID))
 		return false;
 
 
-	// ÇØ´ç ¾ÆÀÌÅÛÀÇ EQUIP_SLOT Ã¼Å© ÇØ¼­ ÇØ´ç Àåºñ ½½·Ô¿¡ Àåºñ ÀåÂø
+	// í•´ë‹¹ ì•„ì´í…œì˜ EQUIP_SLOT ì²´í¬ í•´ì„œ í•´ë‹¹ ì¥ë¹„ ìŠ¬ë¡¯ì— ì¥ë¹„ ì¥ì°©
 	ITEM_UID OutEquipItem;
 	if (!m_equipment.EquippedItem(pItemData->equipSlot, removedInventoryItemUID, OutEquipItem))
 		return false;
@@ -1100,21 +1100,21 @@ bool CUser::EquippedItem(int16 inventorySlotIndex, UseItemResult& result)
 	result.equipResult.resultSlot[slotUpdateCount].slotType = SLOT_TYPE::INVENTORY;
 	result.equipResult.resultSlot[slotUpdateCount].slotIndex = inventorySlotIndex;
 
-	// ±âÁ¸ ÀÎº¥Åä¸®¿¡ ÀÖ´ø ¾ÆÀÌÅÛÀÇ slottypeÀ» Àåºñ·Î À§Ä¡·Î Àåºñ ½½·Ô À§Ä¡·Î º¯°æ ¹× dirty flag ÄÑ¼­ DB ¹İ¿µ °¡´ÉÇÏ°Ô
+	// ê¸°ì¡´ ì¸ë²¤í† ë¦¬ì— ìˆë˜ ì•„ì´í…œì˜ slottypeì„ ì¥ë¹„ë¡œ ìœ„ì¹˜ë¡œ ì¥ë¹„ ìŠ¬ë¡¯ ìœ„ì¹˜ë¡œ ë³€ê²½ ë° dirty flag ì¼œì„œ DB ë°˜ì˜ ê°€ëŠ¥í•˜ê²Œ
 	m_storage.ExchangeSlotInfo(removedInventoryItemUID, SLOT_TYPE::EQUIPMENT, static_cast<int16>(pItemData->equipSlot));
 	m_storage.SetItemDirtyFlag(removedInventoryItemUID, true);
 
-	// ÇØ´ç Àåºñ ½½·Ô¿¡ ÀåÂøµÈ Àåºñ°¡ ¾øÀ¸¸é ±×³É ¸®ÅÏ
+	// í•´ë‹¹ ì¥ë¹„ ìŠ¬ë¡¯ì— ì¥ì°©ëœ ì¥ë¹„ê°€ ì—†ìœ¼ë©´ ê·¸ëƒ¥ ë¦¬í„´
 	if (OutEquipItem == ItemUID::ITEM_UID_INVALID_ID)
 	{
 		result.equipResult.resultSlot[slotUpdateCount].itemID = ItemUID::ITEM_UID_INVALID_ID;
 
-		// ±âÁ¸¿¡ ÀåÂøÁßÀÌ´ø Àåºñ ¾øÀ¸¸é ±âÁ¸ ÀÎº¥Åä¸® ¾ÆÀÌÅÛ index´Â ÇÊ¿ä¾øÀ¸´Ï ¹İ³³
+		// ê¸°ì¡´ì— ì¥ì°©ì¤‘ì´ë˜ ì¥ë¹„ ì—†ìœ¼ë©´ ê¸°ì¡´ ì¸ë²¤í† ë¦¬ ì•„ì´í…œ indexëŠ” í•„ìš”ì—†ìœ¼ë‹ˆ ë°˜ë‚©
 		m_inventory.ReturnSlotIndex(inventorySlotIndex);
 		return true;
 	}
 
-	// ÀÖÀ¸¸é inventoryindex·Î ±âÁ¸¿¡ ÀåÂøÇÏ´ø Àåºñ ³Ö±â(»°´Âµ¥ ¸ø³Ö´Â°Å´Â ¼­¹ö ¹®Á¦)
+	// ìˆìœ¼ë©´ inventoryindexë¡œ ê¸°ì¡´ì— ì¥ì°©í•˜ë˜ ì¥ë¹„ ë„£ê¸°(ëºëŠ”ë° ëª»ë„£ëŠ”ê±°ëŠ” ì„œë²„ ë¬¸ì œ)
 	if (!m_inventory.InsertItemToSlot(OutEquipItem, inventorySlotIndex))
 		__debugbreak();
 
@@ -1122,7 +1122,7 @@ bool CUser::EquippedItem(int16 inventorySlotIndex, UseItemResult& result)
 	if (pOutEquipItem == nullptr)
 		__debugbreak();
 
-	// ±âÁ¸ Àåºñ ÅÇ¿¡ ÀÖ´ø ÀåºñÀÇ slottypeÀ» ÀÎº¥Åä¸®·Î ¹Ù²Ù°í index·Î ÀÎº¥Åä¸® index·Î º¯°æ ¹× dirty flag Å°±â
+	// ê¸°ì¡´ ì¥ë¹„ íƒ­ì— ìˆë˜ ì¥ë¹„ì˜ slottypeì„ ì¸ë²¤í† ë¦¬ë¡œ ë°”ê¾¸ê³  indexë¡œ ì¸ë²¤í† ë¦¬ indexë¡œ ë³€ê²½ ë° dirty flag í‚¤ê¸°
 	m_storage.ExchangeSlotInfo(OutEquipItem, SLOT_TYPE::INVENTORY, inventorySlotIndex);
 	m_storage.SetItemDirtyFlag(OutEquipItem, true);
 
@@ -1141,18 +1141,18 @@ bool CUser::SlotTypeRangeCheck(SLOT_TYPE type)
 
 bool CUser::SwapInventoryEquipment(int16 inventoryIndex, EQUIP_SLOT equipSlot)
 {
-	// ÇØ´ç ÀÎº¥Åä¸® ¹× Àåºñ ½½·Ô À§Ä¡¿¡ ÀÖ´Â ¾ÆÀÌÅÛ UID°¡ ÇÏ³ª¶óµµ Invalid¸é false ¸®ÅÏ
+	// í•´ë‹¹ ì¸ë²¤í† ë¦¬ ë° ì¥ë¹„ ìŠ¬ë¡¯ ìœ„ì¹˜ì— ìˆëŠ” ì•„ì´í…œ UIDê°€ í•˜ë‚˜ë¼ë„ Invalidë©´ false ë¦¬í„´
 	ITEM_UID equipmentUID;
 	ITEM_UID inventoryUID = m_inventory.GetItemUID(inventoryIndex);
 	if (inventoryUID == ItemUID::ITEM_UID_INVALID_ID)
 		return false;
 
-	// ÀåÂø ÁßÀÌ´ø Àåºñ°¡ ¾øÀ¸¸é false ¸®ÅÏ
+	// ì¥ì°© ì¤‘ì´ë˜ ì¥ë¹„ê°€ ì—†ìœ¼ë©´ false ë¦¬í„´
 	equipmentUID = m_equipment.GetEquippedItem(equipSlot);
 	if (equipmentUID == ItemUID::ITEM_UID_INVALID_ID)
 		return false;
 
-	// ÀÎº¥Åä¸®¿¡ ÀÖ´Â ¾ÆÀÌÅÛ UID Ã¼Å© Àåºñ°¡ ¾Æ´Ï¸é false ¸®ÅÏ
+	// ì¸ë²¤í† ë¦¬ì— ìˆëŠ” ì•„ì´í…œ UID ì²´í¬ ì¥ë¹„ê°€ ì•„ë‹ˆë©´ false ë¦¬í„´
 	const UserItem* pInventoryItem = m_storage.FindItem(inventoryUID);
 	if (pInventoryItem == nullptr)
 		return false;
@@ -1161,15 +1161,15 @@ bool CUser::SwapInventoryEquipment(int16 inventoryIndex, EQUIP_SLOT equipSlot)
 	if (pInventoryItemData == nullptr)
 		return false;
 
-	// ÀÎº¥Åä¸®¿¡ ÀÖ´Â ¾ÆÀÌÅÛ UID Ã¼Å© Àåºñ°¡ ¾Æ´Ï¸é false ¸®ÅÏ
+	// ì¸ë²¤í† ë¦¬ì— ìˆëŠ” ì•„ì´í…œ UID ì²´í¬ ì¥ë¹„ê°€ ì•„ë‹ˆë©´ false ë¦¬í„´
 	if (pInventoryItemData->itemType != ITEM_TYPE::EQUIPMENT)
 		return false;
 
-	// ÀÎº¥Åä¸® ¾ÆÀÌÅÛÀÌ ÀåºñÀÇ ½½·Ô°ú ÀÌµ¿ ½ÃÅ³ Àåºñ ÅÇÀÇ ½½·ÔÀÌ ÀÏÄ¡ ÇÏÁö ¾ÊÀ¸¸é false¸®ÅÏ
+	// ì¸ë²¤í† ë¦¬ ì•„ì´í…œì´ ì¥ë¹„ì˜ ìŠ¬ë¡¯ê³¼ ì´ë™ ì‹œí‚¬ ì¥ë¹„ íƒ­ì˜ ìŠ¬ë¡¯ì´ ì¼ì¹˜ í•˜ì§€ ì•Šìœ¼ë©´ falseë¦¬í„´
 	if (pInventoryItemData->equipSlot != equipSlot)
 		return false;
 
-	// ÀåÂø ÁßÀÌ´ø Àåºñ¸¦ ±âÁ¸ ÀÎº¥Åä¸® À§Ä¡·Î ÀÌµ¿ ½ÃÅ°°í ±âÁ¸ ÀÎº¥Åä¸®¿¡ ÀÖ´Â Àåºñ¸¦ Àåºñ ÅÇÀ¸·Î ÀÌµ¿
+	// ì¥ì°© ì¤‘ì´ë˜ ì¥ë¹„ë¥¼ ê¸°ì¡´ ì¸ë²¤í† ë¦¬ ìœ„ì¹˜ë¡œ ì´ë™ ì‹œí‚¤ê³  ê¸°ì¡´ ì¸ë²¤í† ë¦¬ì— ìˆëŠ” ì¥ë¹„ë¥¼ ì¥ë¹„ íƒ­ìœ¼ë¡œ ì´ë™
 	m_inventory.DeleteInventorySlot(inventoryIndex, inventoryUID);
 	if (!m_inventory.InsertItemToSlot(equipmentUID, inventoryIndex))
 		return false;
@@ -1185,14 +1185,14 @@ bool CUser::SwapInventoryQuickSlot(int16 inventoryIndex, int16 quickSlotIndex)
 	ITEM_UID inventoryUID = m_inventory.GetItemUID(inventoryIndex);
 	ITEM_UID quickSlotUID = m_quickSlot.GetQuickSlotItem(quickSlotIndex);
 
-	// ¸Å°³ÀÎÀÚ·Î ¹ŞÀº index¿¡ ÀÖ´Â UIDÀÇ ITEM_ID ¾ò±â À§ÇØ Find
+	// ë§¤ê°œì¸ìë¡œ ë°›ì€ indexì— ìˆëŠ” UIDì˜ ITEM_ID ì–»ê¸° ìœ„í•´ Find
 	const UserItem* pInvenUserItem = m_storage.FindItem(inventoryUID);
 	const UserItem* pQuickSlotUserItem = m_storage.FindItem(quickSlotUID);
 
 	const ItemData* pInvenItem = nullptr;
 	const ItemData* pQuickItem = nullptr;
 
-	// ¸Å°³ÀÎÀÚ·Î ¹ŞÀº index¿¡ ÀÖ´Â UID¿¡ ÀÖ´Â ¾ÆÀÌÅÛÀÇ Å¸ÀÔ Ã¼Å©ÇÏ±â À§ÇØ GetItemData È£Ãâ
+	// ë§¤ê°œì¸ìë¡œ ë°›ì€ indexì— ìˆëŠ” UIDì— ìˆëŠ” ì•„ì´í…œì˜ íƒ€ì… ì²´í¬í•˜ê¸° ìœ„í•´ GetItemData í˜¸ì¶œ
 	if (pInvenUserItem != nullptr)
 	{
 		pInvenItem = ItemTable::GetItemData(pInvenUserItem->itemID);
@@ -1204,7 +1204,7 @@ bool CUser::SwapInventoryQuickSlot(int16 inventoryIndex, int16 quickSlotIndex)
 	}
 
 
-	// todo : µÑ Áß ÇÏ³ª¶óµµ ¾ÆÀÌÅÛÀÌ ¼Ò¸ğÇ°ÀÌ ¾Æ´Ï¸é false ¸®ÅÏ ÈÄ ÇØ´ç À¯Àú ²÷±â
+	// todo : ë‘˜ ì¤‘ í•˜ë‚˜ë¼ë„ ì•„ì´í…œì´ ì†Œëª¨í’ˆì´ ì•„ë‹ˆë©´ false ë¦¬í„´ í›„ í•´ë‹¹ ìœ ì € ëŠê¸°
 	if (pInvenItem)
 	{
 		if (pInvenItem->itemType != ITEM_TYPE::CONSUMABLE)
@@ -1217,22 +1217,22 @@ bool CUser::SwapInventoryQuickSlot(int16 inventoryIndex, int16 quickSlotIndex)
 			return false;
 	}
 	
-	// ÀÎº¥Åä¸®¿Í Äü½½·Ô¿¡¼­ UID Á¦°Å
+	// ì¸ë²¤í† ë¦¬ì™€ í€µìŠ¬ë¡¯ì—ì„œ UID ì œê±°
 	m_inventory.DeleteInventorySlot(inventoryIndex, inventoryUID);
 	m_quickSlot.ClearConsumable(quickSlotIndex, quickSlotUID);
 
-	// from Invalid´Â »óÀ§ ÇÔ¼ö¿¡¼­ °É·¯Á³À¸´Ï ¿©±â¼­ Invalid¸é To°¡ InvalidÀÎ »óÈ²
+	// from InvalidëŠ” ìƒìœ„ í•¨ìˆ˜ì—ì„œ ê±¸ëŸ¬ì¡Œìœ¼ë‹ˆ ì—¬ê¸°ì„œ Invalidë©´ Toê°€ Invalidì¸ ìƒí™©
 	// Quick -> Inventory
 	if (inventoryUID == ItemUID::ITEM_UID_INVALID_ID)
 	{
-		// to°¡ InventoryÀÎµ¥ ºó ½½·ÔÀÎ »óÈ²
+		// toê°€ Inventoryì¸ë° ë¹ˆ ìŠ¬ë¡¯ì¸ ìƒí™©
 	
-		// Äü½½·Ô UID°¡ ÀÎº¥Åä¸®¿¡ ¿À´Ï ÇØ´ç index´Â ÇÒ´ç ºÒ°¡
+		// í€µìŠ¬ë¡¯ UIDê°€ ì¸ë²¤í† ë¦¬ì— ì˜¤ë‹ˆ í•´ë‹¹ indexëŠ” í• ë‹¹ ë¶ˆê°€
 		m_inventory.EraseEmptyIndex(inventoryIndex);
 		m_inventory.InsertItemToSlot(quickSlotUID, inventoryIndex);
 
-		// Äü½½·Ô¿¡¼­ Á¦°Å ÈÄ ÀÎº¥Åä¸®¿¡ ÀÌµ¿ ½ÃÄ×´Âµ¥ ÀÎº¥Åä¸®¿¡´Â ¾ÆÀÌÅÛÀÌ ¾ø´Â »óÈ²ÀÌ´Ï ±âÁ¸ Äü½½·Ô ¾ÆÀÌÅÛÀÇ 
-		// slottype°ú index¸¦ ÀÎº¥Åä¸®·Î º¯°æ
+		// í€µìŠ¬ë¡¯ì—ì„œ ì œê±° í›„ ì¸ë²¤í† ë¦¬ì— ì´ë™ ì‹œì¼°ëŠ”ë° ì¸ë²¤í† ë¦¬ì—ëŠ” ì•„ì´í…œì´ ì—†ëŠ” ìƒí™©ì´ë‹ˆ ê¸°ì¡´ í€µìŠ¬ë¡¯ ì•„ì´í…œì˜ 
+		// slottypeê³¼ indexë¥¼ ì¸ë²¤í† ë¦¬ë¡œ ë³€ê²½
 		m_storage.ExchangeSlotInfo(quickSlotUID, SLOT_TYPE::INVENTORY, inventoryIndex);
 		m_storage.SetItemDirtyFlag(quickSlotUID, true);
 		return true;
@@ -1241,9 +1241,9 @@ bool CUser::SwapInventoryQuickSlot(int16 inventoryIndex, int16 quickSlotIndex)
 	// Inventory -> Quick
 	else if (quickSlotUID == ItemUID::ITEM_UID_INVALID_ID)
 	{
-		// to°¡ QuickSlotÀÎµ¥ ºó ½½·ÔÀÎ »óÈ²
+		// toê°€ QuickSlotì¸ë° ë¹ˆ ìŠ¬ë¡¯ì¸ ìƒí™©
 
-		// ±âÁ¸ ÀÎº¥Åä¸® ¾ÆÀÌÅÛÀÌ Äü½½·ÔÀ¸·Î ÀÌµ¿ÇÏ´Ï ÇØ´ç ÀÎº¥Åä¸® index ¹İÈ¯
+		// ê¸°ì¡´ ì¸ë²¤í† ë¦¬ ì•„ì´í…œì´ í€µìŠ¬ë¡¯ìœ¼ë¡œ ì´ë™í•˜ë‹ˆ í•´ë‹¹ ì¸ë²¤í† ë¦¬ index ë°˜í™˜
 		m_inventory.ReturnSlotIndex(inventoryIndex);
 		m_quickSlot.SetConsumable(quickSlotIndex, inventoryUID, quickSlotUID);
 
@@ -1252,16 +1252,16 @@ bool CUser::SwapInventoryQuickSlot(int16 inventoryIndex, int16 quickSlotIndex)
 		return true;
 	}
 
-	// µÑ ´Ù ¾ÆÀÌÅÛÀÌ ÀÖ´Â »óÈ²
+	// ë‘˜ ë‹¤ ì•„ì´í…œì´ ìˆëŠ” ìƒí™©
 	ITEM_UID retQuickUID = ItemUID::ITEM_UID_INVALID_ID;
 	m_quickSlot.SetConsumable(quickSlotIndex, inventoryUID, retQuickUID);
 	m_inventory.InsertItemToSlot(quickSlotUID, inventoryIndex);
 
-	// Äü½½·Ô ¾ÆÀÌÅÛÀÇ slottype, index¸¦ ÀÎº¥Åä¸®·Î º¯°æ
+	// í€µìŠ¬ë¡¯ ì•„ì´í…œì˜ slottype, indexë¥¼ ì¸ë²¤í† ë¦¬ë¡œ ë³€ê²½
 	m_storage.ExchangeSlotInfo(quickSlotUID, SLOT_TYPE::INVENTORY, inventoryIndex);
 	m_storage.SetItemDirtyFlag(quickSlotUID, true);
 
-	// ÀÎº¥Åä¸® ¾ÆÀÌÅÛÀÇ slottype, index¸¦ Äü½½·ÔÀ¸·Î º¯°æ
+	// ì¸ë²¤í† ë¦¬ ì•„ì´í…œì˜ slottype, indexë¥¼ í€µìŠ¬ë¡¯ìœ¼ë¡œ ë³€ê²½
 	m_storage.ExchangeSlotInfo(inventoryUID, SLOT_TYPE::QUICKSLOT, quickSlotIndex);
 	m_storage.SetItemDirtyFlag(inventoryUID, true);
 	return true;

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "ContentsStruct.h"
 
 struct UserItem;
@@ -14,7 +14,7 @@ public:
 	CUserItemStorage() = default;
 	~CUserItemStorage() = default;
 
-	// ¼­¹ö °¡µ¿½Ã ÇÑ¹ø È£Ãâ
+	// ì„œë²„ ê°€ë™ì‹œ í•œë²ˆ í˜¸ì¶œ
 	static void ItemPoolInit();
 	static void ItemPoolDestroy();
 

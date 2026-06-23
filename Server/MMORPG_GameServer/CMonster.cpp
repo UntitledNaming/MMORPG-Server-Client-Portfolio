@@ -1,4 +1,4 @@
-#include <windows.h>
+ï»¿#include <windows.h>
 #include <array>
 #include <unordered_map>
 #include <stack>
@@ -29,7 +29,7 @@ void CMonster::Init(uint64 monsterID,  uint16 monsterType, const Location& spawn
 	m_maxHP = MonsterConst::BASE_MAXHP;
 	m_exp = MonsterConst::GET_EXP;
 
-	// AIÀÇ ÃÊ±âÈ­
+	// AIì˜ ì´ˆê¸°í™”
 	m_pMonsterAIComp = new MonsterAI;
 	m_pMonsterAIComp->Init(this, fieldGroupPtr, spawnLocation);
 }
@@ -42,18 +42,18 @@ void CMonster::Destroy()
 
 bool CMonster::Regen()
 {
-	// Á×¾ú´ÂÁö Ã¼Å©
+	// ì£½ì—ˆëŠ”ì§€ ì²´í¬
 	if (GetMonsterState() != EMonsterState::Dead)
 		return false;
 
-	// Á×¾úÀ¸¸é ½Ã°£ Áõ°¡
+	// ì£½ì—ˆìœ¼ë©´ ì‹œê°„ ì¦ê°€
 	IncRespawnTime();
 
-	// ½Ã°£ Áö³µ´ÂÁö Ã¼Å©
+	// ì‹œê°„ ì§€ë‚¬ëŠ”ì§€ ì²´í¬
 	if (GetRespawnTime() < GetRespawnDelay())
 		return false;
 
-	// Regen ÀÛ¾÷
+	// Regen ì‘ì—…
 	m_hp = MonsterConst::BASE_HP;
 	m_maxHP = MonsterConst::BASE_MAXHP;
 	m_moveYaw = rand() % 360;

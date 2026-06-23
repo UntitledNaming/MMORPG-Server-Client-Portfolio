@@ -1,4 +1,4 @@
-#include <mysql.h>
+ï»¿#include <mysql.h>
 #include <string>
 #include <unordered_map>
 #include <array>
@@ -40,43 +40,43 @@ void ItemUIDRangeAllocateJob::Execute(DBTLS* InDBTLS)
 	if (!success)
 		__debugbreak();
 
-	// UID ÇÒ´ç Å×ÀÌºí¿¡¼­ °¡Á®¿À±â
+	// UID í• ë‹¹ í…Œì´ë¸”ì—ì„œ ê°€ì ¸ì˜¤ê¸°
 	success = InDBTLS->DB_Post_Query(result, "SELECT startUID FROM worlddb.uid_sequence WHERE uidName = '%s' FOR UPDATE", "ItemUIDAllocator");
 	if (!success)
 		__debugbreak();
 
-	// Äõ¸® ³¯¸®°í STORE_RESULT·Î Ã³¸®ÇÏ±â 
+	// ì¿¼ë¦¬ ë‚ ë¦¬ê³  STORE_RESULTë¡œ ì²˜ë¦¬í•˜ê¸° 
 	MYSQL_RES* mysql_res = InDBTLS->DB_GET_Result(0);
 	if (mysql_res == nullptr)
 		__debugbreak();
 
-	// °¡Á®¿Â µ¥ÀÌÅÍ¿¡ ´ëÇÑ Row µ¥ÀÌÅÍ °¡¸®Å°´Â Æ÷ÀÎÅÍ ¾ò±â
+	// ê°€ì ¸ì˜¨ ë°ì´í„°ì— ëŒ€í•œ Row ë°ì´í„° ê°€ë¦¬í‚¤ëŠ” í¬ì¸í„° ì–»ê¸°
 	MYSQL_ROW* row = InDBTLS->DB_Fetch_Row(mysql_res);
 	if (row == nullptr)
 		__debugbreak();
 
 	startUID = (ITEM_UID)atoi((*row)[0]);
 
-	// µ¥ÀÌÅÍ °¡Á®¿Â°Å ¹Ð¾î¹ö¸®±â
+	// ë°ì´í„° ê°€ì ¸ì˜¨ê±° ë°€ì–´ë²„ë¦¬ê¸°
 	InDBTLS->DB_Free_Result();
 
-	// StartUID °»½Å
+	// StartUID ê°±ì‹ 
 	success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.uid_sequence SET startUID = %llu WHERE uidName = '%s'", startUID+ItemUID::ITEM_UID_RESERVE_COUNT,"ItemUIDAllocator");
 	if (!success)
 		__debugbreak();
 
-	// Ä¿¹Ô ³¡
+	// ì»¤ë°‹ ë
 	success = InDBTLS->DB_Post_Query(result, "COMMIT");
 	if (!success)
 		__debugbreak();
 
-	// Àü´ÞÇÏ±â
+	// ì „ë‹¬í•˜ê¸°
 	ItemUIDAllocator::Init(startUID, startUID + ItemUID::ITEM_UID_RESERVE_COUNT);
 }
 
 PostAction CharacterSelectJob::OnComplete(CGroup* pGroup, CUser* pUser)
 {
-	// ¸Å°³ÀÎÀÚ·Î ¹ÞÀº pUser¿¡ Job ¸â¹ö¿¡ ÀÖ´Â À¯Àú Á¤º¸¸¦ ¿Å°Ü¼­ ÃÊ±âÈ­ ÇÏ±â
+	// ë§¤ê°œì¸ìžë¡œ ë°›ì€ pUserì— Job ë©¤ë²„ì— ìžˆëŠ” ìœ ì € ì •ë³´ë¥¼ ì˜®ê²¨ì„œ ì´ˆê¸°í™” í•˜ê¸°
 	pUser->LoadDataFromDB(characterUID, accountID, level, curEXP, Location, items);
 
 	return PostAction::MoveToField;
@@ -84,23 +84,23 @@ PostAction CharacterSelectJob::OnComplete(CGroup* pGroup, CUser* pUser)
 
 void CharacterSelectJob::Execute(DBTLS* InDBTLS)
 {
-	// DBTLS¸¦ ÅëÇØ À¯Àú °´Ã¼ ¹× ¾ÆÀÌÅÛ Á¤º¸ ¾ò´Â Äõ¸® ³¯¸®±â
+	// DBTLSë¥¼ í†µí•´ ìœ ì € ê°ì²´ ë° ì•„ì´í…œ ì •ë³´ ì–»ëŠ” ì¿¼ë¦¬ ë‚ ë¦¬ê¸°
 	bool success = false;
 	success = InDBTLS->DB_Post_Query(result, "START TRANSACTION");
 	if (!success)
 		__debugbreak();
 
-	// À¯Àú Å×ÀÌºí Á¤º¸ °¡Á®¿À±â
+	// ìœ ì € í…Œì´ë¸” ì •ë³´ ê°€ì ¸ì˜¤ê¸°
 	success = InDBTLS->DB_Post_Query(result, "SELECT * FROM worlddb.character WHERE characterUID = %llu", characterUID);
 	if (!success)
 		__debugbreak();
 
-	// Äõ¸® ³¯¸®°í STORE_RESULT·Î Ã³¸®ÇÏ±â 
+	// ì¿¼ë¦¬ ë‚ ë¦¬ê³  STORE_RESULTë¡œ ì²˜ë¦¬í•˜ê¸° 
 	MYSQL_RES* mysql_res = InDBTLS->DB_GET_Result(0);
 	if (mysql_res == nullptr)
 		__debugbreak();
 
-	// °¡Á®¿Â µ¥ÀÌÅÍ¿¡ ´ëÇÑ Row µ¥ÀÌÅÍ °¡¸®Å°´Â Æ÷ÀÎÅÍ ¾ò±â
+	// ê°€ì ¸ì˜¨ ë°ì´í„°ì— ëŒ€í•œ Row ë°ì´í„° ê°€ë¦¬í‚¤ëŠ” í¬ì¸í„° ì–»ê¸°
 	MYSQL_ROW* row = InDBTLS->DB_Fetch_Row(mysql_res);
 	if (row == nullptr)
 		__debugbreak();
@@ -111,10 +111,10 @@ void CharacterSelectJob::Execute(DBTLS* InDBTLS)
 	Location.ypos = (float)strtof((*row)[5], nullptr);
 	Location.zpos = (float)strtof((*row)[6], nullptr);
 
-	// µ¥ÀÌÅÍ °¡Á®¿Â°Å ¹Ð¾î¹ö¸®±â
+	// ë°ì´í„° ê°€ì ¸ì˜¨ê±° ë°€ì–´ë²„ë¦¬ê¸°
 	InDBTLS->DB_Free_Result();
 
-	// ¾ÆÀÌÅÛ Å×ÀÌºí Á¤º¸ °¡Á®¿À±â
+	// ì•„ì´í…œ í…Œì´ë¸” ì •ë³´ ê°€ì ¸ì˜¤ê¸°
 	success = InDBTLS->DB_Post_Query(result, "SELECT * FROM worlddb.item WHERE characterUID = %llu", characterUID);
 	if (!success)
 		__debugbreak();
@@ -122,7 +122,7 @@ void CharacterSelectJob::Execute(DBTLS* InDBTLS)
 	mysql_res = InDBTLS->DB_GET_Result(0);
 	if (mysql_res == nullptr)
 		__debugbreak();
-	size_t cnt = mysql_num_rows(mysql_res); // row °¹¼ö ¾Ë·ÁÁÜ
+	size_t cnt = mysql_num_rows(mysql_res); // row ê°¯ìˆ˜ ì•Œë ¤ì¤Œ
 	items.reserve(cnt);
 
 	row = InDBTLS->DB_Fetch_Row(mysql_res);
@@ -187,10 +187,10 @@ void CharacterSelectJob::Execute(DBTLS* InDBTLS)
 		row = InDBTLS->DB_Fetch_Row(mysql_res);
 	}
 
-	// µ¥ÀÌÅÍ °¡Á®¿Â°Å ¹Ð¾î¹ö¸®±â
+	// ë°ì´í„° ê°€ì ¸ì˜¨ê±° ë°€ì–´ë²„ë¦¬ê¸°
 	InDBTLS->DB_Free_Result();
 
-	// Ä¿¹Ô ³¡
+	// ì»¤ë°‹ ë
 	success = InDBTLS->DB_Post_Query(result, "COMMIT");
 	if (!success)
 		__debugbreak();
@@ -225,9 +225,9 @@ void ItemCountUpdateJob::Execute(DBTLS* InDBTLS)
 
 void ItemSlotUpdateJob::Execute(DBTLS* InDBTLS)
 {
-	// Äõ¸® ¹®ÀÚ¿­ »ý¼º
+	// ì¿¼ë¦¬ ë¬¸ìžì—´ ìƒì„±
 	std::string lastquery;
-	lastquery.reserve(ITEMSLOTUPDATE_SQL_FIXED + updateitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);     // INSERT INTO  ... VALUES(62) + ON DUPLICATE KEY UPDATE ... (78) = 160 + ¾ÆÀÌÅÛ 1°³´ç ¹®ÀÚ¿­ Å©±â(40) * °¹¼ö 
+	lastquery.reserve(ITEMSLOTUPDATE_SQL_FIXED + updateitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);     // INSERT INTO  ... VALUES(62) + ON DUPLICATE KEY UPDATE ... (78) = 160 + ì•„ì´í…œ 1ê°œë‹¹ ë¬¸ìžì—´ í¬ê¸°(40) * ê°¯ìˆ˜ 
 
 	lastquery = "UPDATE worlddb.item SET ";
 
@@ -273,7 +273,7 @@ void ItemSlotUpdateJob::Execute(DBTLS* InDBTLS)
 	lastquery += slotindexQuery;
 	lastquery += whereQuery;
 
-	// ¾ÆÀÌÅÛ UPDATE Äõ¸® ÇÑ¹æ¿¡ º¸³»±â
+	// ì•„ì´í…œ UPDATE ì¿¼ë¦¬ í•œë°©ì— ë³´ë‚´ê¸°
 	bool success = false;
 	success = InDBTLS->DB_Post_Query(result, lastquery.c_str());
 	if (!success)
@@ -291,9 +291,9 @@ void CharacterProgressJob::Execute(DBTLS* InDBTLS)
 
 void LogOutJob::Execute(DBTLS* InDBTLS)
 {
-	// Äõ¸® ¹®ÀÚ¿­ »ý¼º
+	// ì¿¼ë¦¬ ë¬¸ìžì—´ ìƒì„±
 	std::string lastquery;
-	lastquery.reserve(ITEMSLOTUPDATE_SQL_FIXED + updateitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);     // INSERT INTO  ... VALUES(62) + ON DUPLICATE KEY UPDATE ... (78) = 160 + ¾ÆÀÌÅÛ 1°³´ç ¹®ÀÚ¿­ Å©±â(40) * °¹¼ö 
+	lastquery.reserve(ITEMSLOTUPDATE_SQL_FIXED + updateitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);     // INSERT INTO  ... VALUES(62) + ON DUPLICATE KEY UPDATE ... (78) = 160 + ì•„ì´í…œ 1ê°œë‹¹ ë¬¸ìžì—´ í¬ê¸°(40) * ê°¯ìˆ˜ 
 
 	lastquery = "UPDATE worlddb.item SET ";
 
@@ -340,19 +340,19 @@ void LogOutJob::Execute(DBTLS* InDBTLS)
 	lastquery += whereQuery;
 
 	/////////////////////////////////////////////////////////////////////////////////
-	// Äõ¸® º¸³»±â
+	// ì¿¼ë¦¬ ë³´ë‚´ê¸°
 	/////////////////////////////////////////////////////////////////////////////////
 	bool success = false;
 	success = InDBTLS->DB_Post_Query(result, "START TRANSACTION");
 	if (!success)
 		__debugbreak();
 
-	// Ä³¸¯ÅÍ À§Ä¡ ÀúÀå
+	// ìºë¦­í„° ìœ„ì¹˜ ì €ìž¥
 	success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.character SET xpos = %f , ypos = %f, zpos = %f WHERE characterUID = %llu", location.xpos, location.ypos, location.zpos, characterUID);
 	if (!success)
 		__debugbreak();
 
-	// ¾ÆÀÌÅÛ ÀúÀå(¹Ù²ï°Å ÀÖÀ» ¶§)
+	// ì•„ì´í…œ ì €ìž¥(ë°”ë€ê±° ìžˆì„ ë•Œ)
 	if (updateitems.size() != 0)
 	{
 		success = InDBTLS->DB_Post_Query(result, lastquery.c_str());
@@ -360,7 +360,7 @@ void LogOutJob::Execute(DBTLS* InDBTLS)
 			__debugbreak();
 	}
 
-	// Ä¿¹Ô ³¡
+	// ì»¤ë°‹ ë
 	success = InDBTLS->DB_Post_Query(result, "COMMIT");
 	if (!success)
 		__debugbreak();

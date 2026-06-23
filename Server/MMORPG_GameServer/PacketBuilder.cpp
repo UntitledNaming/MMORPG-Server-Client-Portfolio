@@ -1,4 +1,4 @@
-#include <chrono>
+ï»¿#include <chrono>
 #include <stack>
 #include <unordered_map>
 #include <unordered_set>
@@ -50,7 +50,7 @@ CMessage* PacketBuilder::CreateMyCharacter(CUser* pUser)
 
 	for (int16 i = 0; i < UserInventory::INVENTORY_SLOT_MAX; i++)
 	{
-		// ½½·Ô ºñ¾îÀÖÀ¸¸é pass
+		// ìŠ¬ë¡¯ ë¹„ì–´ìžˆìœ¼ë©´ pass
 		if(invenArray[i] == ItemUID::ITEM_UID_INVALID_ID)
 			continue;
 

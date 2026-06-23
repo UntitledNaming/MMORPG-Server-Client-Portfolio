@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "ContentsType.h"
 #include "ContentsStruct.h"
 
@@ -36,8 +36,8 @@ struct DBJob
 	void  operator delete(void* ptr, size_t size);
 
 	DB_QUERY_RESULT     result = DB_QUERY_RESULT::None;
-	LFQueueMul<DBJob*>* replyTo = nullptr;                    // JobÀ» ´øÁø ÂÊ¿¡¼­ ¼ÒÀ¯ÇÑ DBJob Å¥ Æ÷ÀÎÅÍ, Read ÀÛ¾÷ÀÌ¸é ÀÌ Å¥·Î ´Ù½Ã DBJob Æ÷ÀÎÅÍ ³ÖÀ½.
-	uint64              sessionID = 0;                        // ÀÌ JobÀ» ´øÁø ¼¼¼ÇÀÇ À¯È¿¼º °ËÁõ¿ë 
+	LFQueueMul<DBJob*>* replyTo = nullptr;                    // Jobì„ ë˜ì§„ ìª½ì—ì„œ ì†Œìœ í•œ DBJob í í¬ì¸í„°, Read ì‘ì—…ì´ë©´ ì´ íë¡œ ë‹¤ì‹œ DBJob í¬ì¸í„° ë„£ìŒ.
+	uint64              sessionID = 0;                        // ì´ Jobì„ ë˜ì§„ ì„¸ì…˜ì˜ ìœ íš¨ì„± ê²€ì¦ìš© 
 };
 
 struct ItemUIDRangeAllocateJob : public DBJob
@@ -53,7 +53,7 @@ struct CharacterSelectJob : public DBJob
 	uint64   characterUID = 0;
 
 	////////////////////////////////
-	//  À¯Àú Å×ÀÌºí Á¤º¸
+	//  ìœ ì € í…Œì´ë¸” ì •ë³´
 	////////////////////////////////
 	uint64   accountID = 0;
 	uint16   level = 0;
@@ -61,7 +61,7 @@ struct CharacterSelectJob : public DBJob
 	Location Location;
 
 	////////////////////////////////
-	// ¾ÆÀÌÅÛ Å×ÀÌºí Á¤º¸
+	// ì•„ì´í…œ í…Œì´ë¸” ì •ë³´
 	////////////////////////////////
 	std::vector<ItemLoadData> items;
 };
@@ -70,10 +70,10 @@ struct InsertItemJob  : public DBJob
 {
 	virtual void Execute(DBTLS* DBTLS) override;
 
-	// µ¥ÀÌÅÍ »ğÀÔ ½Ã ÇÊ¿äÇÑ Á¤º¸ 
+	// ë°ì´í„° ì‚½ì… ì‹œ í•„ìš”í•œ ì •ë³´ 
 	ITEM_UID  itemUID;
 	ITEM_ID   itemID;
-	uint64    characterUID;           // ¼ÒÀ¯ Ä³¸¯ÅÍ UID
+	uint64    characterUID;           // ì†Œìœ  ìºë¦­í„° UID
 	uint16    count;
 	SLOT_TYPE slotType;
 	int16     slotIndex;
@@ -84,7 +84,7 @@ struct DeleteItemJob : public DBJob
 {
 	virtual void Execute(DBTLS* DBTLS) override;
 
-	ITEM_UID itemUID;                 // »èÁ¦ÇÒ ¾ÆÀÌÅÛ UID
+	ITEM_UID itemUID;                 // ì‚­ì œí•  ì•„ì´í…œ UID
 };
 
 struct ItemCountUpdateJob : public DBJob

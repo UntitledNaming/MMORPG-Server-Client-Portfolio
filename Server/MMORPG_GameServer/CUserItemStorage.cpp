@@ -1,4 +1,4 @@
-#include <unordered_map>
+ï»¿#include <unordered_map>
 #include <thread>
 #include "ContentsType.h"
 #include "ContentsStruct.h"
@@ -78,7 +78,7 @@ bool CUserItemStorage::DeleteItem(ITEM_UID ItemUID)
 {
 	std::unordered_map<ITEM_UID, UserItem*>::iterator it = m_storage.find(ItemUID);
 
-	// ¾ø´Â ¾ÆÀÌÅÛ »èÁ¦ÇÏ·ÁÇÔ.
+	// ì—†ëŠ” ì•„ì´í…œ ì‚­ì œí•˜ë ¤í•¨.
 	if (it == m_storage.end())
 		return false;
 
@@ -112,7 +112,7 @@ bool CUserItemStorage::CollectDirtyItems(std::vector<ItemSlotUpdateData>& OutIte
 			continue;
 
 
-		// ÇÃ·¡±× ÄÑÁ® ÀÖÀ¸¸é  Job¿¡ ³Ö±â
+		// í”Œë˜ê·¸ ì¼œì ¸ ìˆìœ¼ë©´  Jobì— ë„£ê¸°
 		ItemSlotUpdateData item = {};
 		item.itemUID = pItem->itemUID;
 		item.slotType = pItem->slotType;

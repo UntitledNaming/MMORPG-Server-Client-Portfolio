@@ -1,4 +1,4 @@
-#include <unordered_map>
+ï»¿#include <unordered_map>
 #include "MemoryPoolTLS.h"
 #include "ItemTable.h"
 
@@ -10,7 +10,7 @@ void ItemTable::Init()
 {
 	m_pItemDataPool = new CMPoolTLS<ItemData>;
 
-	// itemTable¿¡ µ¥ÀÌÅÍ Ã¤¿ì±â
+	// itemTableì— ë°ì´í„° ì±„ìš°ê¸°
 	// 
 	////////////////////////////////////////////////
 	// Consumable
@@ -282,7 +282,7 @@ void ItemTable::Init()
 
 void ItemTable::Destroy()
 {
-	// itemTable¿¡ ItemData* ¹İ³³ ¹× ÀÚ·á±¸Á¶ ºñ¿ì±â
+	// itemTableì— ItemData* ë°˜ë‚© ë° ìë£Œêµ¬ì¡° ë¹„ìš°ê¸°
 	std::unordered_map<ITEM_ID, ItemData*>::iterator it = m_itemTable.begin();
 	for (; it != m_itemTable.end(); ++it)
 	{

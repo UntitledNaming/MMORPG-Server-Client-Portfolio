@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "ContentsType.h"
 #include "ContentsStruct.h"
 
@@ -77,6 +77,6 @@ private:
     static void            SetRandomStat(const RandomStatRule* rule, uint16 ruleCount, RANDOM_STAT_TYPE type, RandomStatResult& randomStat);
 private:
     static CMPoolTLS<FieldDropItem>* m_dropItemPool;
-    static uint64                    m_dropUIDAllocator;                                 // ÇÊµå¿¡ ¶³¾îÁø µå¶ø ¾ÆÀÌÅÛ ±¸ºĞ¿ë UID(¾ÆÀÌÅÛ UID¿Í ´Ù¸§)
+    static uint64                    m_dropUIDAllocator;                                 // í•„ë“œì— ë–¨ì–´ì§„ ë“œë ì•„ì´í…œ êµ¬ë¶„ìš© UID(ì•„ì´í…œ UIDì™€ ë‹¤ë¦„)
 };
 

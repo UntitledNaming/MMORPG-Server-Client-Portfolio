@@ -1,4 +1,4 @@
-#include <array>
+ï»¿#include <array>
 #include <unordered_map>
 #include "CUserItemStorage.h"
 #include "QuickSlot.h"
@@ -58,11 +58,11 @@ bool QuickSlot::SwapSlot(int16 fromIndex, int16 toIndex)
 	if (!(IndexRangeCheck(fromIndex) && IndexRangeCheck(toIndex)))
 		return false;
 
-	// From¿¡ ÀÖ´ø ¾ÆÀÌÅÛÀÇ index¸¸ to·Î º¯°æ
+	// Fromì— ìžˆë˜ ì•„ì´í…œì˜ indexë§Œ toë¡œ ë³€ê²½
 	m_pStorage->ExchangeSlotInfo(m_quickSlot[fromIndex], SLOT_TYPE::QUICKSLOT, toIndex);
 	m_pStorage->SetItemDirtyFlag(m_quickSlot[fromIndex], true);
 
-	// To¿¡ ÀÖ´ø ¾ÆÀÌÅÛÀÇ index¸¸ fromÀ¸·Î º¯°æ
+	// Toì— ìžˆë˜ ì•„ì´í…œì˜ indexë§Œ fromìœ¼ë¡œ ë³€ê²½
 	m_pStorage->ExchangeSlotInfo(m_quickSlot[toIndex], SLOT_TYPE::QUICKSLOT, fromIndex);
 	m_pStorage->SetItemDirtyFlag(m_quickSlot[toIndex], true);
 

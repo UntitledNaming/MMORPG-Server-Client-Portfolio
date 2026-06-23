@@ -1,4 +1,4 @@
-#include <windows.h>
+ï»¿#include <windows.h>
 #include <string>
 #include <thread>
 #include <vector>
@@ -44,17 +44,17 @@ GameServer::GameServer()
 
 	Init();
 
-	// ±×·ì, ¼­ºñ½º Attach
+	// ê·¸ë£¹, ì„œë¹„ìŠ¤ Attach
 	m_pGameLib->AttachGroup((CGroup*)m_pAuthGroup, auth);
 	m_pGameLib->AttachGroup((CGroup*)m_pFieldGroup, field);
 
-	// °ÔÀÓ¶óÀÌºê·¯¸® ÀÛµ¿
+	// ê²Œìž„ë¼ì´ë¸ŒëŸ¬ë¦¬ ìž‘ë™
 	m_pGameLib->Run();
 }
 
 GameServer::~GameServer()
 {
-	// °´Ã¼ ÆÄ±«ÀÚ È£Ãâ
+	// ê°ì²´ íŒŒê´´ìž í˜¸ì¶œ
 	m_pDBManager->Destroy();
 
 	m_endFlag = true;
@@ -63,7 +63,7 @@ GameServer::~GameServer()
 		m_monitorThread.join();
 	}
 
-	// °ÔÀÓ ¶óÀÌºê·¯¸® Á¾·á(°¢ °´Ã¼¿¡¼­ Á÷·ÄÈ­ ¹öÆÛ »ç¿ëÇÏ±â ¶§¹®¿¡ °ÔÀÓ ¶óÀÌºê·¯¸® ¸ÕÀú Á¾·áÇÏ¸é Á÷·ÄÈ­ ¹öÆÛ TLS Ç® ÆÄ±«µÇ¾î ¹ö¸²)
+	// ê²Œìž„ ë¼ì´ë¸ŒëŸ¬ë¦¬ ì¢…ë£Œ(ê° ê°ì²´ì—ì„œ ì§ë ¬í™” ë²„í¼ ì‚¬ìš©í•˜ê¸° ë•Œë¬¸ì— ê²Œìž„ ë¼ì´ë¸ŒëŸ¬ë¦¬ ë¨¼ì € ì¢…ë£Œí•˜ë©´ ì§ë ¬í™” ë²„í¼ TLS í’€ íŒŒê´´ë˜ì–´ ë²„ë¦¼)
 	m_pGameLib->Stop();
 
 	CSizeClassMemoryPoolTLS::PoolDestroy();
@@ -89,13 +89,13 @@ void GameServer::Init()
 	m_pPDH = new ProcessMonitor;
 	m_endFlag = false;
 
-	// DB ¸Å´ÏÀú ÃÊ±âÈ­
+	// DB ë§¤ë‹ˆì € ì´ˆê¸°í™”
 	m_pDBManager->Init();
 
-	// DB ¸Å´ÏÀú ÃÊ±âÈ­ ÈÄ ItemUID ÇÒ´çÇÏ±â 
+	// DB ë§¤ë‹ˆì € ì´ˆê¸°í™” í›„ ItemUID í• ë‹¹í•˜ê¸° 
 	ItemUIDAllocate();
 
-	// ±×·ì¿¡°Ô DBManager Æ÷ÀÎÅÍ Àü´Þ
+	// ê·¸ë£¹ì—ê²Œ DBManager í¬ì¸í„° ì „ë‹¬
 	m_pAuthGroup->InitDBManager(m_pDBManager);
 	m_pFieldGroup->InitDBManager(m_pDBManager);
 

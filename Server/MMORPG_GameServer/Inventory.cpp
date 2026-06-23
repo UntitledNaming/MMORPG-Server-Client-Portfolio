@@ -1,4 +1,4 @@
-#include <stack>
+ï»¿#include <stack>
 #include <unordered_map>
 #include <unordered_set>
 #include <set>
@@ -19,14 +19,14 @@ void Inventory::Init(CUserItemStorage* pStorage)
 
 	m_pStorage = pStorage;
 
-	// DB¿¡ ÀúÀåµÈ ¾ÆÀÌÅÛµé ÀÎº¥Åä¸®¿¡ ¹èÄ¡
+	// DBì— ì €ì¥ëœ ì•„ì´í…œë“¤ ì¸ë²¤í† ë¦¬ì— ë°°ì¹˜
 
-	// slotIndexAllocator ¼¼ÆÃ
+	// slotIndexAllocator ì„¸íŒ…
 	for (int i = 0; i < UserInventory::INVENTORY_SLOT_MAX; i++)
 	{
 		m_slotIndexAllocator.insert(i);
 	}
-	// ÀüÃ¼ ÀÎº¥Åä¸® µ¹¸é¼­ stackableItemUIDs ¼¼ÆÃ
+	// ì „ì²´ ì¸ë²¤í† ë¦¬ ëŒë©´ì„œ stackableItemUIDs ì„¸íŒ…
 }
 
 void Inventory::Destroy()
@@ -46,26 +46,26 @@ bool Inventory::ItemSlotChange(int16 fromIndex, int16 toIndex)
 	if (!(IndexRangeCheck(fromIndex) && IndexRangeCheck(toIndex)))
 		return false;
 
-	// to°¡ InvalidIDÀÎ °æ¿ì index ¹İÈ¯ ¹× »ç¿ëÇÒ index Á¦°Å
-	// from, to ¸ğµÎ ¾ÆÀÌÅÛÀÌ ÀÖÀ¸¸é index ¹İÈ¯ ÇÊ¿äx
+	// toê°€ InvalidIDì¸ ê²½ìš° index ë°˜í™˜ ë° ì‚¬ìš©í•  index ì œê±°
+	// from, to ëª¨ë‘ ì•„ì´í…œì´ ìˆìœ¼ë©´ index ë°˜í™˜ í•„ìš”x
 	if (m_inventory[toIndex] == ItemUID::ITEM_UID_INVALID_ID)
 	{
-		// to°¡ Invalid¸é fromindex°¡ empty°¡ µÇ°í toindex°¡ ÇÒ´ç ÀÚ·á±¸Á¶¿¡¼­ Á¦°ÅµÇ¾î¾ß ÇÔ.
+		// toê°€ Invalidë©´ fromindexê°€ emptyê°€ ë˜ê³  toindexê°€ í• ë‹¹ ìë£Œêµ¬ì¡°ì—ì„œ ì œê±°ë˜ì–´ì•¼ í•¨.
 		m_slotIndexAllocator.erase(toIndex);
 		m_slotIndexAllocator.insert(fromIndex);
 	}
 
-	// Swap Àü¿¡ storage¿¡ ÇØ´ç UIDµé slottype, index º¯°æ ¹× dirty flag º¯°æ toIndex¿¡ ¾ÆÀÌÅÛ ¾ø¾îµµ ±×³É ¸®ÅÏµÇ´Ï ¹®Á¦x
+	// Swap ì „ì— storageì— í•´ë‹¹ UIDë“¤ slottype, index ë³€ê²½ ë° dirty flag ë³€ê²½ toIndexì— ì•„ì´í…œ ì—†ì–´ë„ ê·¸ëƒ¥ ë¦¬í„´ë˜ë‹ˆ ë¬¸ì œx
 
-	// From¿¡ ÀÖ´ø ¾ÆÀÌÅÛÀÇ index¸¸ to·Î º¯°æ
+	// Fromì— ìˆë˜ ì•„ì´í…œì˜ indexë§Œ toë¡œ ë³€ê²½
 	m_pStorage->ExchangeSlotInfo(m_inventory[fromIndex], SLOT_TYPE::INVENTORY, toIndex);
 	m_pStorage->SetItemDirtyFlag(m_inventory[fromIndex], true);
 
-	// To¿¡ ÀÖ´ø ¾ÆÀÌÅÛÀÇ index¸¸ fromÀ¸·Î º¯°æ
+	// Toì— ìˆë˜ ì•„ì´í…œì˜ indexë§Œ fromìœ¼ë¡œ ë³€ê²½
 	m_pStorage->ExchangeSlotInfo(m_inventory[toIndex], SLOT_TYPE::INVENTORY, fromIndex);
 	m_pStorage->SetItemDirtyFlag(m_inventory[toIndex], true);
 
-	// UID Swap ÀÛ¾÷
+	// UID Swap ì‘ì—…
 	ITEM_UID TempTo = m_inventory[toIndex];
 
 	m_inventory[toIndex] = m_inventory[fromIndex];
@@ -74,7 +74,7 @@ bool Inventory::ItemSlotChange(int16 fromIndex, int16 toIndex)
 	return true;
 }
 
-// Init¿¡¼­ ¾ÆÀÌÅÛ ÀÎº¥Åä¸®¿¡ ¹èÄ¡ÇÏ°Å³ª »õ·Î¿î ¾ÆÀÌÅÛ »ı¼ºµÇ°Å³ª ÀåÂø ¾ÆÀÌÅÛ »©¼­ ÀÎº¥Åä¸®¿¡ ¹èÄ¡½Ã
+// Initì—ì„œ ì•„ì´í…œ ì¸ë²¤í† ë¦¬ì— ë°°ì¹˜í•˜ê±°ë‚˜ ìƒˆë¡œìš´ ì•„ì´í…œ ìƒì„±ë˜ê±°ë‚˜ ì¥ì°© ì•„ì´í…œ ë¹¼ì„œ ì¸ë²¤í† ë¦¬ì— ë°°ì¹˜ì‹œ
 bool Inventory::InsertItemToSlot(ITEM_UID Item, int16 slotIndex)
 {
 	if (!IndexRangeCheck(slotIndex))

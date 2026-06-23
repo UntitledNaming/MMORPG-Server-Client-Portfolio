@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "ContentsType.h"
 
 class CUser;
@@ -15,10 +15,10 @@ struct HitSearchInfo
 	float range;
 	float halfAngleDegree;
 
-	bool bHitUser;           // ÇÃ·¹ÀÌ¾î Å¸°İ °¡´É
-	bool bHitMonster;        // ¸ó½ºÅÍ   Å¸°İ °¡´É
-	uint16 MaxUserCount;     // Å¸°İ ÃÖ´ë °¹¼ö
-	uint16 MaxMonsterCount;  // Å¸°İ ÃÖ´ë °¹¼ö
+	bool bHitUser;           // í”Œë ˆì´ì–´ íƒ€ê²© ê°€ëŠ¥
+	bool bHitMonster;        // ëª¬ìŠ¤í„°   íƒ€ê²© ê°€ëŠ¥
+	uint16 MaxUserCount;     // íƒ€ê²© ìµœëŒ€ ê°¯ìˆ˜
+	uint16 MaxMonsterCount;  // íƒ€ê²© ìµœëŒ€ ê°¯ìˆ˜
 
 };
 
@@ -36,7 +36,7 @@ struct HitResult
 	std::vector<CMonster*> HitMonsterArray;
 };
 
-// HitSerachInfo¸¦ ÆòÅ¸¿Í ½ºÅ³ ±¸ºĞÇÏ¿© ¸¸µå´Â Å¬·¡½º Á¦°ø 
+// HitSerachInfoë¥¼ í‰íƒ€ì™€ ìŠ¤í‚¬ êµ¬ë¶„í•˜ì—¬ ë§Œë“œëŠ” í´ë˜ìŠ¤ ì œê³µ 
 class HitSearchBuilder
 {
 public:

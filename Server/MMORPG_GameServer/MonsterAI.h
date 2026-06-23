@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "ContentsType.h"
 #include "ContentsStruct.h"
 #include "ContentsEnum.h"
@@ -43,16 +43,16 @@ private:
 	Location    m_spawnLocation = {};
 	Location    m_targetLocation = {};
 
-	uint32      m_idleElapsed = 0;            // idle ´ë±â ½Ã°£ Àç±â À§ÇÑ º¯¼ö
+	uint32      m_idleElapsed = 0;            // idle ëŒ€ê¸° ì‹œê°„ ì¬ê¸° ìœ„í•œ ë³€ìˆ˜
 	uint32      m_idleDuration = 0;      
 
 	bool        m_patrolPausing = false;
 	uint32      m_pauseElapsed = 0;
 			    
-	uint32      m_chaseUpdateAccum = 0;       // Ãß°İ ½Ã ´©Àû½Ã°£
+	uint32      m_chaseUpdateAccum = 0;       // ì¶”ê²© ì‹œ ëˆ„ì ì‹œê°„
 
-	uint32      m_attackAccum = 0;            // °ø°İ ½Ã ´©Àû½Ã°£
+	uint32      m_attackAccum = 0;            // ê³µê²© ì‹œ ëˆ„ì ì‹œê°„
 	
-	uint32      m_combatExitElapsed = 0;      // °ø°İ ¸ğµå ½Ã Ãß°İ ÀüÈ¯ ´ë±â ½Ã°£ Ã¼Å© º¯¼ö
+	uint32      m_combatExitElapsed = 0;      // ê³µê²© ëª¨ë“œ ì‹œ ì¶”ê²© ì „í™˜ ëŒ€ê¸° ì‹œê°„ ì²´í¬ ë³€ìˆ˜
 };
 

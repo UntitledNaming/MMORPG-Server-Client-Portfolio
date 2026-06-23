@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "ContentsType.h"
 #include "ContentsStruct.h"
 
@@ -167,7 +167,7 @@ public:
 private:
 
 	//////////////////////////////////////////////////////////////////////////////////
-	// ±×·ì Äİ¹é ÇÔ¼ö
+	// ê·¸ë£¹ ì½œë°± í•¨ìˆ˜
 	//////////////////////////////////////////////////////////////////////////////////
 	virtual void  Init(CGameLibrary* p) override;
 	virtual void  Destroy() override;
@@ -179,15 +179,15 @@ private:
 
 public:
 	//////////////////////////////////////////////////////////////////////////////////
-	// ¸Ş¼¼Áö ¼Û½Å °ü·Ã ÇÔ¼ö
+	// ë©”ì„¸ì§€ ì†¡ì‹  ê´€ë ¨ í•¨ìˆ˜
 	//////////////////////////////////////////////////////////////////////////////////
-	void SendPacket_SectorOne(CMessage* pMessage, uint16 xpos, uint16 ypos, CUser* pUser);     // ÇØ´ç ¼½ÅÍ¿¡ ÀÖ´Â À¯Àúµé¿¡°Ô ¸Ş¼¼Áö º¸³»±â
-	void SendPacket_SectorAround(CMessage* pMessage, CUser* pUser, bool userSend = false);     // ÇØ´ç ¼½ÅÍ¿¡ ÀÖ´Â À¯Àúµé¿¡°Ô ¸Ş¼¼Áö º¸³»±â
+	void SendPacket_SectorOne(CMessage* pMessage, uint16 xpos, uint16 ypos, CUser* pUser);     // í•´ë‹¹ ì„¹í„°ì— ìˆëŠ” ìœ ì €ë“¤ì—ê²Œ ë©”ì„¸ì§€ ë³´ë‚´ê¸°
+	void SendPacket_SectorAround(CMessage* pMessage, CUser* pUser, bool userSend = false);     // í•´ë‹¹ ì„¹í„°ì— ìˆëŠ” ìœ ì €ë“¤ì—ê²Œ ë©”ì„¸ì§€ ë³´ë‚´ê¸°
     void SendPacket_HitSectors(HitResult& result);
 
 private:
 	///////////////////////////////////
-    // Degree º¯È¯ ÇÔ¼ö              //
+    // Degree ë³€í™˜ í•¨ìˆ˜              //
     ///////////////////////////////////
 	constexpr float DegreeToRadian(float degree)
 	{
@@ -196,12 +196,12 @@ private:
 
 
 	///////////////////////////////////
-    // °ø°İ °ü·Ã ÇÔ¼ö                //
+    // ê³µê²© ê´€ë ¨ í•¨ìˆ˜                //
     ///////////////////////////////////
 	void   CollectHitTarget(CUser* attacker, HitSearchInfo& hitInfo, HitResult& hitResult);
 
 	///////////////////////////////////
-    // Å¬¶óÀÌ¾ğÆ® ¸Ş¼¼Áö Ã³¸® ÇÚµé·¯ //
+    // í´ë¼ì´ì–¸íŠ¸ ë©”ì„¸ì§€ ì²˜ë¦¬ í•¸ë“¤ëŸ¬ //
     ///////////////////////////////////
 	void HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMessage);
 	void HandleRTTMessage(uint64 sessionID, CMessage* pMessage);
@@ -214,7 +214,7 @@ private:
 	void HandleRespawn(uint64 sessionID, CMessage* pMessage);
 
 	///////////////////////////////////
-    // ÇÁ·¹ÀÓ ·ÎÁ÷ Ã³¸® ÇÔ¼ö         //
+    // í”„ë ˆì„ ë¡œì§ ì²˜ë¦¬ í•¨ìˆ˜         //
     ///////////////////////////////////
 	void UserUpdate();
 	void SectorUpdate(CUser* pUser, const SectorPos& newSec);
@@ -222,13 +222,13 @@ private:
     void FieldDropItemExpired();
 
 	//////////////////////////////////////////////////////////////////////////////////
-    // ¸ó½ºÅÍ °ü·Ã ÇÔ¼ö
+    // ëª¬ìŠ¤í„° ê´€ë ¨ í•¨ìˆ˜
     //////////////////////////////////////////////////////////////////////////////////
 	void MonsterSpawnInit();
 	void GrossMonsterSpawnInit();
 
     //////////////////////////////////////////////////////////////////////////////////
-    // ¾ÆÀÌÅÛ °ü·Ã ÇÔ¼ö
+    // ì•„ì´í…œ ê´€ë ¨ í•¨ìˆ˜
     //////////////////////////////////////////////////////////////////////////////////
     void CreateFieldDropItem(CMonster& monster);
 

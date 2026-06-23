@@ -1,4 +1,4 @@
-#include <cstdlib>
+ï»¿#include <cstdlib>
 #include <cmath>
 #include <limits>
 #include <vector>
@@ -102,17 +102,17 @@ void MonsterAI::UpdatePatrol()
 		return;
 	}
 
-	// Å¸°Ù ¾ø°í ¸ñÀûÁö µµÂøÈÄ Àá±ñ Á¤ÁöÇÑ »óÅÂ°¡ ¾Æ´Ñ °æ¿ì ¸ñÀûÁö·Î ÀÌµ¿
+	// íƒ€ê²Ÿ ì—†ê³  ëª©ì ì§€ ë„ì°©í›„ ì ê¹ ì •ì§€í•œ ìƒíƒœê°€ ì•„ë‹Œ ê²½ìš° ëª©ì ì§€ë¡œ ì´ë™
 	if (!m_patrolPausing)
 	{
-		// ¸ó½ºÅÍ ÀÌµ¿ ½ÃÅ°±â
+		// ëª¬ìŠ¤í„° ì´ë™ ì‹œí‚¤ê¸°
 		m_pOwner->Move();
 
 		UpdateSector();
 
-		// ½ºÆù À§Ä¡ ±ÙÃ³·Î ¿ÔÀ¸¸é Idle »óÅÂ·Î ÁøÀÔ
-		// ¸ñÀûÁö ±ÙÃ³ÀÎ °æ¿ì Á¤Áö ÇÃ·¡±× Å°°í ½Ã°£ Àç±â ½ÃÀÛ
-		// ¸ñÀûÁö¿ÍÀÇ °Å¸®°¡ ¸ó½ºÅÍÀÇ ÇÑÆ½ °Å¸®º¸´Ù ÀÌÇÏ¸é µµÂøÀ¸·Î ÆÇ´Ü
+		// ìŠ¤í° ìœ„ì¹˜ ê·¼ì²˜ë¡œ ì™”ìœ¼ë©´ Idle ìƒíƒœë¡œ ì§„ì…
+		// ëª©ì ì§€ ê·¼ì²˜ì¸ ê²½ìš° ì •ì§€ í”Œë˜ê·¸ í‚¤ê³  ì‹œê°„ ì¬ê¸° ì‹œì‘
+		// ëª©ì ì§€ì™€ì˜ ê±°ë¦¬ê°€ ëª¬ìŠ¤í„°ì˜ í•œí‹± ê±°ë¦¬ë³´ë‹¤ ì´í•˜ë©´ ë„ì°©ìœ¼ë¡œ íŒë‹¨
 		if (IsNear(m_pOwner->GetLocation(), m_targetLocation))
 		{
 			m_patrolPausing = true;
@@ -123,28 +123,28 @@ void MonsterAI::UpdatePatrol()
 		return;
 	}
 
-	// Á¤Áö »óÅÂÀÎ °æ¿ì Á¤Áö ´ë±â ½Ã°£ Áö³µ´ÂÁö ÆÇ´Ü
+	// ì •ì§€ ìƒíƒœì¸ ê²½ìš° ì •ì§€ ëŒ€ê¸° ì‹œê°„ ì§€ë‚¬ëŠ”ì§€ íŒë‹¨
 	m_pauseElapsed += UPDATE_LOOP_TIME;
 
-	// ¸¸¾à ½Ã°£ÀÌ ¾È Áö³µÀ¸¸é ÇÔ¼ö ¸®ÅÏ
+	// ë§Œì•½ ì‹œê°„ì´ ì•ˆ ì§€ë‚¬ìœ¼ë©´ í•¨ìˆ˜ ë¦¬í„´
 	if (m_pauseElapsed < PATROL_PAUSE_MS)
 		return;
 
-	// ½Ã°£ Áö³µÀ¸¸é ¸®ÅÏ »óÅÂ·Î µ¹ÀÔ.
+	// ì‹œê°„ ì§€ë‚¬ìœ¼ë©´ ë¦¬í„´ ìƒíƒœë¡œ ëŒì….
 	m_patrolPausing = false;
 	EnterReturn();
 }
 
 void MonsterAI::UpdateChase()
 {
-	// Å¸°Ù Ä³¸¯ÅÍ°¡ Á×¾ú°Å³ª ¿¬°áÀÌ ²÷¾îÁø °æ¿ì ¸®ÅÏ
+	// íƒ€ê²Ÿ ìºë¦­í„°ê°€ ì£½ì—ˆê±°ë‚˜ ì—°ê²°ì´ ëŠì–´ì§„ ê²½ìš° ë¦¬í„´
 	if (!m_pTarget->IsAlive())
 	{
 		EnterReturn();
 		return;
 	}
 
-	// ½ºÆù À§Ä¡¿Í °Å¸®°¡ ¸Ö¾îÁö¸é Return
+	// ìŠ¤í° ìœ„ì¹˜ì™€ ê±°ë¦¬ê°€ ë©€ì–´ì§€ë©´ Return
 	float dx = m_spawnLocation.xpos - m_pOwner->GetX();
 	float dy = m_spawnLocation.ypos - m_pOwner->GetY();
 	float distSq = dx * dx + dy * dy;
@@ -156,7 +156,7 @@ void MonsterAI::UpdateChase()
 	}
 
 
-	// Å¸°Ù ±ÙÃ³¸é ÀÌµ¿x 
+	// íƒ€ê²Ÿ ê·¼ì²˜ë©´ ì´ë™x 
 	if (!IsNear(m_pOwner->GetLocation(), m_pTarget->GetLocation()))
 	{
 		TargetUpdate();
@@ -165,7 +165,7 @@ void MonsterAI::UpdateChase()
 	}
 
 
-	// °ø°İ ¹üÀ§ ¾È¿¡ µé¾î¿À¸é Combat ÁøÀÔ.
+	// ê³µê²© ë²”ìœ„ ì•ˆì— ë“¤ì–´ì˜¤ë©´ Combat ì§„ì….
 	if (IsAttackRange())
 	{
 		EnterCombat();
@@ -174,13 +174,13 @@ void MonsterAI::UpdateChase()
 
 void MonsterAI::UpdateReturn()
 {
-	// ½ºÆù À§Ä¡·Î ÀÌµ¿
+	// ìŠ¤í° ìœ„ì¹˜ë¡œ ì´ë™
 	m_pOwner->Move();
 
-	// ÀÌµ¿ÈÄ ¼½ÅÍ Ã¼Å©
+	// ì´ë™í›„ ì„¹í„° ì²´í¬
 	UpdateSector();
 
-	// ½ºÆù À§Ä¡ ±ÙÃ³·Î ¿ÔÀ¸¸é
+	// ìŠ¤í° ìœ„ì¹˜ ê·¼ì²˜ë¡œ ì™”ìœ¼ë©´
 	if (IsNear(m_pOwner->GetLocation(), m_spawnLocation))
 	{
 		m_pOwner->SetLocation(m_spawnLocation);
@@ -196,7 +196,7 @@ void MonsterAI::UpdateCombat()
 		return;
 	}
 
-	// ½ºÆù À§Ä¡¿Í °Å¸®°¡ ¸Ö¾îÁö¸é Return
+	// ìŠ¤í° ìœ„ì¹˜ì™€ ê±°ë¦¬ê°€ ë©€ì–´ì§€ë©´ Return
 	float dx = m_spawnLocation.xpos - m_pOwner->GetX();
 	float dy = m_spawnLocation.ypos - m_pOwner->GetY();
 	float distSq = dx * dx + dy * dy;
@@ -207,7 +207,7 @@ void MonsterAI::UpdateCombat()
 		return;
 	}
 
-	// ¹üÀ§ ¹ş¾î³ª¸é ´Ù½Ã Ãß°İ
+	// ë²”ìœ„ ë²—ì–´ë‚˜ë©´ ë‹¤ì‹œ ì¶”ê²©
 	if (!IsChaseRange())
 	{
 		m_combatExitElapsed += UPDATE_LOOP_TIME;
@@ -220,19 +220,19 @@ void MonsterAI::UpdateCombat()
 	}
 	else
 	{
-		// ¹üÀ§ ¾ÈÀÌ¸é ÀüÈ¯ ½Ã°£ ÃÊ±âÈ­
+		// ë²”ìœ„ ì•ˆì´ë©´ ì „í™˜ ì‹œê°„ ì´ˆê¸°í™”
 		m_combatExitElapsed = 0;
 	}
 
 
-	// °ø°İ ÁÖ±â ½Ã°£ Áõ°¡
+	// ê³µê²© ì£¼ê¸° ì‹œê°„ ì¦ê°€
 	m_attackAccum += UPDATE_LOOP_TIME;
 
-	// °ø°İ ÁÖ±â°¡ ¾ÈµÇ¾úÀ¸¸é ¸®ÅÏ
+	// ê³µê²© ì£¼ê¸°ê°€ ì•ˆë˜ì—ˆìœ¼ë©´ ë¦¬í„´
 	if (m_attackAccum < ATTACK_COOLDOWN_MS)
 		return;
 
-	// Å¸°Ù ±ÙÃ³¿¡ ÀÖ¾îµµ ¹æÇâ °»½ÅÇÏ°í ³ª¼­ ConeÀ¸·Î ÇÇ°İ ÆÇ´Ü
+	// íƒ€ê²Ÿ ê·¼ì²˜ì— ìˆì–´ë„ ë°©í–¥ ê°±ì‹ í•˜ê³  ë‚˜ì„œ Coneìœ¼ë¡œ í”¼ê²© íŒë‹¨
 	float tdx = m_pTarget->GetLocation().xpos - m_pOwner->GetX();
 	float tdy = m_pTarget->GetLocation().ypos - m_pOwner->GetY();
 	m_pOwner->SetMoveYaw(atan2f(tdy, tdx) * 180.0f / FieldConst::Pi);
@@ -241,11 +241,11 @@ void MonsterAI::UpdateCombat()
 		return;
 
 
-	// Å¸°Ù¿¡°Ô µ¥¹ÌÁö ÁÖ±â
+	// íƒ€ê²Ÿì—ê²Œ ë°ë¯¸ì§€ ì£¼ê¸°
 	uint32 damage = m_pOwner->CalBaseAttackDamage(m_pTarget, timeGetTime());
 	m_pTarget->Damage(damage);
 
-	// °ø°İ ¹× µ¥¹ÌÁö ÆĞÅ¶ º¸³»±â
+	// ê³µê²© ë° ë°ë¯¸ì§€ íŒ¨í‚· ë³´ë‚´ê¸°
 	m_pField->SendMonsterAttackTarget(m_pOwner, m_pTarget, m_pTarget->GetHP());
 	m_attackAccum = 0;
 	m_pField->attackCount++;
@@ -259,18 +259,18 @@ void MonsterAI::EnterPatrol()
 
 	m_patrolPausing = false;
 
-	// ·£´ıÀ¸·Î ¹æÇâ ¼³Á¤
+	// ëœë¤ìœ¼ë¡œ ë°©í–¥ ì„¤ì •
 	float yaw = rand() % 360;
 	m_pOwner->SetMoveYaw(yaw);
 
 	float rad = yaw * FieldConst::Pi / 180.0f;
 
-	// ÇØ´ç ¹æÇâÀ¸·Î range À§Ä¡¿¡ ÀÖ´Â patrolTarget ¼³Á¤
+	// í•´ë‹¹ ë°©í–¥ìœ¼ë¡œ range ìœ„ì¹˜ì— ìˆëŠ” patrolTarget ì„¤ì •
 	m_targetLocation.xpos = m_spawnLocation.xpos + cosf(rad) * PATROL_DISTANCE;
 	m_targetLocation.ypos = m_spawnLocation.ypos + sinf(rad) * PATROL_DISTANCE;
 	m_targetLocation.zpos = m_spawnLocation.zpos;
 
-	// Å¸°Ù ¸ñÀûÁö º¯°æ µÇ¾úÀ¸´Ï Move ÆĞÅ¶ ÁÖº¯¿¡ »Ñ¸®±â
+	// íƒ€ê²Ÿ ëª©ì ì§€ ë³€ê²½ ë˜ì—ˆìœ¼ë‹ˆ Move íŒ¨í‚· ì£¼ë³€ì— ë¿Œë¦¬ê¸°
 	m_pField->SendMonsterTargetUpdate(m_pOwner);
 }
 
@@ -282,7 +282,7 @@ void MonsterAI::EnterChase(CUser* targetPlayer)
 	m_pTarget = targetPlayer;
 
 
-	// ¹æÇâ º¯°æ
+	// ë°©í–¥ ë³€ê²½
 	float dx = m_pTarget->GetLocation().xpos - m_pOwner->GetX();
 	float dy = m_pTarget->GetLocation().ypos - m_pOwner->GetY();
 	float rad = atan2f(dy, dx);
@@ -298,13 +298,13 @@ void MonsterAI::EnterChase(CUser* targetPlayer)
 	m_chaseUpdateAccum = 0;
 	m_combatExitElapsed = 0;
 
-	// Å¸°Ù ¸ñÀûÁö º¯°æ µÇ¾úÀ¸´Ï Move ÆĞÅ¶ ÁÖº¯¿¡ »Ñ¸®±â
+	// íƒ€ê²Ÿ ëª©ì ì§€ ë³€ê²½ ë˜ì—ˆìœ¼ë‹ˆ Move íŒ¨í‚· ì£¼ë³€ì— ë¿Œë¦¬ê¸°
 	m_pField->SendMonsterTargetUpdate(m_pOwner);
 }
 
 void MonsterAI::EnterReturn()
 {
-	// ¸®ÅÏ »óÅÂ·Î º¯°æ
+	// ë¦¬í„´ ìƒíƒœë¡œ ë³€ê²½
 	m_pOwner->ChangeMonsterState(EMonsterState::Return);
 	m_pOwner->SetMoveSpeed(RETURN_SPEED / UPDATE_FRAME);
 	m_pOwner->SetMoveSpeedPerSec(RETURN_SPEED );
@@ -314,12 +314,12 @@ void MonsterAI::EnterReturn()
 	m_patrolPausing = false;
 	m_pauseElapsed = 0;
 
-	// Å¸°Ù ¼³Á¤
+	// íƒ€ê²Ÿ ì„¤ì •
 	m_targetLocation.xpos = m_spawnLocation.xpos;
 	m_targetLocation.ypos = m_spawnLocation.ypos;
 	m_targetLocation.zpos = m_spawnLocation.zpos;
 
-	// ÇöÀç À§Ä¡¿¡¼­ ½ºÆù À§Ä¡ ¹æÇâÀ» ±¸ÇØ¼­ ÇØ´ç ¹æÇâÀ» moveYaw·Î º¯°æ
+	// í˜„ì¬ ìœ„ì¹˜ì—ì„œ ìŠ¤í° ìœ„ì¹˜ ë°©í–¥ì„ êµ¬í•´ì„œ í•´ë‹¹ ë°©í–¥ì„ moveYawë¡œ ë³€ê²½
 	float dx = m_spawnLocation.xpos - m_pOwner->GetX();
 	float dy = m_spawnLocation.ypos - m_pOwner->GetY();
 	float rad = atan2f(dy, dx);
@@ -343,10 +343,10 @@ void MonsterAI::EnterCombat()
 	m_pOwner->SetMoveSpeed(0);
 	m_pOwner->SetMoveSpeedPerSec(0);
 
-	// °ø°İ ½Ã°£ ¼¼ÆÃ
+	// ê³µê²© ì‹œê°„ ì„¸íŒ…
 	m_attackAccum = ATTACK_COOLDOWN_MS / 2;
 
-	// Á¤Áö ÆĞÅ¶ »Ñ¸®±â
+	// ì •ì§€ íŒ¨í‚· ë¿Œë¦¬ê¸°
 	m_pField->SendMonsterStop(m_pOwner);
 
 	m_combatExitElapsed = 0;
@@ -364,7 +364,7 @@ CUser* MonsterAI::FindNearestPlayer(float range)
 	maxSX = min(SECTOR_X_MAX - 1, maxSX);
 	maxSY = min(SECTOR_Y_MAX - 1, maxSY);
 
-	// Å½»ö ¹üÀ§ ¾È¿¡ ÀÖ´Â ¼½ÅÍ¿¡ ÀÖ´Â À¯Àúµé ¼øÈ¸ÇØ¼­ °Å¸®°¡ °¡Àå °¡±î¿î À¯Àú Ã£±â
+	// íƒìƒ‰ ë²”ìœ„ ì•ˆì— ìˆëŠ” ì„¹í„°ì— ìˆëŠ” ìœ ì €ë“¤ ìˆœíšŒí•´ì„œ ê±°ë¦¬ê°€ ê°€ì¥ ê°€ê¹Œìš´ ìœ ì € ì°¾ê¸°
 	CUser* nearestUser = nullptr;
 	float nearestDistSq  = (std::numeric_limits<float>::max)();
 
@@ -387,14 +387,14 @@ CUser* MonsterAI::FindNearestPlayer(float range)
 				float dx = pUser->GetX() - m_pOwner->GetX();
 				float dy = pUser->GetY() - m_pOwner->GetY();
 
-				float distSq = dx * dx + dy * dy; // °Å¸® Á¦°ö
-				float rangeSq = range * range;    // »ç°Å¸® Á¦°ö
+				float distSq = dx * dx + dy * dy; // ê±°ë¦¬ ì œê³±
+				float rangeSq = range * range;    // ì‚¬ê±°ë¦¬ ì œê³±
 
-				// »ç°Å¸® ¹ÛÀÌ¸é false
+				// ì‚¬ê±°ë¦¬ ë°–ì´ë©´ false
 				if (distSq > rangeSq)
 					continue;
 
-				// ¹üÀ§ ¾ÈÀÌ¸é ÃÖ¼Ò °Å¸®°ª°ú ºñ±³ÇÏ¿© °¡Àå °¡±î¿îÁö Ã¼Å©
+				// ë²”ìœ„ ì•ˆì´ë©´ ìµœì†Œ ê±°ë¦¬ê°’ê³¼ ë¹„êµí•˜ì—¬ ê°€ì¥ ê°€ê¹Œìš´ì§€ ì²´í¬
 				if (distSq >= nearestDistSq)
 					continue;
 
@@ -413,35 +413,35 @@ void MonsterAI::UpdateSector()
 	int16 newY = (m_pOwner->GetY() - MAP_WORLD_OFFSET_Y) / SECTOR_SIZE;
 	SectorPos newSec(newX, newY);
 
-	// ¹üÀ§ ¹ş¾î³ª¸é ¸®ÅÏ
+	// ë²”ìœ„ ë²—ì–´ë‚˜ë©´ ë¦¬í„´
 	if (!SectorPos::SectorRangeCheck(newSec))
 		return;
 
-	// °°Àº ¼½ÅÍ¸é ¸®ÅÏ
+	// ê°™ì€ ì„¹í„°ë©´ ë¦¬í„´
 	if (SectorPos::SameSector(m_pOwner->GetSectorPos(), newSec))
 		return;
 	
-	// »õ·Î¿î ¼½ÅÍ¸é ½Ã¾ß¿¡ »õ·Î¿î ¼½ÅÍ¿¡ ¸ó½ºÅÍ »ı¼º ¹× Move ÆĞÅ¶, ½Ã¾ß¿¡ »ç¶óÁö´Â ¿µ¿ª¿¡´Â ¸ó½ºÅÍ »èÁ¦ ÆĞÅ¶ º¸³»±â
+	// ìƒˆë¡œìš´ ì„¹í„°ë©´ ì‹œì•¼ì— ìƒˆë¡œìš´ ì„¹í„°ì— ëª¬ìŠ¤í„° ìƒì„± ë° Move íŒ¨í‚·, ì‹œì•¼ì— ì‚¬ë¼ì§€ëŠ” ì˜ì—­ì—ëŠ” ëª¬ìŠ¤í„° ì‚­ì œ íŒ¨í‚· ë³´ë‚´ê¸°
 	SectorAround DeleteSector;
 	SectorAround CreateSector;
 	SectorPos::CalSectorTransitionMessageTargets(m_pOwner->GetSectorPos(), newSec, DeleteSector, CreateSector);
 
-	// ¸ó½ºÅÍ »èÁ¦ ¸Ş¼¼Áö º¸³»±â
+	// ëª¬ìŠ¤í„° ì‚­ì œ ë©”ì„¸ì§€ ë³´ë‚´ê¸°
 	for (int i = 0; i < DeleteSector.m_count; i++)
 	{
 		m_pField->SendMonsterDeleteToSector(m_pOwner, DeleteSector.m_Around[i].GetX(), DeleteSector.m_Around[i].GetY());
 	}
 
-	// ¸ó½ºÅÍ »ı¼º ¸Ş¼¼Áö º¸³»±â
+	// ëª¬ìŠ¤í„° ìƒì„± ë©”ì„¸ì§€ ë³´ë‚´ê¸°
 	for (int i = 0; i < CreateSector.m_count; i++)
 	{
 		m_pField->SendMonsterCreateToSector(m_pOwner, CreateSector.m_Around[i].GetX(), CreateSector.m_Around[i].GetY());
 	}
 
-	// ±âÁ¸ ¼½ÅÍ¿¡¼­ ¸ó½ºÅÍ »èÁ¦
+	// ê¸°ì¡´ ì„¹í„°ì—ì„œ ëª¬ìŠ¤í„° ì‚­ì œ
 	m_pField->RemoveMonsterToSector(m_pOwner, m_pOwner->GetSectorX(), m_pOwner->GetSectorY());
 
-	// »õ·Î¿î ¼½ÅÍ¿¡ ¸ó½ºÅÍ »ğÀÔ
+	// ìƒˆë¡œìš´ ì„¹í„°ì— ëª¬ìŠ¤í„° ì‚½ì…
 	m_pField->AddMonsterToSector(m_pOwner, newSec.GetX(), newSec.GetY());
 
 	m_pOwner->SetSectorPos(newSec);
@@ -449,7 +449,7 @@ void MonsterAI::UpdateSector()
 
 void MonsterAI::TargetUpdate()
 {
-	// Å¸°Ù ¾÷µ¥ÀÌÆ® ½Ã°£ Ã¼Å©
+	// íƒ€ê²Ÿ ì—…ë°ì´íŠ¸ ì‹œê°„ ì²´í¬
 	m_chaseUpdateAccum += UPDATE_LOOP_TIME;
 
 	if (m_chaseUpdateAccum < CHASE_UPDATE_MIN_MS)
@@ -457,11 +457,11 @@ void MonsterAI::TargetUpdate()
 
 	m_chaseUpdateAccum = 0;
 
-	// Å¸°Ù ¾÷µ¥ÀÌÆ® ÇØ¾ß ÇÒ ¶§  »õ·Î¿î ¸ñÇ¥ À§Ä¡ 
-	// ¸ó½ºÅÍ ÀÌµ¿ ¹æÇâ ¹× Å¸°Ù ÁÂÇ¥ ¾÷µ¥ÀÌÆ®
+	// íƒ€ê²Ÿ ì—…ë°ì´íŠ¸ í•´ì•¼ í•  ë•Œ  ìƒˆë¡œìš´ ëª©í‘œ ìœ„ì¹˜ 
+	// ëª¬ìŠ¤í„° ì´ë™ ë°©í–¥ ë° íƒ€ê²Ÿ ì¢Œí‘œ ì—…ë°ì´íŠ¸
 	m_pField->targetupdatePacketCount++;
 
-	// Å¸°Ù À§Ä¡ ¾÷µ¥ÀÌÆ®
+	// íƒ€ê²Ÿ ìœ„ì¹˜ ì—…ë°ì´íŠ¸
 	float dx = m_pTarget->GetLocation().xpos - m_pOwner->GetX();
 	float dy = m_pTarget->GetLocation().ypos - m_pOwner->GetY();
 	float rad = atan2f(dy, dx);
@@ -469,7 +469,7 @@ void MonsterAI::TargetUpdate()
 	float dirX = cosf(rad);
 	float dirY = sinf(rad);
 
-	// »õ À§Ä¡¿Í ±âÁ¸ ¸ñÇ¥À§Ä¡ Â÷ÀÌ°¡ ÀÓ°è°ª ÀÌÇÏ¸é ÆĞÅ¶ »ı·«
+	// ìƒˆ ìœ„ì¹˜ì™€ ê¸°ì¡´ ëª©í‘œìœ„ì¹˜ ì°¨ì´ê°€ ì„ê³„ê°’ ì´í•˜ë©´ íŒ¨í‚· ìƒëµ
 	float newX = m_pTarget->GetLocation().xpos - dirX * CHASE_STOP_DISTANCE;
 	float newY = m_pTarget->GetLocation().ypos - dirY * CHASE_STOP_DISTANCE;
 
@@ -485,7 +485,7 @@ void MonsterAI::TargetUpdate()
 
 	m_pOwner->SetMoveYaw(targetYaw);
 
-	// Move ÆĞÅ¶ ¸ó½ºÅÍ ÁÖº¯¿¡ »Ñ¸®±â
+	// Move íŒ¨í‚· ëª¬ìŠ¤í„° ì£¼ë³€ì— ë¿Œë¦¬ê¸°
 	m_pField->SendMonsterTargetUpdate(m_pOwner);
 }
 
@@ -495,7 +495,7 @@ bool MonsterAI::IsNear(const Location& cur, const Location& target)
 	float dy = std::abs(cur.ypos - target.ypos);
 	float distSq = dx * dx + dy * dy;
 
-	// ¸ñÀûÁö¿ÍÀÇ °Å¸®°¡ ¸ó½ºÅÍÀÇ ÇÑÆ½ °Å¸®º¸´Ù ÀÌÇÏ¸é µµÂøÀ¸·Î ÆÇ´Ü
+	// ëª©ì ì§€ì™€ì˜ ê±°ë¦¬ê°€ ëª¬ìŠ¤í„°ì˜ í•œí‹± ê±°ë¦¬ë³´ë‹¤ ì´í•˜ë©´ ë„ì°©ìœ¼ë¡œ íŒë‹¨
 	float arriveMinDistSq = m_pOwner->GetMoveSpeed() * m_pOwner->GetMoveSpeed();
 
 	if (distSq <= arriveMinDistSq)

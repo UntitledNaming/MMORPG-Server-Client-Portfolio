@@ -1,4 +1,4 @@
-#include <unordered_map>
+ï»¿#include <unordered_map>
 #include <array>
 #include "MemoryPoolTLS.h"
 #include "ItemUIDAllocator.h"
@@ -15,7 +15,7 @@ void Equipment::Init(CUserItemStorage* pStorage)
 
 	m_pStorage = pStorage;
 	m_useCount = 0;
-	// DB¿¡¼­ ÀåÂø Àåºñ ±Ü¾î¿Í ¼¼ÆÃ ¹× Ä³½Ã µ¥ÀÌÅÍ ¼¼ÆÃ
+	// DBì—ì„œ ìž¥ì°© ìž¥ë¹„ ê¸ì–´ì™€ ì„¸íŒ… ë° ìºì‹œ ë°ì´í„° ì„¸íŒ…
 
 }
 void Equipment::Destroy()
@@ -44,7 +44,7 @@ bool Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& O
 	const UserItem* outitem = m_pStorage->FindItem(OutItemUID);
 	if (outitem)
 	{
-		// ItemTable Ã£¾Æ¼­ ±âº» ½ºÅÈ Ã£¾Æ¼­ »©±â
+		// ItemTable ì°¾ì•„ì„œ ê¸°ë³¸ ìŠ¤íƒ¯ ì°¾ì•„ì„œ ë¹¼ê¸°
 		const ItemData* pData = ItemTable::GetItemData(outitem->itemID);
 
 		if (pData)
@@ -61,7 +61,7 @@ bool Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& O
 
 		m_useCount--;
 
-		// ·£´ý ½ºÅÈ »©±â
+		// ëžœë¤ ìŠ¤íƒ¯ ë¹¼ê¸°
 		uint8 statCount = outitem->randomStatCount;
 		for (int i = 0; i < statCount; i++)
 		{
@@ -95,14 +95,14 @@ bool Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& O
 		}
 	}
 
-	// »õ·Î¿î ¾ÆÀÌÅÛ ÀåÂø ÈÄ ½ºÅÈ °»½ÅÇÏ±â
+	// ìƒˆë¡œìš´ ì•„ì´í…œ ìž¥ì°© í›„ ìŠ¤íƒ¯ ê°±ì‹ í•˜ê¸°
 	m_equipment[(int)slotNum] = InItemUID;
 	
 	const UserItem* initem = m_pStorage->FindItem(InItemUID);
 	if (!initem)
 		__debugbreak();
 
-	// ItemTable¿¡¼­ ±âº» ½ºÅÈ Ã£¾Æ¼­ ´õÇÏ±â
+	// ItemTableì—ì„œ ê¸°ë³¸ ìŠ¤íƒ¯ ì°¾ì•„ì„œ ë”í•˜ê¸°
 	const ItemData* pInItemData = ItemTable::GetItemData(initem->itemID);
 	if (pInItemData)
 	{
@@ -116,7 +116,7 @@ bool Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& O
 	else
 		__debugbreak();
 
-	// ·£´ý ½ºÅÈ ´õÇÏ±â
+	// ëžœë¤ ìŠ¤íƒ¯ ë”í•˜ê¸°
 	uint8 statCount = initem->randomStatCount;
 	for (int i = 0; i < statCount; i++)
 	{
@@ -162,12 +162,12 @@ bool Equipment::UnEquippedItem(EQUIP_SLOT slotNum, ITEM_UID& OutItemUID)
 	if (OutItemUID == ItemUID::ITEM_UID_INVALID_ID)
 		return false;
 
-	// Ä³½Ã ½ºÅÈ °»½Å
+	// ìºì‹œ ìŠ¤íƒ¯ ê°±ì‹ 
 	const UserItem* outitem = m_pStorage->FindItem(OutItemUID);
 	if (outitem == nullptr)
 		return false;
 
-	// ItemTable Ã£¾Æ¼­ ±âº» ½ºÅÈ Ã£¾Æ¼­ »©±â
+	// ItemTable ì°¾ì•„ì„œ ê¸°ë³¸ ìŠ¤íƒ¯ ì°¾ì•„ì„œ ë¹¼ê¸°
 	const ItemData* pData = ItemTable::GetItemData(outitem->itemID);
 	if (pData)
 	{
@@ -181,7 +181,7 @@ bool Equipment::UnEquippedItem(EQUIP_SLOT slotNum, ITEM_UID& OutItemUID)
 	else
 		__debugbreak();
 
-	// ·£´ý ½ºÅÈ »©±â
+	// ëžœë¤ ìŠ¤íƒ¯ ë¹¼ê¸°
 	uint8 statCount = outitem->randomStatCount;
 	for (int i = 0; i < statCount; i++)
 	{

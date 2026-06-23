@@ -1,4 +1,4 @@
-#include "ContentsStruct.h"
+ï»¿#include "ContentsStruct.h"
 #include "ContentsDefine.h"
 #include "MemoryPoolTLS.h"
 #include "ItemTable.h"
@@ -25,7 +25,7 @@ FieldDropItem* FieldDropItemPool::CreateItem(const Location& dropLocation)
     if (retID == 0)
         return nullptr;
 
-    // ¾ÆÀÌÅÛ Å×ÀÌºí¿¡ ¾øÀ¸¸é nullptr ¸®ÅÏ
+    // ì•„ì´í…œ í…Œì´ë¸”ì— ì—†ìœ¼ë©´ nullptr ë¦¬í„´
     const ItemData* pItemData = ItemTable::GetItemData(retID);
     if (pItemData == nullptr)
         __debugbreak();
@@ -189,12 +189,12 @@ FieldDropItem* FieldDropItemPool::CreateFieldItemByItemData(const ItemData* item
     switch (itemData->itemType)
     {
     case ITEM_TYPE::CONSUMABLE:
-        // Æ÷¼Ç °¹¼ö ·£´ı »ı¼º
+        // í¬ì…˜ ê°¯ìˆ˜ ëœë¤ ìƒì„±
         pDropItem->count = CreateConsumableItemCount(pDropItem->itemID);
         break;
 
     case ITEM_TYPE::EQUIPMENT:
-        // ·£´ı ½ºÅÈ »ı¼º
+        // ëœë¤ ìŠ¤íƒ¯ ìƒì„±
         pDropItem->count = 1;
         CreateRandomStat(itemData, pDropItem->randomStat, pDropItem->randomStatCount);
         break;
@@ -242,23 +242,23 @@ void FieldDropItemPool::CreateRandomStat(const ItemData* itemData, RandomStatRes
         randomStatCount = FieldDropItemConst::FIELD_DROP_ITEM_RANDOM_STAT_MAX;
 
 
-    // ÇØ´ç Àåºñ ½½·Ô¿¡ ºÎ¿©ÇÒ ·£´ı ½ºÅÈ Å¸ÀÔ »Ì±â
+    // í•´ë‹¹ ì¥ë¹„ ìŠ¬ë¡¯ì— ë¶€ì—¬í•  ëœë¤ ìŠ¤íƒ¯ íƒ€ì… ë½‘ê¸°
     RANDOM_STAT_TYPE store[(int)RANDOM_STAT_TYPE::MAX - 1] = {};
     uint16 storeCount = 0;
 
     RANDOM_STAT_TYPE pickUp[(int)RANDOM_STAT_TYPE::MAX - 1] = {};
     uint16 pickUpCount = 0;
 
-    // store¿¡ Àåºñ ½½·Ô º°·Î Çã¿ë °¡´ÉÇÑ ½ºÅÈ ´ã±â
+    // storeì— ì¥ë¹„ ìŠ¬ë¡¯ ë³„ë¡œ í—ˆìš© ê°€ëŠ¥í•œ ìŠ¤íƒ¯ ë‹´ê¸°
     GetAllowedRandomStatType(itemData->equipSlot, store, storeCount);
 
-    // Àû¿ëÇØ¾ßÇÒ ·£´ı ½ºÅÈ °¹¼ö°¡ Çã¿ë °¡´ÉÇÑ ½ºÅÈ °³¼öº¸´Ù Å©¸é Çã¿ë °¡´ÉÇÑ ½ºÅÈ °¹¼ö·Î ¸ÂÃß±â
+    // ì ìš©í•´ì•¼í•  ëœë¤ ìŠ¤íƒ¯ ê°¯ìˆ˜ê°€ í—ˆìš© ê°€ëŠ¥í•œ ìŠ¤íƒ¯ ê°œìˆ˜ë³´ë‹¤ í¬ë©´ í—ˆìš© ê°€ëŠ¥í•œ ìŠ¤íƒ¯ ê°¯ìˆ˜ë¡œ ë§ì¶”ê¸°
     if (randomStatCount > storeCount)
         randomStatCount = storeCount;
     
     OutRandomStatCount = randomStatCount;
 
-    // store¿¡¼­ »ÌÀº °Í PickUp ¹è¿­¿¡ ´ã°í ¸Ç µÚ ¿ø¼Ò·Î ±³Ã¼ÇØ¼­ µ¤¾î¹ö¸®±â
+    // storeì—ì„œ ë½‘ì€ ê²ƒ PickUp ë°°ì—´ì— ë‹´ê³  ë§¨ ë’¤ ì›ì†Œë¡œ êµì²´í•´ì„œ ë®ì–´ë²„ë¦¬ê¸°
     for (int i = 0; i < randomStatCount; i++)
     {
         int idx = rand() % storeCount;
@@ -268,7 +268,7 @@ void FieldDropItemPool::CreateRandomStat(const ItemData* itemData, RandomStatRes
         storeCount--;
     }
 
-    // »ÌÀº ·£´ı ½ºÅÈ Å¸ÀÔ¿¡ µû¶ó Å×ÀÌºí¿¡¼­ 
+    // ë½‘ì€ ëœë¤ ìŠ¤íƒ¯ íƒ€ì…ì— ë”°ë¼ í…Œì´ë¸”ì—ì„œ 
     for (int i = 0; i < pickUpCount; i++)
     {
         SetRandomStat(rule, ruleCount, pickUp[i], randomStat[i]);
@@ -317,7 +317,7 @@ void FieldDropItemPool::GetAllowedRandomStatType(EQUIP_SLOT slot, RANDOM_STAT_TY
 
 void FieldDropItemPool::SetRandomStat(const RandomStatRule* rule, uint16 ruleCount, RANDOM_STAT_TYPE type, RandomStatResult& randomStat)
 {
-    // rule¿¡¼­ type¿¡ ÇØ´çÇÏ´Â min, max Ã£±â
+    // ruleì—ì„œ typeì— í•´ë‹¹í•˜ëŠ” min, max ì°¾ê¸°
     uint16 min = 0;
     uint16 max = 0;
 

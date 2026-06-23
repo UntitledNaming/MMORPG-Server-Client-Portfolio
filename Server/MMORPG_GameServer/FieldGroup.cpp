@@ -1,4 +1,4 @@
-#include <windows.h>
+ï»¿#include <windows.h>
 #include <vector>
 #include <unordered_map>
 #include <array>
@@ -45,7 +45,7 @@ void FieldGroup::InitDBManager(CDBManager* pDBManager)
 
 void FieldGroup::SendMonsterCreateToSector(CMonster* pMonster, uint16 secX, uint16 secY)
 {
-	// ¼½ÅÍ¿¡ ÀÖ´Â À¯Àúµé¿¡°Ô ¸ó½ºÅÍ »ı¼º ¹× ÇÊ¿äÇÏ¸é Move ÆĞÅ¶ º¸³»±â
+	// ì„¹í„°ì— ìˆëŠ” ìœ ì €ë“¤ì—ê²Œ ëª¬ìŠ¤í„° ìƒì„± ë° í•„ìš”í•˜ë©´ Move íŒ¨í‚· ë³´ë‚´ê¸°
 	int count = m_sectors[secY][secX].GetUserCount();
 	for (int i = 0; i < count; i++)
 	{
@@ -55,7 +55,7 @@ void FieldGroup::SendMonsterCreateToSector(CMonster* pMonster, uint16 secX, uint
 		SendPacket(pUser->GetSessionID(), pCreateMonster);
 		CMessage::Free(pCreateMonster);
 
-		// ¼øÂû, Ãß°İ, º¹±Í ÁßÀÏ ¶§ Move ÆĞÅ¶ º¸³»±â.
+		// ìˆœì°°, ì¶”ê²©, ë³µê·€ ì¤‘ì¼ ë•Œ Move íŒ¨í‚· ë³´ë‚´ê¸°.
 		if (pMonster->GetMonsterState() == EMonsterState::Patrol || pMonster->GetMonsterState() == EMonsterState::Chase || pMonster->GetMonsterState() == EMonsterState::Return)
 		{
 			CMessage* pMonsterMove = PacketBuilder::MoveMonster(pMonster, pMonster->GetMonsterAITargetLocation());
@@ -96,20 +96,20 @@ void FieldGroup::SendMonsterTargetUpdate(CMonster* pMonster)
 
 void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, int16 newHP)
 {
-	// ÇÇ°İ ´ë»óÀÎ Å¬¶ó¿¡°Ô´Â hp ´ã¾Æ¼­ º¸³»±â
+	// í”¼ê²© ëŒ€ìƒì¸ í´ë¼ì—ê²ŒëŠ” hp ë‹´ì•„ì„œ ë³´ë‚´ê¸°
 	CMessage* pAttackMonsterToMe = PacketBuilder::AttackMonsterToMe(pMonster, pTarget->GetSessionID(), newHP);
 	SendPacket(pTarget->GetSessionID(), pAttackMonsterToMe);
 	CMessage::Free(pAttackMonsterToMe);
 
 
-	// ÇÇ°İ ´ë»ó ÁÖº¯ Å¬¶ó µé¿¡°Ô´Â ÇÇ°İ ´ë»óÀÇ newRatio¸¸ º¸³»±â
+	// í”¼ê²© ëŒ€ìƒ ì£¼ë³€ í´ë¼ ë“¤ì—ê²ŒëŠ” í”¼ê²© ëŒ€ìƒì˜ newRatioë§Œ ë³´ë‚´ê¸°
 	CMessage* pAttackMonsterToOther = PacketBuilder::AttackMonsterToOther(pMonster, pTarget);
 
-	// ¸ó½ºÅÍ¿Í Å¸°Ù ÁÖº¯ ¼½ÅÍ¿¡ ÇØ´ç ¸Ş¼¼Áö »Ñ¸®±â(Å¸°Ù ¶§¸®´Â ¾Ö´Ï + ÇÇ°İ ´ë»ó hp ±ğ±â °°ÀÌ ³ª°¨)
+	// ëª¬ìŠ¤í„°ì™€ íƒ€ê²Ÿ ì£¼ë³€ ì„¹í„°ì— í•´ë‹¹ ë©”ì„¸ì§€ ë¿Œë¦¬ê¸°(íƒ€ê²Ÿ ë•Œë¦¬ëŠ” ì• ë‹ˆ + í”¼ê²© ëŒ€ìƒ hp ê¹ê¸° ê°™ì´ ë‚˜ê°)
 	SectorPos sendflagArray[20];
 	int pushCount = 0;
 
-	// ¸ó½ºÅÍ¿Í Å¸°Ù ÁÖº¯ ¼½ÅÍ Ã£±â
+	// ëª¬ìŠ¤í„°ì™€ íƒ€ê²Ÿ ì£¼ë³€ ì„¹í„° ì°¾ê¸°
 	SectorAround monsterAround;
 	SectorAround targetAround;
 	SectorPos::SectorFind(monsterAround, pMonster->GetSectorPos());
@@ -129,7 +129,7 @@ void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, int
 		int16 secX = targetAround.m_Around[i].GetX();
 		int16 secY = targetAround.m_Around[i].GetY();
 
-		// ÀÌ¹Ì ¸Ş¼¼Áö ³ÖÀº ¼½ÅÍ ÁÂÇ¥¸é pass
+		// ì´ë¯¸ ë©”ì„¸ì§€ ë„£ì€ ì„¹í„° ì¢Œí‘œë©´ pass
 		if (SectorPos::IsAlreadyPushed(sendflagArray, pushCount, secX, secY))
 			continue;
 
@@ -228,20 +228,20 @@ void FieldGroup::Init(CGameLibrary* p)
 		}
 	}
 
-	// ¼½ÅÍ¿¡ ¸ó½ºÅÍ ¹èÄ¡ÇÏ±â
+	// ì„¹í„°ì— ëª¬ìŠ¤í„° ë°°ì¹˜í•˜ê¸°
 	MonsterSpawnInit();
 }
 
 void FieldGroup::Destroy()
 {
-	// ÇöÀç ÀÖ´Â ¸ğµç À¯Àú ¿¬°á ²÷±â
+	// í˜„ì¬ ìˆëŠ” ëª¨ë“  ìœ ì € ì—°ê²° ëŠê¸°
 	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.begin();
 	for (; it != m_userLookUpTable.end(); ++it)
 	{
 		Disconnect(it->second->GetSessionID());
 	}
 
-	// À¯Àú ÀüºÎ »èÁ¦µÉ¶§±îÁö ´ë±â
+	// ìœ ì € ì „ë¶€ ì‚­ì œë ë•Œê¹Œì§€ ëŒ€ê¸°
 	while (!m_userLookUpTable.empty())
 	{
 
@@ -256,7 +256,7 @@ void FieldGroup::Destroy()
 
 void FieldGroup::OnClientJoin(UINT64 sessionID)
 {
-	// È£Ãâ µÉ ÀÏ ¾øÀ½
+	// í˜¸ì¶œ ë  ì¼ ì—†ìŒ
 }
 
 void FieldGroup::OnClientLeave(UINT64 sessionID)
@@ -266,7 +266,7 @@ void FieldGroup::OnClientLeave(UINT64 sessionID)
 	if (it == m_userLookUpTable.end())
 		__debugbreak();
 
-	// º»ÀÎ Ä³¸¯ÅÍ¿¡ ´ëÇÑ »èÁ¦ ¸Ş¼¼Áö¸¦ °¢ ¼½ÅÍ¿¡ ÀÖ´Â À¯Àú¿¡°Ô º¸³»±â
+	// ë³¸ì¸ ìºë¦­í„°ì— ëŒ€í•œ ì‚­ì œ ë©”ì„¸ì§€ë¥¼ ê° ì„¹í„°ì— ìˆëŠ” ìœ ì €ì—ê²Œ ë³´ë‚´ê¸°
 	CUser* pUser = it->second;
 
 	CMessage* pMessage = PacketBuilder::DeleteCharacter(pUser);
@@ -328,7 +328,7 @@ void FieldGroup::OnRecv(UINT64 sessionID, CMessage* pMessage)
 
 void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 {
-	// ÇÊµå ÀÚ·á±¸Á¶¿¡ À¯Àú »ğÀÔ
+	// í•„ë“œ ìë£Œêµ¬ì¡°ì— ìœ ì € ì‚½ì…
 	CUser* pOnUser = (CUser*)pUser;
 
 	m_userLookUpTable.insert(std::pair<uint64, CUser*>(sessionID, pOnUser));
@@ -336,37 +336,37 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 	FieldSector& sec = m_sectors[pOnUser->GetSectorYpos()][pOnUser->GetSectorXpos()];
 	sec.AddUser(pOnUser);
 
-	// Ä³¸¯ÅÍ »ı¼º Ã³¸®
+	// ìºë¦­í„° ìƒì„± ì²˜ë¦¬
 
-	// º»ÀÎ Ä³¸¯ÅÍ »ı¼º ¸Ş¼¼Áö ¸¸µé°í º¸³»±â
+	// ë³¸ì¸ ìºë¦­í„° ìƒì„± ë©”ì„¸ì§€ ë§Œë“¤ê³  ë³´ë‚´ê¸°
 	CMessage* pCreateMyChrToMeMsg = PacketBuilder::CreateMyCharacter(pOnUser);
 	SendPacket(pOnUser->GetSessionID(), pCreateMyChrToMeMsg);
 	CMessage::Free(pCreateMyChrToMeMsg);
 
-	// º»ÀÎ Ä³¸¯ÅÍ ÁÖº¯ ¼½ÅÍ Ã£±â
+	// ë³¸ì¸ ìºë¦­í„° ì£¼ë³€ ì„¹í„° ì°¾ê¸°
 	SectorAround sectAround;
 	SectorPos::SectorFind(sectAround, pOnUser->GetSectorPos());
 
-	// ¼½ÅÍ ¼øÈ¸ÇÏ¸é¼­ »ı¼º °ü·Ã ¸Ş¼¼Áö º¸³»±â
+	// ì„¹í„° ìˆœíšŒí•˜ë©´ì„œ ìƒì„± ê´€ë ¨ ë©”ì„¸ì§€ ë³´ë‚´ê¸°
 	for (int i = 0; i < sectAround.m_count; i++)
 	{
 		uint16 curSecXpos = sectAround.m_Around[i].GetX();
 		uint16 curSecYpos = sectAround.m_Around[i].GetY();
 
-		// ÁÖº¯ ¼½ÅÍ¿¡ º»ÀÎ Ä³¸¯ÅÍ »ı¼º ¸Ş¼¼Áö ¸¸µé°í º¸³»±â
+		// ì£¼ë³€ ì„¹í„°ì— ë³¸ì¸ ìºë¦­í„° ìƒì„± ë©”ì„¸ì§€ ë§Œë“¤ê³  ë³´ë‚´ê¸°
 		CMessage* pCreateMyChrToOtherMsg = PacketBuilder::CreateOtherCharacter(pOnUser);
 		SendPacket_SectorOne(pCreateMyChrToOtherMsg, curSecXpos, curSecYpos, pOnUser);
 		CMessage::Free(pCreateMyChrToOtherMsg);
 
-		// ÇØ´ç ¼½ÅÍÀÇ À¯Àú »ı¼º ¸Ş¼¼Áö¸¦ ¸¸µé¾î º»ÀÎ Ä³¸¯ÅÍ¿¡°Ô Àü¼Û
+		// í•´ë‹¹ ì„¹í„°ì˜ ìœ ì € ìƒì„± ë©”ì„¸ì§€ë¥¼ ë§Œë“¤ì–´ ë³¸ì¸ ìºë¦­í„°ì—ê²Œ ì „ì†¡
 		uint16 curUserCount = m_sectors[curSecYpos][curSecXpos].GetUserCount();
 
-		// ¼½ÅÍ¿¡ ÀÖ´Â  Å¸ À¯Àú ¼øÈ¸
+		// ì„¹í„°ì— ìˆëŠ”  íƒ€ ìœ ì € ìˆœíšŒ
 		for (int j = 0; j < curUserCount; j++)
 		{
 			CUser* pSecUser = m_sectors[curSecYpos][curSecXpos].GetUser(j);
 
-			// ¼½ÅÍ À¯Àú°¡ ³ª¸é Pass
+			// ì„¹í„° ìœ ì €ê°€ ë‚˜ë©´ Pass
 			if (pSecUser == pOnUser)
 				continue;
 
@@ -375,13 +375,13 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 			CMessage::Free(pCreateOtherChrToMeMsg);
 		}
 
-		// ¼½ÅÍ ÁÖº¯ ¸ó½ºÅÍ¿¡ ´ëÇÑ »ı¼º ¸Ş¼¼Áö Àü¼Û
+		// ì„¹í„° ì£¼ë³€ ëª¬ìŠ¤í„°ì— ëŒ€í•œ ìƒì„± ë©”ì„¸ì§€ ì „ì†¡
 		uint16 curMonsterCount = m_sectors[curSecYpos][curSecXpos].GetMonsterCount();
 		for (int monstercount = 0; monstercount < curMonsterCount; monstercount++)
 		{
 			CMonster* pMonster = m_sectors[curSecYpos][curSecXpos].GetMonster(monstercount);
 
-			// Á×Àº ¸ó½ºÅÍ¸é »ı¼º Pass
+			// ì£½ì€ ëª¬ìŠ¤í„°ë©´ ìƒì„± Pass
 			if (pMonster->GetMonsterState() == EMonsterState::Dead)
 				continue;
 
@@ -390,7 +390,7 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 			CMessage::Free(pCreateMonsterMsg);
 
 
-			// ¼øÂû, Ãß°İ, º¹±Í ÁßÀÏ ¶§ Move ÆĞÅ¶ º¸³»±â.
+			// ìˆœì°°, ì¶”ê²©, ë³µê·€ ì¤‘ì¼ ë•Œ Move íŒ¨í‚· ë³´ë‚´ê¸°.
 			if (pMonster->GetMonsterState() == EMonsterState::Patrol || pMonster->GetMonsterState() == EMonsterState::Chase || pMonster->GetMonsterState() == EMonsterState::Return)
 			{
 				CMessage* pMonsterMove = PacketBuilder::MoveMonster(pMonster, pMonster->GetMonsterAITargetLocation());
@@ -399,7 +399,7 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 			}
 		}
 
-		// ÁÖº¯ ¼½ÅÍ¿¡ ÀÖ´Â ¾ÆÀÌÅÛ¿¡ ´ëÇÑ »ı¼º ¸Ş¼¼Áö º¸³»±â
+		// ì£¼ë³€ ì„¹í„°ì— ìˆëŠ” ì•„ì´í…œì— ëŒ€í•œ ìƒì„± ë©”ì„¸ì§€ ë³´ë‚´ê¸°
 		uint16 curItemCount = m_sectors[curSecYpos][curSecXpos].GetItemCount();
 		for (int itemcount = 0; itemcount < curItemCount; itemcount++)
 		{
@@ -426,7 +426,7 @@ void FieldGroup::SendPacket_SectorOne(CMessage* pMessage, uint16 xpos, uint16 yp
 	{
 		CUser* pCurUser = m_sectors[ypos][xpos].GetUser(i);
 
-		// ¸Å°³ÀÎÀÚ·Î ¹ŞÀº À¯Àú¿Í °°Àº À¯Àú¸é ¸Ş¼¼Áö ¼Û½Å Pass
+		// ë§¤ê°œì¸ìë¡œ ë°›ì€ ìœ ì €ì™€ ê°™ì€ ìœ ì €ë©´ ë©”ì„¸ì§€ ì†¡ì‹  Pass
 		if (pCurUser == pUser)
 			continue;
 
@@ -454,20 +454,20 @@ void FieldGroup::SendPacket_SectorAround(CMessage* pMessage, CUser* pUser, bool 
 
 void FieldGroup::SendPacket_HitSectors(HitResult& result)
 {
-	// ÇÇ°İÀÚ ÇÇ°İ ¸Ş¼¼Áö »Ñ¸®±â
+	// í”¼ê²©ì í”¼ê²© ë©”ì„¸ì§€ ë¿Œë¦¬ê¸°
 	CMessage* pHitMsg = PacketBuilder::HitTarget(result.HitUserCount, result.HitMonsterCount, result.HitUserArray, result.HitMonsterArray);
 
 	SectorPos sendflagArray[20];
 	int pushCount = 0;
 
 
-	// ÇÇ°İÀÚ µé ¼øÈ¸ÇÏ¸é¼­ ÇÇ°İÀÚ ¼½ÅÍ¿¡ ÀÖ´Â »ç¶÷µé¿¡°Ô ÇÇ°İ ¸Ş¼¼Áö Àü´ŞÇÏ±â
+	// í”¼ê²©ì ë“¤ ìˆœíšŒí•˜ë©´ì„œ í”¼ê²©ì ì„¹í„°ì— ìˆëŠ” ì‚¬ëŒë“¤ì—ê²Œ í”¼ê²© ë©”ì„¸ì§€ ì „ë‹¬í•˜ê¸°
 	for (int i = 0; i < result.HitUserCount; i++)
 	{
 		int16 secX = result.HitUserArray[i]->GetSectorXpos();
 		int16 secY = result.HitUserArray[i]->GetSectorYpos();
 
-		// ÇÇ°İÀÚ ÁÖº¯ ¼½ÅÍ ÁÂÇ¥ Ã£±â
+		// í”¼ê²©ì ì£¼ë³€ ì„¹í„° ì¢Œí‘œ ì°¾ê¸°
 		SectorAround HitAround;
 		SectorPos::SectorFind(HitAround, result.HitUserArray[i]->GetSectorPos());
 
@@ -476,7 +476,7 @@ void FieldGroup::SendPacket_HitSectors(HitResult& result)
 			int16 hitSecX = HitAround.m_Around[count].GetX();
 			int16 hitSecY = HitAround.m_Around[count].GetY();
 
-			// ÀÌ¹Ì ¸Ş¼¼Áö ³ÖÀº ¼½ÅÍ ÁÂÇ¥¸é pass
+			// ì´ë¯¸ ë©”ì„¸ì§€ ë„£ì€ ì„¹í„° ì¢Œí‘œë©´ pass
 			if (SectorPos::IsAlreadyPushed(sendflagArray, pushCount, hitSecX, hitSecY))
 				continue;
 
@@ -488,21 +488,21 @@ void FieldGroup::SendPacket_HitSectors(HitResult& result)
 
 	}
 
-	// ÇÇ°İ¸ó½ºÅÍµé ÁÖº¯ ¼½ÅÍ¿¡ ¸Ş¼¼Áö »Ñ¸®±â
+	// í”¼ê²©ëª¬ìŠ¤í„°ë“¤ ì£¼ë³€ ì„¹í„°ì— ë©”ì„¸ì§€ ë¿Œë¦¬ê¸°
 	for (int i = 0; i < result.HitMonsterCount; i++)
 	{
 		SectorAround HitAround;
 
-		// ÇÇ°İ ¸ó½ºÅÍ ÁÖº¯ ¼½ÅÍ Ã£±â
+		// í”¼ê²© ëª¬ìŠ¤í„° ì£¼ë³€ ì„¹í„° ì°¾ê¸°
 		SectorPos::SectorFind(HitAround, result.HitMonsterArray[i]->GetSectorPos());
 
 		for (int count = 0; count < HitAround.m_count; count++)
 		{
-			// ÇÇ°İ ¸ó½ºÅÍ ÁÖº¯ ¼½ÅÍ ÁÂÇ¥ ¾ò±â
+			// í”¼ê²© ëª¬ìŠ¤í„° ì£¼ë³€ ì„¹í„° ì¢Œí‘œ ì–»ê¸°
 			int16 hitSecX = HitAround.m_Around[count].GetX();
 			int16 hitSecY = HitAround.m_Around[count].GetY();
 
-			// ÀÌ¹Ì ¸Ş¼¼Áö ³ÖÀº ¼½ÅÍ ÁÂÇ¥¸é pass
+			// ì´ë¯¸ ë©”ì„¸ì§€ ë„£ì€ ì„¹í„° ì¢Œí‘œë©´ pass
 			if (SectorPos::IsAlreadyPushed(sendflagArray, pushCount, hitSecX, hitSecY))
 				continue;
 
@@ -516,7 +516,7 @@ void FieldGroup::SendPacket_HitSectors(HitResult& result)
 
 void FieldGroup::CollectHitTarget(CUser* attacker, HitSearchInfo& hitInfo, HitResult& hitResult)
 {
-	// °ø°İ ¹æÇâÀ¸·Î Ä³¸¯ÅÍ À§Ä¡¿¡¼­ Á÷»ç°¢Çü ±×·Á¼­ °ø°İ¹üÀ§¿¡ µé¾î¿À´Â ¼½ÅÍ ÁÂÇ¥ Ã£±â
+	// ê³µê²© ë°©í–¥ìœ¼ë¡œ ìºë¦­í„° ìœ„ì¹˜ì—ì„œ ì§ì‚¬ê°í˜• ê·¸ë ¤ì„œ ê³µê²©ë²”ìœ„ì— ë“¤ì–´ì˜¤ëŠ” ì„¹í„° ì¢Œí‘œ ì°¾ê¸°
 	int minSX = (int)((hitInfo.x - hitInfo.range - FieldConst::MAP_WORLD_OFFSET_X) / SECTOR_SIZE);
 	int maxSX = (int)((hitInfo.x + hitInfo.range - FieldConst::MAP_WORLD_OFFSET_X) / SECTOR_SIZE);
 	int minSY = (int)((hitInfo.y - hitInfo.range - FieldConst::MAP_WORLD_OFFSET_Y) / SECTOR_SIZE);
@@ -544,7 +544,7 @@ void FieldGroup::CollectHitTarget(CUser* attacker, HitSearchInfo& hitInfo, HitRe
 				{
 					CUser* targetPlayer = m_sectors[sy][sx].GetUser(i);
 
-					// Å¸°ÙÀÌ °ø°İÀÚ¿Í °°À¸¸é pass or Å¸°ÙÀÌ Á×¾úÀ¸¸é pass
+					// íƒ€ê²Ÿì´ ê³µê²©ìì™€ ê°™ìœ¼ë©´ pass or íƒ€ê²Ÿì´ ì£½ì—ˆìœ¼ë©´ pass
 					if (targetPlayer == attacker || targetPlayer->IsAlive() <= 0 )
 						continue;
 
@@ -636,9 +636,9 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 	*pMessage >> movementyaw;
 	*pMessage >> moveflag;
 	
-	// todo : ÃßÃâÇÑ µ¥ÀÌÅÍ °ËÁõ
-	// 1) ZÃà °ª¿¡ ´ëÇÑ °ËÁõ ÇÊ¿ä. ¼½ÅÍ ÇÏ³ª°¡ 100mÀÌ´Ï ±× ¾È¿¡ ZoneÀ» ¸¸µå´Âµ¥ ZoneÀÇ ±¸¿ªÀ» Á÷À°¸éÃ¼·Î Á¤ÀÇÇÔ.
-	//    ÀÌ Zoneµé ¸¶´Ù ¼Ó¼ºµéÀÌ ÀÖÀ½. ZÃàÀÌ Çã¿ëµÇ´Â Áö¿ªÀÌ ÀÖÀ» °ÍÀÌ°í ±×°Ô ¾ÈµÇ´Â Áö¿ªÀÌ ÀÖÀ» °ÍÀÓ.
+	// todo : ì¶”ì¶œí•œ ë°ì´í„° ê²€ì¦
+	// 1) Zì¶• ê°’ì— ëŒ€í•œ ê²€ì¦ í•„ìš”. ì„¹í„° í•˜ë‚˜ê°€ 100mì´ë‹ˆ ê·¸ ì•ˆì— Zoneì„ ë§Œë“œëŠ”ë° Zoneì˜ êµ¬ì—­ì„ ì§ìœ¡ë©´ì²´ë¡œ ì •ì˜í•¨.
+	//    ì´ Zoneë“¤ ë§ˆë‹¤ ì†ì„±ë“¤ì´ ìˆìŒ. Zì¶•ì´ í—ˆìš©ë˜ëŠ” ì§€ì—­ì´ ìˆì„ ê²ƒì´ê³  ê·¸ê²Œ ì•ˆë˜ëŠ” ì§€ì—­ì´ ìˆì„ ê²ƒì„.
 	//
 
 	CUser* pUser = nullptr;
@@ -656,10 +656,10 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 	pUser->SetMoveYaw(movementyaw);
 	pUser->SetMoveFlag(moveflag);
 
-	// ½ÌÅ© Æ²¾îÁ³À¸¸é ½ÌÅ© ÆĞÅ¶ ¹× input Update ÆĞÅ¶ º¸³»±â
+	// ì‹±í¬ í‹€ì–´ì¡Œìœ¼ë©´ ì‹±í¬ íŒ¨í‚· ë° input Update íŒ¨í‚· ë³´ë‚´ê¸°
 	if (std::abs(pUser->GetX() - xpos) >= SYNC_X_RANGE || std::abs(pUser->GetY() - ypos) >= SYNC_Y_RANGE)
 	{
-		// ½ÌÅ© ¹ß»ı½Ã ¸¶Áö¸· Ã¼Å© ½Ã°£ºÎÅÍ ÇöÀç ½Ã°£ÀÌ Æ¯Á¤ ½Ã°£ÀÎ 10ÃÊ¸¦ ³Ñ¾úÀ¸¸é Sync Count¸¦ 0À¸·Î ¹Ğ¾îÁÜ.
+		// ì‹±í¬ ë°œìƒì‹œ ë§ˆì§€ë§‰ ì²´í¬ ì‹œê°„ë¶€í„° í˜„ì¬ ì‹œê°„ì´ íŠ¹ì • ì‹œê°„ì¸ 10ì´ˆë¥¼ ë„˜ì—ˆìœ¼ë©´ Sync Countë¥¼ 0ìœ¼ë¡œ ë°€ì–´ì¤Œ.
 		if (timeGetTime() - pUser->m_lastSyncCheckTime >= SYNC_COUNT_WINDOW_MS)
 		{
 			pUser->m_syncCount = 0;
@@ -668,7 +668,7 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 
 		pUser->m_syncCount++;
 
-		// Æ¯Á¤ ½Ã°£µ¿¾È ÇØ´ç À¯ÀúÀÇ ½ÌÅ© ÆĞÅ¶ È½¼ö°¡ ÀÓ°è°ªÀ» ³ÑÀ»¶§ ÇØ´ç À¯Àú ²÷±â
+		// íŠ¹ì • ì‹œê°„ë™ì•ˆ í•´ë‹¹ ìœ ì €ì˜ ì‹±í¬ íŒ¨í‚· íšŸìˆ˜ê°€ ì„ê³„ê°’ì„ ë„˜ì„ë•Œ í•´ë‹¹ ìœ ì € ëŠê¸°
 		if (pUser->m_syncCount >= SYNC_MAX_COUNT)
 		{
 			Disconnect(sessionID);
@@ -689,7 +689,7 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 	}
 	else
 	{
-		// ½ÌÅ© ¾ÈÆ²¾îÁ³À¸¸é Å¬¶óÀÇ ÁÂÇ¥¸¦ ¼­¹ö°¡ ¹Ï¾îÁÜ.
+		// ì‹±í¬ ì•ˆí‹€ì–´ì¡Œìœ¼ë©´ í´ë¼ì˜ ì¢Œí‘œë¥¼ ì„œë²„ê°€ ë¯¿ì–´ì¤Œ.
 		Location loc{ xpos, ypos, zpos };
 		pUser->SetLocation(loc);
 
@@ -697,11 +697,11 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 		uint16 newSecY = (ypos - MAP_WORLD_OFFSET_Y) / SECTOR_SIZE;
 
 		SectorPos newSec(newSecX, newSecY);
-		// º¯°æµÈ ÁÂÇ¥¿¡ ÇØ´çÇÏ´Â ¼½ÅÍ°¡ ±âÁ¸ ¼½ÅÍ ÁÂÇ¥¿Í ´Ù¸£¸é ¼½ÅÍ ¾÷µ¥ÀÌÆ®
+		// ë³€ê²½ëœ ì¢Œí‘œì— í•´ë‹¹í•˜ëŠ” ì„¹í„°ê°€ ê¸°ì¡´ ì„¹í„° ì¢Œí‘œì™€ ë‹¤ë¥´ë©´ ì„¹í„° ì—…ë°ì´íŠ¸
 		SectorUpdate(pUser, newSec);
 	}
 
-	// Movement Update ÆĞÅ¶ »Ñ¸®±â
+	// Movement Update íŒ¨í‚· ë¿Œë¦¬ê¸°
 	CMessage* pInputUpdateMsg = PacketBuilder::UpdateCharacterMovement(pUser);
 	SendPacket_SectorAround(pInputUpdateMsg, pUser);
 	CMessage::Free(pInputUpdateMsg);
@@ -727,7 +727,7 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 	*pMessage >> attackyaw;
 	*pMessage >> swingindex;
 
-	// Á¤»ó ¹üÀ§ ¹ş¾î³ª¸é ¿¬°á ²÷±â
+	// ì •ìƒ ë²”ìœ„ ë²—ì–´ë‚˜ë©´ ì—°ê²° ëŠê¸°
 	if (swingindex <= 0 || swingindex >= 5 )
 	{
 		Disconnect(sessionID);
@@ -745,7 +745,7 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 		return;
 
 
-	// °ø°İÀÚÀÇ À§Ä¡, °ø°İ Å¸ÀÔÀ» ¸Å°³ÀÎÀÚ·Î Àü´ŞÇÏ¿© ÇÇ°İÀÚµé Ã£±â
+	// ê³µê²©ìì˜ ìœ„ì¹˜, ê³µê²© íƒ€ì…ì„ ë§¤ê°œì¸ìë¡œ ì „ë‹¬í•˜ì—¬ í”¼ê²©ìë“¤ ì°¾ê¸°
 	HitSearchInfo info;
 	HitSearchBuilder::MakeBaseAttack(pUser, attackyaw, info);
 
@@ -754,7 +754,7 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 
 	uint32 curTime = timeGetTime();
 
-	// µ¥¹ÌÁö °è»ê ¹× hp ¼öÁ¤
+	// ë°ë¯¸ì§€ ê³„ì‚° ë° hp ìˆ˜ì •
 	for (int i = 0; i < result.HitUserCount; i++)
 	{
 		uint32 damage = pUser->CalBaseAttackDamage(result.HitUserArray[i], curTime);
@@ -762,7 +762,7 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 
 	}
 
-	// µ¥¹ÌÁö °è»ê ¹× hp ¼öÁ¤
+	// ë°ë¯¸ì§€ ê³„ì‚° ë° hp ìˆ˜ì •
 	uint32 totalExp = 0;
 
 	for (int i = 0; i < result.HitMonsterCount; i++)
@@ -773,33 +773,33 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 		if (result.HitMonsterArray[i]->IsAlive())
 			continue;
 
-		// ¾ÆÀÌÅÛ »ı¼º ½ÇÆĞ½Ã ´ÙÀ½
+		// ì•„ì´í…œ ìƒì„± ì‹¤íŒ¨ì‹œ ë‹¤ìŒ
 		CreateFieldDropItem(*result.HitMonsterArray[i]);
 
-		// °æÇèÄ¡ È¹µæ·® Ã¼Å©
+		// ê²½í—˜ì¹˜ íšë“ëŸ‰ ì²´í¬
 		totalExp += result.HitMonsterArray[i]->GetExp();
 	}
 
-	// È¹µæÇÑ °æÇèÄ¡ ÇÑ¹ø¿¡ À¯Àú¿¡ ¹İ¿µ
+	// íšë“í•œ ê²½í—˜ì¹˜ í•œë²ˆì— ìœ ì €ì— ë°˜ì˜
 	GainEXPResult gainResult = {};
 	gainResult.levelUp = false;
 	if (pUser->GainExp(totalExp, gainResult))
 	{
-		// °æÇèÄ¡ È¹µæ ¼º°ø½Ã ÆĞÅ¶ º¸³»±â
+		// ê²½í—˜ì¹˜ íšë“ ì„±ê³µì‹œ íŒ¨í‚· ë³´ë‚´ê¸°
 		CMessage* GainExpMsg = PacketBuilder::GainExp(gainResult);
 		SendPacket(sessionID, GainExpMsg);
 		CMessage::Free(GainExpMsg);
 	}
 
 
-	// °ø°İÀÚ swing ¸Ş¼¼Áö »Ñ¸®±â 
+	// ê³µê²©ì swing ë©”ì„¸ì§€ ë¿Œë¦¬ê¸° 
 	CMessage* pSwingMsg = PacketBuilder::AttackLeftSwing(pUser->GetSessionID(), attackyaw, swingindex);
 	SendPacket_SectorAround(pSwingMsg, pUser);
 	CMessage::Free(pSwingMsg);
 
 	SendPacket_HitSectors(result);
 
-	// ÇÇ°İ ¸ó½ºÅÍµé Áß¿¡ Á×¾úÀ¸¸é »èÁ¦ ¸Ş¼¼Áö »Ñ¸®°í ¼½ÅÍ¿¡¼­ Á¦°Å
+	// í”¼ê²© ëª¬ìŠ¤í„°ë“¤ ì¤‘ì— ì£½ì—ˆìœ¼ë©´ ì‚­ì œ ë©”ì„¸ì§€ ë¿Œë¦¬ê³  ì„¹í„°ì—ì„œ ì œê±°
 	for (int i = 0; i < result.HitMonsterCount; i++)
 	{
 		CMonster* pHitMonster = result.HitMonsterArray[i];
@@ -809,7 +809,7 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 
 		SectorAround DeleteSector;
 
-		// ÇÇ°İ ¸ó½ºÅÍ ÁÖº¯ ¼½ÅÍ Ã£±â
+		// í”¼ê²© ëª¬ìŠ¤í„° ì£¼ë³€ ì„¹í„° ì°¾ê¸°
 		SectorPos::SectorFind(DeleteSector, pHitMonster->GetSectorPos());
 
 		CMessage* pDeleteMonster = PacketBuilder::DeleteMonster(pHitMonster);
@@ -857,22 +857,22 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 		pUser->UseSkill(curTime, skillslot);
 	}
 
-	// ½ºÅ³ ¼º°ø ¿©ºÎ ÆĞÅ¶ ½ºÅ³ »ç¿ëÀÚ¿¡°Ô Àü´Ş
+	// ìŠ¤í‚¬ ì„±ê³µ ì—¬ë¶€ íŒ¨í‚· ìŠ¤í‚¬ ì‚¬ìš©ìì—ê²Œ ì „ë‹¬
 	CMessage* pUseSkillRes = PacketBuilder::UseSkillRes(skillslot, Success);
 	SendPacket(sessionID, pUseSkillRes);
 	CMessage::Free(pUseSkillRes);
 
 
-	// ½ºÅ³ ¼º°øÇßÀ¸¸é ÁÖº¯¿¡ »Ñ¸®±â
+	// ìŠ¤í‚¬ ì„±ê³µí–ˆìœ¼ë©´ ì£¼ë³€ì— ë¿Œë¦¬ê¸°
 	if (Success)
 	{
-		// Skill »ç¿ë ÆĞÅ¶ »Ñ¸®±â
+		// Skill ì‚¬ìš© íŒ¨í‚· ë¿Œë¦¬ê¸°
 		CMessage* pUseSkillBroad = PacketBuilder::UseSkillBroadCast(sessionID, skillslot);
 		SendPacket_SectorAround(pUseSkillBroad, pUser);
 		CMessage::Free(pUseSkillBroad);
 	}
 
-	// ½ºÅ³ÀÌ ¹öÇÁ¸é ¿©±â¼­ ¸®ÅÏ, ¾×Æ¼ºê ½ºÅ³ÀÌ¸é ÇÇ°İ ÆÇ´Ü
+	// ìŠ¤í‚¬ì´ ë²„í”„ë©´ ì—¬ê¸°ì„œ ë¦¬í„´, ì•¡í‹°ë¸Œ ìŠ¤í‚¬ì´ë©´ í”¼ê²© íŒë‹¨
 	if (skillslot < UserConst::USER_BUFF_SKILL_SLOT_COUNT)
 		return;
 
@@ -882,14 +882,14 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 
 	CollectHitTarget(pUser, info, result);
 
-	// µ¥¹ÌÁö °è»ê ¹× hp ¼öÁ¤
+	// ë°ë¯¸ì§€ ê³„ì‚° ë° hp ìˆ˜ì •
 	for (int i = 0; i < result.HitUserCount; i++)
 	{
 		uint32 damage = pUser->CalSkillDamage(skillslot, result.HitUserArray[i], curTime);
 		result.HitUserArray[i]->Damage(damage);
 	}
 
-	// µ¥¹ÌÁö °è»ê ¹× hp ¼öÁ¤
+	// ë°ë¯¸ì§€ ê³„ì‚° ë° hp ìˆ˜ì •
 	uint32 totalExp = 0;
 
 	for (int i = 0; i < result.HitMonsterCount; i++)
@@ -897,23 +897,23 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 		uint32 damage = pUser->CalSkillDamage(skillslot, result.HitMonsterArray[i], curTime);
 		result.HitMonsterArray[i]->Damage(damage);
 
-		// »ì¾ÆÀÖÀ¸¸é Pass
+		// ì‚´ì•„ìˆìœ¼ë©´ Pass
 		if (result.HitMonsterArray[i]->IsAlive())
 			continue;
 
-		// ¾ÆÀÌÅÛ »ı¼º
+		// ì•„ì´í…œ ìƒì„±
 		CreateFieldDropItem(*result.HitMonsterArray[i]);
 		
-		// °æÇèÄ¡ È¹µæ·® Ã¼Å©
+		// ê²½í—˜ì¹˜ íšë“ëŸ‰ ì²´í¬
 		totalExp += result.HitMonsterArray[i]->GetExp();
 	}
 
-	// È¹µæÇÑ °æÇèÄ¡ ÇÑ¹ø¿¡ À¯Àú¿¡ ¹İ¿µ
+	// íšë“í•œ ê²½í—˜ì¹˜ í•œë²ˆì— ìœ ì €ì— ë°˜ì˜
 	GainEXPResult gainResult = {};
 	gainResult.levelUp = false;
 	if (pUser->GainExp(totalExp, gainResult))
 	{
-		// °æÇèÄ¡ È¹µæ ¼º°ø½Ã ÆĞÅ¶ º¸³»±â
+		// ê²½í—˜ì¹˜ íšë“ ì„±ê³µì‹œ íŒ¨í‚· ë³´ë‚´ê¸°
 		CMessage* GainExpMsg = PacketBuilder::GainExp(gainResult);
 		SendPacket(sessionID, GainExpMsg);
 		CMessage::Free(GainExpMsg);
@@ -921,7 +921,7 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 
 	SendPacket_HitSectors(result);
 
-	// ÇÇ°İ ¸ó½ºÅÍµé Áß¿¡ Á×¾úÀ¸¸é »èÁ¦ ¸Ş¼¼Áö »Ñ¸®±â
+	// í”¼ê²© ëª¬ìŠ¤í„°ë“¤ ì¤‘ì— ì£½ì—ˆìœ¼ë©´ ì‚­ì œ ë©”ì„¸ì§€ ë¿Œë¦¬ê¸°
 	for (int i = 0; i < result.HitMonsterCount; i++)
 	{
 		CMonster* pHitMonster = result.HitMonsterArray[i];
@@ -931,7 +931,7 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 
 		SectorAround DeleteSector;
 
-		// ÇÇ°İ ¸ó½ºÅÍ ÁÖº¯ ¼½ÅÍ Ã£±â
+		// í”¼ê²© ëª¬ìŠ¤í„° ì£¼ë³€ ì„¹í„° ì°¾ê¸°
 		SectorPos::SectorFind(DeleteSector, pHitMonster->GetSectorPos());
 		
 		CMessage* pDeleteMonster = PacketBuilder::DeleteMonster(pHitMonster);
@@ -970,7 +970,7 @@ void FieldGroup::HandlePickUpItems(uint64 sessionID, CMessage* pMessage)
 
 	FieldDropItem* pItem = it2->second;
 
-	// ÇØ´ç ¾ÆÀÌÅÛÀ» À¯Àú ÀÎº¥Åä¸®¿¡ ³Ö±â ½ÇÆĞÇÏ¸é ±×³É ¸®ÅÏ
+	// í•´ë‹¹ ì•„ì´í…œì„ ìœ ì € ì¸ë²¤í† ë¦¬ì— ë„£ê¸° ì‹¤íŒ¨í•˜ë©´ ê·¸ëƒ¥ ë¦¬í„´
 	const ItemData* itemData = ItemTable::GetItemData(pItem->itemID);
 	if (itemData == nullptr)
 		return;
@@ -1005,15 +1005,15 @@ void FieldGroup::HandlePickUpItems(uint64 sessionID, CMessage* pMessage)
 	if (pPickUpMsg == nullptr)
 		return;
 
-	// ÀÎº¥Åä¸®¿¡ ³ÖÀº ¾ÆÀÌÅÛÀÇ DropUID »èÁ¦ ÆĞÅ¶ º¸³»±â
+	// ì¸ë²¤í† ë¦¬ì— ë„£ì€ ì•„ì´í…œì˜ DropUID ì‚­ì œ íŒ¨í‚· ë³´ë‚´ê¸°
 	SendDeleteFieldDropItem(pItem);
 
-	// PickUp °á°ú ¸Ş¼¼Áö º¸³»ÁÖ±â
+	// PickUp ê²°ê³¼ ë©”ì„¸ì§€ ë³´ë‚´ì£¼ê¸°
 	SendPacket(sessionID, pPickUpMsg);
 
 	CMessage::Free(pPickUpMsg);
 
-	// ÀÎº¥Åä¸®¿¡ ³Ö¾úÀ¸´Ï ÀÚ·á±¸Á¶¿¡¼­ Á¦°Å ÈÄ Ç®¿¡ ¹İ³³
+	// ì¸ë²¤í† ë¦¬ì— ë„£ì—ˆìœ¼ë‹ˆ ìë£Œêµ¬ì¡°ì—ì„œ ì œê±° í›„ í’€ì— ë°˜ë‚©
 	m_sectors[pItem->sectorPos.GetY()][pItem->sectorPos.GetX()].RemoveItem(pItem);
 	m_dropItemLookUpTable.erase(pItem->dropUID);
 	FieldDropItemPool::FreeItem(pItem);
@@ -1035,7 +1035,7 @@ void FieldGroup::HandleUseItem(uint64 sessionID, CMessage* pMessage)
 	if (!pUser->IsAlive())
 		return;
 
-	// À¯Àú ÇÔ¼ö È£Ãâ ¹× °á°ú ±¸Á¶Ã¼ ·¹ÆÛ·±½º Àü´Ş
+	// ìœ ì € í•¨ìˆ˜ í˜¸ì¶œ ë° ê²°ê³¼ êµ¬ì¡°ì²´ ë ˆí¼ëŸ°ìŠ¤ ì „ë‹¬
 	UseItemResult result;
 	result.success = false;
 	result.resultType = USE_ITEM_RESULT::NONE;
@@ -1068,7 +1068,7 @@ void FieldGroup::HandleUseItem(uint64 sessionID, CMessage* pMessage)
 		return;
 	}
 
-	// ÀÀ´ä ÆĞÅ¶ º¸³»±â
+	// ì‘ë‹µ íŒ¨í‚· ë³´ë‚´ê¸°
 	CMessage* pUseItem = PacketBuilder::UseItem(result);
 	SendPacket(sessionID, pUseItem);
 	CMessage::Free(pUseItem);
@@ -1088,11 +1088,11 @@ void FieldGroup::HandleDeleteItem(uint64 sessionID, CMessage* pMessage)
 
 	CUser* pUser = it->second;
 
-	// À¯Àú¿¡ ÇÔ¼ö È£Ãâ
+	// ìœ ì €ì— í•¨ìˆ˜ í˜¸ì¶œ
 	bool Success = false;
 	Success = pUser->DeleteItem(slotIndex, static_cast<SLOT_TYPE>(type));
 
-	// ÀÀ´ä ÆĞÅ¶ º¸³»±â
+	// ì‘ë‹µ íŒ¨í‚· ë³´ë‚´ê¸°
 	CMessage* pDeleteItemMsg = PacketBuilder::DeleteItem(Success);
 	SendPacket(sessionID, pDeleteItemMsg);
 	CMessage::Free(pDeleteItemMsg);
@@ -1119,10 +1119,10 @@ void FieldGroup::HandleSwapSlot(uint64 sessionID, CMessage* pMessage)
 		return;
 
 
-	// À¯Àú¿¡ ÇÔ¼ö È£Ãâ
+	// ìœ ì €ì— í•¨ìˆ˜ í˜¸ì¶œ
 	bool Success = pUser->ItemSlotChange(static_cast<SLOT_TYPE>(fromtype), fromslotIndex, static_cast<SLOT_TYPE>(totype), toslotIndex);
 
-	// ÀÀ´ä ÆĞÅ¶ º¸³»±â
+	// ì‘ë‹µ íŒ¨í‚· ë³´ë‚´ê¸°
 	CMessage* pSwapItem = PacketBuilder::SwapSlot(Success);
 	SendPacket(sessionID, pSwapItem);
 	CMessage::Free(pSwapItem);
@@ -1138,15 +1138,15 @@ void FieldGroup::HandleRespawn(uint64 sessionID, CMessage* pMessage)
 	if (pUser->IsAlive())
 		return;
 
-	// ¸®½ºÆù Ã³¸®
+	// ë¦¬ìŠ¤í° ì²˜ë¦¬
 	pUser->ResPawn();
 
-	// º»ÀÎ¿¡°Ô ¸Ş¼¼Áö º¸³»±â
+	// ë³¸ì¸ì—ê²Œ ë©”ì„¸ì§€ ë³´ë‚´ê¸°
 	CMessage* respawnToMeMsg = PacketBuilder::RespawnToMe(pUser->GetHP(), pUser->GetMP());
 	SendPacket(sessionID, respawnToMeMsg);
 	CMessage::Free(respawnToMeMsg);
 
-	// ÁÖº¯¿¡°Ô »Ñ¸®±â
+	// ì£¼ë³€ì—ê²Œ ë¿Œë¦¬ê¸°
 	CMessage* respawnToOtherMsg = PacketBuilder::RespawnToOther(pUser->GetSessionID());
 	SendPacket_SectorAround(respawnToOtherMsg, pUser);
 	CMessage::Free(respawnToOtherMsg);
@@ -1160,7 +1160,7 @@ void FieldGroup::UserUpdate()
 	{
 		CUser* pUser = it->second;
 
-		// ÀÌµ¿ ÇÏ¸é true ¸®ÅÏ
+		// ì´ë™ í•˜ë©´ true ë¦¬í„´
 		if (!pUser->UserOnUpdate(curTime))
 			continue;
 
@@ -1176,11 +1176,11 @@ void FieldGroup::UserUpdate()
 
 void FieldGroup::SectorUpdate(CUser* pUser, const SectorPos& newSec)
 {
-	// °°Àº ¼½ÅÍ ÁÂÇ¥¸é ¸®ÅÏ
+	// ê°™ì€ ì„¹í„° ì¢Œí‘œë©´ ë¦¬í„´
 	if (SectorPos::SameSector(pUser->GetSectorPos(),newSec))
 		return;
 
-	// ÇöÀç ¼½ÅÍ¿¡¼­ »èÁ¦ ÀÛ¾÷
+	// í˜„ì¬ ì„¹í„°ì—ì„œ ì‚­ì œ ì‘ì—…
 	FieldSector& oldSector = m_sectors[pUser->GetSectorYpos()][pUser->GetSectorXpos()];
 	oldSector.RemoveUser(pUser);
 
@@ -1191,7 +1191,7 @@ void FieldGroup::SectorUpdate(CUser* pUser, const SectorPos& newSec)
 	SectorAround CreateSector;
 	SectorPos::CalSectorTransitionMessageTargets(pUser->GetSectorPos(), newSec, DeleteSector, CreateSector);
 
-	// ½Ã¾ß¿¡ »ç¶óÁø ¼½ÅÍ¿¡ ÀÖ´Â Ä³¸¯ÅÍµé¿¡°Ô ³» Ä³¸¯ÅÍ »èÁ¦ ¸Ş¼¼Áö º¸³»±â
+	// ì‹œì•¼ì— ì‚¬ë¼ì§„ ì„¹í„°ì— ìˆëŠ” ìºë¦­í„°ë“¤ì—ê²Œ ë‚´ ìºë¦­í„° ì‚­ì œ ë©”ì„¸ì§€ ë³´ë‚´ê¸°
 	CMessage* pDeleteMsg = PacketBuilder::DeleteCharacter(pUser);
 	for (int i = 0; i < DeleteSector.m_count; i++)
 	{
@@ -1199,7 +1199,7 @@ void FieldGroup::SectorUpdate(CUser* pUser, const SectorPos& newSec)
 	}
 	CMessage::Free(pDeleteMsg);
 
-	// »õ·Î ½Ã¾ß¿¡ µé¾î¿Â ¼½ÅÍ¿¡ ÀÖ´Â Ä³¸¯ÅÍµé¿¡°Ô ³» Ä³¸¯ÅÍ »ı¼º ¸Ş¼¼Áö º¸³»±â
+	// ìƒˆë¡œ ì‹œì•¼ì— ë“¤ì–´ì˜¨ ì„¹í„°ì— ìˆëŠ” ìºë¦­í„°ë“¤ì—ê²Œ ë‚´ ìºë¦­í„° ìƒì„± ë©”ì„¸ì§€ ë³´ë‚´ê¸°
 	CMessage* pCreateMsg = PacketBuilder::CreateOtherCharacter(pUser);
 	for (int i = 0; i < CreateSector.m_count; i++)
 	{
@@ -1208,7 +1208,7 @@ void FieldGroup::SectorUpdate(CUser* pUser, const SectorPos& newSec)
 	CMessage::Free(pCreateMsg);
 
 
-	// ½Ã¾ß¿¡ »ç¶óÁø Ä³¸¯ÅÍµé ¹× ¸ó½ºÅÍ¿¡ ´ëÇÑ »èÁ¦ ¸Ş¼¼Áö¸¦ ³» Ä³¸¯ÅÍ¿¡°Ô º¸³»±â
+	// ì‹œì•¼ì— ì‚¬ë¼ì§„ ìºë¦­í„°ë“¤ ë° ëª¬ìŠ¤í„°ì— ëŒ€í•œ ì‚­ì œ ë©”ì„¸ì§€ë¥¼ ë‚´ ìºë¦­í„°ì—ê²Œ ë³´ë‚´ê¸°
 	for (int i = 0; i < DeleteSector.m_count; i++)
 	{
 		uint16 secX = DeleteSector.m_Around[i].GetX();
@@ -1238,7 +1238,7 @@ void FieldGroup::SectorUpdate(CUser* pUser, const SectorPos& newSec)
 
 	}
 
-	// »õ·Ó°Ô ½Ã¾ß¿¡ µé¾î¿Â Ä³¸¯ÅÍµé ¹× ¸ó½ºÅÍ¿¡ ´ëÇÑ »ı¼º ¸Ş¼¼Áö¸¦ ³» Ä³¸¯ÅÍ¿¡°Ô º¸³»±â
+	// ìƒˆë¡­ê²Œ ì‹œì•¼ì— ë“¤ì–´ì˜¨ ìºë¦­í„°ë“¤ ë° ëª¬ìŠ¤í„°ì— ëŒ€í•œ ìƒì„± ë©”ì„¸ì§€ë¥¼ ë‚´ ìºë¦­í„°ì—ê²Œ ë³´ë‚´ê¸°
 	for (int i = 0; i < CreateSector.m_count; i++)
 	{
 		uint16 secX = CreateSector.m_Around[i].GetX();
@@ -1287,12 +1287,12 @@ void FieldGroup::MonsterUpdate()
 {
 	for (int i = 0; i < MAX_GROSS_FIELD_MONSTER_COUNT; i++)
 	{
-		// ¸ó½ºÅÍ Update½Ã ¸®Á¨ ¼º°øÇÏ¸é true ¾Æ´Ï¸é false
+		// ëª¬ìŠ¤í„° Updateì‹œ ë¦¬ì   ì„±ê³µí•˜ë©´ true ì•„ë‹ˆë©´ false
 		if (!m_grossMonsterPoolArray[i].MonsterUpdate())
 			continue;
 
-		// ¸®Á¨ ¼º°ø½Ã ¼½ÅÍ Ã³¸®
-					// ¼½ÅÍ¿¡ »ğÀÔ
+		// ë¦¬ì   ì„±ê³µì‹œ ì„¹í„° ì²˜ë¦¬
+					// ì„¹í„°ì— ì‚½ì…
 		const SectorPos& sectorPos = m_grossMonsterPoolArray[i].GetSectorPos();
 
 		m_sectors[sectorPos.GetY()][sectorPos.GetX()].AddMonster(&m_grossMonsterPoolArray[i]);
@@ -1309,7 +1309,7 @@ void FieldGroup::MonsterUpdate()
 
 void FieldGroup::FieldDropItemExpired()
 {
-	// ÀüÃ¼ ÀÚ·á±¸Á¶ ¼øÈ¸ÇÏ¸é¼­ ±â°£ ¸¸·áµÈ°Å Áö¿ì±â
+	// ì „ì²´ ìë£Œêµ¬ì¡° ìˆœíšŒí•˜ë©´ì„œ ê¸°ê°„ ë§Œë£Œëœê±° ì§€ìš°ê¸°
 	FieldDropItem* pItem = nullptr;
 	std::unordered_map<uint64, FieldDropItem*>::iterator it = m_dropItemLookUpTable.begin();
 
@@ -1317,7 +1317,7 @@ void FieldGroup::FieldDropItemExpired()
 	{
 		pItem = it->second;
 
-		// À¯È¿ ±â°£ ¾ÈÁö³µÀ¸¸é ½Ã°£¸¸ ¿Ã¸®°í pass
+		// ìœ íš¨ ê¸°ê°„ ì•ˆì§€ë‚¬ìœ¼ë©´ ì‹œê°„ë§Œ ì˜¬ë¦¬ê³  pass
 		if (pItem->expiredTime < FieldDropItemConst::FIELD_DROP_ITEM_EXPIRED_TIME)
 		{
 			pItem->expiredTime += FieldConst::UPDATE_LOOP_TIME;
@@ -1325,16 +1325,16 @@ void FieldGroup::FieldDropItemExpired()
 			continue;
 		}
 
-		// ÁÖº¯ ¼½ÅÍµé¿¡°Ô ¾ÆÀÌÅÛ »èÁ¦ ¸Ş¼¼Áö º¸³»±â
+		// ì£¼ë³€ ì„¹í„°ë“¤ì—ê²Œ ì•„ì´í…œ ì‚­ì œ ë©”ì„¸ì§€ ë³´ë‚´ê¸°
 		SendDeleteFieldDropItem(pItem);
 
-		// ¼½ÅÍ¿¡¼­ ¾ÆÀÌÅÛ Á¦°Å
+		// ì„¹í„°ì—ì„œ ì•„ì´í…œ ì œê±°
 		m_sectors[pItem->sectorPos.GetY()][pItem->sectorPos.GetX()].RemoveItem(pItem);
 
-		// ÀüÃ¼ ÀÚ·á±¸Á¶¿¡¼­ Á¦°Å
+		// ì „ì²´ ìë£Œêµ¬ì¡°ì—ì„œ ì œê±°
 		it = m_dropItemLookUpTable.erase(it);
 
-		// ¸Ş¸ğ¸® Ç®¿¡ ¹İ³³
+		// ë©”ëª¨ë¦¬ í’€ì— ë°˜ë‚©
 		FieldDropItemPool::FreeItem(pItem);
 	}
 
@@ -1347,7 +1347,7 @@ void FieldGroup::MonsterSpawnInit()
 
 void FieldGroup::GrossMonsterSpawnInit()
 {
-	// ÃÖ¼Ò ¼½ÅÍ´ç ¸ó½ºÅÍ 1¸¶¸® ¹èÄ¡
+	// ìµœì†Œ ì„¹í„°ë‹¹ ëª¬ìŠ¤í„° 1ë§ˆë¦¬ ë°°ì¹˜
 	if (MAX_GROSS_FIELD_MONSTER_COUNT < GROSS_FIELD_SECTOR_COUNT)
 		return;
 
@@ -1381,7 +1381,7 @@ void FieldGroup::GrossMonsterSpawnInit()
 
 void FieldGroup::CreateFieldDropItem(CMonster& monster)
 {
-	// ¸¸¾à Á×¾úÀ¸¸é ÇÊµå µå¶ø ¾ÆÀÌÅÛ »ı¼ºÇÏ±â
+	// ë§Œì•½ ì£½ì—ˆìœ¼ë©´ í•„ë“œ ë“œë ì•„ì´í…œ ìƒì„±í•˜ê¸°
 	if (monster.IsAlive())
 		return;
 
@@ -1389,11 +1389,11 @@ void FieldGroup::CreateFieldDropItem(CMonster& monster)
 	if (pItem == nullptr)
 		return;
 
-	// ¼½ÅÍ ¹× °ü¸® ÀÚ·á±¸Á¶¿¡ ³Ö±â
+	// ì„¹í„° ë° ê´€ë¦¬ ìë£Œêµ¬ì¡°ì— ë„£ê¸°
 	m_dropItemLookUpTable.insert(std::pair<uint64, FieldDropItem*>(pItem->dropUID, pItem));
 	if (!m_sectors[pItem->sectorPos.GetY()][pItem->sectorPos.GetX()].AddItem(pItem))
 	{
-		// ¼½ÅÍ¿¡ ¸ø ³ÖÀ¸¸é ±×³É ´Ù ¹İ³³
+		// ì„¹í„°ì— ëª» ë„£ìœ¼ë©´ ê·¸ëƒ¥ ë‹¤ ë°˜ë‚©
 		m_dropItemLookUpTable.erase(pItem->dropUID);
 		FieldDropItemPool::FreeItem(pItem);
 		return;
