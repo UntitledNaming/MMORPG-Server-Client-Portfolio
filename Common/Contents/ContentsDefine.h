@@ -4,6 +4,7 @@
 namespace AuthConst
 {
 	constexpr uint32 NONUSER_TIMEOUT = 3500;
+	constexpr uint32 AUTH_FRAME_LOOP_TIME = 50;
 }
 
 namespace FieldConst

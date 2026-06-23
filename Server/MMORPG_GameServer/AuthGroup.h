@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "ContentsType.h"
 
 template <typename T>
@@ -33,5 +33,8 @@ private:
 	LFQueueMul<DBJob*>*                m_pDBJobQueue = nullptr;
 	std::unordered_map<uint64, DWORD>  m_nonuserTable;
 	std::unordered_map<uint64, CUser*> m_userTable;
+
+public:
+	unsigned long long                 m_Frame;
 };
 

@@ -18,6 +18,19 @@ enum class PostAction
 	MoveToField,
 };
 
+enum class DBJobCount
+{
+	CharacterSelect,
+	InsertItem,
+	DeleteItem,
+	ItemCount,
+	ItemUpdateCount,
+	ItemSlotUpdate,
+	CharacterProgress,
+	LogOut,
+	Max,
+};
+
 struct ItemSwapInfo
 {
 	ITEM_UID  itemUID = ItemUID::ITEM_UID_INVALID_ID;
@@ -38,6 +51,8 @@ struct DBJob
 	DB_QUERY_RESULT     result = DB_QUERY_RESULT::None;
 	LFQueueMul<DBJob*>* replyTo = nullptr;                    // Job을 던진 쪽에서 소유한 DBJob 큐 포인터, Read 작업이면 이 큐로 다시 DBJob 포인터 넣음.
 	uint64              sessionID = 0;                        // 이 Job을 던진 세션의 유효성 검증용 
+
+	static unsigned long long  g_TPS;
 };
 
 struct ItemUIDRangeAllocateJob : public DBJob
@@ -119,3 +134,4 @@ struct LogOutJob : public DBJob
 	Location                        location;
 	std::vector<ItemSlotUpdateData> updateitems;
 };
+

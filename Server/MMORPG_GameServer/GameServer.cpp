@@ -81,6 +81,7 @@ void GameServer::Init()
 	FieldDropItemPool::Init();
 	ItemUIDAllocator::Init(1, 10000);
 
+	m_storeEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 
 	m_pGameLib = new CGameLibrary;
 	m_pDBManager = new CDBManager;
@@ -100,6 +101,7 @@ void GameServer::Init()
 	m_pFieldGroup->InitDBManager(m_pDBManager);
 
 	m_monitorThread = std::thread(&GameServer::Monitoring, this);
+	m_storeThread = std::thread(&GameServer::StoreThread, this);
 }
 
 void GameServer::Monitoring()
@@ -188,4 +190,13 @@ void GameServer::ItemUIDAllocate()
 {
 	ItemUIDRangeAllocateJob* pJob = new ItemUIDRangeAllocateJob;
 	m_pDBManager->EnqueueDBJob(pJob);
+}
+
+void GameServer::StoreThread()
+{
+	while (!m_endFlag)
+	{
+		WaitForSingleObject(m_storeEvent, INFINITE);
+			
+	}
 }

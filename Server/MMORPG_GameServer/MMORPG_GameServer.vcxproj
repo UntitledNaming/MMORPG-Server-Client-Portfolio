@@ -181,6 +181,7 @@
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="ItemTable.h" />
     <ClInclude Include="ItemUIDAllocator.h" />
+    <ClInclude Include="LatencyHistogram.h" />
     <ClInclude Include="MonsterAI.h" />
     <ClInclude Include="PacketBuilder.h" />
     <ClInclude Include="QuickSlot.h" />

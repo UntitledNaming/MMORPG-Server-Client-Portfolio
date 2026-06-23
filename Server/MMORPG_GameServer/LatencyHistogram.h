@@ -1,0 +1,13 @@
+﻿#pragma once
+#include <cstdint>
+#include <intrin.h>   // _BitScanReverse64
+
+/////////////////////////////////////////////
+// 측정값 저장 및 대한 클래스
+/////////////////////////////////////////////
+
+class LatencyHistogram
+{
+public:
+
+};

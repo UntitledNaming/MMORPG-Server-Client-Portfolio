@@ -4,6 +4,7 @@
 #include <array>
 #include <set>
 #include <vector>
+#include <chrono>
 #include "LFQMultiLive.h"
 #include "CSizeClassMemoryPoolTLS.h"
 #include "DBTLS.h"
@@ -15,6 +16,8 @@
 #include "CUser.h"
 #include "ItemUIDAllocator.h"
 #include "DBJob.h"
+
+unsigned long long DBJob::g_TPS = 0;
 
 void* DBJob::operator new(size_t size)
 {
@@ -84,6 +87,8 @@ PostAction CharacterSelectJob::OnComplete(CGroup* pGroup, CUser* pUser)
 
 void CharacterSelectJob::Execute(DBTLS* InDBTLS)
 {
+	auto start = std::chrono::steady_clock::now();
+
 	// DBTLS를 통해 유저 객체 및 아이템 정보 얻는 쿼리 날리기
 	bool success = false;
 	success = InDBTLS->DB_Post_Query(result, "START TRANSACTION");
@@ -194,6 +199,8 @@ void CharacterSelectJob::Execute(DBTLS* InDBTLS)
 	success = InDBTLS->DB_Post_Query(result, "COMMIT");
 	if (!success)
 		__debugbreak();
+
+	auto end = std::chrono::steady_clock::now();
 }
 
 void InsertItemJob::Execute(DBTLS* InDBTLS)

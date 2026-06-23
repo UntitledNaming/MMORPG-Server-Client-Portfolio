@@ -35,7 +35,7 @@ void AuthGroup::InitDBManager(CDBManager* ptr)
 void AuthGroup::Init(CGameLibrary* p)
 {
 	m_pGameLib = p;
-	m_GroupFrameTime = NONUSER_TIMEOUT;
+	m_GroupFrameTime = AUTH_FRAME_LOOP_TIME;
 	m_OldTime = timeGetTime();
 	m_Shared = false;
 	m_RecvTPS = 0;
@@ -83,6 +83,7 @@ void AuthGroup::OnClientLeave(uint64 sessionID)
 	CUser* pUser = it2->second;
 	m_userTable.erase(it2);
 
+	pUser->Destroy();
 	CUser::Free(pUser);
 }
 
@@ -149,6 +150,7 @@ void AuthGroup::OnUpdate()
 		delete pJob;
 	}
 
+	m_Frame++;
 }
 
 void AuthGroup::LoginRequestProc(uint64 sessionID, CMessage* pMessage)
@@ -184,4 +186,7 @@ void AuthGroup::CharacterSelectProc(uint64 sessionID, CMessage* pMessage)
 
 	// DB Manager에게 Job 전달
 	m_DBManagerPtr->EnqueueDBJob(pJob);
+
+	// TPS 증가
+	InterlockedIncrement(&CharacterProgressJob::g_TPS);
 }

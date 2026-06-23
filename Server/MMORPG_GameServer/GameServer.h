@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class CGameLibrary;
 class CUserDirectory;
@@ -16,6 +16,7 @@ public:
 	void Init();
 	void Monitoring();
 	void ItemUIDAllocate();
+	void StoreThread();
 
 private:
 	CGameLibrary*   m_pGameLib = nullptr;
@@ -24,7 +25,9 @@ private:
 	FieldGroup*     m_pFieldGroup = nullptr;
 	ProcessMonitor* m_pPDH = nullptr;
 	std::thread     m_monitorThread;
+	std::thread     m_storeThread;
 	BOOL            m_endFlag;
 
+	HANDLE          m_storeEvent;
 };
 

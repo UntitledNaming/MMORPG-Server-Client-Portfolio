@@ -42,6 +42,8 @@ void CUser::Destroy()
 
 	m_pDBManager->EnqueueDBJob(pJob);
 
+	InterlockedIncrement(&LogOutJob::g_TPS);
+
 	m_equipment.Destroy();
 	m_inventory.Destroy();
 	m_quickSlot.Destroy();
@@ -241,6 +243,8 @@ bool CUser::GainExp(uint32 GetExp, GainEXPResult& result)
 		pJob->level = m_level;
 
 		m_pDBManager->EnqueueDBJob(pJob);
+
+		InterlockedIncrement(&CharacterProgressJob::g_TPS);
 		return true;
 	}
 
@@ -284,6 +288,8 @@ bool CUser::GainExp(uint32 GetExp, GainEXPResult& result)
 	pJob->level = m_level;
 	pJob->curEXP = m_currentExp;
 	m_pDBManager->EnqueueDBJob(pJob);
+
+	InterlockedIncrement(&CharacterProgressJob::g_TPS);
 	return true;
 }
 
@@ -381,6 +387,7 @@ bool CUser::GetConsumableItem(FieldDropItem& dropItem, PickUpConsumableResult& O
 
 	m_pDBManager->EnqueueDBJob(pJob);
 
+	InterlockedIncrement(&InsertItemJob::g_TPS);
 
 	return true;
 }
@@ -451,7 +458,7 @@ bool CUser::GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResu
 	}
 
 	m_pDBManager->EnqueueDBJob(pJob);
-
+	InterlockedIncrement(&InsertItemJob::g_TPS);
 	return true;
 }
 
@@ -505,6 +512,7 @@ bool CUser::DeleteItem(int16 slotIndex, SLOT_TYPE slotType)
 	pJob->itemUID = retID;
 	m_pDBManager->EnqueueDBJob(pJob);
 
+	InterlockedIncrement(&DeleteItemJob::g_TPS);
 	return true;
 }
 
@@ -543,6 +551,8 @@ bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 			pJob->itemUID = retID;
 			pJob->newCount = newItemCount;
 			m_pDBManager->EnqueueDBJob(pJob);
+
+			InterlockedIncrement(&ItemCountUpdateJob::g_TPS);
 			return true;
 		}
 
@@ -559,6 +569,8 @@ bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 		DeleteItemJob* pJob = new DeleteItemJob;
 		pJob->itemUID = retID;
 		m_pDBManager->EnqueueDBJob(pJob);
+
+		InterlockedIncrement(&DeleteItemJob::g_TPS);
 		return true;
 	}
 
@@ -640,6 +652,7 @@ bool CUser::UseQuickSlotItem(int16 slotIndex, UseItemResult& result)
 		pJob->newCount = newItemCount;
 		m_pDBManager->EnqueueDBJob(pJob);
 
+		InterlockedIncrement(&ItemCountUpdateJob::g_TPS);
 		return true;
 	}
 
@@ -654,6 +667,7 @@ bool CUser::UseQuickSlotItem(int16 slotIndex, UseItemResult& result)
 	pJob->itemUID = retUID;
 	m_pDBManager->EnqueueDBJob(pJob);
 
+	InterlockedIncrement(&DeleteItemJob::g_TPS);
 	return true;
 }
 
@@ -959,6 +973,8 @@ void CUser::ItemSlotUpdate()
 
 	m_pDBManager->EnqueueDBJob(pJob);
 
+
+	InterlockedIncrement(&ItemSlotUpdateJob::g_TPS);
 	m_itemSlotUpdateTimeAccum = 0;
 }
 
