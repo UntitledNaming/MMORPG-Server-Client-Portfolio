@@ -105,6 +105,7 @@ public:
 	// 서버가 보낸 "경험치 획득 및 레벨업" 처리
 	static void Handle_SC_GAIN_EXP(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 
-	// 서버가 보낸 "리스폰" 처리
-	static void Handle_SC_RESPAWN_RES(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+	// 서버가 보낸 "리스폰" 처리(본인: {HP,MP} / 주변: {CharacterID})
+	static void Handle_SC_RESPAWN_RES_TO_ME(CMessage* pMessage, UM1NetworkManager* NetworkManager);
+	static void Handle_SC_RESPAWN_RES_TO_OTHER(CMessage* pMessage, UM1NetworkManager* NetworkManager);
 };

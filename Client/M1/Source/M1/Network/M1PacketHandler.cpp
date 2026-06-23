@@ -545,15 +545,9 @@ void M1PacketHandler::Handle_SC_GAIN_EXP(CMessage* pMessage, UM1NetworkManager* 
 	SpawnManager->OnLevelUp(level, hp, mp, curexp);
 }
 
-void M1PacketHandler::Handle_SC_RESPAWN_RES(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+void M1PacketHandler::Handle_SC_RESPAWN_RES_TO_ME(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
-	float X, Y, Z, Yaw;
-	uint16 HP, MP;
-
-	*pMessage >> X;
-	*pMessage >> Y;
-	*pMessage >> Z;
-	*pMessage >> Yaw;
+	uint16 HP, MP;            // 제자리 부활: 위치(X,Y,Z,Yaw) 없음, {HP,MP}만
 	*pMessage >> HP;
 	*pMessage >> MP;
 
@@ -561,6 +555,17 @@ void M1PacketHandler::Handle_SC_RESPAWN_RES(CMessage* pMessage, UM1NetworkManage
 	if (!SpawnManager)
 		return;
 
-	FVector Location(X, Y, Z);
-	SpawnManager->OnRespawn(Location, HP, MP, Yaw);
+	SpawnManager->OnRespawn(HP, MP);
+}
+
+void M1PacketHandler::Handle_SC_RESPAWN_RES_TO_OTHER(CMessage* pMessage, UM1NetworkManager* NetworkManager)
+{
+	uint64 CharacterID;       // 주변: 누가 부활했는지 식별용 id만
+	*pMessage >> CharacterID;
+
+	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
+	if (!SpawnManager)
+		return;
+
+	SpawnManager->OnOtherRespawn(CharacterID);
 }

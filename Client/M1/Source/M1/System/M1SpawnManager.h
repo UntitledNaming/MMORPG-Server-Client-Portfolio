@@ -63,7 +63,8 @@ public:
 	void ApplyConsumableRecovery(uint16 RecoverHP, uint16 RecoverMP);
 	void OnLevelUp(uint16 Level, uint16 HP, uint16 MP, uint32 CurrentExp);
 	void OnGetExp(uint32 NewCurrentExp);
-	void OnRespawn(FVector& Location, uint16 HP, uint16 MP, float Yaw);
+	void OnRespawn(uint16 HP, uint16 MP);
+	void OnOtherRespawn(uint64 CharacterID);
 
 	class AM1Character* FindPlayer(uint64 EntityID) const;
 	class AM1Character* FindMonster(uint64 EntityID) const;
@@ -78,6 +79,9 @@ public:
 	void TickClock(float DeltaTime);
 
 private:
+	// 공통: 죽은 캐릭 되살리기. 애니 dead→idle은 IsDead()(=HP<=0) 파생이라 HP만 양수로 돌리면 됨.
+	void ReviveCharacter(class AM1Character* Target, int32 NewHP);
+
 	UPROPERTY(EditAnywhere, Category = "Spawn")
 	TSubclassOf<class AM1LocalPlayer>              LocalPlayerCharacterClass;
 

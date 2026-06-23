@@ -364,9 +364,35 @@ void AM1SpawnManager::OnGetExp(uint32 NewCurrentExp)
     MyPlayer->SetCurrentExp(NewCurrentExp);
 }
 
-void AM1SpawnManager::OnRespawn(FVector& Location, uint16 HP, uint16 MP, float Yaw)
+void AM1SpawnManager::ReviveCharacter(AM1Character* Target, int32 NewHP)
 {
+    if (!Target)
+        return;
 
+    Target->SetHP(NewHP);   // HP>0 → bIsDead off → dead 포즈 해제 → idle
+}
+
+void AM1SpawnManager::OnRespawn(uint16 HP, uint16 MP)
+{
+    if (!MyPlayer)
+        return;
+
+    // 제자리 부활: 위치 변경 없음
+    ReviveCharacter(MyPlayer, HP);     // 공통: dead → idle
+    MyPlayer->SetCurrentMana(MP);
+
+    // 사망 시 SetHP가 DisableInput을 걸어놨으므로 입력 재활성화(본인 전용)
+    if (AM1PlayerController* PC = Cast<AM1PlayerController>(MyPlayer->GetController()))
+    {
+        PC->EnableInput(PC);
+        PC->CloseRespawnWidget();
+    }
+}
+
+void AM1SpawnManager::OnOtherRespawn(uint64 CharacterID)
+{
+    if (AM1OtherPlayer* Other = Cast<AM1OtherPlayer>(FindPlayer(CharacterID)))
+        ReviveCharacter(Other, 1);     // 공통: dead → idle (타캐릭 HP=1 컨벤션 복구)
 }
 
 void AM1SpawnManager::ProcessClientAttackHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg)
@@ -450,9 +476,15 @@ void AM1SpawnManager::ApplyPlayerHitResult(uint64 EntityID, int32 NewHP, uint8 N
         return;
     }
 
-    // 타인: ratio -> overhead 일시 표시(피격 안 오면 일정시간 후 자동 숨김)
+    // 타인: ratio==0 ⟺ 진짜 죽음(서버가 살아있으면 최소 1로 바닥). 0이면 눕히기.
     if (AM1OtherPlayer* Other = Cast<AM1OtherPlayer>(FindPlayer(EntityID)))
     {
+        if (NewRatio == 0)
+        {
+            Other->SetHP(0);   // HP<=0 → IsDead() → bIsDead → dead 포즈
+            return;            // 죽으면 hit react 안 함(본인 분기와 대칭)
+        }
+
         Other->ShowHitRatio(NewRatio);
         Other->TriggerHitReact(0.f);
     }
