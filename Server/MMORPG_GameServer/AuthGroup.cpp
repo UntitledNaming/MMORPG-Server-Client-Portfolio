@@ -22,6 +22,7 @@
 #include "DBJob.h"
 #include "CGroup.h"
 #include "CDBManager.h"
+#include "LatencyHistogram.h"
 #include "AuthGroup.h"
 
 using namespace AuthConst;
@@ -109,13 +110,17 @@ void AuthGroup::OnIUserMove(uint64 sessionID, IUser* pUser)
 
 }
 
-void AuthGroup::OnUpdate()
+void AuthGroup::OnUpdate(long long LockEnterTime)
 {
+	m_OnUpdateLockEnterTime.Record(LockEnterTime);
+
 	// NonUserTimeOut
 
 	// UserTimeOut
 
 	// DBManager가 전달한 유저 정보 꺼내서 세팅 후 FieldGroup으로 전송
+	auto start = std::chrono::steady_clock::now();
+
 	while (m_pDBJobQueue->GetUseSize() > 0)
 	{
 		DBJob* pJob = nullptr;
@@ -149,12 +154,19 @@ void AuthGroup::OnUpdate()
 
 		delete pJob;
 	}
+	auto end = std::chrono::steady_clock::now();
+	long long ns2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+	m_UpdateWholeProcTime.Record(ns2);
 
-	m_Frame++;
+	InterlockedIncrement(&m_FrameTPS);
 }
 
 void AuthGroup::LoginRequestProc(uint64 sessionID, CMessage* pMessage)
 {
+	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
+
+	auto start = std::chrono::steady_clock::now();
+
 	m_nonuserTable.erase(sessionID);
 
 	CUser* pUser = CUser::Alloc();
@@ -169,15 +181,22 @@ void AuthGroup::LoginRequestProc(uint64 sessionID, CMessage* pMessage)
 	// todo : 성공시 DB에서 Redis에서 가져온 AccountID에 해당하는 해당 계정이 소유한 캐릭터 이름, 레벨, 외형정보 등을 가져와 클라에게 Send
 
 	m_userTable.insert(std::pair<uint64, CUser*>(sessionID, pUser));
+
+
+	auto end = std::chrono::steady_clock::now();
+	m_OnRecvProcTime[(int)AuthRecvType::Login].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void AuthGroup::CharacterSelectProc(uint64 sessionID, CMessage* pMessage)
 {
+	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
+
+	auto start = std::chrono::steady_clock::now();
+
 	uint64 characteruid;
 	*pMessage >> characteruid;
 
 	// todo : characterUID에 대한 검증.
-
 	CharacterSelectJob* pJob = new CharacterSelectJob;
 	pJob->sessionID = sessionID;
 	pJob->characterUID = characteruid;
@@ -186,6 +205,9 @@ void AuthGroup::CharacterSelectProc(uint64 sessionID, CMessage* pMessage)
 
 	// DB Manager에게 Job 전달
 	m_DBManagerPtr->EnqueueDBJob(pJob);
+
+	auto end = std::chrono::steady_clock::now();
+	m_OnRecvProcTime[(int)AuthRecvType::CharacterSelect].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 
 	// TPS 증가
 	InterlockedIncrement(&CharacterProgressJob::g_TPS);

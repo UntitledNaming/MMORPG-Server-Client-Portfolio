@@ -175,14 +175,14 @@ private:
 	virtual void  OnClientLeave(UINT64 sessionID) override;
 	virtual void  OnRecv(UINT64 sessionID, CMessage* pMessage) override;
 	virtual void  OnIUserMove(UINT64 sessionID, IUser* pUser) override;
-	virtual void  OnUpdate() override;
+	virtual void  OnUpdate(long long LockEnterTime) override;
 
 public:
 	//////////////////////////////////////////////////////////////////////////////////
 	// 메세지 송신 관련 함수
 	//////////////////////////////////////////////////////////////////////////////////
-	void SendPacket_SectorOne(CMessage* pMessage, uint16 xpos, uint16 ypos, CUser* pUser);     // 해당 섹터에 있는 유저들에게 메세지 보내기
-	void SendPacket_SectorAround(CMessage* pMessage, CUser* pUser, bool userSend = false);     // 해당 섹터에 있는 유저들에게 메세지 보내기
+	void SendPacket_SectorOne(BroadCastType type, CMessage* pMessage, uint16 xpos, uint16 ypos, CUser* pUser);     // 해당 섹터에 있는 유저들에게 메세지 보내기
+	void SendPacket_SectorAround(BroadCastType type, CMessage* pMessage, CUser* pUser, bool userSend = false);     // 해당 섹터에 있는 유저들에게 메세지 보내기
     void SendPacket_HitSectors(HitResult& result);
 
 private:
@@ -241,11 +241,18 @@ private:
 	uint64                                        m_monsterAllocID   = 0;
 
 public:
-	uint64 fieldframe = 0;
 	uint64 syncCount = 0;
-    uint64 attackCount = 0;
-    uint64 targetupdatePacketCount = 0;
-    static uint64 movePacketCount;
-    static uint64 stopPacketCount;
+
+    // 수신 메세지 쪽 처리 시간 측정 저장 변수
+    LatencyHistogram m_OnRecvLockEnterTime;
+    LatencyHistogram m_OnRecvMsgProcTime[(int)FieldRecvType::Max];     // 수신 메세지 프로토콜 별 처리 시간 담는 배열
+
+
+    // 프레임쪽 처리 시간 측정 저장 변수
+    LatencyHistogram m_OnUpdateLockEnterTime;
+    LatencyHistogram m_OnUpdateProcTime[(int)FrameProcType::Max];
+
+    // 브로드 캐스팅 하는 쪽 처리 시간 측정 변수
+    LatencyHistogram m_BroadCastProcTime[(int)BroadCastType::Max];
 };
 

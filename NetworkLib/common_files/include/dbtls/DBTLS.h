@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #define DBTLS_MAX_COUNT     50
 #define DBTLS_IDX           -1
@@ -31,15 +31,15 @@ public:
 	~DBTLS();
 	
 
-	bool        DB_Post_Query(DB_QUERY_RESULT& Result ,const CHAR* QueryString, ...);       // DB·Î Äõ¸® ³¯¸®´Â ÇÔ¼ö
+	bool        DB_Post_Query(DB_QUERY_RESULT& Result ,const CHAR* QueryString, ...);       // DBë¡œ ì¿¼ë¦¬ ë‚ ë¦¬ëŠ” í•¨ìˆ˜
     MYSQL_RES*  DB_GET_Result(int type);                                                    // type 0 : mysql_store_result / type 1 : mysql_use_result
-    MYSQL_ROW*  DB_Fetch_Row(MYSQL_RES* res);                                               // DB¿¡ ³¯¸° Äõ¸®·Î Row¸¦ 1°³ ¾ò¾î ¿ÔÀ» ¶§ 
-                                                                                            // ÇØ´ç Row ¹®ÀÚ¿­ ÀúÀåµÈ Æ÷ÀÎÅÍ ¹İÈ¯
+    MYSQL_ROW*  DB_Fetch_Row(MYSQL_RES* res);                                               // DBì— ë‚ ë¦° ì¿¼ë¦¬ë¡œ Rowë¥¼ 1ê°œ ì–»ì–´ ì™”ì„ ë•Œ 
+                                                                                            // í•´ë‹¹ Row ë¬¸ìì—´ ì €ì¥ëœ í¬ì¸í„° ë°˜í™˜
     void        DB_Free_Result(); 
 
 public:
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// DB_TLS ¼­ºê Å¬·¡½º
+	// DB_TLS ì„œë¸Œ í´ë˜ìŠ¤
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	class DB_Query
 	{
@@ -56,19 +56,19 @@ public:
 		~DB_Query();
 		bool        ReConnect();
 
-		bool        DB_Post_Query(DB_QUERY_RESULT& Result, const CHAR* QueryString, const va_list& args);   // DB·Î Äõ¸® ³¯¸®´Â ÇÔ¼ö
+		bool        DB_Post_Query(DB_QUERY_RESULT& Result, const CHAR* QueryString, const va_list& args);   // DBë¡œ ì¿¼ë¦¬ ë‚ ë¦¬ëŠ” í•¨ìˆ˜
 
 		MYSQL_RES*  DB_GET_Result(int type);                                                                // type 0 : mysql_store_result / type 1 : mysql_use_result
 															                                                
-		MYSQL_ROW*  DB_Fetch_Row(MYSQL_RES* res);                                                           // DB¿¡ ³¯¸° Äõ¸®·Î Row¸¦ 1°³ ¾ò¾î ¿ÔÀ» ¶§ 
-		                                                                                                    // ÇØ´ç Row ¹®ÀÚ¿­ ÀúÀåµÈ Æ÷ÀÎÅÍ ¹İÈ¯
+		MYSQL_ROW*  DB_Fetch_Row(MYSQL_RES* res);                                                           // DBì— ë‚ ë¦° ì¿¼ë¦¬ë¡œ Rowë¥¼ 1ê°œ ì–»ì–´ ì™”ì„ ë•Œ 
+		                                                                                                    // í•´ë‹¹ Row ë¬¸ìì—´ ì €ì¥ëœ í¬ì¸í„° ë°˜í™˜
 		void        DB_Free_Result();                   
 	};
 
 
 private:
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// DB_TLS Å¬·¡½º ¸â¹ö º¯¼ö
+	// DB_TLS í´ë˜ìŠ¤ ë©¤ë²„ ë³€ìˆ˜
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	DWORD             m_TlsIdx = 0;
 	std::string       m_Schema;

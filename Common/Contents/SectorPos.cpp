@@ -1,4 +1,4 @@
-#include "ContentsDefine.h"
+ï»¿#include "ContentsDefine.h"
 #include "SectorPos.h"
 
 void SectorPos::SectorFind(SectorAround& pAround, const SectorPos& sec)
@@ -36,7 +36,7 @@ void SectorPos::CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, co
 	SectorFind(newSec, newSecPos);
 
 
-	// °ãÄ¡´Â ÁÂÇ¥¸¦ Ã£¾Æ¼­ ÀÌ¸¦ Á¦¿ÜÇÑ ÁÂÇ¥°ªÀ» ¾Æ¿ô ÆÄ¶ó¹ÌÅÍ¿¡ ´ã±â
+	// ê²¹ì¹˜ëŠ” ì¢Œí‘œë¥¼ ì°¾ì•„ì„œ ì´ë¥¼ ì œì™¸í•œ ì¢Œí‘œê°’ì„ ì•„ì›ƒ íŒŒë¼ë¯¸í„°ì— ë‹´ê¸°
 	for (int i = 0; i < curSec.m_count; i++)
 	{
 		for (int j = 0; j < newSec.m_count; j++)
@@ -52,7 +52,7 @@ void SectorPos::CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, co
 		}
 	}
 
-	// ¾Æ¿ô ÆÄ¶ó¹ÌÅÍ¿¡ ´ã±â
+	// ì•„ì›ƒ íŒŒë¼ë¯¸í„°ì— ë‹´ê¸°
 	int deletecount = 0;
 	int createcount = 0;
 	for (int i = 0; i < curSec.m_count; i++)

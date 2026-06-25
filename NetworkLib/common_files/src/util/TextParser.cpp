@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <windows.h>
 #include "TextParser.h"
 #pragma warning(disable:4996)

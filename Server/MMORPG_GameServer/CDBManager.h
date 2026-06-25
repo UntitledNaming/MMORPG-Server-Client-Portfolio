@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class  DBTLS;
 struct DBJob;
@@ -16,7 +16,6 @@ public:
 	void Destroy();
 	void DBThread();
 	void EnqueueDBJob(DBJob* pJob);
-
 
 public:
 	std::thread         m_DBSaveThread;

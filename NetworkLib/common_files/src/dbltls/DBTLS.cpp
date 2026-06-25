@@ -1,4 +1,4 @@
-
+ï»¿
 #include <windows.h>
 #include <iostream>
 #include <string>
@@ -29,7 +29,7 @@ DBTLS::DBTLS(const CHAR* DBip, INT DBPort, std::string& schema)
 
 DBTLS::~DBTLS()
 {
-	// Äõ¸® ¹è¿­ 0¹øÂ° index
+	// ì¿¼ë¦¬ ë°°ì—´ 0ë²ˆì§¸ index
 	for (int i = 0; i <= m_DBQArrayIdx; i++)
 	{
 		if (m_DBQueryAry[i])
@@ -49,7 +49,7 @@ bool DBTLS::DB_Post_Query(DB_QUERY_RESULT& Result, const CHAR* QueryString, ...)
 	ret = (DB_Query*)TlsGetValue(m_TlsIdx);
 	if (ret == nullptr)
 	{
-		// °ü¸® ¹è¿­¹üÀ§ Ã¼Å©
+		// ê´€ë¦¬ ë°°ì—´ë²”ìœ„ ì²´í¬
 		retIDX = InterlockedIncrement16(&m_DBQArrayIdx);
 		if (retIDX >= DBTLS_MAX_COUNT)
 		{
@@ -58,13 +58,13 @@ bool DBTLS::DB_Post_Query(DB_QUERY_RESULT& Result, const CHAR* QueryString, ...)
 			return false;
 		}
 
-		// Äõ¸® Ã³À½ È£Ãâ
+		// ì¿¼ë¦¬ ì²˜ìŒ í˜¸ì¶œ
 		ret = new DB_Query(this);
 
 
 		TlsSetValue(m_TlsIdx, ret);
 
-		// °ü¸® ¹è¿­¿¡ ÀúÀå
+		// ê´€ë¦¬ ë°°ì—´ì— ì €ì¥
 		m_DBQueryAry[retIDX] = ret;
 
 	}
@@ -143,7 +143,7 @@ bool DBTLS::DB_Query::DB_Post_Query(DB_QUERY_RESULT& Result, const CHAR* QuerySt
 
     ret = StringCchVPrintfA(pBuffer, DBQUERY_DEFAULT_LEN, QueryString, args);
     
-    // Äõ¸® ½ºÆ®¸µ ±æÀÌ°¡ ÇÒ´ç Å©±âº¸´Ù Å©¸é Áß´Ü
+    // ì¿¼ë¦¬ ìŠ¤íŠ¸ë§ ê¸¸ì´ê°€ í• ë‹¹ í¬ê¸°ë³´ë‹¤ í¬ë©´ ì¤‘ë‹¨
 	if (ret == STRSAFE_E_INSUFFICIENT_BUFFER)
 	{
 		Result = DB_QUERY_RESULT::QueryStringOverflow;
@@ -156,10 +156,10 @@ bool DBTLS::DB_Query::DB_Post_Query(DB_QUERY_RESULT& Result, const CHAR* QuerySt
 		int error_code = mysql_errno(m_Connection);
 		LOG(L"DB",en_LOG_LEVEL::dfLOG_LEVEL_ERROR,L"DB mysql_query Error : %s" ,mysql_error(&m_Conn));
 
-		// Àç¿¬°á 1¹ø ½Ãµµ ÈÄ Äõ¸® ³¯¸®±â
+		// ì¬ì—°ê²° 1ë²ˆ ì‹œë„ í›„ ì¿¼ë¦¬ ë‚ ë¦¬ê¸°
 		if (error_code == CR_SERVER_GONE_ERROR || error_code == CR_SERVER_LOST)
 		{
-			// Àç¿¬°á ÈÄ Äõ¸® ¼º°øÇÏ¸é true ¸®ÅÏ
+			// ì¬ì—°ê²° í›„ ì¿¼ë¦¬ ì„±ê³µí•˜ë©´ true ë¦¬í„´
 			if (ReConnect() && mysql_query(m_Connection, pBuffer) == 0)
 			{
 				Result = DB_QUERY_RESULT::Success;
@@ -170,11 +170,11 @@ bool DBTLS::DB_Query::DB_Post_Query(DB_QUERY_RESULT& Result, const CHAR* QuerySt
 			return false;
 		}
 
-		// Äõ¸®¹® ÀÌ»óÇÑ°ÍÀÌ¸é´Ù Å©·¡½¬
+		// ì¿¼ë¦¬ë¬¸ ì´ìƒí•œê²ƒì´ë©´ë‹¤ í¬ë˜ì‰¬
 		else if (error_code == ER_PARSE_ERROR || error_code == ER_NO_SUCH_TABLE || error_code == ER_BAD_FIELD_ERROR)
 			__debugbreak();
 
-		// Äõ¸®¿¡ ´ã±ä µ¥ÀÌÅÍ ¹®Á¦(ÀÌ¸§ Áßº¹, UID Áßº¹ µî)
+		// ì¿¼ë¦¬ì— ë‹´ê¸´ ë°ì´í„° ë¬¸ì œ(ì´ë¦„ ì¤‘ë³µ, UID ì¤‘ë³µ ë“±)
 		else if (error_code == ER_DUP_ENTRY || error_code == ER_BAD_NULL_ERROR
 			|| error_code == ER_NO_REFERENCED_ROW_2 || error_code == ER_ROW_IS_REFERENCED_2)
 		{
@@ -182,7 +182,7 @@ bool DBTLS::DB_Query::DB_Post_Query(DB_QUERY_RESULT& Result, const CHAR* QuerySt
 			return false;
 		}
 
-		// ±×¿Ü ¹ö±×´Â false ¸®ÅÏ
+		// ê·¸ì™¸ ë²„ê·¸ëŠ” false ë¦¬í„´
 		return false;
 	}
 

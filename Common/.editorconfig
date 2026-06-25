@@ -1,0 +1,9 @@
+# Common(서버+클라 공용 헤더) 소스는 UTF-8 BOM으로 통일.
+# 서버/클라(UE) 양쪽이 include하므로 BOM으로 박아두면 어느 빌드·로캘에서도 한글 안 깨지고 MSVC/UE 모두 인식.
+root = true
+
+[*.{cpp,h,hpp,c,cxx,cc,inl}]
+charset = utf-8-bom
+end_of_line = crlf
+trim_trailing_whitespace = false
+insert_final_newline = false

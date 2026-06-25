@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "ContentsType.h"
 #include "ContentsStruct.h"
+#include "ContentsEnum.h"
 
 class DBTLS;
 class CGroup;
@@ -18,18 +19,6 @@ enum class PostAction
 	MoveToField,
 };
 
-enum class DBJobCount
-{
-	CharacterSelect,
-	InsertItem,
-	DeleteItem,
-	ItemCount,
-	ItemUpdateCount,
-	ItemSlotUpdate,
-	CharacterProgress,
-	LogOut,
-	Max,
-};
 
 struct ItemSwapInfo
 {

@@ -7,6 +7,7 @@
 #include "LFQMultiLive.h"
 #include "DBJob.h"
 #include "TextParser.h"
+#include "LatencyHistogram.h"
 #include "CDBManager.h"
 
 void CDBManager::Init()

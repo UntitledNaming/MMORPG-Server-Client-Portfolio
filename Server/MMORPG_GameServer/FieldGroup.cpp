@@ -25,10 +25,9 @@
 #include "HitSearchBuilder.h"
 #include "ItemTable.h"
 #include "FieldDropItemPool.h"
+#include "LatencyHistogram.h"
 #include "FieldGroup.h"
 
-uint64 FieldGroup::movePacketCount = 0;
-uint64 FieldGroup::stopPacketCount = 0;
 
 using namespace FieldConst;
 using namespace FieldProtocol;
@@ -47,6 +46,9 @@ void FieldGroup::SendMonsterCreateToSector(CMonster* pMonster, uint16 secX, uint
 {
 	// 섹터에 있는 유저들에게 몬스터 생성 및 필요하면 Move 패킷 보내기
 	int count = m_sectors[secY][secX].GetUserCount();
+
+	auto start = std::chrono::steady_clock::now();
+
 	for (int i = 0; i < count; i++)
 	{
 		CUser* pUser = m_sectors[secY][secX].GetUser(i);
@@ -64,6 +66,10 @@ void FieldGroup::SendMonsterCreateToSector(CMonster* pMonster, uint16 secX, uint
 		}
 
 	}
+
+	auto end = std::chrono::steady_clock::now();
+
+	m_BroadCastProcTime[(int)BroadCastType::CreateMonster].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void FieldGroup::SendMonsterDeleteToSector(CMonster* pMonster, uint16 secX, uint16 secY)
@@ -87,7 +93,7 @@ void FieldGroup::SendMonsterTargetUpdate(CMonster* pMonster)
 
 	for (int i = 0; i < MoveAround.m_count; i++)
 	{
-		SendPacket_SectorOne(pMoveMonster, MoveAround.m_Around[i].GetX(), MoveAround.m_Around[i].GetY(), nullptr);
+		SendPacket_SectorOne(BroadCastType::MoveMonster,pMoveMonster, MoveAround.m_Around[i].GetX(), MoveAround.m_Around[i].GetY(), nullptr);
 
 	}
 
@@ -120,7 +126,7 @@ void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, int
 		int16 secX = monsterAround.m_Around[i].GetX();
 		int16 secY = monsterAround.m_Around[i].GetY();
 
-		SendPacket_SectorOne(pAttackMonsterToOther, secX, secY, pTarget);
+		SendPacket_SectorOne(BroadCastType::MonsterHitPlayer, pAttackMonsterToOther, secX, secY, pTarget);
 		sendflagArray[pushCount++] = SectorPos{ secX , secY };
 	}
 
@@ -133,7 +139,7 @@ void FieldGroup::SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, int
 		if (SectorPos::IsAlreadyPushed(sendflagArray, pushCount, secX, secY))
 			continue;
 
-		SendPacket_SectorOne(pAttackMonsterToOther, secX, secY, pTarget);
+		SendPacket_SectorOne(BroadCastType::MonsterHitPlayer,pAttackMonsterToOther, secX, secY, pTarget);
 		sendflagArray[pushCount++] = SectorPos{ secX , secY };
 	}
 
@@ -149,7 +155,7 @@ void FieldGroup::SendMonsterStop(CMonster* pMonster)
 
 	for (int i = 0; i < StopAround.m_count; i++)
 	{
-		SendPacket_SectorOne(pStopMonster, StopAround.m_Around[i].GetX(), StopAround.m_Around[i].GetY(), nullptr);
+		SendPacket_SectorOne(BroadCastType::StopMonster, pStopMonster, StopAround.m_Around[i].GetX(), StopAround.m_Around[i].GetY(), nullptr);
 	}
 	CMessage::Free(pStopMonster);
 }
@@ -163,7 +169,7 @@ void FieldGroup::SendCreateFieldDropItem(FieldDropItem* pItem)
 
 	for (int i = 0; i < CreateAround.m_count; i++)
 	{
-		SendPacket_SectorOne(pCreateFieldDropItem, CreateAround.m_Around[i].GetX(), CreateAround.m_Around[i].GetY(), nullptr);
+		SendPacket_SectorOne(BroadCastType::CreateFieldDropItem, pCreateFieldDropItem, CreateAround.m_Around[i].GetX(), CreateAround.m_Around[i].GetY(), nullptr);
 	}
 
 	CMessage::Free(pCreateFieldDropItem);
@@ -178,7 +184,7 @@ void FieldGroup::SendDeleteFieldDropItem(FieldDropItem* pItem)
 
 	for (int i = 0; i < DeleteAround.m_count; i++)
 	{
-		SendPacket_SectorOne(pDeleteFieldDropItem, DeleteAround.m_Around[i].GetX(), DeleteAround.m_Around[i].GetY(), nullptr);
+		SendPacket_SectorOne(BroadCastType::DeleteFieldDropItem, pDeleteFieldDropItem, DeleteAround.m_Around[i].GetX(), DeleteAround.m_Around[i].GetY(), nullptr);
 	}
 
 	CMessage::Free(pDeleteFieldDropItem);
@@ -270,7 +276,7 @@ void FieldGroup::OnClientLeave(UINT64 sessionID)
 	CUser* pUser = it->second;
 
 	CMessage* pMessage = PacketBuilder::DeleteCharacter(pUser);
-	SendPacket_SectorAround(pMessage, pUser);
+	SendPacket_SectorAround(BroadCastType::DeleteCharacter,pMessage, pUser);
 	CMessage::Free(pMessage);
 
 	FieldSector& sec = m_sectors[pUser->GetSectorYpos()][pUser->GetSectorXpos()];
@@ -355,7 +361,7 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 
 		// 주변 섹터에 본인 캐릭터 생성 메세지 만들고 보내기
 		CMessage* pCreateMyChrToOtherMsg = PacketBuilder::CreateOtherCharacter(pOnUser);
-		SendPacket_SectorOne(pCreateMyChrToOtherMsg, curSecXpos, curSecYpos, pOnUser);
+		SendPacket_SectorOne(BroadCastType::CreateMyCharacterToOther,pCreateMyChrToOtherMsg, curSecXpos, curSecYpos, pOnUser);
 		CMessage::Free(pCreateMyChrToOtherMsg);
 
 		// 해당 섹터의 유저 생성 메세지를 만들어 본인 캐릭터에게 전송
@@ -410,17 +416,37 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 	}
 }
 
-void FieldGroup::OnUpdate()
+void FieldGroup::OnUpdate(long long LockEnterTime)
 {
+	m_OnUpdateLockEnterTime.Record(LockEnterTime);
+
+	auto start = std::chrono::steady_clock::now();
+
 	UserUpdate();
+
+	auto end1 = std::chrono::steady_clock::now();
+
 	MonsterUpdate();
+
+	auto end2 = std::chrono::steady_clock::now();
+
 	FieldDropItemExpired();
-	fieldframe++;
+
+	auto end3 = std::chrono::steady_clock::now();
+
+	m_OnUpdateProcTime[(int)FrameProcType::Whole].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end3 - start).count());
+	m_OnUpdateProcTime[(int)FrameProcType::User].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end1 - start).count());
+	m_OnUpdateProcTime[(int)FrameProcType::Monster].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - end1).count());
+	m_OnUpdateProcTime[(int)FrameProcType::FieldDropItem].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end3 - end2).count());
+
+	InterlockedIncrement(&m_FrameTPS);
 }
 
-void FieldGroup::SendPacket_SectorOne(CMessage* pMessage, uint16 xpos, uint16 ypos, CUser* pUser)
+void FieldGroup::SendPacket_SectorOne(BroadCastType type, CMessage* pMessage, uint16 xpos, uint16 ypos, CUser* pUser)
 {
 	uint16 count = m_sectors[ypos][xpos].GetUserCount();
+
+	auto start = std::chrono::steady_clock::now();
 
 	for (int i = 0; i < count; i++)
 	{
@@ -432,10 +458,12 @@ void FieldGroup::SendPacket_SectorOne(CMessage* pMessage, uint16 xpos, uint16 yp
 
 	    SendPacket(pCurUser->GetSessionID(), pMessage);
 	}
+	auto end = std::chrono::steady_clock::now();
 
+	m_BroadCastProcTime[(int)type].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
-void FieldGroup::SendPacket_SectorAround(CMessage* pMessage, CUser* pUser, bool userSend)
+void FieldGroup::SendPacket_SectorAround(BroadCastType type, CMessage* pMessage, CUser* pUser, bool userSend)
 {
 	SectorAround around;
 	SectorPos::SectorFind(around, pUser->GetSectorPos());
@@ -444,11 +472,11 @@ void FieldGroup::SendPacket_SectorAround(CMessage* pMessage, CUser* pUser, bool 
 	{
 		if (userSend)
 		{
-			SendPacket_SectorOne(pMessage, around.m_Around[i].GetX(), around.m_Around[i].GetY(), nullptr);
+			SendPacket_SectorOne(type, pMessage, around.m_Around[i].GetX(), around.m_Around[i].GetY(), nullptr);
 			continue;
 		}
 
-		SendPacket_SectorOne(pMessage, around.m_Around[i].GetX(), around.m_Around[i].GetY(), pUser);
+		SendPacket_SectorOne(type, pMessage, around.m_Around[i].GetX(), around.m_Around[i].GetY(), pUser);
 	}
 }
 
@@ -480,7 +508,7 @@ void FieldGroup::SendPacket_HitSectors(HitResult& result)
 			if (SectorPos::IsAlreadyPushed(sendflagArray, pushCount, hitSecX, hitSecY))
 				continue;
 
-			SendPacket_SectorOne(pHitMsg, hitSecX, hitSecY, nullptr);
+			SendPacket_SectorOne(BroadCastType::AttackHitResult, pHitMsg, hitSecX, hitSecY, nullptr);
 
 			sendflagArray[pushCount++] = SectorPos{ hitSecX , hitSecY };
 		}
@@ -506,7 +534,7 @@ void FieldGroup::SendPacket_HitSectors(HitResult& result)
 			if (SectorPos::IsAlreadyPushed(sendflagArray, pushCount, hitSecX, hitSecY))
 				continue;
 
-			SendPacket_SectorOne(pHitMsg, hitSecX, hitSecY, nullptr);
+			SendPacket_SectorOne(BroadCastType::AttackHitResult, pHitMsg, hitSecX, hitSecY, nullptr);
 
 			sendflagArray[pushCount++] = SectorPos{ hitSecX , hitSecY };
 		}
@@ -624,6 +652,10 @@ void FieldGroup::CollectHitTarget(CUser* attacker, HitSearchInfo& hitInfo, HitRe
 
 void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMessage)
 {
+	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
+
+	auto start = std::chrono::steady_clock::now();
+
 	float xpos = 0.0f;
 	float ypos = 0.0f;
 	float zpos = 0.0f;
@@ -682,7 +714,7 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 
 
 		CMessage* pSyncOthrChrMsg = PacketBuilder::SyncOtherCharacter(pUser);
-		SendPacket_SectorAround(pSyncMyChrMsg, pUser);
+		SendPacket_SectorAround(BroadCastType::SyncOtherPos, pSyncMyChrMsg, pUser);
 		CMessage::Free(pSyncOthrChrMsg);
 
 		syncCount++;
@@ -703,13 +735,20 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 
 	// Movement Update 패킷 뿌리기
 	CMessage* pInputUpdateMsg = PacketBuilder::UpdateCharacterMovement(pUser);
-	SendPacket_SectorAround(pInputUpdateMsg, pUser);
+	SendPacket_SectorAround(BroadCastType::UpdateCharacterMovementInput, pInputUpdateMsg, pUser);
 	CMessage::Free(pInputUpdateMsg);
 
+
+	auto end = std::chrono::steady_clock::now();
+	m_OnRecvMsgProcTime[(int)FieldRecvType::CharacterMovement].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void FieldGroup::HandleRTTMessage(uint64 sessionID, CMessage* pMessage)
 {
+	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
+
+	auto start = std::chrono::steady_clock::now();
+
 	double recvtime;
 
 	*pMessage >> recvtime;
@@ -717,10 +756,17 @@ void FieldGroup::HandleRTTMessage(uint64 sessionID, CMessage* pMessage)
 	CMessage* pRTTMessage = PacketBuilder::CreateRTTEchoMessage();
 	SendPacket(sessionID, pRTTMessage);
 	CMessage::Free(pRTTMessage);
+
+	auto end = std::chrono::steady_clock::now();
+	m_OnRecvMsgProcTime[(int)FieldRecvType::RTT].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 {
+	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
+
+	auto start = std::chrono::steady_clock::now();
+
 	float attackyaw;
 	uint8 swingindex;
 
@@ -794,7 +840,7 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 
 	// 공격자 swing 메세지 뿌리기 
 	CMessage* pSwingMsg = PacketBuilder::AttackLeftSwing(pUser->GetSessionID(), attackyaw, swingindex);
-	SendPacket_SectorAround(pSwingMsg, pUser);
+	SendPacket_SectorAround(BroadCastType::LeftSwing, pSwingMsg, pUser);
 	CMessage::Free(pSwingMsg);
 
 	SendPacket_HitSectors(result);
@@ -816,7 +862,7 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 
 		for (int count = 0; count < DeleteSector.m_count; count++)
 		{
-			SendPacket_SectorOne(pDeleteMonster, DeleteSector.m_Around[count].GetX(), DeleteSector.m_Around[count].GetY(), nullptr);
+			SendPacket_SectorOne(BroadCastType::DeleteMonster, pDeleteMonster, DeleteSector.m_Around[count].GetX(), DeleteSector.m_Around[count].GetY(), nullptr);
 		}
 
 		CMessage::Free(pDeleteMonster);
@@ -824,10 +870,18 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 		m_sectors[pHitMonster->GetSectorY()][pHitMonster->GetSectorX()].RemoveMonster(pHitMonster);
 
 	}
+
+
+	auto end = std::chrono::steady_clock::now();
+	m_OnRecvMsgProcTime[(int)FieldRecvType::LeftSwing].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 {
+	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
+
+	auto start = std::chrono::steady_clock::now();
+
 	uint8 skillslot;
 	*pMessage >> skillslot;
 
@@ -868,7 +922,7 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 	{
 		// Skill 사용 패킷 뿌리기
 		CMessage* pUseSkillBroad = PacketBuilder::UseSkillBroadCast(sessionID, skillslot);
-		SendPacket_SectorAround(pUseSkillBroad, pUser);
+		SendPacket_SectorAround(BroadCastType::UseSkill, pUseSkillBroad, pUser);
 		CMessage::Free(pUseSkillBroad);
 	}
 
@@ -938,7 +992,7 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 
 		for (int count = 0; count < DeleteSector.m_count; count++)
 		{
-			SendPacket_SectorOne(pDeleteMonster, pHitMonster->GetSectorX(), pHitMonster->GetSectorY(), nullptr);
+			SendPacket_SectorOne(BroadCastType::DeleteMonster, pDeleteMonster, pHitMonster->GetSectorX(), pHitMonster->GetSectorY(), nullptr);
 		}
 
 		CMessage::Free(pDeleteMonster);
@@ -946,10 +1000,16 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 		m_sectors[pHitMonster->GetSectorY()][pHitMonster->GetSectorX()].RemoveMonster(pHitMonster);
 	}
 
+	auto end = std::chrono::steady_clock::now();
+	m_OnRecvMsgProcTime[(int)FieldRecvType::SkillUse].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void FieldGroup::HandlePickUpItems(uint64 sessionID, CMessage* pMessage)
 {
+	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
+
+	auto start = std::chrono::steady_clock::now();
+
 	CUser* pUser = nullptr;
 
 	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
@@ -1017,10 +1077,18 @@ void FieldGroup::HandlePickUpItems(uint64 sessionID, CMessage* pMessage)
 	m_sectors[pItem->sectorPos.GetY()][pItem->sectorPos.GetX()].RemoveItem(pItem);
 	m_dropItemLookUpTable.erase(pItem->dropUID);
 	FieldDropItemPool::FreeItem(pItem);
+
+
+	auto end = std::chrono::steady_clock::now();
+	m_OnRecvMsgProcTime[(int)FieldRecvType::PickUpItems].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void FieldGroup::HandleUseItem(uint64 sessionID, CMessage* pMessage)
 {
+	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
+
+	auto start = std::chrono::steady_clock::now();
+
 	uint8 type;
 	int16 slotIndex;
 
@@ -1072,10 +1140,17 @@ void FieldGroup::HandleUseItem(uint64 sessionID, CMessage* pMessage)
 	CMessage* pUseItem = PacketBuilder::UseItem(result);
 	SendPacket(sessionID, pUseItem);
 	CMessage::Free(pUseItem);
+
+	auto end = std::chrono::steady_clock::now();
+	m_OnRecvMsgProcTime[(int)FieldRecvType::UseItem].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void FieldGroup::HandleDeleteItem(uint64 sessionID, CMessage* pMessage)
 {
+	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
+
+	auto start = std::chrono::steady_clock::now();
+
 	uint8 type;
 	int16 slotIndex;
 
@@ -1096,10 +1171,17 @@ void FieldGroup::HandleDeleteItem(uint64 sessionID, CMessage* pMessage)
 	CMessage* pDeleteItemMsg = PacketBuilder::DeleteItem(Success);
 	SendPacket(sessionID, pDeleteItemMsg);
 	CMessage::Free(pDeleteItemMsg);
+
+	auto end = std::chrono::steady_clock::now();
+	m_OnRecvMsgProcTime[(int)FieldRecvType::DeleteItem].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void FieldGroup::HandleSwapSlot(uint64 sessionID, CMessage* pMessage)
 {
+	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
+
+	auto start = std::chrono::steady_clock::now();
+
 	uint8 fromtype;
 	uint8 totype;
 	int16 fromslotIndex;
@@ -1126,10 +1208,18 @@ void FieldGroup::HandleSwapSlot(uint64 sessionID, CMessage* pMessage)
 	CMessage* pSwapItem = PacketBuilder::SwapSlot(Success);
 	SendPacket(sessionID, pSwapItem);
 	CMessage::Free(pSwapItem);
+
+	auto end = std::chrono::steady_clock::now();
+	m_OnRecvMsgProcTime[(int)FieldRecvType::SwapItem].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void FieldGroup::HandleRespawn(uint64 sessionID, CMessage* pMessage)
 {
+	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
+
+	auto start = std::chrono::steady_clock::now();
+
+
 	std::unordered_map<uint64, CUser*>::iterator it = m_userLookUpTable.find(sessionID);
 	if (it == m_userLookUpTable.end())
 		return;
@@ -1148,8 +1238,12 @@ void FieldGroup::HandleRespawn(uint64 sessionID, CMessage* pMessage)
 
 	// 주변에게 뿌리기
 	CMessage* respawnToOtherMsg = PacketBuilder::RespawnToOther(pUser->GetSessionID());
-	SendPacket_SectorAround(respawnToOtherMsg, pUser);
+	SendPacket_SectorAround(BroadCastType::Respawn, respawnToOtherMsg, pUser);
 	CMessage::Free(respawnToOtherMsg);
+
+
+	auto end = std::chrono::steady_clock::now();
+	m_OnRecvMsgProcTime[(int)FieldRecvType::Respawn].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void FieldGroup::UserUpdate()
@@ -1195,7 +1289,7 @@ void FieldGroup::SectorUpdate(CUser* pUser, const SectorPos& newSec)
 	CMessage* pDeleteMsg = PacketBuilder::DeleteCharacter(pUser);
 	for (int i = 0; i < DeleteSector.m_count; i++)
 	{
-		SendPacket_SectorOne(pDeleteMsg, DeleteSector.m_Around[i].GetX(), DeleteSector.m_Around[i].GetY(), pUser);
+		SendPacket_SectorOne(BroadCastType::DeleteCharacter, pDeleteMsg, DeleteSector.m_Around[i].GetX(), DeleteSector.m_Around[i].GetY(), pUser);
 	}
 	CMessage::Free(pDeleteMsg);
 
@@ -1203,7 +1297,7 @@ void FieldGroup::SectorUpdate(CUser* pUser, const SectorPos& newSec)
 	CMessage* pCreateMsg = PacketBuilder::CreateOtherCharacter(pUser);
 	for (int i = 0; i < CreateSector.m_count; i++)
 	{
-		SendPacket_SectorOne(pCreateMsg, CreateSector.m_Around[i].GetX(), CreateSector.m_Around[i].GetY(), pUser);
+		SendPacket_SectorOne(BroadCastType::CreateMyCharacterToOther, pCreateMsg, CreateSector.m_Around[i].GetX(), CreateSector.m_Around[i].GetY(), pUser);
 	}
 	CMessage::Free(pCreateMsg);
 

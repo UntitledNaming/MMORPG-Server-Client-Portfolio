@@ -1,4 +1,4 @@
-#define WIN32_LEAN_AND_MEAN
+ï»¿#define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <windows.h>
 #include <ws2tcpip.h>
@@ -29,21 +29,21 @@ bool CLanClient::Connect(WCHAR* SERVERIP, INT SERVERPORT)
 {
 	SOCKET sock = INVALID_SOCKET;
 
-	//À©¼Ó ÃÊ±âÈ­
+	//ìœˆì† ì´ˆê¸°í™”
 	WSADATA  wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
 		__debugbreak();
 	}
 
-	// ¸â¹ö ÃÊ±âÈ­
+	// ë©¤ë²„ ì´ˆê¸°í™”
 	if (!Mem_Init(SERVERIP, SERVERPORT))
 		return false;
 
-	// ½º·¹µå »ı¼º
+	// ìŠ¤ë ˆë“œ ìƒì„±
 	Thread_Create();
 
-	// ¼ÒÄÏ »ı¼º ¹× ¿É¼Ç ¼³Á¤
+	// ì†Œì¼“ ìƒì„± ë° ì˜µì…˜ ì„¤ì •
 	if (!CreateAndSetSocket(sock))
 	{
 
@@ -54,7 +54,7 @@ bool CLanClient::Connect(WCHAR* SERVERIP, INT SERVERPORT)
 	}
 
 
-	// connect ½Ãµµ
+	// connect ì‹œë„
 	if (!ConnectTry(sock))
 	{
 		closesocket(sock);
@@ -65,7 +65,7 @@ bool CLanClient::Connect(WCHAR* SERVERIP, INT SERVERPORT)
 
 	OnEnterJoinServer();
 
-	// Recv IO µî·Ï ÀÛ¾÷
+	// Recv IO ë“±ë¡ ì‘ì—…
 	if (!RecvPost())
 	{
 		return false;
@@ -108,12 +108,12 @@ bool CLanClient::ReConnect()
 {
 	SOCKET sock = INVALID_SOCKET;
 
-	// ¼¼¼Ç Release ÇÒ ¶§ ±îÁö ReConnect Ã³¸® ºÒ°¡
+	// ì„¸ì…˜ Release í•  ë•Œ ê¹Œì§€ ReConnect ì²˜ë¦¬ ë¶ˆê°€
 	if (m_pSession->s_RelFlag != 1)
 		return false;
 
 
-	// ¼¼¼Ç Á¤¸® µÇ¾úÀ¸¸é ´Ù½Ã ¼ÒÄÏ »ı¼º ¹× ¼¼¼Ç ÃÊ±âÈ­ ÀÛ¾÷
+	// ì„¸ì…˜ ì •ë¦¬ ë˜ì—ˆìœ¼ë©´ ë‹¤ì‹œ ì†Œì¼“ ìƒì„± ë° ì„¸ì…˜ ì´ˆê¸°í™” ì‘ì—…
 	if (!CreateAndSetSocket(sock))
 	{
 		if (sock != INVALID_SOCKET)
@@ -122,19 +122,19 @@ bool CLanClient::ReConnect()
 		return false;
 	}
 
-	// connect ½Ãµµ
+	// connect ì‹œë„
 	if (!ConnectTry(sock))
 	{
 		closesocket(sock);
 		return false;
 	}
 
-	// ¼¼¼Ç ÃÊ±âÈ­
+	// ì„¸ì…˜ ì´ˆê¸°í™”
 	Session_Init(sock);
 
 	OnEnterJoinServer();
 
-	// Recv IO µî·Ï ÀÛ¾÷
+	// Recv IO ë“±ë¡ ì‘ì—…
 	if (!RecvPost())
 		return false;
 
@@ -154,7 +154,7 @@ void CLanClient::Destroy()
 {
 	Disconnect();
 
-	// ¼¼¼Ç Á¤¸®ÇÒ¶§ ±îÁö ·çÇÁ
+	// ì„¸ì…˜ ì •ë¦¬í• ë•Œ ê¹Œì§€ ë£¨í”„
 	while (m_pSession->s_RelFlag != 1)
 	{
 
@@ -177,27 +177,27 @@ void CLanClient::WorkerThread()
 	while (1)
 	{
 		DWORD       cbTransferred = -1;
-		OVERLAPPED* pOverlapped = nullptr;//¿Ï·áÇÑ wsaoverlapped ±¸Á¶Ã¼ ÁÖ¼Ò°ª
+		OVERLAPPED* pOverlapped = nullptr;//ì™„ë£Œí•œ wsaoverlapped êµ¬ì¡°ì²´ ì£¼ì†Œê°’
 		LONGLONG    Key;
 		retval = GetQueuedCompletionStatus(m_iocp, &cbTransferred, (PULONG_PTR)&Key, (LPOVERLAPPED*)&pOverlapped, INFINITE);
 
 
-		//false ÀÎ »óÈ²(IOCP ¿Ï·á ÅëÁö Å¥¿¡¼­ µğÅ¥À×ÀÌ ¾ÈµÈ °æ¿ì, IOCP ÇÚµéÀÌ CloseHandle·Î ÀÎÇØ ´İÈù °æ¿ì)
+		//false ì¸ ìƒí™©(IOCP ì™„ë£Œ í†µì§€ íì—ì„œ ë””íì‰ì´ ì•ˆëœ ê²½ìš°, IOCP í•¸ë“¤ì´ CloseHandleë¡œ ì¸í•´ ë‹«íŒ ê²½ìš°)
 		if (retval == false)
 		{
-			//IOCP°¡ ´İÈ÷°Å³ª IOCP ¿Ï·á ÅëÁö Å¥¿¡¼­ µğÅ¥À×¿¡ ½ÇÆĞÇÒ ¶§ Ã³¸®
+			//IOCPê°€ ë‹«íˆê±°ë‚˜ IOCP ì™„ë£Œ í†µì§€ íì—ì„œ ë””íì‰ì— ì‹¤íŒ¨í•  ë•Œ ì²˜ë¦¬
 			if (pOverlapped == nullptr)
 			{
 				LOG(L"CLanClient", en_LOG_LEVEL::dfLOG_LEVEL_ERROR, L"WorkerThread GQCS IOCP Failed  / Error Code : %d", GetLastError());
 
-				//¾îÂ÷ÇÇ ÀÌ °æ¿ì¿¡´Â ±×³É ¿öÄ¿ ½º·¹µå¸¦ ÆÄ±«ÇØ¾ß ÇÔ.
+				//ì–´ì°¨í”¼ ì´ ê²½ìš°ì—ëŠ” ê·¸ëƒ¥ ì›Œì»¤ ìŠ¤ë ˆë“œë¥¼ íŒŒê´´í•´ì•¼ í•¨.
 				break;
 			}
 
-			//WSASend, WSARecv·Î ¿äÃ»ÇÑ IO°¡ ½ÇÆĞÇÑ °æ¿ì(TCP°¡ ²÷±ä °ÍÀÓ)
+			//WSASend, WSARecvë¡œ ìš”ì²­í•œ IOê°€ ì‹¤íŒ¨í•œ ê²½ìš°(TCPê°€ ëŠê¸´ ê²ƒì„)
 			else
 			{
-				//¾îÂ÷ÇÇ ¿öÄ¿ ½º·¹µå ÇÏ´Ü¿¡¼­ ¾Ë¾Æ¼­ ReleaseÇÒ °ÍÀÓ.
+				//ì–´ì°¨í”¼ ì›Œì»¤ ìŠ¤ë ˆë“œ í•˜ë‹¨ì—ì„œ ì•Œì•„ì„œ Releaseí•  ê²ƒì„.
 				LOG(L"CLanClient", en_LOG_LEVEL::dfLOG_LEVEL_DEBUG, L"WorkerThread GQCS IO Failed / Error Code : %d", GetLastError());
 
 			}
@@ -205,13 +205,13 @@ void CLanClient::WorkerThread()
 		}
 
 		
-		//Recv ¿Ï·áÀÎ °æ¿ì
+		//Recv ì™„ë£Œì¸ ê²½ìš°
 		if (pOverlapped  == &m_pSession->s_RecvOverlapped )
 		{
 			RecvIOProc(cbTransferred);
 		}
 
-		//Send ¿Ï·áÀÎ °æ¿ì
+		//Send ì™„ë£Œì¸ ê²½ìš°
 		else if (pOverlapped  == &m_pSession->s_SendOverlapped)
 		{
 			SendIOProc(cbTransferred);
@@ -229,8 +229,8 @@ bool CLanClient::Mem_Init( WCHAR* ServerIP, INT ServerPort)
 	m_serverport = ServerPort;
 	m_pSession = new SESSION;
 
-	// IOCP °´Ã¼ »ı¼º ¹× ÃÊ±âÈ­
-	m_iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, CLIENT_WORKER_COUNT); // ·¯´× ½º·¹µå °¹¼ö·Î ÄÁÄ¿·±Æ® ½º·¹µå ¼³Á¤
+	// IOCP ê°ì²´ ìƒì„± ë° ì´ˆê¸°í™”
+	m_iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, CLIENT_WORKER_COUNT); // ëŸ¬ë‹ ìŠ¤ë ˆë“œ ê°¯ìˆ˜ë¡œ ì»¨ì»¤ëŸ°íŠ¸ ìŠ¤ë ˆë“œ ì„¤ì •
 	if (m_iocp == NULL)
 	{
 		LOG(L"CLanClient", en_LOG_LEVEL::dfLOG_LEVEL_ERROR, L"CLanClient::Connect()_CreateIoCompletionPort Failed...");
@@ -245,7 +245,7 @@ bool CLanClient::CreateAndSetSocket(SOCKET& outParam)
 {
 	SOCKET sock;
 
-	//socket »ı¼º
+	//socket ìƒì„±
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock == INVALID_SOCKET)
 	{
@@ -253,14 +253,14 @@ bool CLanClient::CreateAndSetSocket(SOCKET& outParam)
 		return false;
 	}
 
-	// Overlapped IO·Î ÀÛµ¿½ÃÅ°±â À§ÇØ ¼ÒÄÏ ¼Û½Å ¹öÆÛ 0À¸·Î ¼³Á¤
+	// Overlapped IOë¡œ ì‘ë™ì‹œí‚¤ê¸° ìœ„í•´ ì†Œì¼“ ì†¡ì‹  ë²„í¼ 0ìœ¼ë¡œ ì„¤ì •
 	int sendBufferSize = 0;
 	setsockopt(sock, SOL_SOCKET, SO_SNDBUF, (char*)&sendBufferSize, sizeof(sendBufferSize));
 
-	// RST ³¯¸®±â À§ÇØ linger ¿É¼Ç ¼³Á¤
+	// RST ë‚ ë¦¬ê¸° ìœ„í•´ linger ì˜µì…˜ ì„¤ì •
 	linger so_linger;
-	so_linger.l_onoff = 1;  // linger ¿É¼Ç »ç¿ë
-	so_linger.l_linger = 0; // Áö¿¬ ½Ã°£ 0 -> Áï½Ã RST
+	so_linger.l_onoff = 1;  // linger ì˜µì…˜ ì‚¬ìš©
+	so_linger.l_linger = 0; // ì§€ì—° ì‹œê°„ 0 -> ì¦‰ì‹œ RST
 
 	if (setsockopt(sock, SOL_SOCKET, SO_LINGER, (char*)&so_linger, sizeof(so_linger)) == SOCKET_ERROR)
 	{
@@ -269,7 +269,7 @@ bool CLanClient::CreateAndSetSocket(SOCKET& outParam)
 	}
 
 
-	// IOCP¿¡ ¼ÒÄÏ µî·Ï
+	// IOCPì— ì†Œì¼“ ë“±ë¡
 	HANDLE retCIOCP;
 	retCIOCP = CreateIoCompletionPort((HANDLE)sock, m_iocp, (ULONG_PTR)NULL, 0);
 	if (retCIOCP == NULL)
@@ -286,12 +286,12 @@ bool CLanClient::ConnectTry(SOCKET inputParam)
 {
 	int retval;
 
-	//¼­¹ö¿Í connect À§ÇØ ¼ÒÄÏ ±¸Á¶Ã¼¿¡ ¼­¹ö IP, PORT ÁöÁ¤ÇØ¼­ connect ÇÔ¼ö¿¡ ³Ñ±â±â
+	//ì„œë²„ì™€ connect ìœ„í•´ ì†Œì¼“ êµ¬ì¡°ì²´ì— ì„œë²„ IP, PORT ì§€ì •í•´ì„œ connect í•¨ìˆ˜ì— ë„˜ê¸°ê¸°
 	SOCKADDR_IN clientaddr;
 	ZeroMemory(&clientaddr, sizeof(clientaddr));
 	clientaddr.sin_family = AF_INET;
 	clientaddr.sin_port = htons(m_serverport);
-	InetPtonW(clientaddr.sin_family, m_serverIP.c_str(), &clientaddr.sin_addr); //¹®ÀÚ¿­ IP¸¦ Á¤¼ö°ªIP·Î ¹Ù²Ù´Â ÇÔ¼ö
+	InetPtonW(clientaddr.sin_family, m_serverIP.c_str(), &clientaddr.sin_addr); //ë¬¸ìì—´ IPë¥¼ ì •ìˆ˜ê°’IPë¡œ ë°”ê¾¸ëŠ” í•¨ìˆ˜
 
 	retval = connect(inputParam, (SOCKADDR*)&clientaddr, sizeof(clientaddr));
 	if (retval == SOCKET_ERROR)
@@ -330,7 +330,7 @@ bool CLanClient::RecvPost()
 	{
 		err = WSAGetLastError();
 
-		//ºñµ¿±â µî·ÏÇßÀ¸¸é
+		//ë¹„ë™ê¸° ë“±ë¡í–ˆìœ¼ë©´
 		if (err == ERROR_IO_PENDING)
 		{
 			return true;
@@ -341,7 +341,7 @@ bool CLanClient::RecvPost()
 
 			Disconnect();
 
-			//ºñÁ¤»óÀûÀÎ ¿¡·¯½Ã ·Î±× ³²±â±â
+			//ë¹„ì •ìƒì ì¸ ì—ëŸ¬ì‹œ ë¡œê·¸ ë‚¨ê¸°ê¸°
 			if (err != WSAECONNRESET && err != WSAECONNABORTED && err != WSAEINTR)
 			{
 				LOG(L"CLanClient", en_LOG_LEVEL::dfLOG_LEVEL_ERROR, L"SendPost WSASend Return Failed / Error Code : %d", err);
@@ -352,7 +352,7 @@ bool CLanClient::RecvPost()
 
 	}
 
-	//wsarecv ¸®ÅÏ°ªÀÌ 0ÀÎ°Ô wsarecv°¡ Á¤»óÀûÀ¸·Î µî·ÏµÇ¾ú°Å³ª µ¿±âÀûÀ¸·Î ¿Ï·áµÇ¾ú´Ù´Â °ÍÀÓ.
+	//wsarecv ë¦¬í„´ê°’ì´ 0ì¸ê²Œ wsarecvê°€ ì •ìƒì ìœ¼ë¡œ ë“±ë¡ë˜ì—ˆê±°ë‚˜ ë™ê¸°ì ìœ¼ë¡œ ì™„ë£Œë˜ì—ˆë‹¤ëŠ” ê²ƒì„.
 	else if (ret == 0)
 		return true;
 
@@ -372,7 +372,7 @@ bool CLanClient::SendPost()
 	if (m_pSession->s_DCFlag == 1)
 		return false;
 
-	//¸¸¾à¿¡ send flag¸¦ ¹Ù²Ù´Âµ¥ ¿ø·¡ send flag »óÅÂ°¡ 1ÀÌ¶ó¸é io µî·Ï ÀÌ¹Ì ÇßÀ¸´Ï ¹Ù·Î ³ª¿À±â
+	//ë§Œì•½ì— send flagë¥¼ ë°”ê¾¸ëŠ”ë° ì›ë˜ send flag ìƒíƒœê°€ 1ì´ë¼ë©´ io ë“±ë¡ ì´ë¯¸ í–ˆìœ¼ë‹ˆ ë°”ë¡œ ë‚˜ì˜¤ê¸°
 	while (1)
 	{
 		if (InterlockedExchange16(&m_pSession->s_SendFlag, 1) == 1)
@@ -384,24 +384,24 @@ bool CLanClient::SendPost()
 		{
 			InterlockedExchange16(&m_pSession->s_SendFlag, 0);
 
-			//size ÇÑ¹ø´õ Ã¼Å©
+			//size í•œë²ˆë” ì²´í¬
 			if (m_pSession->s_SendQ.GetUseSize() == 0)
 			{
 				return false;
 			}
 
-			//2¹øÂ° size°¡ 0ÀÌ¾Æ´Ï¸é ´©°¡ ³Ö¾úÀ¸´Ï ´Ù½Ã send flag È¹µæ ½Ãµµ
+			//2ë²ˆì§¸ sizeê°€ 0ì´ì•„ë‹ˆë©´ ëˆ„ê°€ ë„£ì—ˆìœ¼ë‹ˆ ë‹¤ì‹œ send flag íšë“ ì‹œë„
 			continue;
 		}
 
-		//Ã¹¹øÂ° size Ã¼Å©½Ã 0¾Æ´Ï¸é SendÀÛ¾÷
+		//ì²«ë²ˆì§¸ size ì²´í¬ì‹œ 0ì•„ë‹ˆë©´ Sendì‘ì—…
 		break;
 	}
 
 
 	WSABUF wsa[CLIENT_WSABUFSIZE];
 
-	//¼Û½Å ¶ôÇÁ¸®Å¥¿¡¼­ µ¥ÀÌÅÍ ²¨³»±â(¾øÀ¸¸é false ¸®ÅÏ)
+	//ì†¡ì‹  ë½í”„ë¦¬íì—ì„œ ë°ì´í„° êº¼ë‚´ê¸°(ì—†ìœ¼ë©´ false ë¦¬í„´)
 	int index;
 	for (index = 0; index < CLIENT_WSABUFSIZE; index++)
 	{
@@ -409,10 +409,10 @@ bool CLanClient::SendPost()
 			break;
 	}
 
-	//Dequeue ¼º°øÇØ¼­ SendArray¿¡ ÀúÀåÇÑ °¹¼ö °»½Å
+	//Dequeue ì„±ê³µí•´ì„œ SendArrayì— ì €ì¥í•œ ê°¯ìˆ˜ ê°±ì‹ 
 	m_pSession->s_SendMsgCnt = index;
 
-	//SendArray¿¡ ÀÖ´Â°ÍÀ» wsaBuf¿¡ ¼ÂÆÃ
+	//SendArrayì— ìˆëŠ”ê²ƒì„ wsaBufì— ì…‹íŒ…
 	for (int i = 0; i < index; i++)
 	{
 		wsa[i].buf = m_pSession->s_SendArray[i]->GetAllocPos();
@@ -437,7 +437,7 @@ bool CLanClient::SendPost()
 		{
 			Disconnect();
 
-			//ºñÁ¤»óÀûÀÎ ¿¡·¯½Ã ·Î±× ³²±â±â
+			//ë¹„ì •ìƒì ì¸ ì—ëŸ¬ì‹œ ë¡œê·¸ ë‚¨ê¸°ê¸°
 			if (err != WSAECONNRESET && err != WSAECONNABORTED && err != WSAEINTR)
 			{
 				LOG(L"CLanClient", en_LOG_LEVEL::dfLOG_LEVEL_ERROR, L"SendPost WSASend Return Failed / Error Code : %d", err);
@@ -450,7 +450,7 @@ bool CLanClient::SendPost()
 
 	}
 
-	//µ¿±â Á¤»ó µî·ÏÇÑ °æ¿ì
+	//ë™ê¸° ì •ìƒ ë“±ë¡í•œ ê²½ìš°
 	else if (ret == 0)
 		return true;
 
@@ -473,10 +473,10 @@ void CLanClient::Release(int refCnt)
 		CMessage::Free(m_pSession->s_SendArray[i]);
 	}
 
-	//Send ¶ôÇÁ¸® Å¥¿¡ ÀÖ´Â Á÷·ÄÈ­ ¹öÆÛ ¹İ³³
+	//Send ë½í”„ë¦¬ íì— ìˆëŠ” ì§ë ¬í™” ë²„í¼ ë°˜ë‚©
 	while (1)
 	{
-		//»©³¾°Ô ¾øÀ¸¸é Å»Ãâ
+		//ë¹¼ë‚¼ê²Œ ì—†ìœ¼ë©´ íƒˆì¶œ
 		if (!m_pSession->s_SendQ.Dequeue(peek))
 			break;
 
@@ -501,19 +501,19 @@ void CLanClient::RecvIOProc(DWORD cbTransferred)
 
 	m_pSession->s_RecvQ.MoveWritePos(cbTransferred);
 
-	//¼ö½Å ¸µ¹öÆÛ ºô ¶§ ±îÁö ¸Ş¼¼Áö ÃßÃâÇØ¼­ ¹Ù·Î Å¬¶óÀÌ¾ğÆ®¿¡°Ô º¸³¿
+	//ìˆ˜ì‹  ë§ë²„í¼ ë¹Œ ë•Œ ê¹Œì§€ ë©”ì„¸ì§€ ì¶”ì¶œí•´ì„œ ë°”ë¡œ í´ë¼ì´ì–¸íŠ¸ì—ê²Œ ë³´ëƒ„
 	while (1)
 	{
 
 		CMessage* pPacket = CMessage::Alloc();
 		pPacket->Clear();
 
-		//RecvQ¿¡¼­ ¿Ï¼ºµÈ ¸Ş¼¼Áö È®ÀÎ
+		//RecvQì—ì„œ ì™„ì„±ëœ ë©”ì„¸ì§€ í™•ì¸
 		GAMELIB_LANHEADER header;
 
 
 
-		//¼ö½Å ¸µ¹öÆÛ¿¡ lenÀÌ ³×Æ®¿öÅ© Çì´õÀÎµ¥ ÀÌÁ¤µµµµ ¾øÀ¸¸é ±×³É ³¡³»±â
+		//ìˆ˜ì‹  ë§ë²„í¼ì— lenì´ ë„¤íŠ¸ì›Œí¬ í—¤ë”ì¸ë° ì´ì •ë„ë„ ì—†ìœ¼ë©´ ê·¸ëƒ¥ ëë‚´ê¸°
 		unsigned long long usesize = m_pSession->s_RecvQ.GetUseSize();
 		if (usesize <= sizeof(GAMELIB_LANHEADER))
 		{
@@ -524,17 +524,17 @@ void CLanClient::RecvIOProc(DWORD cbTransferred)
 		retPeekHeader = m_pSession->s_RecvQ.Peek((char*)&header, sizeof(GAMELIB_LANHEADER));
 
 
-		//¼ö½Å ¸µ¹öÆÛ¿¡ ³²Àº°Ô ³×Æ®¿öÅ© Çì´õ + payload Å©±â º¸´Ù ÀÛÀ¸¸é ±×³É peek¸¸ ÇØ¼­ ³×Æ®¿öÅ© Çì´õ º¸°í ³ª°¡´Â °ÍÀÓ.
+		//ìˆ˜ì‹  ë§ë²„í¼ì— ë‚¨ì€ê²Œ ë„¤íŠ¸ì›Œí¬ í—¤ë” + payload í¬ê¸° ë³´ë‹¤ ì‘ìœ¼ë©´ ê·¸ëƒ¥ peekë§Œ í•´ì„œ ë„¤íŠ¸ì›Œí¬ í—¤ë” ë³´ê³  ë‚˜ê°€ëŠ” ê²ƒì„.
 		if (usesize < header.s_len + sizeof(GAMELIB_LANHEADER))
 		{
 			CMessage::Free(pPacket);
 			break;
 		}
 
-		//³×Æ®¿öÅ© Çì´õ »ÌÀº ¸¸Å­ ¿Å±â±â
+		//ë„¤íŠ¸ì›Œí¬ í—¤ë” ë½‘ì€ ë§Œí¼ ì˜®ê¸°ê¸°
 		m_pSession->s_RecvQ.MoveReadPos(retPeekHeader);
 
-		//ÆäÀÌ·Îµå ÃßÃâ
+		//í˜ì´ë¡œë“œ ì¶”ì¶œ
 		retPeekPayload = m_pSession->s_RecvQ.Peek(pPacket->GetWritePos(), header.s_len);
 
 		pPacket->MoveWritePos(retPeekPayload);
@@ -543,14 +543,14 @@ void CLanClient::RecvIOProc(DWORD cbTransferred)
 
 		CMessage::Free(pPacket);
 
-		//Recv ¹öÆÛ ¹Ğ±â
+		//Recv ë²„í¼ ë°€ê¸°
 		m_pSession->s_RecvQ.MoveReadPos(retPeekPayload);
 
 	}
 
 	if (!m_pSession->s_DCFlag)
 	{
-		//Recvµî·Ï
+		//Recvë“±ë¡
 		RecvPost();
 	}
 
@@ -561,7 +561,7 @@ void CLanClient::RecvIOProc(DWORD cbTransferred)
 
 void CLanClient::SendIOProc(DWORD cbTransferred)
 {
-	//»ç¿ëÇÑ Á÷·ÄÈ­ ¹öÆÛ ¸Ş¼¼Áö ¸Ş¸ğ¸® Ç®¿¡ ¹İ³³
+	//ì‚¬ìš©í•œ ì§ë ¬í™” ë²„í¼ ë©”ì„¸ì§€ ë©”ëª¨ë¦¬ í’€ì— ë°˜ë‚©
 	for (int i = 0; i <m_pSession->s_SendMsgCnt; i++)
 	{
 		CMessage::Free(m_pSession->s_SendArray[i]);

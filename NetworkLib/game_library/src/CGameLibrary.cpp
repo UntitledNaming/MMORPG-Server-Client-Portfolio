@@ -9,7 +9,7 @@
 #include <array>
 #include <vector>
 #include <codecvt>
-
+#include <chrono>
 #pragma comment(lib, "Ws2_32.lib")
 
 #include "NetPacketHeader.h"
@@ -1062,19 +1062,26 @@ void CGameLibrary::RecvIOProc(CSession* pSession, DWORD cbTransferred)
 		retPeekPayload = pSession->m_RecvQ.Peek(pPacket->GetWritePos(), header.s_len);
 		pPacket->MoveWritePos(retPeekPayload);
 
-
 		if (header.s_routeType == (BYTE)ERouteType::GROUP)
 		{
 			UINT16 id = pSession->m_GroupID;
 			if (m_GroupArray[id]->GetSharedFlag())
 			{
+				auto start = std::chrono::steady_clock::now();
 				m_GroupArray[id]->SharedGroupLock();
+				auto end = std::chrono::steady_clock::now();
+
+				pPacket->m_recvLockWaits = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 				m_GroupArray[id]->OnRecv(pSession->m_SessionID, pPacket);
 				m_GroupArray[id]->SharedGroupUnlock();
 			}
 			else
 			{
+				auto start = std::chrono::steady_clock::now();
 				m_GroupArray[id]->ExclusiveGroupLock();
+				auto end = std::chrono::steady_clock::now();
+
+				pPacket->m_recvLockWaits = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 				m_GroupArray[id]->OnRecv(pSession->m_SessionID, pPacket);
 				m_GroupArray[id]->ExclusiveGroupUnlock();
 			}
@@ -1084,13 +1091,21 @@ void CGameLibrary::RecvIOProc(CSession* pSession, DWORD cbTransferred)
 		{
 			if (m_serviceArray[header.s_serviceID]->GetSharedFlag())
 			{
+				auto start = std::chrono::steady_clock::now();
 				m_serviceArray[header.s_serviceID]->AquireSharedLock();
+				auto end = std::chrono::steady_clock::now();
+
+				pPacket->m_recvLockWaits = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 				m_serviceArray[header.s_serviceID]->OnRecv(pSession->m_SessionID, pPacket);
 				m_serviceArray[header.s_serviceID]->AquireSharedUnlock();
 			}
 			else
 			{
+				auto start = std::chrono::steady_clock::now();
 				m_serviceArray[header.s_serviceID]->AquireExclusiveLock();
+				auto end = std::chrono::steady_clock::now();
+
+				pPacket->m_recvLockWaits = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 				m_serviceArray[header.s_serviceID]->OnRecv(pSession->m_SessionID, pPacket);
 				m_serviceArray[header.s_serviceID]->AquireExclusiveUnlock();
 			}
@@ -1206,8 +1221,11 @@ void CGameLibrary::ReleaseProc(CSession* pSession)
 
 void CGameLibrary::GroupFrameProc(UINT16 targetID)
 {
+	auto start = std::chrono::steady_clock::now();
 	m_GroupArray[targetID]->ExclusiveGroupLock();
-	m_GroupArray[targetID]->OnUpdate();
+	auto end = std::chrono::steady_clock::now();
+
+	m_GroupArray[targetID]->OnUpdate(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 	m_GroupArray[targetID]->ExclusiveGroupUnlock();
 }
 

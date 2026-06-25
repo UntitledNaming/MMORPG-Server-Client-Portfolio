@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "ContentsType.h"
 
@@ -105,7 +105,6 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-
     constexpr uint16 PACKET_SC_DELETE_CHARACTER = 1002;
     //---------------------------------------------------------------
     // Character Delete Msg 					Server -> Client
@@ -114,7 +113,6 @@ namespace FieldProtocol
     //	8	-	CharacterID		(uint64)
     //
     //---------------------------------------------------------------
-
 
     constexpr uint16 PACKET_CS_UPDATE_CHARACTER_MOVEMENT_INPUT = 1003;
     //---------------------------------------------------------------
@@ -144,7 +142,6 @@ namespace FieldProtocol
     //  
     //---------------------------------------------------------------
 
-
     constexpr uint16 PACKET_SC_SYNC_MY_CHARACTER_POS = 1005;
     //---------------------------------------------------------------
     //  My Character Position Sync Msg         Server -> Client
@@ -155,7 +152,6 @@ namespace FieldProtocol
     //	4	-   Zpos		    (float)
     //
     //---------------------------------------------------------------
-
 
     constexpr uint16 PACKET_SC_SYNC_OTHER_CHARACTER_POS = 1006;
     //---------------------------------------------------------------
@@ -177,7 +173,6 @@ namespace FieldProtocol
     //  1   -   MoveMode        (uint8)  
     //
     //---------------------------------------------------------------
-
 
     constexpr uint16 PACKET_SC_CHANGE_CHARACTER_MOVEMODE = 1008;
     //---------------------------------------------------------------

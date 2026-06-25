@@ -1,4 +1,5 @@
-#pragma once
+ï»¿#pragma once
+#include <chrono>
 
 class CGameLibrary;
 class IUser;
@@ -8,23 +9,22 @@ class CGroup
 {
 protected:
 	//////////////////////////////////////////////
-	// ±×·ì °´Ã¼ º¯¼ö
+	// ê·¸ë£¹ ê°ì²´ ë³€ìˆ˜
 	//////////////////////////////////////////////
-	CGameLibrary*       m_pGameLib;            // °ÔÀÓ ¶óÀÌºê·¯¸® ³×Æ®¿öÅ© ¹× ±×·ì µî ÇÔ¼ö »ç¿ëÇÏ±â À§ÇÑ ¸â¹ö
-	SRWLOCK             m_GroupLock;           // ±×·ìÀ» »ó¼Ó ¹Ş´Â ÄÁÅÙÃ÷ Á÷·Ä Ã³¸®¸¦ À§ÇÑ Lock
-	DWORD               m_GroupID;             // ±×·ìÀ» »ó¼Ó ¹Ş´Â ÄÁÅÙÃ÷ÀÇ ½ÇÁ¦ Å¸ÀÔ ±¸ºĞÀÚ(Attach ÇÒ¶§ °ÔÀÓ ¶óÀÌºê·¯¸®°¡ ºÎ¿©)
-    DWORD               m_GroupFrameTime;      // ÇÁ·¹ÀÓ ·ÎÁ÷ µ¹¸±¶§ ÇÁ·¹ÀÓ(ms ´ÜÀ§)
-	DWORD               m_OldTime;             // ÇÁ·¹ÀÓ ½º·¹µå¿¡¼­ Ã¼Å©ÇÒ ½Ã°£
-	BOOL                m_Shared;              // ±×·ì ¼ö½Å ¸Ş¼¼Áö º´·Ä Ã³¸® Á¦¾î ÇÃ·¡±×
-
+	CGameLibrary*       m_pGameLib;                  // ê²Œì„ ë¼ì´ë¸ŒëŸ¬ë¦¬ ë„¤íŠ¸ì›Œí¬ ë° ê·¸ë£¹ ë“± í•¨ìˆ˜ ì‚¬ìš©í•˜ê¸° ìœ„í•œ ë©¤ë²„
+	SRWLOCK             m_GroupLock;                 // ê·¸ë£¹ì„ ìƒì† ë°›ëŠ” ì»¨í…ì¸  ì§ë ¬ ì²˜ë¦¬ë¥¼ ìœ„í•œ Lock
+	DWORD               m_GroupID;                   // ê·¸ë£¹ì„ ìƒì† ë°›ëŠ” ì»¨í…ì¸ ì˜ ì‹¤ì œ íƒ€ì… êµ¬ë¶„ì(Attach í• ë•Œ ê²Œì„ ë¼ì´ë¸ŒëŸ¬ë¦¬ê°€ ë¶€ì—¬)
+    DWORD               m_GroupFrameTime;            // í”„ë ˆì„ ë¡œì§ ëŒë¦´ë•Œ í”„ë ˆì„(ms ë‹¨ìœ„)
+	DWORD               m_OldTime;                   // í”„ë ˆì„ ìŠ¤ë ˆë“œì—ì„œ ì²´í¬í•  ì‹œê°„
+	BOOL                m_Shared;                    // ê·¸ë£¹ ìˆ˜ì‹  ë©”ì„¸ì§€ ë³‘ë ¬ ì²˜ë¦¬ ì œì–´ í”Œë˜ê·¸
 
 public:
 	//////////////////////////////////////////////
-	// ±×·ì °´Ã¼ ¸ğ´ÏÅÍ¸µ º¯¼ö
+	// ê·¸ë£¹ ê°ì²´ ëª¨ë‹ˆí„°ë§ ë³€ìˆ˜
 	//////////////////////////////////////////////
-	LONG                               m_RecvTPS;
-	LONG                               m_SendTPS;
-	LONG                               m_FrameTPS;
+	LONG                                  m_RecvTPS;
+	LONG                                  m_SendTPS;
+	LONG                                  m_FrameTPS;
 
 public:
 	CGroup() = default;
@@ -94,7 +94,7 @@ public:
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
-	// ÄÁÅÙÃ÷°¡ ±¸ÇöÇÒ Callback ÇÔ¼ö
+	// ì»¨í…ì¸ ê°€ êµ¬í˜„í•  Callback í•¨ìˆ˜
 	/////////////////////////////////////////////////////////////////////////////////////////
 	virtual void  Init(CGameLibrary* p) = 0;
 	virtual void  Destroy() = 0;
@@ -102,10 +102,10 @@ public:
 	virtual void  OnClientLeave(UINT64 sessionID) = 0;
 	virtual void  OnRecv(UINT64 sessionID, CMessage* pMessage) = 0;
 	virtual void  OnIUserMove(UINT64 sessionID, IUser* pUser) = 0;
-	virtual void  OnUpdate() = 0;
+	virtual void  OnUpdate(long long LockEnterTime) = 0;
 
 	/////////////////////////////////////////////////////////////////////////////////////////
-	// °ÔÀÓ ¶óÀÌºê·¯¸® Å¬·¡½º Á¦°øÇÔ¼ö ·¡ÇÎ
+	// ê²Œì„ ë¼ì´ë¸ŒëŸ¬ë¦¬ í´ë˜ìŠ¤ ì œê³µí•¨ìˆ˜ ë˜í•‘
 	/////////////////////////////////////////////////////////////////////////////////////////
 	bool    SendPacket(UINT64 SessionID, CMessage* pMessage);
 	bool    Disconnect(UINT64 SessionID);

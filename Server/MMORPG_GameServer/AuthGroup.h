@@ -8,6 +8,7 @@ class CDBManager;
 class CUser;
 struct DBJob;
 
+
 class AuthGroup : public CGroup
 {
 public:
@@ -23,7 +24,7 @@ public:
 	virtual void  OnClientLeave(uint64 sessionID) override;
 	virtual void  OnRecv(uint64 sessionID, CMessage* pMessage) override;
 	virtual void  OnIUserMove(uint64 sessionID, IUser* pUser) override;
-	virtual void  OnUpdate() override;
+	virtual void  OnUpdate(long long LockEnterTime) override;
 
 	void LoginRequestProc(uint64 sessionID, CMessage* pMessage);
 	void CharacterSelectProc(uint64 sessionID, CMessage* pMessage);
@@ -35,6 +36,9 @@ private:
 	std::unordered_map<uint64, CUser*> m_userTable;
 
 public:
-	unsigned long long                 m_Frame;
+	LatencyHistogram                   m_OnUpdateLockEnterTime;
+	LatencyHistogram                   m_UpdateWholeProcTime;
+	LatencyHistogram                   m_OnRecvLockEnterTime;
+	LatencyHistogram                   m_OnRecvProcTime[(int)AuthRecvType::Max];
 };
 

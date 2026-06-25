@@ -248,7 +248,6 @@ void MonsterAI::UpdateCombat()
 	// 공격 및 데미지 패킷 보내기
 	m_pField->SendMonsterAttackTarget(m_pOwner, m_pTarget, m_pTarget->GetHP());
 	m_attackAccum = 0;
-	m_pField->attackCount++;
 }
 
 void MonsterAI::EnterPatrol()
@@ -459,7 +458,6 @@ void MonsterAI::TargetUpdate()
 
 	// 타겟 업데이트 해야 할 때  새로운 목표 위치 
 	// 몬스터 이동 방향 및 타겟 좌표 업데이트
-	m_pField->targetupdatePacketCount++;
 
 	// 타겟 위치 업데이트
 	float dx = m_pTarget->GetLocation().xpos - m_pOwner->GetX();

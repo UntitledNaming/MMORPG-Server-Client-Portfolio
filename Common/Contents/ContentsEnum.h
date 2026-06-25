@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "ContentsType.h"
 
 /////////////////////////////////////////
@@ -132,4 +132,66 @@ enum class CONSUMABLE_ITEM_TYPE : uint8
 	SMALL_HP_POTION,
 	SMALL_MP_POTION,
 	MAX,
+};
+
+enum class FieldRecvType
+{
+	CharacterMovement,
+	RTT,
+	LeftSwing,
+	SkillUse,
+	PickUpItems,
+	UseItem,
+	DeleteItem,
+	SwapItem,
+	Respawn,
+	Max
+};
+
+enum class FrameProcType
+{
+	Whole,
+	User,
+	Monster,
+	FieldDropItem,
+	Max
+};
+
+enum class BroadCastType
+{
+	CreateMyCharacterToOther,
+	DeleteCharacter,
+	UpdateCharacterMovementInput,
+	SyncOtherPos,
+	LeftSwing,
+	AttackHitResult,
+	UseSkill,
+	CreateMonster,
+	DeleteMonster,
+	MoveMonster,
+	StopMonster,
+	MonsterHitPlayer,
+	CreateFieldDropItem,
+	DeleteFieldDropItem,
+	Respawn,
+	Max
+};
+
+enum class AuthRecvType
+{
+	Login,
+	CharacterSelect,
+	Max
+};
+
+enum class DBJobCount
+{
+	CharacterSelect,
+	InsertItem,
+	DeleteItem,
+	ItemUpdateCount,
+	ItemSlotUpdate,
+	CharacterProgress,
+	LogOut,
+	Max,
 };

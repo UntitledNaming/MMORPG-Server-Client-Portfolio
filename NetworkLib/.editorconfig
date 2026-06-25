@@ -1,0 +1,9 @@
+# NetworkLib(공용 라이브러리) C/C++ 소스는 UTF-8 BOM으로 통일.
+# 한글 주석 + BOM 없으면 VS/시스템 로캘 차이로 CP949 오인 → 깨짐. BOM 있으면 어느 환경이든 UTF-8 정확 인식.
+root = true
+
+[*.{cpp,h,hpp,c,cxx,cc,inl}]
+charset = utf-8-bom
+end_of_line = crlf
+trim_trailing_whitespace = false
+insert_final_newline = false

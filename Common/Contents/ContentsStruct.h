@@ -1,8 +1,9 @@
-#pragma once
+﻿#pragma once
 #include <vector>
 #include "ContentsType.h"
 #include "ContentsEnum.h"
 #include "ContentsDefine.h"
+#include "LatencyHistogram.h"
 
 struct Vec2
 {
@@ -237,3 +238,8 @@ struct GainEXPResult
 	int16  curMP;
 };
 
+struct MeasureCapture
+{
+	int DBQueueSize;
+
+};
