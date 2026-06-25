@@ -162,7 +162,6 @@ enum class BroadCastType
 	CreateMyCharacterToOther,
 	DeleteCharacter,
 	UpdateCharacterMovementInput,
-	SyncOtherPos,
 	LeftSwing,
 	AttackHitResult,
 	UseSkill,

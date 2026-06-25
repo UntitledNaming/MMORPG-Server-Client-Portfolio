@@ -28,7 +28,6 @@ protected:
 
 public:
 	void OnReceiveMovementPacket(const FMovementSnapshot& Snapshot);
-	void OnReceiveSyncPacket(uint64 ServerTimestamp, FVector SyncPosition);
 	void OnReceiveAttackSwing(float FacingYaw, uint8 SwingIdx);
 
 	virtual void UpdateMoveDirection() override;

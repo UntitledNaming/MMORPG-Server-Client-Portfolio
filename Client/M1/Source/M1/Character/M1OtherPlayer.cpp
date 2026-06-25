@@ -163,24 +163,6 @@ void AM1OtherPlayer::OnReceiveAttackSwing(float FacingYaw, uint8 SwingIdx)
     PlayLeftAttackSectionOnly(SwingIdx);
 }
 
-void AM1OtherPlayer::OnReceiveSyncPacket(uint64 ServerTimestamp, FVector SyncPosition)
-{
-    // 서버 강제 위치보정: 히스토리 버리고 보정 위치 1개로 재시작.
-    //  → 다음 프레임 보간 분기(가장 오래된/최신 스냅샷 hold)가 이 위치로 스냅.
-    //    별도 수렴 로직 불필요.
-    const float LastMoveYaw = (SnapshotBuffer.Count > 0) ? SnapshotBuffer.Last().MoveYaw : GetActorRotation().Yaw;
-    const bool  LastbMoving = (SnapshotBuffer.Count > 0) ? SnapshotBuffer.Last().bMoving : false;
-
-    SnapshotBuffer.Reset();
-
-    FMovementSnapshot Snap;
-    Snap.ServerTimestamp = ServerTimestamp;
-    Snap.Position = SyncPosition;
-    Snap.MoveYaw = LastMoveYaw;
-    Snap.bMoving = LastbMoving;
-    SnapshotBuffer.Add(Snap);
-}
-
 void AM1OtherPlayer::UpdateInterpolation(float /*DeltaTime*/)
 {
     // 진실은 스냅샷 버퍼 하나. 저장된 이동상태(bMoving/정지수렴) 없이 매 프레임 파생한다.

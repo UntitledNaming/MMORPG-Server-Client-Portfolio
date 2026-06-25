@@ -653,7 +653,7 @@ void FieldGroup::CollectHitTarget(CUser* attacker, HitSearchInfo& hitInfo, HitRe
 void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMessage)
 {
 	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
-
+	moveReqCount++;
 	auto start = std::chrono::steady_clock::now();
 
 	float xpos = 0.0f;
@@ -712,11 +712,6 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 		SendPacket(pUser->GetSessionID(), pSyncMyChrMsg);
 		CMessage::Free(pSyncMyChrMsg);
 
-
-		CMessage* pSyncOthrChrMsg = PacketBuilder::SyncOtherCharacter(pUser);
-		SendPacket_SectorAround(BroadCastType::SyncOtherPos, pSyncMyChrMsg, pUser);
-		CMessage::Free(pSyncOthrChrMsg);
-
 		syncCount++;
 	}
 	else
@@ -764,6 +759,8 @@ void FieldGroup::HandleRTTMessage(uint64 sessionID, CMessage* pMessage)
 void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 {
 	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
+
+	leftAttackReqCount++;
 
 	auto start = std::chrono::steady_clock::now();
 
@@ -874,11 +871,14 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 
 	auto end = std::chrono::steady_clock::now();
 	m_OnRecvMsgProcTime[(int)FieldRecvType::LeftSwing].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
+
 }
 
 void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 {
 	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
+
+	skillUseReqCount++;
 
 	auto start = std::chrono::steady_clock::now();
 
@@ -1008,6 +1008,8 @@ void FieldGroup::HandlePickUpItems(uint64 sessionID, CMessage* pMessage)
 {
 	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
 
+	pickupReqCount++;
+
 	auto start = std::chrono::steady_clock::now();
 
 	CUser* pUser = nullptr;
@@ -1087,6 +1089,8 @@ void FieldGroup::HandleUseItem(uint64 sessionID, CMessage* pMessage)
 {
 	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
 
+	useitemReqCount++;
+
 	auto start = std::chrono::steady_clock::now();
 
 	uint8 type;
@@ -1149,6 +1153,8 @@ void FieldGroup::HandleDeleteItem(uint64 sessionID, CMessage* pMessage)
 {
 	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
 
+	deleteitemReqCount++;
+
 	auto start = std::chrono::steady_clock::now();
 
 	uint8 type;
@@ -1179,6 +1185,8 @@ void FieldGroup::HandleDeleteItem(uint64 sessionID, CMessage* pMessage)
 void FieldGroup::HandleSwapSlot(uint64 sessionID, CMessage* pMessage)
 {
 	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
+
+	swapitemReqCount++;
 
 	auto start = std::chrono::steady_clock::now();
 
@@ -1216,6 +1224,8 @@ void FieldGroup::HandleSwapSlot(uint64 sessionID, CMessage* pMessage)
 void FieldGroup::HandleRespawn(uint64 sessionID, CMessage* pMessage)
 {
 	m_OnRecvLockEnterTime.Record(pMessage->m_recvLockWaits);
+
+	rewspawnReqCount++;
 
 	auto start = std::chrono::steady_clock::now();
 
@@ -1386,7 +1396,7 @@ void FieldGroup::MonsterUpdate()
 			continue;
 
 		// 리젠 성공시 섹터 처리
-					// 섹터에 삽입
+		// 섹터에 삽입
 		const SectorPos& sectorPos = m_grossMonsterPoolArray[i].GetSectorPos();
 
 		m_sectors[sectorPos.GetY()][sectorPos.GetX()].AddMonster(&m_grossMonsterPoolArray[i]);

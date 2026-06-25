@@ -254,5 +254,14 @@ public:
 
     // 브로드 캐스팅 하는 쪽 처리 시간 측정 변수
     LatencyHistogram m_BroadCastProcTime[(int)BroadCastType::Max];
+
+    uint64           moveReqCount;
+    uint64           leftAttackReqCount;
+    uint64           skillUseReqCount;
+    uint64           pickupReqCount;
+    uint64           useitemReqCount;
+    uint64           deleteitemReqCount;
+    uint64           swapitemReqCount;
+    uint64           rewspawnReqCount;
 };
 

@@ -153,19 +153,6 @@ namespace FieldProtocol
     //
     //---------------------------------------------------------------
 
-    constexpr uint16 PACKET_SC_SYNC_OTHER_CHARACTER_POS = 1006;
-    //---------------------------------------------------------------
-    //  Other Character Position Sync Msg      Server -> Client
-    //
-    // 
-    //  8   -   CharacterID     (uint64)
-    //  8   -   ServerTimestamp (uint64)        Server UTC ms
-    //	4	-   Xpos		    (float)
-    //	4	-   Ypos		    (float)
-    //	4	-   Zpos		    (float)
-    //
-    //---------------------------------------------------------------
-
     constexpr uint16 PACKET_CS_CHANGE_CHARACTER_MOVEMODE = 1007;
     //---------------------------------------------------------------
     //  Character MoveMode Change Msg         Client -> Server

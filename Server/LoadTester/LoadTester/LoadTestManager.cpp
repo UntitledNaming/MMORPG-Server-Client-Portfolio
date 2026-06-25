@@ -724,19 +724,6 @@ void LoadTestManager::HandlePacket(DummyClient& c, uint16 type, PacketReader& r)
             ReportError(ERR_ID_CONSISTENCY, c, L"MOVE_OTHER unknown id=%llu", (unsigned long long)id);
         break;
     }
-    case PACKET_SC_SYNC_OTHER_CHARACTER_POS:   // 1006: 타캐릭 위치 보정 동기화
-    {
-        // { u64 id, u64 serverTs, f x,y,z }
-        uint64 id = r.GetU64(); uint64 ts = r.GetU64();
-        float x = r.GetFloat(), y = r.GetFloat(), z = r.GetFloat();
-        (void)ts; (void)z;
-        if (!r.Ok() || r.Remain() != 0) { ReportError(ERR_LEN_MISMATCH, c, L"SYNC_OTHER size"); break; }
-        if (!CoordOk(x, y))
-            ReportError(ERR_BAD_VALUE, c, L"SYNC_OTHER id=%llu x=%.0f y=%.0f", (unsigned long long)id, x, y);
-        if (id != c.entityId && c.knownOthers.find(id) == c.knownOthers.end())
-            ReportError(ERR_ID_CONSISTENCY, c, L"SYNC_OTHER unknown id=%llu", (unsigned long long)id);
-        break;
-    }
     case PACKET_SC_SWING_LEFT_ATTACK:   // 1013: 타캐릭 swing 공격 브로드캐스트
     {
         // { u64 id, f yaw, u8 swingIdx }

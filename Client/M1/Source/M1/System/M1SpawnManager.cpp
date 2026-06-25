@@ -190,15 +190,6 @@ void AM1SpawnManager::SyncMyPlayer(FVector& Location)
     MyPlayer->SetActorLocation(Location);
 }
 
-void AM1SpawnManager::SyncOtherPlayer(uint64 EntityID, FVector& Location, uint64 ServerTimestamp)
-{
-    AM1OtherPlayer** Found = PlayerMap.Find(EntityID);
-    if (Found == nullptr || *Found == nullptr)
-        return;
-
-    (*Found)->OnReceiveSyncPacket(ServerTimestamp, Location);
-}
-
 void AM1SpawnManager::UpdateOtherPlayerMovementInput(uint64 EntityID, FMovementSnapshot& Snapshot)
 {
     AM1OtherPlayer** Found = PlayerMap.Find(EntityID);

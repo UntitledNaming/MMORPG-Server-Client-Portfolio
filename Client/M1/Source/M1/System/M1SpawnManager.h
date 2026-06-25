@@ -45,7 +45,6 @@ public:
 	void DespawnPlayer(uint64 EntityID);
 	void DespawnMonster(uint64 EntityID);
 	void SyncMyPlayer(FVector& Location);
-	void SyncOtherPlayer(uint64 EntityID, FVector& Location, uint64 ServerTimestamp);
 	void UpdateOtherPlayerMovementInput(uint64 EntityID, FMovementSnapshot& Snapshot);
 	void OnOtherPlayerAttackSwing(uint64 EntityID, float FacingYaw, uint8 SwingIdx);
 	void ProcessClientAttackHit(FVector Origin, FVector Forward, float Range, float HalfAngleDeg);

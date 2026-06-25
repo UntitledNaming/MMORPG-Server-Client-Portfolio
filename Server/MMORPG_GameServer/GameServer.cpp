@@ -157,6 +157,15 @@ void GameServer::Monitoring()
 		wprintf(L" Auth  Frame               : %d \n", m_pAuthGroup->m_FrameTPS);
 		wprintf(L" Field Frame               : %d \n", m_pFieldGroup->m_FrameTPS);
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
+		wprintf(L"-------------------------------------- TPS ----------------------------------------------\n");
+		wprintf(L" Move        Req TPS  : %lld \n", m_pFieldGroup->moveReqCount);
+		wprintf(L" LeftAttack  Req TPS  : %lld \n", m_pFieldGroup->leftAttackReqCount);
+		wprintf(L" SkillUse    Req TPS  : %lld \n", m_pFieldGroup->skillUseReqCount);
+		wprintf(L" PickUp Item Req TPS  : %lld \n", m_pFieldGroup->pickupReqCount);
+		wprintf(L" Use Item    Req TPS  : %lld \n", m_pFieldGroup->useitemReqCount);
+		wprintf(L" Delete Item Req TPS  : %lld \n", m_pFieldGroup->deleteitemReqCount);
+		wprintf(L" Swap Item   Req TPS  : %lld \n", m_pFieldGroup->swapitemReqCount);
+		wprintf(L" Respawn     Req TPS  : %lld \n", m_pFieldGroup->rewspawnReqCount);
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
 		wprintf(L"                                DB                                                       \n");
 		wprintf(L"-----------------------------------------------------------------------------------------\n");
@@ -188,6 +197,17 @@ void GameServer::Monitoring()
 		m_pGameLib->m_SendIOTPS = 0;
 		m_pAuthGroup->m_FrameTPS = 0;
 		m_pFieldGroup->m_FrameTPS = 0;
+
+		m_pFieldGroup->moveReqCount= 0;
+		m_pFieldGroup->leftAttackReqCount = 0;
+		m_pFieldGroup->skillUseReqCount = 0;
+		m_pFieldGroup->pickupReqCount = 0;
+		m_pFieldGroup->useitemReqCount = 0;
+		m_pFieldGroup->deleteitemReqCount = 0;
+		m_pFieldGroup->swapitemReqCount = 0;
+		m_pFieldGroup->rewspawnReqCount = 0;
+
+
 
 		CharacterSelectJob::g_TPS = 0;
 		InsertItemJob::g_TPS = 0;

@@ -35,6 +35,7 @@ void SectorPos::CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, co
 	SectorAround newSec;
 	SectorFind(newSec, newSecPos);
 
+	
 
 	// 겹치는 좌표를 찾아서 이를 제외한 좌표값을 아웃 파라미터에 담기
 	for (int i = 0; i < curSec.m_count; i++)
@@ -55,6 +56,8 @@ void SectorPos::CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, co
 	// 아웃 파라미터에 담기
 	int deletecount = 0;
 	int createcount = 0;
+
+	// 겹치지 않는 섹터 좌표가 지워질 영역
 	for (int i = 0; i < curSec.m_count; i++)
 	{
 		if (curSecOverlapflag[i] == true)
@@ -67,7 +70,7 @@ void SectorPos::CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, co
 	}
 	outDeleteSector.m_count = deletecount;
 
-
+	// 겹치지 않는 섹터가 생성해야 할 영역
 	for (int i = 0; i < newSec.m_count; i++)
 	{
 		if (newSecOverlapflag[i] == true)

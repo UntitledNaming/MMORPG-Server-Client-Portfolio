@@ -156,26 +156,6 @@ void M1PacketHandler::Handle_SC_SYNC_MY_CHARACTER_POS(CMessage* pMessage, UM1Net
 	SpawnManager->SyncMyPlayer(location);
 }
 
-void M1PacketHandler::Handle_SC_SYNC_OTHER_CHARACTER_POS(CMessage* pMessage, UM1NetworkManager* NetworkManager)
-{
-	uint64 id;
-	uint64 servertimestamp;
-	float xpos;
-	float ypos;
-	float zpos;
-
-	*pMessage >> id;
-	*pMessage >> servertimestamp;
-	*pMessage >> xpos;
-	*pMessage >> ypos;
-	*pMessage >> zpos;
-
-	FVector location(xpos, ypos, zpos);
-
-	AM1SpawnManager* SpawnManager = NetworkManager->GetSpawnManager();
-	SpawnManager->SyncOtherPlayer(id, location, servertimestamp);
-}
-
 void M1PacketHandler::Handle_SC_RTT_ECHO(CMessage* pMessage, UM1NetworkManager* NetworkManager)
 {
 	uint64 time;

@@ -175,24 +175,6 @@ CMessage* PacketBuilder::SyncMyCharacter(CUser* pUser)
 	return pMessage;
 }
 
-CMessage* PacketBuilder::SyncOtherCharacter(CUser* pUser)
-{
-	auto now = std::chrono::system_clock::now();
-	uint64 stamp = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
-
-	CMessage* pMessage = CMessage::Alloc();
-	pMessage->Clear(1);
-
-	*pMessage << FieldProtocol::PACKET_SC_SYNC_OTHER_CHARACTER_POS;
-	*pMessage << pUser->GetSessionID();
-	*pMessage << stamp;
-	*pMessage << pUser->GetX();
-	*pMessage << pUser->GetY();
-	*pMessage << pUser->GetZ();
-
-	return pMessage;
-}
-
 CMessage* PacketBuilder::CreateRTTEchoMessage()
 {
 	auto now = std::chrono::system_clock::now();

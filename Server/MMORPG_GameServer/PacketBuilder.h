@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <vector>
 #include "ContentsType.h"
 
@@ -15,7 +15,6 @@ public:
 	static CMessage* DeleteCharacter(CUser* pUser);
 	static CMessage* UpdateCharacterMovement(CUser* pUser);
 	static CMessage* SyncMyCharacter(CUser* pUser);
-	static CMessage* SyncOtherCharacter(CUser* pUser);
 	static CMessage* CreateRTTEchoMessage();
 	static CMessage* AttackLeftSwing(uint64 sessionID, float attackYaw, uint8 swingIndex);
 	static CMessage* HitTarget(uint8 hitPlayerCount, uint8 hitMonsterCount, std::vector<CUser*>& hitPlayerArray, std::vector<CMonster*>& hitMonsterArray);
