@@ -329,6 +329,7 @@ void LoadTestManager::ConnectOne(DummyClient& c)
     c.connectTick = GetTickCount();
     c.state = ConnState::LoggedIn;     // 곧바로 로그인+선택을 보내므로 이 상태로
     m_connected.fetch_add(1);
+    m_connectOk.fetch_add(1);          // connect() 성공 누적
 
     PostRecv(c);                       // 스폰 스트림을 받기 위해 수신 먼저 걸기
     SendLoginAndSelect(c);             // 로그인 + 캐릭터 선택 송신
@@ -374,6 +375,21 @@ void LoadTestManager::HandleDisconnect(DummyClient& c, bool serverInitiated)
     }
     m_connected.fetch_sub(1);
     c.state = ConnState::Dead;
+}
+
+// connect는 성공했는데 서버가 리셋한 경우를 "스폰 전(세션 안 됨)" vs "세션 중"으로 나눠 센다.
+// 우리가 일부러 끊은 것(RST 웨이브)·종료 중·OPERATION_ABORTED(995=우리 closesocket)는 제외.
+void LoadTestManager::CountConnReset(const DummyClient& c, int err)
+{
+    if (c.rstRequested || m_shuttingDown.load())
+        return;
+    if (err != WSAECONNRESET && err != WSAECONNABORTED && err != WSAETIMEDOUT)
+        return;   // 다른 코드(예: 995 OPERATION_ABORTED=우리 teardown)는 세지 않음
+
+    if (c.state == ConnState::InField)
+        m_resetInField.fetch_add(1);    // 쓰던 세션이 끊김 = 진짜 mid-session 드롭
+    else
+        m_resetPreField.fetch_add(1);   // 스폰 전 = 안 받아들여짐/초기 거부(백로그 풀 의심)
 }
 
 // 봇을 RST(비정상 끊기)로 끊는다. SO_LINGER 0 → close가 FIN 대신 RST를 보냄.
@@ -436,6 +452,7 @@ void LoadTestManager::WorkerLoop()
 
         // 완료 1건 대기(타임아웃 1초). key=0이면 종료 신호 또는 타임아웃.
         BOOL ok = GetQueuedCompletionStatus(m_iocp, &bytes, &key, &ov, 1000);
+        DWORD gle = ok ? 0 : GetLastError();   // 실패면 즉시 에러코드 캡처(뒤 호출이 last-error 덮기 전에)
 
         if (key == 0) // 종료 sentinel 또는 1초 타임아웃
         {
@@ -445,8 +462,9 @@ void LoadTestManager::WorkerLoop()
 
         DummyClient* c = reinterpret_cast<DummyClient*>(key); // key = 봇 포인터
 
-        if (!ok)                     // 실패한 완료(RST/리셋 등)
+        if (!ok)                     // 실패한 완료(서버 리셋 / 우리 teardown)
         {
+            CountConnReset(*c, (int)gle);   // 서버발 리셋이면 스폰 전/세션 중으로 집계(우리발은 내부에서 제외)
             HandleDisconnect(*c, true);
             continue;
         }
@@ -1014,7 +1032,12 @@ void LoadTestManager::SendRaw(DummyClient& c, const PacketWriter& w)
     while (off < len)   // 부분 송신될 수 있으니 다 보낼 때까지 반복
     {
         int s = send(c.sock, d + off, len - off, 0);
-        if (s <= 0) { HandleDisconnect(c, false); return; }   // 실패 → 끊기
+        if (s <= 0)
+        {
+            CountConnReset(c, WSAGetLastError());   // send 실패 코드로 집계(우리발/종료 중은 내부에서 제외)
+            HandleDisconnect(c, false);             // 실패 → 끊기
+            return;
+        }
         off += s;
     }
     m_sentPackets.fetch_add(1);
@@ -1318,8 +1341,9 @@ void LoadTestManager::StatsLoop()
         for (int i = 0; i < ERR_CAT_COUNT; ++i) errTotal += m_errors[i].load();
 
         // 한 줄 요약: 접속/필드 수 | 초당 송수신 | RTT 백분위 | 누적 오류.
-        printf("[stat] conn=%d field=%d | tx/s=%lld rx/s=%lld | rtt(ms) p50=%.1f p95=%.1f p99=%.1f | err=%lld\n",
-            m_connected.load(), m_inField.load(), sentPS, recvPS, p50, p95, p99, errTotal);
+        printf("[stat] conn=%d field=%d | tx/s=%lld rx/s=%lld | rtt(ms) p50=%.1f p95=%.1f p99=%.1f | rstPre=%lld rstIn=%lld | err=%lld\n",
+            m_connected.load(), m_inField.load(), sentPS, recvPS, p50, p95, p99,
+            m_resetPreField.load(), m_resetInField.load(), errTotal);
     }
 }
 
@@ -1332,6 +1356,9 @@ void LoadTestManager::PrintReport(double elapsedSec)
     printf("sent packets/bytes : %lld / %lld\n", m_sentPackets.load(), m_sentBytes.load());
     printf("recv packets/bytes : %lld / %lld\n", m_recvPackets.load(), m_recvBytes.load());
     printf("reconnects         : %lld\n", m_reconnects.load());
+    printf("connect ok         : %lld\n", m_connectOk.load());
+    printf("reset pre-field    : %lld  (스폰 전 리셋: 백로그 풀/초기 거부 의심)\n", m_resetPreField.load());
+    printf("reset in-field     : %lld  (세션 중 리셋: 진짜 서버 드롭)\n", m_resetInField.load());
     printf("deaths / respawns  : %lld / %lld\n", m_gameDeaths.load(), m_respawns.load());
     printf("item pickups       : %lld\n", m_pickups.load());
     printf("skill ok / fail    : %lld / %lld\n", m_skillOk.load(), m_skillFail.load());

@@ -70,6 +70,7 @@ private:
     void ConnectOne(DummyClient& c);                       // 소켓 하나 열고 로그인+선택 송신
     void PostRecv(DummyClient& c);                         // 비동기 수신 1건 걸기
     void HandleDisconnect(DummyClient& c, bool serverInitiated); // 정리(딱 한 번만)
+    void CountConnReset(const DummyClient& c, int err);    // connect 후 리셋(10054 등)을 스폰 전/세션 중으로 나눠 집계
     void RequestRST(DummyClient& c);                       // SO_LINGER0로 RST 끊기 + 재접속 예약
     void ResetForReconnect(DummyClient& c);                // 죽은 슬롯을 새 접속으로 재사용
 
@@ -120,6 +121,9 @@ private:
     // --- 집계 통계(여러 스레드가 증가하므로 atomic) ---
     std::atomic<int>       m_connected{ 0 };   // 현재 살아있는 접속 수
     std::atomic<int>       m_inField{ 0 };     // 현재 필드 진입 상태인 봇 수
+    std::atomic<long long> m_connectOk{ 0 };     // connect() 성공 누적(게이지 m_connected와 별개)
+    std::atomic<long long> m_resetPreField{ 0 }; // connect는 됐으나 스폰 전 리셋(백로그 풀/초기 거부 의심)
+    std::atomic<long long> m_resetInField{ 0 };  // 이미 InField로 돌던 세션이 서버 리셋으로 끊김
     std::atomic<long long> m_sentPackets{ 0 }; // 보낸 패킷 총수
     std::atomic<long long> m_recvPackets{ 0 }; // 받은 패킷 총수
     std::atomic<long long> m_sentBytes{ 0 };   // 보낸 바이트 총량
