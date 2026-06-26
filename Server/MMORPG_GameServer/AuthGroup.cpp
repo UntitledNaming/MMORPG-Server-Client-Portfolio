@@ -210,5 +210,5 @@ void AuthGroup::CharacterSelectProc(uint64 sessionID, CMessage* pMessage)
 	m_OnRecvProcTime[(int)AuthRecvType::CharacterSelect].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 
 	// TPS 증가
-	InterlockedIncrement(&CharacterProgressJob::g_TPS);
+	InterlockedIncrement(&CharacterSelectJob::g_TPS[(int)DBJobCount::CharacterSelect]);
 }

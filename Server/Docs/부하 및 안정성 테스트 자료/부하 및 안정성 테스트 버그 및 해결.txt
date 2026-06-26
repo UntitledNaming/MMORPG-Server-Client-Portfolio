@@ -1,0 +1,80 @@
+1. LoadDBData에서 InventoryItemLoad에서 InsertItemToSlot할때 이미 인벤토리에 아이템이 있음.
+- 일단 ITEM_UID도 이상함 600이 세팅되어 있는데 들어온게 600000임.
+- 아이템 갯수도 6개가 나와야 하는데 2개만 가지고 있음.
+- 이거 게임 서버가 DB연결을 노트북에 넣은 worlddb에 연결했음.
+- DBConfig IP가 노트북 IP로 설정되어서 그럼.
+
+2. ItemPickUp 할때 GetConsumableItem에서 randomStatType이 default가 나오면서 중단점
+- 지금 드랍 아이템이 애초에 randomStatCount가 0이어야 하는데 1이 나옴.
+
+    FieldDropItem* pDropItem = m_dropItemPool->Alloc();
+    pDropItem->dropUID = m_dropUIDAllocator++;
+    pDropItem->expiredTime = 0;
+    pDropItem->itemID = itemData->itemID;
+    pDropItem->location.xpos = dropLocation.xpos;
+    pDropItem->location.ypos = dropLocation.ypos;
+    pDropItem->location.zpos = dropLocation.zpos;
+    pDropItem->sectorPos.SetPos(SectorPos(SectorPos((dropLocation.xpos - FieldConst::MAP_WORLD_OFFSET_X) / FieldConst::SECTOR_SIZE, (dropLocation.ypos - FieldConst::MAP_WORLD_OFFSET_Y) / FieldConst::SECTOR_SIZE)));
+    for (int i = 0; i < FieldDropItemConst::FIELD_DROP_ITEM_RANDOM_STAT_MAX; i++)
+    {
+        pDropItem->randomStat[i] = {};
+    }
+- 지금 FieldDropItemPool에서 다 초기화 하는데 딱 하나 randomStatCount를 초기화 안함. 여기서 걸린듯 함.
+
+
+3. 몬스터 생성, 삭제시 문제
+- 더미에서 Delete Monster 패킷 받을 때 이 MonsterID가 더미에 없는 ID 인 상황과 Create Monster 패킷 받을 때 이 MonsterID가 
+  이미 있는 ID인 상황이 검측됨.
+- 지금 몬스터가 생성, 삭제 되어야 하는 상황을 체크해서 이때 제대로 보내고 있는지 체크하고
+- 섹터에 같은 몬스터가 중복으로 들어가 있거나 하는 상황으로 인해 나올 수도 있음.
+- 기존 로직은 기존 섹터나 newSector나 주변에 9섹터가 있으면 정상 작동하는데 만약 섹터 좌표가 0,0 같이 경계에 있게 되면 문제가됨.
+- bool 배열 index에 겹쳐지면 그 원소를 true로 했는데 이건 섹터 경계에 있게 되면 out 파라미터에 넘길 때는 0이 좌상단이 아니라 
+ 가운데 좌표가 되기 때문에 위치 불일치가 발생함.
+- 따라서 지역에 std::pair<int16,int16>을 받는 set을 만들어 여기에 저장하고 find로 찾아서 있는지 체크하게 함.
+- 근데 이 버그는 애초에 섹터 경계에 유저나 몬스터가 없기 때문에 이 문제는 아님.
+
+------------------------------------------------------------------------------------------------------------------------------
+- 우선 Delete Monster 패킷을 보냈을 때 모르는 ID라는 상황을 분석해보자.
+- 기본적으로 Create Monster 상황인데 안한것인데... Create Monster 해야 하는 상황이 캐릭터가 섹터 업데이트 되거나
+  몬스터가 섹터 업데이트 되거나, 캐릭터가 필드 진입하거나, 몬스터가 리젠될 때임.
+- 솔직히 로직 상 버그인데 로직을 다시 봐도 일단은 모르겟음.
+- 그러면 이를 찾기 위한 방법을 생각해보자. 즉, 서버에서 같은 몬스터 ID에 대해서 Create를 2번 보내거나 Delete를 2번 하거나
+  하는 상황을 잡아보자. 이를 잡기 위해서 우선 유저 객체마다 전체 몬스터 ID를 index로 하고 bool 담는 배열을 하나 두고 해당 몬스터 ID에 대해서
+  Create할때 bool을 true로 하고 Delete할때 false로 하려고 했는데 이건 좀 중단점은 잡는데 결국 이 유저에게 몬스터 생성, 삭제 패킷
+  보내는 history 자체는 모름. 가장 최근의 한 행동만 아는 방식임.
+- 그래서 배열이 int 타입 보다는 각 몬스터 ID에 대해서 Create, Delete history를 알 수 있게 원소가 int가 아니라 std::vector를 넣을 것임.
+  이때 타입은 create, delete 타입과 이걸 한 위치를 표시하는 값 2개를 들 수 있게 구조체 형식으로 만들어서 넣을 것임.
+
+
+- 지금 이제 중복 처리 1번 사진을 보면 지금 MonsterUpdate에서 리젠 후에 Create할때 버그가 발생함.
+- 지금 history를 보면 제일 처음은 CharacterSectorUpdate할 때 create, monster가 sectorupdate하면서 delete, 섹터로 한번 더
+  create, delete하고 나서 그 다음에 create_CharacterSectorUpdate하는데 섹터 옮기면서 몬스터 생성하고
+- 그 다음이 리젠으로 인해 몬스터가 생성되는 거임.
+- 즉, 저 사이에 몬스터가 죽음으로 인해 Delete 메세지를 보내야 하는데 그게 없음.
+- 그래서 보니까 몬스터가  죽고나서 패킷 보낼때 몬스터가 있는 섹터에만 여러번 DELETE 패킷을 보내니 중복 DELETE가 나오고 
+  주변 섹터에는 DELETE를 안뿌리니 만약 리젠되면 CREATE가 2번 되버릴 수 있음.
+
+
+- 바꾸고 나서 다시 해보니 Delete가 2번 발생함.
+- 지금 히스토리 마지막이 BaseAttack으로 Delete 되었는데 그 다음에 SkillUse할때 크래시남.
+- 변경할때 m_Around[count]로 해야 하는데 m_Around[i]로 해버림.
+
+4. 싱크 발생 시 서버 좌표로 맞추는데 굳이 이 유저의 주변 섹터에 싱크 틀어진 유저 좌표의 서버 좌표를 보내줄 이유는 없어 보임. 
+- 어차피 틀어졋을 때 서버 좌표를 가지고 주변 유저에게 전파하고 틀어짐 확인했을 때 서버 좌표를 믿기 때문에 한번 더 보내줄 필요는 없음.
+
+5. RST 보내는 상황에서 테스트 해보니 BadValue가 더미에서 측정됨
+- ATK 랜덤 값이 지금 노멀이 1 ~ 3, 2 ~ 4인데 더미에서는 13 , 26, 29 이렇게 측정됨. 그리고 DB에도 atk가 17인게 보임.
+- 이 프로토콜은 장비 아이템을 득템했을 때 서버가 보내주는 프로토콜에서 탐지된 것임.
+- 그래서 우선 장비 아이템이 생성되는 경로를 따라 가보자
+- 일단 드랍 아이템 생성하는 쪽 자체에는 문제가 없음.
+- 그래서 응답 프로토콜 보낼때 atk, def가 범위 초과할때 중단점 때리고 상태를 봐보자.
+- 그런데 지금 이때 안잡히고 지금 에러 터질때 DB도 확인하는데 발생 characterUID에서 애초에 ATK 넘는게 저장이 안되어 있음.
+
+- 에러 로그를 보니 정확하게는 캐릭터가 생성될때 인벤토리나 , 장비 탭 아이템을 보내주는데 그걸 더미가 확인했을 때 에러난 것임.
+- 그래서 CUserItemStorage에서 LoadItemFromDB할때 체크해봄.
+- 다시 돌려보면 지금 DB 자체에 잘못 저장되어서 에러 바로 터짐.
+- 그래서 이게 DB에 저장될 때를 봐야 할듯함. 지금 보면 계속 무기쪽 아이템에서 에러가 남.
+- 지금 그러면 장비 아이템을 획득했을 때의 로직을 살펴봐야 함. 특히 DB에 Job던지 쪽.
+- Job던지는 쪽에서 pJob가지고 체크하니 바로 걸림.
+- 보니 max_hp일때 pJob의 maxHP에 저장해야 하는데 ATK에 저장하고 max_mp일때는 pJob의 def에 저장하고 있음.
+  그래서 에러 체크함.

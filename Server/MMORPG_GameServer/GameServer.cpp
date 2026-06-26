@@ -209,13 +209,13 @@ void GameServer::Monitoring()
 
 
 
-		CharacterSelectJob::g_TPS = 0;
-		InsertItemJob::g_TPS = 0;
-		DeleteItemJob::g_TPS = 0;
-		ItemCountUpdateJob::g_TPS = 0;
-		ItemSlotUpdateJob::g_TPS = 0;
-		CharacterProgressJob::g_TPS = 0;
-		LogOutJob::g_TPS = 0;
+		CharacterSelectJob::g_TPS[(int)DBJobCount::CharacterSelect] = 0;
+		InsertItemJob::g_TPS[(int)DBJobCount::InsertItem] = 0;
+		DeleteItemJob::g_TPS[(int)DBJobCount::DeleteItem] = 0;
+		ItemCountUpdateJob::g_TPS[(int)DBJobCount::ItemUpdateCount] = 0;
+		ItemSlotUpdateJob::g_TPS[(int)DBJobCount::ItemSlotUpdate] = 0;
+		CharacterProgressJob::g_TPS[(int)DBJobCount::CharacterProgress] = 0;
+		LogOutJob::g_TPS[(int)DBJobCount::LogOut] = 0;
 
 		loopCnt++;
 	}
@@ -301,13 +301,13 @@ void GameServer::StoreProc()
 
 
 	// ── DB: Job별 TPS (리셋 196~208 전에 읽어야 함) + 큐 깊이(발산) ──
-	pStore->dbJobTPS[(int)DBJobCount::CharacterSelect] = CharacterSelectJob::g_TPS;
-	pStore->dbJobTPS[(int)DBJobCount::InsertItem] = InsertItemJob::g_TPS;
-	pStore->dbJobTPS[(int)DBJobCount::DeleteItem] = DeleteItemJob::g_TPS;
-	pStore->dbJobTPS[(int)DBJobCount::ItemUpdateCount] = ItemCountUpdateJob::g_TPS;
-	pStore->dbJobTPS[(int)DBJobCount::ItemSlotUpdate] = ItemSlotUpdateJob::g_TPS;
-	pStore->dbJobTPS[(int)DBJobCount::CharacterProgress] = CharacterProgressJob::g_TPS;
-	pStore->dbJobTPS[(int)DBJobCount::LogOut] = LogOutJob::g_TPS;
+	pStore->dbJobTPS[(int)DBJobCount::CharacterSelect] = CharacterSelectJob::g_TPS[(int)DBJobCount::CharacterSelect];
+	pStore->dbJobTPS[(int)DBJobCount::InsertItem] = InsertItemJob::g_TPS[(int)DBJobCount::InsertItem];
+	pStore->dbJobTPS[(int)DBJobCount::DeleteItem] = DeleteItemJob::g_TPS[(int)DBJobCount::DeleteItem];
+	pStore->dbJobTPS[(int)DBJobCount::ItemUpdateCount] = ItemCountUpdateJob::g_TPS[(int)DBJobCount::ItemUpdateCount];
+	pStore->dbJobTPS[(int)DBJobCount::ItemSlotUpdate] = ItemSlotUpdateJob::g_TPS[(int)DBJobCount::ItemSlotUpdate];
+	pStore->dbJobTPS[(int)DBJobCount::CharacterProgress] = CharacterProgressJob::g_TPS[(int)DBJobCount::CharacterProgress];
+	pStore->dbJobTPS[(int)DBJobCount::LogOut] = LogOutJob::g_TPS[(int)DBJobCount::LogOut];
 	pStore->dbJobQueueCount = m_pDBManager->m_pDBQue->GetUseSize();
 
 	// ── 네트워크 ──
@@ -332,7 +332,7 @@ static const WCHAR* kFieldRecvName[] = {
 static const WCHAR* kFrameName[] = {
 	L"fUpd_Whole", L"fUpd_User", L"fUpd_Monster", L"fUpd_Drop" };
 static const WCHAR* kBcastName[] = {
-	L"bc_CreateChar", L"bc_DelChar", L"bc_MoveInput", L"bc_Sync", L"bc_Swing",
+	L"bc_CreateChar", L"bc_DelChar", L"bc_MoveInput", L"bc_Swing",
 	L"bc_HitResult", L"bc_Skill", L"bc_CreateMon", L"bc_DelMon", L"bc_MoveMon",
 	L"bc_StopMon", L"bc_MonHitPlayer", L"bc_CreateDrop", L"bc_DelDrop", L"bc_Respawn" };
 static const WCHAR* kAuthRecvName[] = { L"aRecv_Login", L"aRecv_CharSelect" };

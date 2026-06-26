@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "ContentsType.h"
 #include "ContentsStruct.h"
+#include "ContentsEnum.h"
 
 class CUser;
 class CMonster;
@@ -8,6 +9,7 @@ class SectorPos;
 class CDBManager;
 struct HitSearchInfo;
 struct HitResult;
+
 
 struct SyncInfo
 {
@@ -152,8 +154,8 @@ public:
 	size_t UserCount();
     void InitDBManager(CDBManager* pDBManager);
 
-    void SendMonsterCreateToSector(CMonster* pMonster, uint16 secX, uint16 secY);
-    void SendMonsterDeleteToSector(CMonster* pMonster, uint16 secX, uint16 secY);
+    void SendMonsterCreateToSector(CMonster* pMonster, uint16 secX, uint16 secY, DebugMonsterEn type);
+    void SendMonsterDeleteToSector(CMonster* pMonster, uint16 secX, uint16 secY, DebugMonsterEn type);
     void SendMonsterTargetUpdate(CMonster* pMonster);
     void SendMonsterAttackTarget(CMonster* pMonster, CUser* pTarget, int16 newHP);
     void SendMonsterStop(CMonster* pMonster);

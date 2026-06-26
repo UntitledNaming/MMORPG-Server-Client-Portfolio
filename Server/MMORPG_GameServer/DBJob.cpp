@@ -17,7 +17,7 @@
 #include "ItemUIDAllocator.h"
 #include "DBJob.h"
 
-unsigned long long DBJob::g_TPS = 0;
+unsigned long long DBJob::g_TPS[(int)DBJobCount::Max] = {};
 
 void* DBJob::operator new(size_t size)
 {

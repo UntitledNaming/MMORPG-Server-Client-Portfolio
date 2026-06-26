@@ -395,6 +395,7 @@ CMessage* PacketBuilder::PickUpEquipFieldDropItem(PickUpEquipResult* result)
 	{
 		*pMessage << static_cast<uint8>(result->randomStatResult[i].randomStatType);
 		*pMessage << result->randomStatResult[i].randomStatValue;
+
 	}
 
 	return pMessage;

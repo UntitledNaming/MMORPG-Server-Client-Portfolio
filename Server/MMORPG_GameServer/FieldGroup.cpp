@@ -42,47 +42,70 @@ void FieldGroup::InitDBManager(CDBManager* pDBManager)
 	m_DBManagerPtr = pDBManager;
 }
 
-void FieldGroup::SendMonsterCreateToSector(CMonster* pMonster, uint16 secX, uint16 secY)
+void FieldGroup::SendMonsterCreateToSector(CMonster* pMonster, uint16 secX, uint16 secY, DebugMonsterEn type)
 {
 	// 섹터에 있는 유저들에게 몬스터 생성 및 필요하면 Move 패킷 보내기
+	auto start = std::chrono::steady_clock::now();
+
 	int count = m_sectors[secY][secX].GetUserCount();
 
-	auto start = std::chrono::steady_clock::now();
+
+	CMessage* pCreateMonster = PacketBuilder::CreateMonster(pMonster);
+	CMessage* pMonsterMove = PacketBuilder::MoveMonster(pMonster, pMonster->GetMonsterAITargetLocation());
 
 	for (int i = 0; i < count; i++)
 	{
 		CUser* pUser = m_sectors[secY][secX].GetUser(i);
 
-		CMessage* pCreateMonster = PacketBuilder::CreateMonster(pMonster);
 		SendPacket(pUser->GetSessionID(), pCreateMonster);
-		CMessage::Free(pCreateMonster);
+
+		// debug : 만약 이미 같은ID로 생성 패킷을 보내는데 또 보내면 크래시
+		if (pUser->m_debugMonster[pMonster->GetMonsterID()].type == 1)
+			__debugbreak();
+
+		pUser->m_debugMonster[pMonster->GetMonsterID()].type = 1;
+		pUser->m_debugMonster[pMonster->GetMonsterID()].history.push_back(type);
 
 		// 순찰, 추격, 복귀 중일 때 Move 패킷 보내기.
 		if (pMonster->GetMonsterState() == EMonsterState::Patrol || pMonster->GetMonsterState() == EMonsterState::Chase || pMonster->GetMonsterState() == EMonsterState::Return)
 		{
-			CMessage* pMonsterMove = PacketBuilder::MoveMonster(pMonster, pMonster->GetMonsterAITargetLocation());
 			SendPacket(pUser->GetSessionID(), pMonsterMove);
-			CMessage::Free(pMonsterMove);
 		}
 
 	}
+	CMessage::Free(pCreateMonster);
+	CMessage::Free(pMonsterMove);
 
 	auto end = std::chrono::steady_clock::now();
 
 	m_BroadCastProcTime[(int)BroadCastType::CreateMonster].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
-void FieldGroup::SendMonsterDeleteToSector(CMonster* pMonster, uint16 secX, uint16 secY)
+void FieldGroup::SendMonsterDeleteToSector(CMonster* pMonster, uint16 secX, uint16 secY, DebugMonsterEn type)
 {
+	auto start = std::chrono::steady_clock::now();
+
 	int count = m_sectors[secY][secX].GetUserCount();
+	CMessage* pDeleteMonster = PacketBuilder::DeleteMonster(pMonster);
 	for (int i = 0; i < count; i++)
 	{
 		CUser* pUser = m_sectors[secY][secX].GetUser(i);
 
-		CMessage* pDeleteMonster = PacketBuilder::DeleteMonster(pMonster);
+
+		// debug : 만약 이미 같은ID로 생성 패킷을 보내는데 또 보내면 크래시
+		if (pUser->m_debugMonster[pMonster->GetMonsterID()].type == 2)
+			__debugbreak();
+
+		pUser->m_debugMonster[pMonster->GetMonsterID()].type = 2;
+		pUser->m_debugMonster[pMonster->GetMonsterID()].history.push_back(type);
+
 		SendPacket(pUser->GetSessionID(), pDeleteMonster);
-		CMessage::Free(pDeleteMonster);
 	}
+
+	CMessage::Free(pDeleteMonster);
+
+	auto end = std::chrono::steady_clock::now();
+	m_BroadCastProcTime[(int)BroadCastType::DeleteMonster].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void FieldGroup::SendMonsterTargetUpdate(CMonster* pMonster)
@@ -94,7 +117,6 @@ void FieldGroup::SendMonsterTargetUpdate(CMonster* pMonster)
 	for (int i = 0; i < MoveAround.m_count; i++)
 	{
 		SendPacket_SectorOne(BroadCastType::MoveMonster,pMoveMonster, MoveAround.m_Around[i].GetX(), MoveAround.m_Around[i].GetY(), nullptr);
-
 	}
 
 	CMessage::Free(pMoveMonster);
@@ -395,6 +417,12 @@ void FieldGroup::OnIUserMove(UINT64 sessionID, IUser* pUser)
 			SendPacket(pOnUser->GetSessionID(), pCreateMonsterMsg);
 			CMessage::Free(pCreateMonsterMsg);
 
+			// debug : 해당 유저에게 반영하는데 이미 Create를 한 상태면 크래시
+			if (pOnUser->m_debugMonster[pMonster->GetMonsterID()].type == 1)
+				__debugbreak();
+
+			pOnUser->m_debugMonster[pMonster->GetMonsterID()].type = 1;
+			pOnUser->m_debugMonster[pMonster->GetMonsterID()].history.push_back(DebugMonsterEn::Create_FieldIn);
 
 			// 순찰, 추격, 복귀 중일 때 Move 패킷 보내기.
 			if (pMonster->GetMonsterState() == EMonsterState::Patrol || pMonster->GetMonsterState() == EMonsterState::Chase || pMonster->GetMonsterState() == EMonsterState::Return)
@@ -855,17 +883,12 @@ void FieldGroup::HandleLeftAttackSwing(uint64 sessionID, CMessage* pMessage)
 		// 피격 몬스터 주변 섹터 찾기
 		SectorPos::SectorFind(DeleteSector, pHitMonster->GetSectorPos());
 
-		CMessage* pDeleteMonster = PacketBuilder::DeleteMonster(pHitMonster);
-
 		for (int count = 0; count < DeleteSector.m_count; count++)
 		{
-			SendPacket_SectorOne(BroadCastType::DeleteMonster, pDeleteMonster, DeleteSector.m_Around[count].GetX(), DeleteSector.m_Around[count].GetY(), nullptr);
+			SendMonsterDeleteToSector(pHitMonster, DeleteSector.m_Around[count].GetX(), DeleteSector.m_Around[count].GetY(), DebugMonsterEn::Delete_BaseAttack);
 		}
 
-		CMessage::Free(pDeleteMonster);
-
 		m_sectors[pHitMonster->GetSectorY()][pHitMonster->GetSectorX()].RemoveMonster(pHitMonster);
-
 	}
 
 
@@ -987,15 +1010,11 @@ void FieldGroup::HandleSkillUse(uint64 sessionID, CMessage* pMessage)
 
 		// 피격 몬스터 주변 섹터 찾기
 		SectorPos::SectorFind(DeleteSector, pHitMonster->GetSectorPos());
-		
-		CMessage* pDeleteMonster = PacketBuilder::DeleteMonster(pHitMonster);
 
 		for (int count = 0; count < DeleteSector.m_count; count++)
 		{
-			SendPacket_SectorOne(BroadCastType::DeleteMonster, pDeleteMonster, pHitMonster->GetSectorX(), pHitMonster->GetSectorY(), nullptr);
+			SendMonsterDeleteToSector(pHitMonster, DeleteSector.m_Around[count].GetX(), DeleteSector.m_Around[count].GetY(), DebugMonsterEn::Delete_SkillUse);
 		}
-
-		CMessage::Free(pDeleteMonster);
 
 		m_sectors[pHitMonster->GetSectorY()][pHitMonster->GetSectorX()].RemoveMonster(pHitMonster);
 	}
@@ -1328,9 +1347,18 @@ void FieldGroup::SectorUpdate(CUser* pUser, const SectorPos& newSec)
 
 		for (int count = 0; count < sector.GetMonsterCount(); count++)
 		{
+			// debug : 해당 몬스터 삭제 했으니 2로변경
+			if (pUser->m_debugMonster[sector.GetMonster(count)->GetMonsterID()].type == 2)
+				__debugbreak();
+
+			pUser->m_debugMonster[sector.GetMonster(count)->GetMonsterID()].type = 2;
+			pUser->m_debugMonster[sector.GetMonster(count)->GetMonsterID()].history.push_back(DebugMonsterEn::Delete_CharacterSectorUpdate);
+
 			CMessage* pDeleteMonster = PacketBuilder::DeleteMonster(sector.GetMonster(count));
 			SendPacket(pUser->GetSessionID(), pDeleteMonster);
 			CMessage::Free(pDeleteMonster);
+
+			
 		}
 
 		for (int count = 0; count < sector.GetItemCount(); count++)
@@ -1359,6 +1387,14 @@ void FieldGroup::SectorUpdate(CUser* pUser, const SectorPos& newSec)
 		for (int count = 0; count < sector.GetMonsterCount(); count++)
 		{
 			CMonster* pMonster = sector.GetMonster(count);
+
+			// debug : 해당 몬스터 생성하니 1로변경, 변경 전 체크
+			if (pUser->m_debugMonster[sector.GetMonster(count)->GetMonsterID()].type == 1)
+				__debugbreak();
+
+			pUser->m_debugMonster[sector.GetMonster(count)->GetMonsterID()].type = 1;
+			pUser->m_debugMonster[sector.GetMonster(count)->GetMonsterID()].history.push_back(DebugMonsterEn::Create_CharacterSectorUpdate);
+
 
 			CMessage* pCreateMonster = PacketBuilder::CreateMonster(pMonster);
 			SendPacket(pUser->GetSessionID(), pCreateMonster);
@@ -1406,7 +1442,7 @@ void FieldGroup::MonsterUpdate()
 
 		for (int secCount = 0; secCount < Create.m_count; secCount++)
 		{
-			SendMonsterCreateToSector(&m_grossMonsterPoolArray[i], Create.m_Around[secCount].GetX(), Create.m_Around[secCount].GetY());
+			SendMonsterCreateToSector(&m_grossMonsterPoolArray[i], Create.m_Around[secCount].GetX(), Create.m_Around[secCount].GetY(), DebugMonsterEn::Create_MonsterRegen);
 		}
 	}
 }

@@ -66,7 +66,7 @@ bool CMonster::Regen()
 	m_pMonsterAIComp->Reset();
 	return true;
 }
-
+ 
 void CMonster::Move()
 {
 	if (m_state == EMonsterState::Dead)

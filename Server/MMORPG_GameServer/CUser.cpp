@@ -29,6 +29,13 @@ void CUser::Init(uint64 sessionID, CDBManager* pDBManager)
 {
 	m_sessionID = sessionID;
 	m_pDBManager = pDBManager;
+
+	for (int i = 0; i < FieldConst::MAX_GROSS_FIELD_MONSTER_COUNT; i++)
+	{
+		m_debugMonster[i].type = 0;
+		m_debugMonster[i].history.clear();
+		m_debugMonster[i].history.reserve(DEBUG_MONSTER_HISTORY_COUNT);
+	}
 }
 
 void CUser::Destroy()
@@ -42,7 +49,7 @@ void CUser::Destroy()
 
 	m_pDBManager->EnqueueDBJob(pJob);
 
-	InterlockedIncrement(&LogOutJob::g_TPS);
+	InterlockedIncrement(&LogOutJob::g_TPS[(int)DBJobCount::LogOut]);
 
 	m_equipment.Destroy();
 	m_inventory.Destroy();
@@ -244,7 +251,7 @@ bool CUser::GainExp(uint32 GetExp, GainEXPResult& result)
 
 		m_pDBManager->EnqueueDBJob(pJob);
 
-		InterlockedIncrement(&CharacterProgressJob::g_TPS);
+		InterlockedIncrement(&CharacterProgressJob::g_TPS[(int)DBJobCount::CharacterProgress]);
 		return true;
 	}
 
@@ -289,7 +296,7 @@ bool CUser::GainExp(uint32 GetExp, GainEXPResult& result)
 	pJob->curEXP = m_currentExp;
 	m_pDBManager->EnqueueDBJob(pJob);
 
-	InterlockedIncrement(&CharacterProgressJob::g_TPS);
+	InterlockedIncrement(&CharacterProgressJob::g_TPS[(int)DBJobCount::CharacterProgress]);
 	return true;
 }
 
@@ -387,7 +394,7 @@ bool CUser::GetConsumableItem(FieldDropItem& dropItem, PickUpConsumableResult& O
 
 	m_pDBManager->EnqueueDBJob(pJob);
 
-	InterlockedIncrement(&InsertItemJob::g_TPS);
+	InterlockedIncrement(&InsertItemJob::g_TPS[(int)DBJobCount::InsertItem]);
 
 	return true;
 }
@@ -448,8 +455,8 @@ bool CUser::GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResu
 		{
 		case RANDOM_STAT_TYPE::ATK: pJob->itemStat.atk = stat.randomStatValue; break;
 		case RANDOM_STAT_TYPE::DEF: pJob->itemStat.def = stat.randomStatValue; break;
-		case RANDOM_STAT_TYPE::MAX_HP: pJob->itemStat.atk = stat.randomStatValue; break;
-		case RANDOM_STAT_TYPE::MAX_MP: pJob->itemStat.def = stat.randomStatValue; break;
+		case RANDOM_STAT_TYPE::MAX_HP: pJob->itemStat.maxHP = stat.randomStatValue; break;
+		case RANDOM_STAT_TYPE::MAX_MP: pJob->itemStat.maxMP = stat.randomStatValue; break;
 		case RANDOM_STAT_TYPE::HP_REGEN: pJob->itemStat.hpRegenPerSec = stat.randomStatValue; break;
 		case RANDOM_STAT_TYPE::MP_REGEN: pJob->itemStat.mpRegenPerSec = stat.randomStatValue; break;
 		default:
@@ -457,8 +464,15 @@ bool CUser::GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResu
 		}
 	}
 
+	if (pJob->itemStat.atk > 4)
+		__debugbreak();
+
+	if (pJob->itemStat.def > 1)
+		__debugbreak();
+
+
 	m_pDBManager->EnqueueDBJob(pJob);
-	InterlockedIncrement(&InsertItemJob::g_TPS);
+	InterlockedIncrement(&InsertItemJob::g_TPS[(int)DBJobCount::InsertItem]);
 	return true;
 }
 
@@ -512,7 +526,7 @@ bool CUser::DeleteItem(int16 slotIndex, SLOT_TYPE slotType)
 	pJob->itemUID = retID;
 	m_pDBManager->EnqueueDBJob(pJob);
 
-	InterlockedIncrement(&DeleteItemJob::g_TPS);
+	InterlockedIncrement(&DeleteItemJob::g_TPS[(int)DBJobCount::DeleteItem]);
 	return true;
 }
 
@@ -552,7 +566,7 @@ bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 			pJob->newCount = newItemCount;
 			m_pDBManager->EnqueueDBJob(pJob);
 
-			InterlockedIncrement(&ItemCountUpdateJob::g_TPS);
+			InterlockedIncrement(&ItemCountUpdateJob::g_TPS[(int)DBJobCount::ItemUpdateCount]);
 			return true;
 		}
 
@@ -570,7 +584,7 @@ bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 		pJob->itemUID = retID;
 		m_pDBManager->EnqueueDBJob(pJob);
 
-		InterlockedIncrement(&DeleteItemJob::g_TPS);
+		InterlockedIncrement(&DeleteItemJob::g_TPS[(int)DBJobCount::DeleteItem]);
 		return true;
 	}
 
@@ -652,7 +666,7 @@ bool CUser::UseQuickSlotItem(int16 slotIndex, UseItemResult& result)
 		pJob->newCount = newItemCount;
 		m_pDBManager->EnqueueDBJob(pJob);
 
-		InterlockedIncrement(&ItemCountUpdateJob::g_TPS);
+		InterlockedIncrement(&ItemCountUpdateJob::g_TPS[(int)DBJobCount::ItemUpdateCount]);
 		return true;
 	}
 
@@ -667,7 +681,7 @@ bool CUser::UseQuickSlotItem(int16 slotIndex, UseItemResult& result)
 	pJob->itemUID = retUID;
 	m_pDBManager->EnqueueDBJob(pJob);
 
-	InterlockedIncrement(&DeleteItemJob::g_TPS);
+	InterlockedIncrement(&DeleteItemJob::g_TPS[(int)DBJobCount::DeleteItem]);
 	return true;
 }
 
@@ -974,7 +988,7 @@ void CUser::ItemSlotUpdate()
 	m_pDBManager->EnqueueDBJob(pJob);
 
 
-	InterlockedIncrement(&ItemSlotUpdateJob::g_TPS);
+	InterlockedIncrement(&ItemSlotUpdateJob::g_TPS[(int)DBJobCount::ItemSlotUpdate]);
 	m_itemSlotUpdateTimeAccum = 0;
 }
 

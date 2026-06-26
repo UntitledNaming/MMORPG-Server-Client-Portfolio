@@ -42,6 +42,14 @@ constexpr UserLevelStat g_userLevelStatTable[10] =
 	{ 10,   2600, 30, 7, 310, 190, 4, 8 },
 };
 
+struct DebugMonster
+{
+	int                         type;                 // 마지막 처리 타입 0 : 초기, 1: Create, 2: Delete
+	std::vector<DebugMonsterEn> history;
+};
+
+constexpr uint64 DEBUG_MONSTER_HISTORY_COUNT = 5000;
+
 class CUser : public IUser
 {
 public:
@@ -134,7 +142,10 @@ public:
 	uint32 m_recvTime;
 	uint32 m_lastSyncCheckTime;
 
-
+	//////////////////////////////////////////////////////
+	// 몬스터 생성/삭제 히스토리 디버그용 변수
+	//////////////////////////////////////////////////////
+	DebugMonster            m_debugMonster[FieldConst::MAX_GROSS_FIELD_MONSTER_COUNT];           // 0 : 초기값, 1 : 해당 ID에 대한 몬스터 생성 패킷 보냄, 2 : 해당 ID에 대한 몬스터 삭제 패킷 보냄.
 private:
 	static CMPoolTLS<CUser> m_userPool;
 	CDBManager*             m_pDBManager = nullptr;

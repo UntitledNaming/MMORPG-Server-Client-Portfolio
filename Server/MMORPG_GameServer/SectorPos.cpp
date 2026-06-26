@@ -1,4 +1,5 @@
-﻿#include "ContentsDefine.h"
+﻿#include <set>
+#include "ContentsDefine.h"
 #include "SectorPos.h"
 
 void SectorPos::SectorFind(SectorAround& pAround, const SectorPos& sec)
@@ -26,29 +27,35 @@ void SectorPos::SectorFind(SectorAround& pAround, const SectorPos& sec)
 
 void SectorPos::CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, const SectorPos& newSecPos, SectorAround& outDeleteSector, SectorAround& outCreateSector)
 {
-	bool curSecOverlapflag[9] = { false };
 	SectorAround curSec;
 	SectorFind(curSec, oldSecPos);
 
 
-	bool newSecOverlapflag[9] = { false };
 	SectorAround newSec;
 	SectorFind(newSec, newSecPos);
 
-	
+	std::set<std::pair<int16, int16>> overlapPos;
 
 	// 겹치는 좌표를 찾아서 이를 제외한 좌표값을 아웃 파라미터에 담기
 	for (int i = 0; i < curSec.m_count; i++)
 	{
 		for (int j = 0; j < newSec.m_count; j++)
 		{
-			if (curSecOverlapflag[i] == true || newSecOverlapflag[j] == true)
+			// 현재 섹터 좌표를 겹침 좌표 자료구조에 이미 넣었으면 pass
+			auto itCur = overlapPos.find(std::pair<int16, int16>(curSec.m_Around[i].m_secX, curSec.m_Around[i].m_secY));
+			if (itCur != overlapPos.end())
 				continue;
 
+			// new 섹터 좌표를 겹침 좌표 자료구조에 이미 넣었으면 pass
+			auto itNext = overlapPos.find(std::pair<int16, int16>(newSec.m_Around[j].m_secX, newSec.m_Around[j].m_secY));
+			if (itNext != overlapPos.end())
+				continue;
+
+
+			// 좌표 겹치면 set에 넣기
 			if (curSec.m_Around[i].m_secX == newSec.m_Around[j].m_secX && curSec.m_Around[i].m_secY == newSec.m_Around[j].m_secY)
 			{
-				curSecOverlapflag[i] = true;
-				newSecOverlapflag[j] = true;
+				overlapPos.insert(std::pair<int16, int16>(newSec.m_Around[j].m_secX, newSec.m_Around[j].m_secY));
 			}
 		}
 	}
@@ -60,7 +67,9 @@ void SectorPos::CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, co
 	// 겹치지 않는 섹터 좌표가 지워질 영역
 	for (int i = 0; i < curSec.m_count; i++)
 	{
-		if (curSecOverlapflag[i] == true)
+		// 겹침 좌표에 해당 섹터 좌표가 있으면 pass
+		auto itCur = overlapPos.find(std::pair<int16, int16>(curSec.m_Around[i].m_secX, curSec.m_Around[i].m_secY));
+		if (itCur != overlapPos.end())
 			continue;
 
 		outDeleteSector.m_Around[deletecount].m_secX = curSec.m_Around[i].m_secX;
@@ -73,7 +82,8 @@ void SectorPos::CalSectorTransitionMessageTargets(const SectorPos& oldSecPos, co
 	// 겹치지 않는 섹터가 생성해야 할 영역
 	for (int i = 0; i < newSec.m_count; i++)
 	{
-		if (newSecOverlapflag[i] == true)
+		auto itNext = overlapPos.find(std::pair<int16, int16>(newSec.m_Around[i].m_secX, newSec.m_Around[i].m_secY));
+		if (itNext != overlapPos.end())
 			continue;
 
 		outCreateSector.m_Around[createcount].m_secX = newSec.m_Around[i].m_secX;
