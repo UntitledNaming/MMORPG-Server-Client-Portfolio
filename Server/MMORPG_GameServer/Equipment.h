@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "ContentsType.h"
 #include "ContentsDefine.h"
 #include "ContentsStruct.h"
@@ -19,8 +19,8 @@ public:
 	int16    GetDEF() const { return m_currentDEF; }
 	int16    GetMaxHP() const { return m_currentMaxHP; }
 	int16    GetMaxMP() const { return m_currentMaxMP; }
-	uint16   GetHPRegen() const { return m_currentHPRegenPerSec; }
-	uint16   GetMPRegen()const { return m_currentMPRegenPerSec; }
+	int16    GetHPRegen() const { return m_currentHPRegenPerSec; }
+	int16    GetMPRegen()const { return m_currentMPRegenPerSec; }
 
 	bool     EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& OutItemUID);
 	bool     UnEquippedItem(EQUIP_SLOT slotNum, ITEM_UID& OutItemUID);
@@ -42,7 +42,7 @@ private:
 	int16     m_currentDEF;
 	int16     m_currentMaxHP;
 	int16     m_currentMaxMP;
-	uint16    m_currentHPRegenPerSec;
-	uint16    m_currentMPRegenPerSec;
+	int16     m_currentHPRegenPerSec;
+	int16     m_currentMPRegenPerSec;
 };
 

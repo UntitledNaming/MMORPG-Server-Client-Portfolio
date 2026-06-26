@@ -124,7 +124,12 @@ uint32 CMonster::CalBaseAttackDamage(CUser* target, uint32 curTime)
 	if (damage <= targetDef)
 		return 1;
 
-	return damage - targetDef;
+	damage -= targetDef;
+
+	if (damage > 5000)
+		__debugbreak();
+
+	return damage;
 }
 
 Location& CMonster::GetMonsterAITargetLocation() const

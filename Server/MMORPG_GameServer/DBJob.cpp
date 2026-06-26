@@ -393,7 +393,7 @@ void LogOutJob::Execute(DBTLS* InDBTLS)
 		__debugbreak();
 
 	// 캐릭터 위치 저장
-	success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.character SET xpos = %f , ypos = %f, zpos = %f, level = %u, curEXP = %d WHERE characterUID = %llu", location.xpos, location.ypos, location.zpos, level, curEXP, characterUID);
+	success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.character SET xpos = %f , ypos = %f, zpos = %f, characterlevel = %u, curEXP = %d WHERE characterUID = %llu", location.xpos, location.ypos, location.zpos, level, curEXP, characterUID);
 	if (!success)
 		__debugbreak();
 

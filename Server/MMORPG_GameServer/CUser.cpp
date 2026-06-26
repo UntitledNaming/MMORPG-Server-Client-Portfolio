@@ -757,12 +757,13 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime)
 
 	int16 atk = GetAtk(curTime);
 	int16 damage = skillData.BaseDamage + static_cast<int16>(atk * skillData.AttackRatio);
-	
+	int16 targetDef = 0;
+
 	switch (skillData.DamageType)
 	{
 	case ESkillDamageType::Physical:
 	{
-		int16 targetDef = target->GetDef(curTime);
+		targetDef = target->GetDef(curTime);
 
 		// 데미지 낮아도 1딜 들어감.
 		if (damage <= targetDef)
@@ -775,7 +776,7 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime)
 
 	case ESkillDamageType::Magic:
 	{
-		int16 targetDef = target->GetDef(curTime);
+		targetDef = target->GetDef(curTime);
 
 		if (damage <= targetDef)
 			damage = 1;
@@ -789,6 +790,9 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime)
 		// 방어력 무시
 		break;
 	}
+
+	if (damage > 5000)
+		__debugbreak();
 
 	return damage;
 }
@@ -802,12 +806,13 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CMonster* target, uint32 curTime
 
 	int16 atk = GetAtk(curTime);
 	uint32 damage = skillData.BaseDamage + static_cast<uint32>(atk * skillData.AttackRatio);
+	int16 targetDef = 0;
 
 	switch (skillData.DamageType)
 	{
 	case ESkillDamageType::Physical:
 	{
-		uint16 targetDef = target->GetDef();
+		targetDef = target->GetDef();
 
 		// 데미지 낮아도 1딜 들어감.
 		if (damage <= targetDef)
@@ -820,7 +825,7 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CMonster* target, uint32 curTime
 
 	case ESkillDamageType::Magic:
 	{
-		uint16 targetDef = target->GetDef();
+		targetDef = target->GetDef();
 
 		if (damage <= targetDef)
 			damage = 1;
@@ -834,6 +839,9 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CMonster* target, uint32 curTime
 		// 방어력 무시
 		break;
 	}
+
+	if (damage > 5000)
+		__debugbreak();
 
 	return damage;
 }
@@ -855,7 +863,13 @@ uint32 CUser::CalBaseAttackDamage(CUser* target, uint32 curTime)
 	if (damage <= targetDef)
 		return 1;
 
-	return damage - targetDef;
+
+	damage -= targetDef;
+
+	if (damage > 5000)
+		__debugbreak();
+
+	return damage;
 }
 
 uint32 CUser::CalBaseAttackDamage(CMonster* target, uint32 curTime)
@@ -870,12 +884,17 @@ uint32 CUser::CalBaseAttackDamage(CMonster* target, uint32 curTime)
 	float ratio = 1.0f;
 
 	uint32 damage = static_cast<uint32>(atk * ratio);
-	uint16 targetDef = target->GetDef();
+	int16 targetDef = target->GetDef();
 
 	if (damage <= targetDef)
 		return 1;
 
-	return damage - targetDef;
+	damage -= targetDef;
+
+	if (damage > 5000)
+		__debugbreak();
+
+	return damage;
 }
 
 int16 CUser::GetDef(uint32 curTime)

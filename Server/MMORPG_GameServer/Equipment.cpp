@@ -15,7 +15,13 @@ void Equipment::Init(CUserItemStorage* pStorage)
 
 	m_pStorage = pStorage;
 	m_useCount = 0;
-	// DB에서 장착 장비 긁어와 세팅 및 캐시 데이터 세팅
+
+	m_currentATK = 0;
+	m_currentDEF = 0;
+	m_currentMaxHP = 0;
+	m_currentMaxMP = 0;
+	m_currentHPRegenPerSec = 0;
+	m_currentMPRegenPerSec = 0;
 
 }
 void Equipment::Destroy()
@@ -149,6 +155,20 @@ bool Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& O
 		}
 	}
 
+	if (m_currentATK < -3000 || m_currentATK > 3000)
+		__debugbreak();
+	if (m_currentDEF < -3000 || m_currentDEF > 3000)
+		__debugbreak();
+	if (m_currentMaxHP < -3000 || m_currentMaxHP > 3000)
+		__debugbreak();
+	if (m_currentMaxMP < -3000 || m_currentMaxMP > 3000)
+		__debugbreak();
+	if (m_currentHPRegenPerSec < -3000 || m_currentHPRegenPerSec > 3000)
+		__debugbreak();
+	if (m_currentMPRegenPerSec < -3000 || m_currentMPRegenPerSec > 3000)
+		__debugbreak();
+
+
 	m_useCount++;
 	return true;
 }
@@ -214,6 +234,19 @@ bool Equipment::UnEquippedItem(EQUIP_SLOT slotNum, ITEM_UID& OutItemUID)
 		}
 	}
 
+	if (m_currentATK < -3000 || m_currentATK > 3000)
+		__debugbreak();
+	if (m_currentDEF < -3000 || m_currentDEF > 3000)
+		__debugbreak();
+	if (m_currentMaxHP < -3000 || m_currentMaxHP > 3000)
+		__debugbreak();
+	if (m_currentMaxMP < -3000 || m_currentMaxMP > 3000)
+		__debugbreak();
+	if (m_currentHPRegenPerSec < -3000 || m_currentHPRegenPerSec > 3000)
+		__debugbreak();
+	if (m_currentMPRegenPerSec < -3000 || m_currentMPRegenPerSec > 3000)
+		__debugbreak();
+
 	m_equipment[(int)slotNum] = ItemUID::ITEM_UID_INVALID_ID;
 	m_useCount--;
 	return true;
@@ -230,7 +263,7 @@ ITEM_UID Equipment::GetEquippedItem(EQUIP_SLOT slotNum)
 
 bool Equipment::IndexRangeCheck(EQUIP_SLOT slot)
 {
-	if ((int)slot < (int)EQUIP_SLOT::NONE || (int)slot >= (int)EQUIP_SLOT::MAX)
+	if ((int)slot <= (int)EQUIP_SLOT::NONE || (int)slot >= (int)EQUIP_SLOT::MAX)
 		return false;
 
 	return true;
