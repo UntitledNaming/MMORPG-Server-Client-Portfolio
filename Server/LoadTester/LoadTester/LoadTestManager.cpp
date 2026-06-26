@@ -279,8 +279,14 @@ void LoadTestManager::Run()
     m_shuttingDown.store(true);   // 이제부터의 끊김은 서버 오류로 안 셈
     m_running.store(false);
 
+    // 종료 끊기도 한꺼번에 하면 FIN/RST이 폭주해 일부 유실(서버 half-open/TIME_WAIT 적체) 우려 →
+    // 접속 램프와 같은 속도(rampPerSec)로 나눠 끊는다.
     for (int i = 0; i < m_cfg.userCount; ++i)
+    {
         HandleDisconnect(m_clients[i], false); // 정상 종료(오류 카운트 안 함)
+        if (m_cfg.rampPerSec > 0 && ((i + 1) % m_cfg.rampPerSec) == 0)
+            Sleep(1000);   // rampPerSec개 끊을 때마다 1초 쉬기
+    }
 
     // GQCS에 막혀있는 워커들을 깨우기(0바이트/키0 완료를 워커 수만큼 던짐)
     for (size_t i = 0; i < m_workers.size(); ++i)
