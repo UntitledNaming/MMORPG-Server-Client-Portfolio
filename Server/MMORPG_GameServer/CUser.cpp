@@ -30,12 +30,6 @@ void CUser::Init(uint64 sessionID, CDBManager* pDBManager)
 	m_sessionID = sessionID;
 	m_pDBManager = pDBManager;
 
-	for (int i = 0; i < FieldConst::MAX_GROSS_FIELD_MONSTER_COUNT; i++)
-	{
-		m_debugMonster[i].type = 0;
-		m_debugMonster[i].history.clear();
-		m_debugMonster[i].history.reserve(DEBUG_MONSTER_HISTORY_COUNT);
-	}
 }
 
 void CUser::Destroy()

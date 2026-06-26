@@ -195,15 +195,3 @@ enum class DBJobCount
 	Max,
 };
 
-enum class DebugMonsterEn : uint8
-{
-	None,
-	Create_FieldIn,
-	Create_MonsterRegen,
-	Create_MonsterSectorUpdate,
-	Create_CharacterSectorUpdate,
-	Delete_BaseAttack,
-	Delete_SkillUse,
-	Delete_MonsterSectorUpdate,
-	Delete_CharacterSectorUpdate,
-};

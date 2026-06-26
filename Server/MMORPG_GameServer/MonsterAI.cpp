@@ -428,13 +428,13 @@ void MonsterAI::UpdateSector()
 	// 몬스터 삭제 메세지 보내기
 	for (int i = 0; i < DeleteSector.m_count; i++)
 	{
-		m_pField->SendMonsterDeleteToSector(m_pOwner, DeleteSector.m_Around[i].GetX(), DeleteSector.m_Around[i].GetY(), DebugMonsterEn::Delete_MonsterSectorUpdate);
+		m_pField->SendMonsterDeleteToSector(m_pOwner, DeleteSector.m_Around[i].GetX(), DeleteSector.m_Around[i].GetY());
 	}
 
 	// 몬스터 생성 메세지 보내기
 	for (int i = 0; i < CreateSector.m_count; i++)
 	{
-		m_pField->SendMonsterCreateToSector(m_pOwner, CreateSector.m_Around[i].GetX(), CreateSector.m_Around[i].GetY(), DebugMonsterEn::Create_MonsterSectorUpdate);
+		m_pField->SendMonsterCreateToSector(m_pOwner, CreateSector.m_Around[i].GetX(), CreateSector.m_Around[i].GetY());
 	}
 
 	// 기존 섹터에서 몬스터 삭제
