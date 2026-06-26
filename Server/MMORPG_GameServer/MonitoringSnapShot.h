@@ -19,7 +19,7 @@ struct MonitorSnapshot
     LatencyHistogram authUpdateLockEnter;
     LatencyHistogram authUpdateWhole;
     LatencyHistogram dbQueryProcTime[(int)DBJobCount::Max];
-    
+    LatencyHistogram dbProcTime[(int)DBProcType::Max];
 
     // 머신 관련 측정값
     float     totalCPUUsage;

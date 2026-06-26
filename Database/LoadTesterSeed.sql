@@ -27,7 +27,7 @@
 -- =============================================================================
 
 -- ▼▼ 봇 수에 맞춰 이 값만 바꾸면 된다(LoadTester 의 user count 와 동일하게) ▼▼
-SET @N = 100;
+SET @N = 2500;
 
 -- 재귀 CTE 깊이 한도를 봇 수 이상으로(기본 1000이라 N이 크면 막힘).
 SET SESSION cte_max_recursion_depth = 200000;
@@ -49,8 +49,8 @@ WITH RECURSIVE
     --   NORMAL = 랜덤스탯 1개 / MAGIC = 2개,
     --   값은 등급별 min~max 안, 스탯 타입은 해당 장비 슬롯의 허용 목록 안.
     tmpl(k, itemID, cnt, slottype, slotindex, atk, def, maxhp, maxmp, hpregen, mpregen) AS (
-                    SELECT 0, 10001, 9, 3, 0, 0,0,0,0,0,0    -- 퀵0: SMALL_HP_POTION x9 (maxStack 10 이내)
-        UNION ALL   SELECT 1, 10002, 9, 3, 1, 0,0,0,0,0,0    -- 퀵1: SMALL_MP_POTION x9
+                    SELECT 0, 10001, 500, 3, 0, 0,0,0,0,0,0  -- 퀵0: SMALL_HP_POTION x500 (maxStack 500, 부하테스트 연속소비용)
+        UNION ALL   SELECT 1, 10002, 500, 3, 1, 0,0,0,0,0,0  -- 퀵1: SMALL_MP_POTION x500
         UNION ALL   SELECT 2, 10001, 9, 1, 0, 0,0,0,0,0,0    -- 인벤0: HP포션(스왑/스택용)
         UNION ALL   SELECT 3, 10002, 9, 1, 1, 0,0,0,0,0,0    -- 인벤1: MP포션(스왑용)
         -- 인벤2: NORMAL_WEAPON(10007). NORMAL → 랜덤스탯 1개. WEAPON 허용 스탯에 ATK 있음.

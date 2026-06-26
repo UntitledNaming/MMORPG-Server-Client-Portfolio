@@ -1,10 +1,13 @@
 ﻿#pragma once
+#include "LatencyHistogram.h"
+#include "ContentsEnum.h"
 
 class  DBTLS;
 struct DBJob;
 
 template<typename T>
 class LFQueueMul;
+
 
 class CDBManager
 {
@@ -22,5 +25,6 @@ public:
 	HANDLE              m_DBEvent;
 	DBTLS*              m_pDBTLS = nullptr;
 	LFQueueMul<DBJob*>* m_pDBQue = nullptr;
+	LatencyHistogram    m_procTime[(int)DBProcType::Max];
 };
 

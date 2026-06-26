@@ -195,3 +195,12 @@ enum class DBJobCount
 	Max,
 };
 
+enum class DBProcType
+{
+	Block,
+	Dequeue,
+	Execute,
+	Enqueue,
+	DeleteJob,
+	Max,
+};

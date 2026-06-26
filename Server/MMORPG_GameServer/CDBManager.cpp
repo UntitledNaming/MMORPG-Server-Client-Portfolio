@@ -27,6 +27,8 @@ void CDBManager::Init()
 	m_pDBQue = new LFQueueMul<DBJob*>;
 	m_DBSaveThread = std::thread(&CDBManager::DBThread, this);
 	m_DBEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+
+	memset(&m_procTime, 0, sizeof(LatencyHistogram) * (int)DBProcType::Max);
 }
 
 void CDBManager::Destroy()
@@ -48,12 +50,22 @@ void CDBManager::DBThread()
 	bool endflag = false;
 	while (!endflag)
 	{
+		auto start1 = std::chrono::steady_clock::now();
 		WaitForSingleObject(m_DBEvent, INFINITE);
+
+		auto end1 = std::chrono::steady_clock::now();
+
+		m_procTime[(int)DBProcType::Block].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end1 - start1).count());
 
 		while (m_pDBQue->GetUseSize() > 0)
 		{
+			auto start2 = std::chrono::steady_clock::now();
+
 			DBJob* pJob = nullptr;
 			m_pDBQue->Dequeue(pJob);
+
+			auto end2 = std::chrono::steady_clock::now();
+			m_procTime[(int)DBProcType::Dequeue].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start2).count());
 
 			// 종료 이벤트면 탈출
 			if ((int)pJob == 1)
@@ -62,19 +74,28 @@ void CDBManager::DBThread()
 				break;
 			}
 
-
+			auto start3 = std::chrono::steady_clock::now();
 			// 그게 아니면 Job처리
 			pJob->Execute(m_pDBTLS);
+			auto end3 = std::chrono::steady_clock::now();
+			m_procTime[(int)DBProcType::Execute].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end3 - start3).count());
+
 
 			// 만약 replyTo가 nullptr이 아니면 해당 큐에 Job 다시 넣어주기
 			if (pJob->replyTo != nullptr)
 			{
+				auto start4 = std::chrono::steady_clock::now();
 				pJob->replyTo->Enqueue(pJob);
+				auto end4 = std::chrono::steady_clock::now();
+				m_procTime[(int)DBProcType::Enqueue].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end4 - start4).count());
 				continue;
 			}
 
+			auto start5 = std::chrono::steady_clock::now();
 			// replyTo없으면 여기서 객체 지우기
 			delete pJob;
+			auto end5 = std::chrono::steady_clock::now();
+			m_procTime[(int)DBProcType::DeleteJob].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end5 - start5).count());
 		}
 	}
 

@@ -28,6 +28,8 @@ private:
 	void WriteSnapshot(MonitorSnapshot* s);
 	void OutHist(FILE* fp, const LatencyHistogram& h);
 	void HdrHist(FILE* fp, const WCHAR* name);
+	void OutHistTail(FILE* fp, const LatencyHistogram& h);   // 꼬리까지: p50/p95/p99/p999/max/cnt (DB 쿼리용)
+	void HdrHistTail(FILE* fp, const WCHAR* name);
 
 private:
 	CGameLibrary*   m_pGameLib = nullptr;

@@ -25,7 +25,7 @@ void ItemTable::Init()
 		data->itemRarity = ITEM_RARITY::NORMAL;
 		data->consumableType = CONSUMABLE_ITEM_TYPE::SMALL_HP_POTION;
 
-		data->maxStack = 10;
+		data->maxStack = 500;
 		data->recoverHP = 40;
 		data->recoverMP = 0;
 		data->baseStat = {};
@@ -42,7 +42,7 @@ void ItemTable::Init()
 		data->itemRarity = ITEM_RARITY::NORMAL;
 		data->consumableType = CONSUMABLE_ITEM_TYPE::SMALL_MP_POTION;
 
-		data->maxStack = 10;
+		data->maxStack = 500;
 		data->recoverHP = 0;
 		data->recoverMP = 35;
 

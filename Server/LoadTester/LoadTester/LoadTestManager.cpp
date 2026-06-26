@@ -64,8 +64,8 @@ namespace
     };
     const ItemMeta g_itemMeta[] =
     {
-        { 10001, 1, 10 }, // SMALL_HP_POTION (소비, 최대 10스택)
-        { 10002, 1, 10 }, // SMALL_MP_POTION (소비, 최대 10스택)
+        { 10001, 1, 500 }, // SMALL_HP_POTION (소비, 최대 500스택 - 부하테스트용 연속 소비)
+        { 10002, 1, 500 }, // SMALL_MP_POTION (소비, 최대 500스택 - 부하테스트용 연속 소비)
         { 10003, 2, 1  }, // NORMAL_HELMET   (장비, 1스택)
         { 10004, 2, 1  }, // NORMAL_CHEST
         { 10005, 2, 1  }, // NORMAL_PANTS
@@ -876,7 +876,7 @@ void LoadTestManager::HandlePacket(DummyClient& c, uint16 type, PacketReader& r)
             if (!r.Ok()) { ReportError(ERR_LEN_MISMATCH, c, L"USE_CONSUME body size"); break; }
             if (slotType != SLOT_INVENTORY && slotType != SLOT_QUICKSLOT)
                 ReportError(ERR_BAD_VALUE, c, L"USE_CONSUME slotType=%u", (unsigned)slotType);
-            if (newCount > 10)   // 포션 maxStack=10. 사용 후 개수가 그보다 크면 비정상
+            if (newCount > 500)   // 포션 maxStack=500(부하테스트용). 사용 후 개수가 그보다 크면 비정상
                 ReportError(ERR_BAD_VALUE, c, L"USE_CONSUME newCount=%u", (unsigned)newCount);
         }
         break;

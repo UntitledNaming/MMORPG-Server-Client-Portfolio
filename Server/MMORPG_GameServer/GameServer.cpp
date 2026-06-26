@@ -314,6 +314,12 @@ void GameServer::StoreProc()
 	for (int i = 0; i < (int)DBJobCount::Max; ++i)
 		DBJob::g_QueryProcTime[i].SnapshotAndReset(pStore->dbQueryProcTime[i]);
 
+	for (int i = 0; i < (int)DBProcType::Max; ++i)
+	{
+		m_pDBManager->m_procTime[i].SnapshotAndReset(pStore->dbProcTime[i]);
+	}
+
+
 	pStore->storeQueueCount = m_pStoreQueue->GetUseSize();
 
 	// ── 네트워크 ──
@@ -352,6 +358,9 @@ static_assert(_countof(kFrameName)     == (int)FrameProcType::Max, "Frame 이름
 static_assert(_countof(kBcastName)     == (int)BroadCastType::Max, "Broadcast 이름 테이블 불일치");
 static_assert(_countof(kAuthRecvName)  == (int)AuthRecvType::Max,  "AuthRecv 이름 테이블 불일치");
 static_assert(_countof(kDbJobName)     == (int)DBJobCount::Max,    "DBJob 이름 테이블 불일치");
+
+static const WCHAR* kDbProcName[] = { L"Block", L"Dequeue", L"Execute", L"Enqueue", L"DeleteJob" };
+static_assert(_countof(kDbProcName)    == (int)DBProcType::Max,    "DBProc 이름 테이블 불일치");
 }
 
 void GameServer::WriteCsvHeader()
@@ -370,7 +379,8 @@ void GameServer::WriteCsvHeader()
 
 	fwprintf(m_csvFp, L"cpuTotal,cpuUser,cpuKernel,");
 	for (int i = 0; i < (int)DBJobCount::Max; ++i) fwprintf(m_csvFp, L"%s,", kDbJobName[i]);
-	for (int i = 0; i < (int)DBJobCount::Max; ++i) { WCHAR nm[64]; swprintf(nm, _countof(nm), L"%s_q", kDbJobName[i]); HdrHist(m_csvFp, nm); }
+	for (int i = 0; i < (int)DBJobCount::Max; ++i) { WCHAR nm[64]; swprintf(nm, _countof(nm), L"%s_q", kDbJobName[i]); HdrHistTail(m_csvFp, nm); }
+	for (int i = 0; i < (int)DBProcType::Max; ++i) { WCHAR nm[64]; swprintf(nm, _countof(nm), L"dbp_%s", kDbProcName[i]); HdrHistTail(m_csvFp, nm); }
 	fwprintf(m_csvFp, L"dbQueue,storeQueue,sendIOTPS,recvIOTPS,tcpSeg,tcpRetx,fieldFrame,authFrame,syncCount\n");
 }
 
@@ -401,7 +411,8 @@ void GameServer::WriteSnapshot(MonitorSnapshot* s)
 
 	// DB Job TPS + Job별 쿼리 처리시간 히스토그램 + 큐 깊이(DB/Store)
 	for (int i = 0; i < (int)DBJobCount::Max; ++i) fwprintf(m_csvFp, L"%lld,", s->dbJobTPS[i]);
-	for (int i = 0; i < (int)DBJobCount::Max; ++i) OutHist(m_csvFp, s->dbQueryProcTime[i]);
+	for (int i = 0; i < (int)DBJobCount::Max; ++i) OutHistTail(m_csvFp, s->dbQueryProcTime[i]);
+	for (int i = 0; i < (int)DBProcType::Max; ++i) OutHistTail(m_csvFp, s->dbProcTime[i]);
 	fwprintf(m_csvFp, L"%lld,%lld,", s->dbJobQueueCount, s->storeQueueCount);
 
 	// 네트워크 (recvIOTPS·fieldFrameTPS는 네가 추가한 필드명에 맞춰)
@@ -423,4 +434,17 @@ void GameServer::OutHist(FILE* fp, const LatencyHistogram& h)
 void GameServer::HdrHist(FILE* fp, const WCHAR* name)
 {
 	fwprintf(fp, L"%s_p50,%s_p95,%s_p99,%s_cnt,", name, name, name, name);
+}
+
+// 꼬리까지 노출: p99로는 안 잡히는 극단(p99.9) + 최상위 버킷(max). Percentile(100)=비어있지 않은 최상위 버킷 하한.
+void GameServer::OutHistTail(FILE* fp, const LatencyHistogram& h)
+{
+	fwprintf(fp, L"%llu,%llu,%llu,%llu,%llu,%lld,",
+		h.Percentile(50), h.Percentile(95), h.Percentile(99),
+		h.Percentile(99.9), h.Percentile(100), h.GetCount());
+}
+
+void GameServer::HdrHistTail(FILE* fp, const WCHAR* name)
+{
+	fwprintf(fp, L"%s_p50,%s_p95,%s_p99,%s_p999,%s_max,%s_cnt,", name, name, name, name, name, name);
 }
