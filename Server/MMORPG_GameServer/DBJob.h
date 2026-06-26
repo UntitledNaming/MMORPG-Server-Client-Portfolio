@@ -2,6 +2,7 @@
 #include "ContentsType.h"
 #include "ContentsStruct.h"
 #include "ContentsEnum.h"
+#include "LatencyHistogram.h"
 
 class DBTLS;
 class CGroup;
@@ -42,6 +43,7 @@ struct DBJob
 	uint64              sessionID = 0;                        // 이 Job을 던진 세션의 유효성 검증용 
 
 	static unsigned long long  g_TPS[(int)DBJobCount::Max];
+	static LatencyHistogram    g_QueryProcTime[(int)DBJobCount::Max];
 };
 
 struct ItemUIDRangeAllocateJob : public DBJob

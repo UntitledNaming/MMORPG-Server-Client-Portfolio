@@ -17,7 +17,9 @@
 #include "ItemUIDAllocator.h"
 #include "DBJob.h"
 
-unsigned long long DBJob::g_TPS[(int)DBJobCount::Max] = {};
+unsigned long long  DBJob::g_TPS[(int)DBJobCount::Max] = {};
+LatencyHistogram    DBJob::g_QueryProcTime[(int)DBJobCount::Max] = {};
+
 
 void* DBJob::operator new(size_t size)
 {
@@ -87,6 +89,8 @@ PostAction CharacterSelectJob::OnComplete(CGroup* pGroup, CUser* pUser)
 
 void CharacterSelectJob::Execute(DBTLS* InDBTLS)
 {
+	auto start = std::chrono::steady_clock::now();
+
 	// DBTLS를 통해 유저 객체 및 아이템 정보 얻는 쿼리 날리기
 	bool success = false;
 	success = InDBTLS->DB_Post_Query(result, "START TRANSACTION");
@@ -197,33 +201,56 @@ void CharacterSelectJob::Execute(DBTLS* InDBTLS)
 	success = InDBTLS->DB_Post_Query(result, "COMMIT");
 	if (!success)
 		__debugbreak();
+
+	auto end = std::chrono::steady_clock::now();
+
+	g_QueryProcTime[(int)DBJobCount::CharacterSelect].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
+
 }
 
 void InsertItemJob::Execute(DBTLS* InDBTLS)
 {
+	auto start = std::chrono::steady_clock::now();
+
 	bool success = false;
 	success = InDBTLS->DB_Post_Query(result, "INSERT INTO worlddb.item VALUES (%llu, %llu, %u, %d, %d, %d, %d, %d, %d, %d, %d, %d)", 
 		itemUID, characterUID, itemID, count, slotType, slotIndex, itemStat.atk, itemStat.def, itemStat.maxHP, itemStat.maxMP, itemStat.hpRegenPerSec, itemStat.mpRegenPerSec);
 	if (!success)
 		__debugbreak();
+
+	auto end = std::chrono::steady_clock::now();
+
+	g_QueryProcTime[(int)DBJobCount::InsertItem].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void DeleteItemJob::Execute(DBTLS* InDBTLS)
 {
+	auto start = std::chrono::steady_clock::now();
+
 	bool success = false;
 	success = InDBTLS->DB_Post_Query(result, "DELETE FROM worlddb.item WHERE itemUID = %llu", itemUID);
 		
 	if (!success)
 		__debugbreak();
+
+	auto end = std::chrono::steady_clock::now();
+
+	g_QueryProcTime[(int)DBJobCount::DeleteItem].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void ItemCountUpdateJob::Execute(DBTLS* InDBTLS)
 {
+	auto start = std::chrono::steady_clock::now();
+
 	bool success = false;
 	success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.item SET count = %u WHERE itemUID = %llu", newCount, itemUID);
 
 	if (!success)
 		__debugbreak();
+
+	auto end = std::chrono::steady_clock::now();
+
+	g_QueryProcTime[(int)DBJobCount::ItemUpdateCount].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void ItemSlotUpdateJob::Execute(DBTLS* InDBTLS)
@@ -276,20 +303,33 @@ void ItemSlotUpdateJob::Execute(DBTLS* InDBTLS)
 	lastquery += slotindexQuery;
 	lastquery += whereQuery;
 
+
+	auto start = std::chrono::steady_clock::now();
+
 	// 아이템 UPDATE 쿼리 한방에 보내기
 	bool success = false;
 	success = InDBTLS->DB_Post_Query(result, lastquery.c_str());
 	if (!success)
 		__debugbreak();
+
+	auto end = std::chrono::steady_clock::now();
+
+	g_QueryProcTime[(int)DBJobCount::ItemSlotUpdate].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void CharacterProgressJob::Execute(DBTLS* InDBTLS)
 {
+	auto start = std::chrono::steady_clock::now();
+
 	bool success = false;
 	success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.character SET characterlevel = %u, curEXP = %d WHERE characterUID = %llu", level, curEXP, characterUID);
 
 	if (!success)
 		__debugbreak();
+
+	auto end = std::chrono::steady_clock::now();
+
+	g_QueryProcTime[(int)DBJobCount::CharacterProgress].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }
 
 void LogOutJob::Execute(DBTLS* InDBTLS)
@@ -345,6 +385,8 @@ void LogOutJob::Execute(DBTLS* InDBTLS)
 	/////////////////////////////////////////////////////////////////////////////////
 	// 쿼리 보내기
 	/////////////////////////////////////////////////////////////////////////////////
+	auto start = std::chrono::steady_clock::now();
+
 	bool success = false;
 	success = InDBTLS->DB_Post_Query(result, "START TRANSACTION");
 	if (!success)
@@ -367,4 +409,8 @@ void LogOutJob::Execute(DBTLS* InDBTLS)
 	success = InDBTLS->DB_Post_Query(result, "COMMIT");
 	if (!success)
 		__debugbreak();
+
+	auto end = std::chrono::steady_clock::now();
+
+	g_QueryProcTime[(int)DBJobCount::LogOut].Record(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count());
 }

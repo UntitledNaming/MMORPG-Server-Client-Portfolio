@@ -264,8 +264,8 @@ void GameServer::StoreThread()
 void GameServer::StoreProc()
 {
 	/////////////////////////////////////////////////////////////////////////
-// 저장 스레드로 보낼 측정값들 구조체 할당해서 저장하고 저장 시간도 기록
-/////////////////////////////////////////////////////////////////////////
+    // 저장 스레드로 보낼 측정값들 구조체 할당해서 저장하고 저장 시간도 기록
+    /////////////////////////////////////////////////////////////////////////
 	MonitorSnapshot* pStore = m_SnapShotPool->Alloc();
 	memset(pStore, 0, sizeof(MonitorSnapshot));
 
@@ -309,6 +309,12 @@ void GameServer::StoreProc()
 	pStore->dbJobTPS[(int)DBJobCount::CharacterProgress] = CharacterProgressJob::g_TPS[(int)DBJobCount::CharacterProgress];
 	pStore->dbJobTPS[(int)DBJobCount::LogOut] = LogOutJob::g_TPS[(int)DBJobCount::LogOut];
 	pStore->dbJobQueueCount = m_pDBManager->m_pDBQue->GetUseSize();
+
+	// 히스토그램은 복사만 하면 g_QueryProcTime이 안 비워져 누적된다 → SnapshotAndReset로 복사+리셋(필드 히스토그램과 동일).
+	for (int i = 0; i < (int)DBJobCount::Max; ++i)
+		DBJob::g_QueryProcTime[i].SnapshotAndReset(pStore->dbQueryProcTime[i]);
+
+	pStore->storeQueueCount = m_pStoreQueue->GetUseSize();
 
 	// ── 네트워크 ──
 	pStore->sendIOTPS = m_pGameLib->m_SendIOTPS;
@@ -364,7 +370,8 @@ void GameServer::WriteCsvHeader()
 
 	fwprintf(m_csvFp, L"cpuTotal,cpuUser,cpuKernel,");
 	for (int i = 0; i < (int)DBJobCount::Max; ++i) fwprintf(m_csvFp, L"%s,", kDbJobName[i]);
-	fwprintf(m_csvFp, L"dbQueue,sendIOTPS,recvIOTPS,tcpSeg,tcpRetx,fieldFrame,authFrame,syncCount\n");
+	for (int i = 0; i < (int)DBJobCount::Max; ++i) { WCHAR nm[64]; swprintf(nm, _countof(nm), L"%s_q", kDbJobName[i]); HdrHist(m_csvFp, nm); }
+	fwprintf(m_csvFp, L"dbQueue,storeQueue,sendIOTPS,recvIOTPS,tcpSeg,tcpRetx,fieldFrame,authFrame,syncCount\n");
 }
 
 void GameServer::WriteSnapshot(MonitorSnapshot* s)
@@ -392,9 +399,10 @@ void GameServer::WriteSnapshot(MonitorSnapshot* s)
 	// CPU
 	fwprintf(m_csvFp, L"%.2f,%.2f,%.2f,", s->totalCPUUsage, s->userCPUUsage, s->kernnelCPUUsage);
 
-	// DB Job TPS + 큐 깊이
+	// DB Job TPS + Job별 쿼리 처리시간 히스토그램 + 큐 깊이(DB/Store)
 	for (int i = 0; i < (int)DBJobCount::Max; ++i) fwprintf(m_csvFp, L"%lld,", s->dbJobTPS[i]);
-	fwprintf(m_csvFp, L"%lld,", s->dbJobQueueCount);
+	for (int i = 0; i < (int)DBJobCount::Max; ++i) OutHist(m_csvFp, s->dbQueryProcTime[i]);
+	fwprintf(m_csvFp, L"%lld,%lld,", s->dbJobQueueCount, s->storeQueueCount);
 
 	// 네트워크 (recvIOTPS·fieldFrameTPS는 네가 추가한 필드명에 맞춰)
 	fwprintf(m_csvFp, L"%ld,%ld,%.0f,%.0f,", s->sendIOTPS, s->recvIOTPS, s->tcpSegmentSend, s->tcpTransmit);

@@ -18,6 +18,8 @@ struct MonitorSnapshot
     LatencyHistogram authRecvLockEnter;
     LatencyHistogram authUpdateLockEnter;
     LatencyHistogram authUpdateWhole;
+    LatencyHistogram dbQueryProcTime[(int)DBJobCount::Max];
+    
 
     // 머신 관련 측정값
     float     totalCPUUsage;
@@ -29,6 +31,7 @@ struct MonitorSnapshot
     long long dbJobTPS[(int)DBJobCount::Max];
     long long dbJobQueueCount;                 // 발산 신호
 
+    long long storeQueueCount; 
 
     // 네트워크 관련 측정값
     long      sendIOTPS;
@@ -39,4 +42,5 @@ struct MonitorSnapshot
     uint64    syncCount;
     long      fieldFrame;
     long      authFrame;
+    
 };
