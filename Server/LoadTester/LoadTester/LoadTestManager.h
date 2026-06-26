@@ -146,5 +146,11 @@ private:
     std::mutex          m_rttMtx;
     std::vector<double> m_rttSamples;
 
+    // 전체 구간 RTT 누적(StatsLoop가 매초 갱신, PrintReport가 읽음 → 단일 스레드라 atomic 불필요).
+    long long m_rttCountTotal = 0;     // 누적 샘플 수
+    double    m_rttSumTotal   = 0.0;   // 누적 합(avg용)
+    double    m_rttMinTotal   = 0.0;   // 최소(첫 샘플로 초기화)
+    double    m_rttMaxTotal   = 0.0;   // 최대
+
     static const char* ErrName(int cat);   // 오류 종류 → 사람이 읽는 이름
 };

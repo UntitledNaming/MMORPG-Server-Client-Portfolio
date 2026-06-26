@@ -1322,6 +1322,14 @@ void LoadTestManager::StatsLoop()
             std::lock_guard<std::mutex> lk(m_rttMtx);
             samples.swap(m_rttSamples);
         }
+        // 전체 구간 min/max/avg 누적(이번 창 샘플을 통째로 접어 넣음).
+        for (double v : samples)
+        {
+            if (m_rttCountTotal == 0 || v < m_rttMinTotal) m_rttMinTotal = v;
+            if (m_rttCountTotal == 0 || v > m_rttMaxTotal) m_rttMaxTotal = v;
+            m_rttSumTotal += v;
+            ++m_rttCountTotal;
+        }
         double p50 = -1, p95 = -1, p99 = -1;
         if (!samples.empty())
         {
@@ -1362,6 +1370,11 @@ void LoadTestManager::PrintReport(double elapsedSec)
     printf("deaths / respawns  : %lld / %lld\n", m_gameDeaths.load(), m_respawns.load());
     printf("item pickups       : %lld\n", m_pickups.load());
     printf("skill ok / fail    : %lld / %lld\n", m_skillOk.load(), m_skillFail.load());
+    if (m_rttCountTotal > 0)
+        printf("rtt(ms) min/avg/max: %.1f / %.1f / %.1f  (n=%lld)\n",
+            m_rttMinTotal, m_rttSumTotal / (double)m_rttCountTotal, m_rttMaxTotal, m_rttCountTotal);
+    else
+        printf("rtt(ms) min/avg/max: (no samples)\n");
     if (elapsedSec > 0)
     {
         printf("avg tx/s, rx/s     : %.0f / %.0f\n",
