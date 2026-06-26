@@ -47,6 +47,8 @@ namespace UserConst
 	constexpr uint32  USER_MP_REGEN_TIME = 1;
 	constexpr uint32  USER_ITEM_SLOT_UPDATE_MIN_TIME = 30000;
 	constexpr uint32  USER_ITEM_SLOT_UPDATE_MAX_TIME = 60000;
+	constexpr uint32  USER_PROGRESS_UPDATE_MIN_TIME  = 30000;
+	constexpr uint32  USER_PROGRESS_UPDATE_MAX_TIME  = 60000;
 }
 
 namespace ClientMovement

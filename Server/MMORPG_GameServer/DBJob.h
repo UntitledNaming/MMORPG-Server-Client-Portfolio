@@ -122,6 +122,8 @@ struct LogOutJob : public DBJob
 	virtual void Execute(DBTLS* DBTLS) override;
 
 	uint64                          characterUID;
+	uint16                          level;
+	int32                           curEXP;
 	Location                        location;
 	std::vector<ItemSlotUpdateData> updateitems;
 };

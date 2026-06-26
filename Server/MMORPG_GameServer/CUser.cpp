@@ -36,6 +36,8 @@ void CUser::Destroy()
 {
 	LogOutJob* pJob = new LogOutJob;
 	pJob->characterUID = m_characterUID;
+	pJob->level = m_level;
+	pJob->curEXP = m_currentExp;
 	pJob->location = m_location;
 	pJob->updateitems.reserve(UserItemStorage::MAX_ITEM_STORAGE_COUNT);
 	
@@ -49,6 +51,8 @@ void CUser::Destroy()
 	m_inventory.Destroy();
 	m_quickSlot.Destroy();
 	m_storage.Destroy();
+
+	m_progressdirtyFlag = false;
 }
 
 void CUser::ResPawn()
@@ -67,6 +71,10 @@ void CUser::LoadDataFromDB(uint64 characterUID, uint64 accountID, uint16 level, 
 
 	m_itemSlotUpdateTime = USER_ITEM_SLOT_UPDATE_MIN_TIME + rand() % (USER_ITEM_SLOT_UPDATE_MAX_TIME - USER_ITEM_SLOT_UPDATE_MIN_TIME);
 	m_itemSlotUpdateTimeAccum = 0;
+
+	m_characterProgressUpdateTime = USER_PROGRESS_UPDATE_MIN_TIME + rand() % (USER_PROGRESS_UPDATE_MAX_TIME - USER_PROGRESS_UPDATE_MIN_TIME);
+	m_characterProgressUpdateTimeAccum = 0;
+	m_progressdirtyFlag = false;
 
 	// 아이템 인벤토리 삽입
 	// 아이템 장비 탭 삽입
@@ -219,6 +227,9 @@ bool CUser::UserOnUpdate(uint32 curTime)
 	// 아이템 슬롯 업데이트 체크
 	ItemSlotUpdate();
 
+	// 캐릭터 Progress 정보 업데이트 체크
+	CharacterProgressUpdate();
+
 	// 섹터 변경은 FieldGroup이 Move가 성공하면 그때 할 것임.
 	return Move();
 }
@@ -232,20 +243,13 @@ bool CUser::GainExp(uint32 GetExp, GainEXPResult& result)
 	// 경험치 올리기
 	m_currentExp += GetExp;
 
-	CharacterProgressJob* pJob = new CharacterProgressJob;
-	pJob->characterUID = m_characterUID;
+	m_progressdirtyFlag = true;
 
 	// 필요 경험치 덜 찼으면 그냥 리턴
 	if (m_currentExp < m_requiredExp)
 	{
 		result.levelUp = false;
 		result.curEXP = m_currentExp;
-		pJob->curEXP = m_currentExp;
-		pJob->level = m_level;
-
-		m_pDBManager->EnqueueDBJob(pJob);
-
-		InterlockedIncrement(&CharacterProgressJob::g_TPS[(int)DBJobCount::CharacterProgress]);
 		return true;
 	}
 
@@ -286,11 +290,6 @@ bool CUser::GainExp(uint32 GetExp, GainEXPResult& result)
 		}
 	}
 
-	pJob->level = m_level;
-	pJob->curEXP = m_currentExp;
-	m_pDBManager->EnqueueDBJob(pJob);
-
-	InterlockedIncrement(&CharacterProgressJob::g_TPS[(int)DBJobCount::CharacterProgress]);
 	return true;
 }
 
@@ -951,6 +950,32 @@ CUser* CUser::Alloc()
 void CUser::Free(CUser* pUser)
 {
 	m_userPool.Free(pUser);
+}
+
+void CUser::CharacterProgressUpdate()
+{
+	// 플래그 안켜져있으면 시간 안늘림
+	if (m_progressdirtyFlag == false)
+		return;
+
+	m_characterProgressUpdateTimeAccum += FieldConst::UPDATE_LOOP_TIME;
+
+	// 시간 안되었으면 리턴
+	if (m_characterProgressUpdateTimeAccum < m_characterProgressUpdateTime)
+		return;
+
+	// 시간 됐으면 Job 던지기
+	CharacterProgressJob* pJob = new CharacterProgressJob;
+	pJob->characterUID = m_characterUID;
+	pJob->level = m_level;
+	pJob->curEXP = m_currentExp;
+
+	m_pDBManager->EnqueueDBJob(pJob);
+
+	InterlockedIncrement(&CharacterProgressJob::g_TPS[(int)DBJobCount::CharacterProgress]);
+
+	m_characterProgressUpdateTimeAccum = 0;
+	m_progressdirtyFlag = false;
 }
 
 void CUser::ItemSlotUpdate()

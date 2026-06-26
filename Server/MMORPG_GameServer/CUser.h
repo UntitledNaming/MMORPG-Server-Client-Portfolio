@@ -118,6 +118,7 @@ public:
 	static void Free(CUser* pUser);
 
 private:
+	void CharacterProgressUpdate();
 	void ItemSlotUpdate();
 	void InventoryItemLoad(ItemLoadData& Item);
 	void EquipmentItemLoad(ItemLoadData& Item);
@@ -145,6 +146,8 @@ private:
 	uint64                 m_characterUID;
 	uint32                 m_itemSlotUpdateTime;
 	uint32                 m_itemSlotUpdateTimeAccum;
+	uint32                 m_characterProgressUpdateTime;
+	uint32                 m_characterProgressUpdateTimeAccum;
 	int32                  m_currentExp;
 	int32                  m_requiredExp;
 	SkillInfo              m_skillInfo[UserConst::USER_SKILL_SLOT_COUNT];
@@ -162,6 +165,7 @@ private:
 	RecoveryInfo           m_recoveryInfo;    
 	ConsumableCooltimeInfo m_consumableCooltimeInfo;
 	bool                   m_moveFlag;
+	bool                   m_progressdirtyFlag; 
 	float                  m_movementYaw;                                                     // 캐릭터 이동 방향, 이동 처리시 사용
 	float                  m_maxWalkSpeed;                                                    // 캐릭터 최대 이동 속도(이벤트 발생시 변화 값)
 	float                  m_moveSpeed;
