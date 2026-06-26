@@ -731,7 +731,7 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 		// 특정 시간동안 해당 유저의 싱크 패킷 횟수가 임계값을 넘을때 해당 유저 끊기
 		if (pUser->m_syncCount >= SYNC_MAX_COUNT)
 		{
-			Disconnect(sessionID);
+			//Disconnect(sessionID);
 			return;
 		}
 
