@@ -196,7 +196,7 @@ DROP TABLE worlddb.character;
 DROP TABLE worlddb.item;
 
 -- 테스트 용 쿼리
-SELECT * FROM worlddb.character;
+SELECT * FROM worlddb.character WHERE characterUID = 4500;
 SELECT * FROM worlddb.item;
 SELECT * FROM worlddb.uid_sequence;
 INSERT INTO worlddb.item VALUES(1, 1, 10012, 1,1, 5, 10,5,0,0,0,0); -- Test SQL

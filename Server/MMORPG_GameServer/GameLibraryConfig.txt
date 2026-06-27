@@ -8,7 +8,7 @@
          NAGLE = 0;
          /* Send 스레드 생성 플래그 및 Send 스레드 Sleep 값 */
          SEND_FRAME = 40;
-         SEND_TH_FLAG = 0;  // 0 : SendThread 생성 x , 1: SendThread 생성 o
+         SEND_TH_FLAG = 1;  // 0 : SendThread 생성 x , 1: SendThread 생성 o
 
 
          /* DEBUG = 0, ERROR = 1, SYSTEM = 2 */
