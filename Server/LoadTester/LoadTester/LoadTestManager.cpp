@@ -168,12 +168,12 @@ bool LoadTestManager::Init()
 
     srand(GetTickCount());   // 랜덤워크/공격 등에 쓰는 rand 시드
 
-    // 봇 배열 할당. 각 봇에 슬롯번호와 characterUID(1..N) 부여.
+    // 봇 배열 할당. 각 봇에 슬롯번호와 characterUID(uidStart..uidStart+N-1) 부여.
     m_clients.reset(new DummyClient[m_cfg.userCount]);
     for (int i = 0; i < m_cfg.userCount; ++i)
     {
         m_clients[i].index = i;
-        m_clients[i].characterUID = static_cast<uint64>(i + 1); // characterUID 1..N
+        m_clients[i].characterUID = static_cast<uint64>(m_cfg.uidStart + i); // uidStart .. uidStart+N-1
     }
 
     // 모든 소켓이 묶일 IOCP 생성.

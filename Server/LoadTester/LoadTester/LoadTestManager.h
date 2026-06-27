@@ -22,7 +22,8 @@ struct LoadConfig
     std::string ip = "127.0.0.1";   // 접속 대상 서버 IP
     uint16 port = 11211;            // 접속 대상 포트
 
-    int  userCount = 100;       // 봇 수 = characterUID 1 .. userCount
+    int  userCount = 100;       // 봇 수 = characterUID uidStart .. uidStart+userCount-1
+    int  uidStart  = 1;         // 이 인스턴스 시작 characterUID. 봇 i → uidStart + i (머신 분할 시 겹침 방지)
     int  rstPercent = 0;        // 테스트 도중 RST로 끊을 봇 비율(%)
     int  rampPerSec = 500;      // 초당 새로 여는 접속 수(서버 accept가 직렬이라 한 번에 X)
 

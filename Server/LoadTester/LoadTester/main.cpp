@@ -47,6 +47,7 @@ int main()
     cfg.ip             = AskStr("Server IP", cfg.ip);                                 // 접속할 서버 IP
     cfg.port           = (uint16)AskInt("Server Port", cfg.port);                     // 접속할 포트(기본 11211)
     cfg.userCount      = AskInt("User count (characterUID 1..N)", cfg.userCount);     // 띄울 봇 수 = DB 캐릭터 1..N
+    cfg.uidStart       = AskInt("characterUID start (machine split offset)", cfg.uidStart); // 이 인스턴스 시작 UID(머신 분할 시 겹침 방지)
     cfg.rstPercent     = AskInt("RST disconnect percent (0-100)", cfg.rstPercent);    // 도중에 RST로 끊을 비율(%)
     cfg.rampPerSec     = AskInt("Connect ramp (connections/sec)", cfg.rampPerSec);    // 초당 접속 개수(서버 accept가 직렬이라 한꺼번에 X)
     cfg.moveIntervalMs = AskInt("Move interval per bot (ms, 0=off)", cfg.moveIntervalMs);     // 봇당 이동 패킷 주기(ms)
