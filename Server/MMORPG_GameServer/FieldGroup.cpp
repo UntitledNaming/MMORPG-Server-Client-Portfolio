@@ -1279,6 +1279,9 @@ void FieldGroup::UserUpdate()
 
 void FieldGroup::SectorUpdate(CUser* pUser, const SectorPos& newSec)
 {
+	if (!SectorPos::SectorRangeCheck(newSec))
+		return;
+
 	// 같은 섹터 좌표면 리턴
 	if (SectorPos::SameSector(pUser->GetSectorPos(),newSec))
 		return;

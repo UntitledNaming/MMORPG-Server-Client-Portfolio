@@ -316,8 +316,15 @@ bool CUser::Move()
 	float dirX = cosf(rad);
 	float dirY = sinf(rad);
 
-	m_location.xpos += dirX * m_moveSpeed;
-	m_location.ypos += dirY * m_moveSpeed;
+	float newxpos = m_location.xpos + dirX * m_moveSpeed;
+	float newypos = m_location.ypos + dirY * m_moveSpeed;
+
+	if (newxpos< FieldConst::MAP_WORLD_OFFSET_X || newxpos > FieldConst::MAP_WORLD_OFFSET_X + FieldConst::SECTOR_SIZE * FieldConst::SECTOR_X_MAX ||
+		newypos < FieldConst::MAP_WORLD_OFFSET_Y || newypos > FieldConst::MAP_WORLD_OFFSET_Y + FieldConst::SECTOR_SIZE * FieldConst::SECTOR_Y_MAX)
+		return false;
+
+	m_location.xpos = newxpos;
+	m_location.ypos = newypos;
 
 	return true;
 }
