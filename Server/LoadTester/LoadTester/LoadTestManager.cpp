@@ -939,8 +939,18 @@ void LoadTestManager::HandlePacket(DummyClient& c, uint16 type, PacketReader& r)
         break;
     }
 
+    // ---- 서버 위치 보정(스냅백): 실 M1 클라처럼 내 위치를 서버 값으로 리셋 ----
+    case PACKET_SC_SYNC_MY_CHARACTER_POS:   // 1005: { f x, f y, f z }
+    {
+        float sx = r.GetFloat(); float sy = r.GetFloat(); float sz = r.GetFloat();
+        if (!r.Ok() || r.Remain() != 0) { ReportError(ERR_LEN_MISMATCH, c, L"SYNC_MY_POS size"); break; }
+        // 안 맞추면 어긋난 봇이 영구 싱크(서버·봇이 lockstep으로 갭 유지). 스폰(c.x=x)과 동일하게 worker에서 씀.
+        c.x = sx; c.y = sy; c.z = sz;
+        break;
+    }
+
     default:
-        // 남은 알려진 패킷(내 위치 보정 1005, 무브모드 1008 등)은 깊게 파싱하지 않고 통과.
+        // 남은 알려진 패킷(무브모드 1008 등)은 깊게 파싱하지 않고 통과.
         // 모르는 타입이면 서버 이상으로 보고.
         if (!IsKnownType(type))
             ReportError(ERR_UNKNOWN_TYPE, c, L"unknown packet type=%u", (unsigned)type);
