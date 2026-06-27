@@ -116,3 +116,6 @@ Thumbs.db
 # Mysql Third Party
 !Server/MMORPG_GameServer/ThirdParty/mysql/**/*.lib
 !Server/MMORPG_GameServer/ThirdParty/mysql/**/*.dll
+
+# LoadTester 빌드 바이너리 (부하 생성기 배포용 — *.exe 무시에서 이 exe만 예외, pdb는 무시목록에 없어 그냥 추적됨)
+!Server/LoadTester/LoadTester/x64/Release/LoadTester.exe
