@@ -202,6 +202,7 @@ void AuthGroup::CharacterSelectProc(uint64 sessionID, CMessage* pMessage)
 	pJob->characterUID = characteruid;
 	pJob->accountID = characteruid;   // AccountID랑 CharacterUID를 통일 시키는 가정(원래는 다름)
 	pJob->replyTo = m_pDBJobQueue;
+	pJob->flush = true;
 
 	// DB Manager에게 Job 전달
 	m_DBManagerPtr->EnqueueDBJob(pJob);

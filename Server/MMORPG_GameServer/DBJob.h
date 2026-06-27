@@ -42,6 +42,7 @@ struct DBJob
 	LFQueueMul<DBJob*>* replyTo = nullptr;                    // Job을 던진 쪽에서 소유한 DBJob 큐 포인터, Read 작업이면 이 큐로 다시 DBJob 포인터 넣음.
 	uint64              sessionID = 0;                        // 이 Job을 던진 세션의 유효성 검증용 
 
+	bool                flush = false;
 	static unsigned long long  g_TPS[(int)DBJobCount::Max];
 	static LatencyHistogram    g_QueryProcTime[(int)DBJobCount::Max];
 };

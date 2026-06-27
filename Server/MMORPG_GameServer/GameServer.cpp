@@ -224,6 +224,7 @@ void GameServer::Monitoring()
 void GameServer::ItemUIDAllocate()
 {
 	ItemUIDRangeAllocateJob* pJob = new ItemUIDRangeAllocateJob;
+	pJob->flush = true;
 	m_pDBManager->EnqueueDBJob(pJob);
 }
 

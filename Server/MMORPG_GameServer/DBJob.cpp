@@ -93,10 +93,6 @@ void CharacterSelectJob::Execute(DBTLS* InDBTLS)
 
 	// DBTLS를 통해 유저 객체 및 아이템 정보 얻는 쿼리 날리기
 	bool success = false;
-	success = InDBTLS->DB_Post_Query(result, "START TRANSACTION");
-	if (!success)
-		__debugbreak();
-
 	// 유저 테이블 정보 가져오기
 	success = InDBTLS->DB_Post_Query(result, "SELECT * FROM worlddb.character WHERE characterUID = %llu", characterUID);
 	if (!success)
@@ -196,11 +192,6 @@ void CharacterSelectJob::Execute(DBTLS* InDBTLS)
 
 	// 데이터 가져온거 밀어버리기
 	InDBTLS->DB_Free_Result();
-
-	// 커밋 끝
-	success = InDBTLS->DB_Post_Query(result, "COMMIT");
-	if (!success)
-		__debugbreak();
 
 	auto end = std::chrono::steady_clock::now();
 
@@ -388,9 +379,6 @@ void LogOutJob::Execute(DBTLS* InDBTLS)
 	auto start = std::chrono::steady_clock::now();
 
 	bool success = false;
-	success = InDBTLS->DB_Post_Query(result, "START TRANSACTION");
-	if (!success)
-		__debugbreak();
 
 	// 캐릭터 위치 저장
 	success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.character SET xpos = %f , ypos = %f, zpos = %f, characterlevel = %u, curEXP = %d WHERE characterUID = %llu", location.xpos, location.ypos, location.zpos, level, curEXP, characterUID);
@@ -404,11 +392,6 @@ void LogOutJob::Execute(DBTLS* InDBTLS)
 		if (!success)
 			__debugbreak();
 	}
-
-	// 커밋 끝
-	success = InDBTLS->DB_Post_Query(result, "COMMIT");
-	if (!success)
-		__debugbreak();
 
 	auto end = std::chrono::steady_clock::now();
 
