@@ -308,7 +308,10 @@ void LoadTestManager::ConnectOne(DummyClient& c)
     // 오버랩 가능한 TCP 소켓 생성.
     c.sock = WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
     if (c.sock == INVALID_SOCKET)
+    {
+        LOG(L"LoadTester", en_LOG_LEVEL::dfLOG_LEVEL_ERROR, L"WSASocket fail uid=%llu err=%d", (unsigned long long)c.characterUID, WSAGetLastError());
         return;
+    }
 
     // 접속 주소 구성.
     sockaddr_in addr{};
@@ -319,6 +322,8 @@ void LoadTestManager::ConnectOne(DummyClient& c)
     // 블로킹 connect(램프로 빈도를 조절하므로 블로킹이어도 OK).
     if (connect(c.sock, (sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR)
     {
+        int connErr = WSAGetLastError();   // closesocket 전에 에러코드 먼저 확보
+        LOG(L"LoadTester", en_LOG_LEVEL::dfLOG_LEVEL_ERROR, L"connect fail uid=%llu err=%d", (unsigned long long)c.characterUID, connErr);
         closesocket(c.sock);
         c.sock = INVALID_SOCKET;
         return;
@@ -327,6 +332,7 @@ void LoadTestManager::ConnectOne(DummyClient& c)
     // 소켓을 IOCP에 등록. completion key로 이 봇의 포인터(&c)를 넣는다(그래서 배열 주소가 고정돼야 함).
     if (CreateIoCompletionPort((HANDLE)c.sock, m_iocp, (ULONG_PTR)&c, 0) == NULL)
     {
+        LOG(L"LoadTester", en_LOG_LEVEL::dfLOG_LEVEL_ERROR, L"IOCP register fail uid=%llu err=%d", (unsigned long long)c.characterUID, GetLastError());
         closesocket(c.sock);
         c.sock = INVALID_SOCKET;
         return;
