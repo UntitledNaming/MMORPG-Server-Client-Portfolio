@@ -1,0 +1,326 @@
+
+
+5. 공격 범위 들어가면 내 캐릭터에 막 비빔.
+- 서버에서 지금 타겟을 update하는 횟수를 카운팅하는데 프레임 값이랑 같음. 즉, 매 프레임 돌 때마다 타겟이 업데이트 된다는 말인데 
+- 보니까 몬스터가 바라보는 방향과 타겟과의 방향값 차이가 임계값 넘어가면 업데이트하게 했는데 여기서 계속 조건 만족함. 특히 
+  타겟과 몬스터가 같은 위치에 있으면 발생함.
+- 방향 조건을 그냥 빼버리고 0.2초마다 타겟 업데이트하게 했더니 몬스터 이상행동들 사라지긴 함.
+
+6. 클라에서 몬스터 위치랑 위치 업데이터 패킷에 담긴 몬스터 위치랑 차이가 300cm이상 나는 상황이 너무 자주 발생
+- 지금 기존 코드 보면 targetupdate 시간 체크해서 시간 안지났을 때 바로 리턴하고 나서 타겟 위치 업데이트 하고 타겟 위치랑 
+  몬스터 위치 가지고 몬스터가 이동해야 할 방향 계산해야 하는데 지금 targetupdate 시간 체크 전에 방향값을 계산하고 그걸 200ms
+  뒤에 적용하고 있음.
+- 그래서 우선 update 시간 안지났으면 그냥 리턴하고 그 다음 방향각을 계산하고 
+- 그리고 애초에 이전 코드에서 방향각 계산하는것도 캐싱한 과거의 타겟 좌표랑 현재 몬스터 좌표 가지고 이동 방향각을 계산하고 나서 
+  타겟 위치를 갱신하고 있음. 순서가 잘못됨. 타겟 위치를 갱신하고 나서 방향각을 재야 함.
+
+8. 몬스터가 타겟 근처에 왔을 때 방향 전환 문제
+- 몬스터가 타겟 바로 근처에 오면 방향이 휙휙 바뀜. -60에서 160도에서 휙휙 바뀜. 
+- 원인이 결국 몬스터가 타겟 근처에 오게 되면 멈추거나 해야 하는데 지금 로직에서는 그냥 TargetUpdate하고 나서 계속 Move하니까 몬스터가 한 틱
+ 더 이동하게 되고 거기서 타겟 0.2초뒤 타겟 업데이트 할때 이제 타겟이 뒤에 있으니 반대로 돌게 되고 이게 반복되는 거임.
+
+9. 연결 끊어질때 Target 초기화 하는게 안됨. 메모리 풀에만 반납 됨.
+- 결국 유저 구조체 내부에 플래그를 둬서 유저 생성시 플래그 끼고 메모리 풀에 반납할때 플래그 키게 해야 함.
+
+11. 지금 몬스터가 타겟에 붙어 있으면 덜덜 거리면서 때리는데 abp 보니 idle과 move를 왔다갔다 하면서 생기는 현상임
+- 서버쪽에서 타겟 위치 판단해서 메세지 안보내게 하면 될듯함.
+- TargetUpdate에서 신규 위치와 현재 위치 사이값이 임계값 이하면 패킷 안보내게 하는데 이 임계값 설정이 문제임.
+- 보통 계속 이동하고 있으면 지금 TargetUpdate 시간이 되었을 때 유저가 움직인 최대 거리는 120cm임. 그래서 임계값을 120cm이상으로
+  해버리면 실제 유저는 이동하는데 ai가 타겟 위치를 업데이트하지 않음. 그래서 한 최대거리의 3분지 1로 해서 40cm로 설정.
+
+12. 지금 서버에서는 몬스터와 타겟 플레이어가 근처인것으로 보는데 클라는 계속 몬스터가 이동함.
+- 이건 문제가 MonsterMove 프로토콜 상 패킷 안에 있는 방향이 서버가 계산한 건데 그걸 믿고 그냥 클라는 그대로 방향 바꿔서 이동함.
+- 근데 만약에 처음 이 패킷을 보냈을 때는 몬스터 앞방향에 내 캐릭터가 있었는데 그 사이 내가 몬스터 우측으로 이동한다면 서버에서는 IsNear에 걸려서
+  서버는 그냥 타겟 업데이트 안하고 패킷을 안보내게 될거임. 그리고 서버에서는 멈출것임. 근데 클라는 300cm 차이도 나지 않으니 위치가 맞춰지지도
+  않을 것인데 Move함수에서 서버가 준 패킷따라 세팅한 Yaw를 가지고 이동을 하게 될 거임. 따라서 나와 멀어지는 방향으로 몬스터가
+  이동하게 될 거임.
+- 따라서 프로토콜 상 yaw를 그냥 빼버리고 타겟 갱신 프로토콜에서는 몬스터 좌표랑 타겟 좌표, 속도만 주고 클라가 알아서 타겟 좌표 방향
+ 계산해서 이동하게 해야 함. 
+
+13. ChaseUpdate 할때 IsNear는 true라서 타겟 업데이트도 안되고 이동도 안하고 섹터업데이트도 안함. 
+   그런데 공격 범위 체크할때 몬스터 위치와 타겟 위치를 가지고 체크하는데 솔직히 유저가 주변 조금 씩 이동해도 
+   타겟 업데이트를 안해버리면 공격 자체를 안함.
+- 그래서 근처인 경우 몬스터의 MoveYaw를 캐싱한 타겟 좌표 말고 실제 타겟 좌표를 가지고 재계산해서 갱신함.
+
+
+14. 내쪽으로 chase하다가 스폰 위치에서 멀어져서 돌아갈 때 몬스터가 점프함.
+- 이거는 근본적인 원인이 서버에서의 속도 세팅임.
+- 속도 세팅할 때 초당 속도 / UPDATE_LOOP_TIME 이렇게 함. 이게 틀림.
+- 지금 Chase에서의 틱당 속도가 550 / 25 = 22cm/tick임. 근데 지금 1초에 루프를 40번 돌면 Chase할때 22 * 40 = 880cm를 이동함.
+- 근데 지금 CHASE_SPEED는 550cm/sec이니 계산이 틀림.
+- 틱당 속도로 바꾸려면 지금 1초에 550cm를 가는데 1초에 40tick이 걸리니 550 / 40을 하면 됨.
+- 이렇게 하니 해결
+
+15. 지금 Combat모드를 만듬. 테스트하는데 몬스터와 캐릭터가 좀 가까이 붙어있을 때 몬스터가 드드득 거리는 느낌이 발생함.
+- 공격 원형 범위 안에 들어오면 몬스터 멈추게 함. 
+
+
+16. 몬스터가 타겟 근처로 왔을 때 드드득 거리는 문제
+- ABP를 보면 해당 현상 발생시 IDLE, MOVE를 계속 왔다 갔다 하고 있음. 이게 서버상 거리 벌어지면서 TARGETUPDATE 패킷 보내면서 
+  MOVEFLAG가 TRUE로 되면서 애니가 MOVE로 전환되고 몬스터가 움직이면서 다시 가까워지면서 STOP 패킷 받으면서 MOVEFLAG가
+  FALSE가 되면서 애니가 IDLE로 전환되는게 반복되고 있음.
+- 클라쪽에서 타겟 갱신 패킷 받았을 때 그냥 moveflag를 true로 하는게 아니라 현재 몬스터 위치랑 패킷으로 받은 타겟 위치를 가지고 
+  임계값 아래면 그냥 moveflag true로 안키고 리턴되게 함.
+- 그리고 애초에 지금 서버에서 타겟과 몬스터가 붙어 있는 상태에서 타겟 위치 변경 패킷이랑 stop 패킷 갯수가 각각 초당 10개? 그정도 발생함.
+- 애초에 패킷 보내는게 많음. 그래서 서버 자체에서 Combat 모드 진입시 바로 공격 범위 벗어나면 Chase모드로 들어가면 안될듯.
+- 지금 combat에서 chase 모드 진입시 조건이 attackrange인데 이게 아니라 attackrange + alpha로 설정해야 할듯.
+
+17. 몬스터 죽을 때 삭제 패킷 와도 죽는 모션 보인 다음 몬스터 지우기
+- 지금 abp에서 dead를 빼고 dead 몽타주를 monster에 붙이고 델리게이트 만들어서 StartDeath할때 몽타주 재생하고 AnimInstance에 기본적으로 정의된 델리게이트를
+  가지고 FOnMontageEnded 델리게이트 선언하고 여기에 몽타주 끝날 때 재생할 함수 붙이고 
+- AnimInst->Montage_SetEndDelegate를 통해 델리게이트랑 몽타주를 연결해서 몽타주 재생끝날때 저 델리게이트에 바인딩된 함수가 호출될 것임.
+- 여기서 Destroy를 호출해서 몬스터 파괴함.
+
+
+19. Patrol, Return, Idle 상태에서 타겟 좌표 도착시 드드득 거리는 문제.
+- 지금 정지 처리가 Chase중에 타겟 범위 안에 들어왔을 때 멈추는 경우만 패킷을 보내서 false로 보냄.
+- 따라서 타겟 갱신 패킷을 보낼 때 몬스터의 상태까지 넣어서 idle이나 patrol 상태인 경우 그냥 타겟 좌표 도착하면 move플래그 끄게 함.
+
+20. 서버와 연결 안되었는데 클라 play를 하면 세션 객체의 IORefCount가 음수가 되는 상황.
+- 네트워크 매니저에서 LanClient Connect 호출하는데 Mem_Init에서 세션 객체는 생성했음. 그런데 ConnenctTry에서 실패해서 closesocket을 한 상황임.
+- 그런데 아직 세션 객체는 남아 있는데 이때 세션 객체 생성할때 disConnectFlag가 0 Release Flag가 0일 수 있음. 이 상태에서 연결 실패 했다고 그냥
+closesocket하고 리턴하면 SpawnMnager의 Tick에서 클라이언트의 ConnectAlive를 해도 0이니 그냥 통과 해버리고 Send를 할 수 있음.
+- 그래서 SendPost에서 에러코드보니 10038이 뜨는 거임. 이미 closesocket한 소켓이라는 말임.
+- 그래서 ConnectTry를 실패하면 disconnectflag랑 release플래그는 키도록 함.
+
+21. 몬스터 죽을때 hpbar 풀 게이지(해결)
+- hpbar 기본값 되면서 보임. 그냥 hpbar 안보이게 함.
+
+22. 죽고나서 컨트롤러 차단
+- 리스폰 구현 후 EnableInput(PC)만들기
+
+23. 몬스터 리젠 문제?
+- 리젠시 몬스터 섹터에만 몬스터 생성 패킷 던짐. 주변 섹터에 뿌리게 변경
+- 그리고 leftAttack, SkillUse 처리할때 피격 판단하고 몬스터 피격되고 나서 몬스터 죽었으면 삭제 패킷 뿌리는데 추가적으로 몬스터를
+  섹터에서 제거해야 함.
+
+24. 몬스터 공격 모드 들어가고 플레이어는 가만히 있는데 그냥 몬스터가 타겟 보고 가만히 있음.
+- 서버상 좌표를 클라 객체들 좌표로 맞췄는데 뭐 애매함. 살짝 뒤로 간 느낌임. 정지 패킷받을때까지 클라에서 몬스터가 살짝 더 간 상태에서
+  멈춘것으로 보임.
+- 어쨌든 이런 애매한 상황에서 몬스터가 공격 범위 안들어 간다고 계속 가만히 있는게 좀 애매함.
+- 이게 결국 원래는 Combat에서 Chase로 모드 변환 시 AttackRange로 했는데 지금은 여기에 +Alpha를 해버리니 몬스터와 타겟 거리가 공격 범위와 
+  공격 범위 + Alpha  사이에 있으면 Chase는 안되고 공격은 안되니 그냥 가만히 있게 됨.
+- 그러면 방법이 공격 모드에서 타겟 방향으로 결국 이동시켜야 함.
+- ChaseRange 밖은 아닌데 AttackRange도 아니면 딱 이 사이임. 이때 속도가 0이면 속도 부여해서 Move 패킷 주변에 뿌리고 
+
+25. 플레이어 피격 과 동시에 공격할 때 하체가 정지하는 버그
+- 공격 시작하면서 bUseUpperBodyWhenMoving = true로 하고 공격 중에  플레이어 피격되면서 TriggerHitReact 호출되고 플래그는 여전히 true
+- 추후 ResetHitReact 되면서 bUseUpperBodyWhenMoving = false됨. 
+- 근데 컨트롤러에서 좌클릭 누를 때 뗄 때 이 플래그를 true, false로 바꾸기 때문에 누르고 있는 상황에서는 false가 된 플래그가 절대 
+  true로 바뀌지 않음.
+- 그래서 좌 클릭에 대해 BindAction할때 Trigger도 추가해서 이때 플래그를 true로 해서 상/하체 애니 분리되게 함.
+
+26. 몬스터 여러 마리 배치시 몬스터가 가만히 있는 버그
+- 그냥 ai update for문 1번 돌고 있었음
+
+27. 몬스터 여러 마리 배치시 RemoveMonster에서 액세시 위반
+- 지금 해당 에러 터질때가 UpdateSector에서 인데 지금 newSector를 보니 같은 몬스터가 같은 섹터에 2마리가 있음. 똑같은 객체임.
+- add쪽 문제가 있는것 같음.
+- 정확히는 최초 스폰시 xpos, ypos 계산할때 문제가 있음.
+	int monstrSpawnCount = 0;
+	for (int i = 0; i < GROSS_FIELD_AREA_ARRAY_COUNT; i++)
+	{
+		for (uint16 sy = GROSS_FIELD_MONSTER_SPAWN_AREAS[i].minSectorY; sy <= GROSS_FIELD_MONSTER_SPAWN_AREAS[i].maxSectorY; sy++)
+		{
+			for (uint16 sx = GROSS_FIELD_MONSTER_SPAWN_AREAS[i].minSectorX; sx <= GROSS_FIELD_MONSTER_SPAWN_AREAS[i].maxSectorX; sx++)
+			{
+				for (int count = 0; count < MAX_GROSS_FIELD_MONSTER_COUNT / GROSS_FIELD_SECTOR_COUNT; count++)
+				{
+					if (monstrSpawnCount >= MAX_GROSS_FIELD_MONSTER_COUNT)
+						return;
+
+					float xpos = MAP_WORLD_OFFSET_X + sx * SECTOR_SIZE + (rand() % SECTOR_SIZE + 10);
+					float ypos = MAP_WORLD_OFFSET_Y + sy * SECTOR_SIZE + (rand() % SECTOR_SIZE + 10);
+
+					CMonster& monster = m_grossMonsterPoolArray[monstrSpawnCount++];
+					Location loc{ xpos,ypos ,-38775.f };
+					monster.Init(m_monsterAllocID, 0, loc, this);
+					m_monsterAllocID++;
+
+					m_sectors[sy][sx].AddMonster(&monster);
+
+				}
+			}
+		}
+	}
+- 여기 로직에서 xpos, ypos 계산하는데 sx*SECTOR_SIZE + rand() % SECTOR_SIZE 까지는 괜찮음. 근데 여기서 + 10이 문제임.
+- 이게 rand값으로 세팅한다고 했지만 rand() % SECTOR_SIZE할때 만약 2499가 뜨고 여기에 + 10을 하면 섹터를 넘어가게 됨.
+- 그러면 실제 몬스터의 섹터 좌표와 위치좌표는 옆섹터로 되어 있는데 지금 m_sectors[sy][sx]에 Add를 하고 있으니 다른 섹터에 몬스터를 삽입해버림.
+- 그래서 RemoveMonster를 하려는데 몬스터 섹터 좌표에 해당하는 FieldSector를 보니 몬스터가 없는거임.
+- 그래서 저 범위를 잘 설정하면 됨.
+
+
+28. 서버쪽 Swing 처리하는데 비정상 유저로 판단해서 끊어버림.
+- 애니메이션 재생되다가 피격되었을 때 끊겼다가 다시 바로 공격할 때 시간 로직에 걸려서 끊김
+
+29. 추격 중에 거리 벌어지면 돌아가야 하는데 계속 쫓아옴.
+- Combat 모드에서도 이동하니 스폰 위치와의 거리를 판단해야 함.
+- 추가하니 문제 없어짐.
+
+30. 이거는 에러는 아닌데 몬스터가 이동하는데 내가 옆에 있어도 나를 바로 안쫓을 수 있음.
+- 이건 그 몬스터 상태가 Return이라서 그럼.
+
+
+33. 툴팁 위젯 처리
+- 처리
+
+34. 클라 화면상 거리가 좀 먼데 타격되는 경우(캐릭터가 딱 생성될 때 서버의 몬스터 위치와 클라상 몬스터 위치가 다름)
+- 
+
+37. 장비 해제 할때 기존 인벤토리 아이템 덮어짐.
+	for (uint8 i = 0; i < Result.updateSlotCount; ++i)
+	{
+		const UPDATE_SLOT& s = Result.resultSlot[i];
+
+		FItemSlotData* Slot = nullptr;
+		if (s.slotType == SLOT_TYPE::INVENTORY)
+			Slot = &Inventory[s.slotIndex];
+		else if (s.slotType == SLOT_TYPE::EQUIPMENT)
+			Slot = &Equipment[s.slotIndex];
+
+		if (!Slot) continue;
+
+		if (s.itemID == 0)
+		{
+			Slot->ItemID = 0;
+			Slot->Count = 0;
+			Slot->RandomStats.Reset();
+		}
+		else
+		{
+			Slot->ItemID = s.itemID;
+			Slot->Count = 1;
+
+			Slot->RandomStats.Reset();
+			for (const FItemSlotData& Snap : Snapshot)
+			{
+				if (Snap.ItemID == s.itemID)
+				{
+					Slot->RandomStats = Snap.RandomStats;
+					break;
+				}
+			}
+		}
+	}
+- 서버쪽은 변경되었는데 클라쪽에서 ItemID를 가지고 같으면 스냅 데이터를 반영해버리는데 문제는 아이템 id는 같은데 다른 아이템인 경우임.
+- 같은 ID여도 다른 슬롯일 때 반영하게 함.
+
+- 또한 서버쪽에도 문제가 있는데
+- 먼저 use할 아이템을 DeleteInventorySlot 호출해서 기존 인벤토리에서 제거하는데 이때 제거당한 index가 slotIndexAllocator에 등록이 되어버림.    
+- 그런데 이게 만약 애초에 그 타입의 장비가 장비탭에 장착 안되어 있으면 문제는 없는데 문제는 만약 장비가 장착되어 있으면 그 index를 마치 할당한것 마냥 
+  insertItemToSlot할때 사용하는데 문제는 이 함수 내부에서는 해당 index를 indexAllocator에서 지우지 않고 그냥 인벤토리에 넣어버림.
+- 그러면 다른 작업할 때 장비가 들어있는 index가 사용될 수 있음. 그래서 아이템이 클라 화면에서 안보이게 되어버리고 인벤토리도 겹쳐져 버림.
+
+
+38. 소모품 다쓰면 쿨타임 이미지도 초기화
+- clear
+
+39. 소모품 아이템 다 쓰고 장비 해제시 소모품 다쓴 위치로 장비 이동해야 하는데 그게 안됨.  
+- 이건 그냥 insert 시점 차이
+
+41. 인벤토리 할당 시 맨 앞 index 할당
+- 현재 unorderd_set을 쓰는데 이건 insert하고 erase할 때 맨 앞 index 할당 받는게 불가능함. 원래는 stack을 써서 할당했다 바꿨는데 이것도 index 할당에 문제가 있음.
+- 차라리 rbtree구조의 set 자료구조를 써서 최소값 정렬되게 했을 때 루트 노드에 있는게 항상 가장 작은 index값일것이기 때문에 std::set이 맞는 자료구조로 판단됨
+
+42. 몬스터 AI 에서 몬스터 뒤쪽에 있으면 공격 안하는 순간 보임.                   
+
+43. 몬스터 이동중 피격시 하체 정지                                                                                                        
+- 플레이어 애니 그대로 가져다 쓰니 해결
+
+44. swap 패킷 말고 delete 패킷 보내짐
+- 마우스 올렸을 때 빈 슬롯에 대해서 마우스 버튼 업 이벤트가 불리지 않아서 delete 됨.
+- 마우스 움직일 때 enter 이벤트 불리기 위해 투명한 이미지를 wbp_itemslotwidget에 추가
+- Mouse 이벤트 처리할 때 return FReply.Handled().Capture(TakeWidget()); 하는데 드래그 중에 마우스 이벤트가 처음 누른 슬롯으로 갈 수 있음. 그래서 그냥 return Handlered로 하니 swap 잘됨.
+
+
+45. 클라이언트 아이템 초기화 에러
+- 직렬화 버퍼에 있는 데이터 뽑아서 인벤토리 배열에 넣는데 갑자기 중단점 터짐.
+- 보니까 직렬화 버퍼에서 뽑힌 데이터가 이상함.
+- 그래서 서버쪽에서 패킷 넣는 로직 보니 EquipSlot 같은게 uint8인데 반복문 타입이 int16이라서 데이터를 잘못 넣는게 확인됨.
+- 이 부분 수정하고 나서도 나중에 또 에러가 발생함.
+- 그래서 그때 서버도 멈추고 클라쪽 패킷 뽑은거 보니 인벤토리 갯수가 7이 나옴. 그런데 DB상 인벤토리에 있는 갯수는 2개임.
+ 서버쪽을 보니 useCount가 7인데 slotindex할당자는 2개를 썼음. 그래서 useCount 초기화 부분이 문제임을 판단해서 Init할때 멤버 바꿔줌.
+- 또 같은 버그 나길래 보니 지금 equipment에서 초기화 할때 모든 슬롯을 Invalid_ID로 밀고 시작하는데 이때 for문 돌때 원래 
+  HELMET부터 i < MAX까지인데 MAX-1로 해서 맨 끝이 초기화가 안되었음. 그래서 변경함.
+- 퀵슬롯 카운트가 5길래 보니까 Init 작업이 안되어서 호출함.
+
+46. 지금 base attack에 대해서 서버는 딱히 검증은 없이 그냥 swingindex 주변에 뿌림. 그래서 stop도 필요한가 싶음.
+함.
+- stop이 클라 자체적으로 타캐릭 이동방향 보간이나 이럴때 쓰길래 그냥 stop은 클라 자체적으로 swing 패킷 안오면
+애니메이션 1개 재생 시간 + alpha 후  끄게 함.
+
+47. 타 캐릭터 렌더링할 때 타 캐릭터가 멈추고 나서 다시 이동할때 렌더링이 안됨.
+    // 스냅샷 버퍼의 마지막 스냅샷에 찍힌 서버 시간보다 RenderTime이 크면 아직 새로운 패킷이 안온 상태임.
+    if (RenderTime >= SnapshotBuffer.Last().ServerTimestamp)
+    {
+        const FMovementSnapshot& Last = SnapshotBuffer.Last();
+
+        // 마지막 스냅샷이 정지 패킷인데 현재 캐릭터는 이동중이라면 정지 수렴 처리
+        if (!Last.bMoving && bMoving)
+        {
+            bMoving = false;
+            StopTargetLocation = Last.Position;
+            StopTargetYaw      = Last.MoveYaw;
+            bNeedStopCorrection = true;
+        }
+        // 이동중인데 패킷이 아직 안 온 경우: 마지막 방향/속도로 외삽(최대 200ms 캡)
+        else if (Last.bMoving && bMoving)
+        {
+            float ElapsedSec = FMath::Min((float)(RenderTime - Last.ServerTimestamp) / 1000.f, 0.2f);
+            FVector ForwardDir = FRotator(0.f, Last.MoveYaw, 0.f).Vector();
+            FVector ExtrapPos  = Last.Position + ForwardDir * UserConst::WALK_SPEED * ElapsedSec;
+
+            if (!bIsAttacking)
+                SetActorLocationAndRotation(ExtrapPos, FRotator(0.f, Last.MoveYaw, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
+            else
+                SetActorLocation(ExtrapPos, false, nullptr, ETeleportType::TeleportPhysics);
+        }
+
+        return;
+    }
+- 지금 여기 부분에서 에러가 난듯함. 뭐냐면 !bMoving && last.bMoving 분기에 대한 처리가 없음. 지금 이게 렌더 타임이 스냅샷
+  마지막 버퍼에 기록된 시간보다 큼. 즉, 버퍼가 고갈된 상태인데 현재 타 캐릭터 상태는 정지인데 마지막 스냅샷의 이동 플래그는
+  이동 시작으로 되어 있음. 정지후 이동할때 네트워크 레이턴시로 인해 스냅샷에 늦게 들어와서 렌더링 타임이 지나버리면
+  !bMoving && last.bMoving 분기를 타버림. 근데 분기 처리가 안되어서 그냥 계속 정지함.
+-  
+
+48. 이동 렌더링 로직의 고찰
+- 지금 렌더링 코드를 보면 섞여 있음. 지금은 렌더링 타임 = 서버 타임 -150ms로 하고 있음. 그래서 저 시간대에 있는 스냅샷들을
+  버퍼 안에서 찾아서 보간하면서 렌더링하는 구조임. 그런데 지금 외삽(패킷 끊기면 마지막 방향으로 앞질러 예측함)을 함.
+- 지금 과거를 그리고 있는데 이와 동시에 예측 실패를 대비해 미래를 예측하는게 모순임. 
+- 정지 수렴도 있어서 이런 저런 로직들이 짬뽕되어 있음.
+- 그래서 그냥 다 빼버리고 진짜로 그냥 snapshot만 보고 렌더링하게 만들어서 심플하게 가는 것임.
+
+50. 타 캐릭터가 공격하다가 중단할때 타 캐릭터 시선 방향 급 변경
+- 정확히는 타 캐릭터가 공격하다가 멈추면 직전 이동방향으로 캐릭터 시선이 돌아감.
+- applypose 함수에서 attacking이 아닐때 rotation을 기존 moveyaw로 회전 시키는데 이게 공격 멈추고 정지했을 때 걸려서 attacking이
+ 아니니 마지막 이동 방향으로 캐릭터가 회전하게 됨.
+
+51. 이동 할때 시선이 고정됨.
+    // (2) 최신 스냅샷보다 미래면 버퍼가 마름(정지 후 패킷 끊김 / 레이턴시로 늦게 와 RenderTime이 추월):
+    //     외삽하지 않고 '최신(=실제 정지) 위치'에 핀. 늦은 스냅샷도 위치는 살려 어긋남 방지.
+    const FMovementSnapshot& Newest = SnapshotBuffer.Last();
+    if (RenderTime >= Newest.ServerTimestamp)
+    {
+        ApplyPose(Newest.Position);
+        // 버퍼 마름. 마지막 의도가 이동이면 walk + 이동방향 회전 유지, 정지면 시선 그대로.
+        bRenderMoving = Newest.bMoving;
+        if (bRenderMoving && !bIsAttacking)
+            SetActorRotation(FRotator(0.f, Newest.MoveYaw, 0.f));
+        return;
+    }
+- 지금 snapshot 방식이 1번 분기(첫 스냅샷 시간 보다 렌더링 시간이 아직 이전일때), 2번 분기는 위처럼 버퍼가 말라서 렌더링
+  시간이 마지막 스냅샷 시간 보다 큰 경우 캐릭터를 회전 시키지 않았음. 
+- 그런데 에디터에서 하다 보니 지금 interp_delay_ms를 150으로 설정했음. 패키징된 클라 동작하면서 에디터가 느리게 돌고
+- 그로인해 패킷을 늦게 스냅샷에 저장할 수 있음. 그러면 RenderTime = GetServerTimeMS() - INTERP_DELAY인데 
+  GetServerTimeMs는 클라의 현재 시간 + 편도 레이턴시임. 그러니 실제 이제 UpdateInterpolation을 할때 RenderTime 구해보니
+ 클라가 느리게 동작함으로 클라의 현재 시간이 꽤 크게 나오게 될 것이고 이로 인해 RenderTime >= Snap샷 마지막 버퍼 시간
+ 이 되어서 2번 분기를 타게 됨. 
+- 원래 2번 분기 타면 Rotation을 회전 안하게 했음. 그러니 타 캐릭터가 이동을 해도 위치는 바뀌는데 2번 분기를 계속 타서 
+  시선 방향은 안바뀌게 됨.
+
+
+52. 타 캐릭터 이동 애니 재생x
+- abp보니 계속 blend pose할때 false인 actionpose로만 흐름.
+- 위에서 설명했듯이 기본적으로 2번 분기(렌더타임 > 마지막 스냅샷 시간)이면 bRenderflag = false;임. 즉, othercharacter가 
+  getmoveflag할때 false를 받는 것임. 2번 분기를 계속 타서 이동 애니가 안나온 것임.
