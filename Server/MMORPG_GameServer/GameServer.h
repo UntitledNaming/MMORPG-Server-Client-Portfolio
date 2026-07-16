@@ -37,6 +37,7 @@ private:
 	AuthGroup*      m_pAuthGroup = nullptr;
 	FieldGroup*     m_pFieldGroup = nullptr;
 	ProcessMonitor* m_pPDH = nullptr;
+	
 	BOOL            m_endFlag;
 	std::thread     m_monitorThread;
 

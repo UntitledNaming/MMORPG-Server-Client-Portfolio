@@ -117,74 +117,27 @@ void CharacterSelectJob::Execute(DBTLS* InDBTLS)
 	// 데이터 가져온거 밀어버리기
 	InDBTLS->DB_Free_Result();
 
-	// 아이템 테이블 정보 가져오기
-	success = InDBTLS->DB_Post_Query(result, "SELECT * FROM worlddb.item WHERE characterUID = %llu", characterUID);
+	// 아이템 저장할 공간 확보
+	items.reserve(UserQuickSlot::QUICK_SLOT_MAX + UserInventory::INVENTORY_SLOT_MAX + (int)EQUIP_SLOT::MAX);
+
+	// 스택 아이템 테이블 정보 가져오기
+	success = InDBTLS->DB_Post_Query(result, "SELECT * FROM worlddb.stackitem WHERE characterUID = %llu", characterUID);
 	if (!success)
 		__debugbreak();
 
 	mysql_res = InDBTLS->DB_GET_Result(0);
 	if (mysql_res == nullptr)
 		__debugbreak();
-	size_t cnt = mysql_num_rows(mysql_res); // row 갯수 알려줌
-	items.reserve(cnt);
 
 	row = InDBTLS->DB_Fetch_Row(mysql_res);
 	while (row != nullptr)
 	{
 		ItemLoadData item = {};
-		item.itemUID = (ITEM_UID)atoi((*row)[0]);
+		item.itemUID = (ITEM_UID)strtoull((*row)[0], nullptr, 10);
 		item.itemID = (ITEM_ID)atoi((*row)[2]);
-		item.count = (uint16)atoi((*row)[3]);
-		item.slotType = (SLOT_TYPE)atoi((*row)[4]);
-		item.slotIndex = (int16)atoi((*row)[5]);
-
-		int16 atk = (int16)atoi((*row)[6]);
-		if (atk != 0)
-		{
-			item.randomStat[item.randomStatCount].randomStatType = RANDOM_STAT_TYPE::ATK;
-			item.randomStat[item.randomStatCount].randomStatValue = atk;
-			item.randomStatCount++;
-		}
-
-		int16 def = (int16)atoi((*row)[7]);
-		if (def != 0)
-		{
-			item.randomStat[item.randomStatCount].randomStatType = RANDOM_STAT_TYPE::DEF;
-			item.randomStat[item.randomStatCount].randomStatValue = def;
-			item.randomStatCount++;
-		}
-
-		int16 maxhp = (int16)atoi((*row)[8]);
-		if (maxhp != 0)
-		{
-			item.randomStat[item.randomStatCount].randomStatType = RANDOM_STAT_TYPE::MAX_HP;
-			item.randomStat[item.randomStatCount].randomStatValue = maxhp;
-			item.randomStatCount++;
-		}
-
-		int16 maxmp = (int16)atoi((*row)[9]);
-		if (maxmp != 0)
-		{
-			item.randomStat[item.randomStatCount].randomStatType = RANDOM_STAT_TYPE::MAX_MP;
-			item.randomStat[item.randomStatCount].randomStatValue = maxmp;
-			item.randomStatCount++;
-		}
-
-		int16 hpregen = (int16)atoi((*row)[10]);
-		if (hpregen != 0)
-		{
-			item.randomStat[item.randomStatCount].randomStatType = RANDOM_STAT_TYPE::HP_REGEN;
-			item.randomStat[item.randomStatCount].randomStatValue = hpregen;
-			item.randomStatCount++;
-		}
-
-		int16 mpregen = (int16)atoi((*row)[11]);
-		if (mpregen != 0)
-		{
-			item.randomStat[item.randomStatCount].randomStatType = RANDOM_STAT_TYPE::MP_REGEN;
-			item.randomStat[item.randomStatCount].randomStatValue = mpregen;
-			item.randomStatCount++;
-		}
+		item.slotType = (SLOT_TYPE)atoi((*row)[3]);
+		item.slotIndex = (int16)atoi((*row)[4]);
+		item.count = (uint16)atoi((*row)[5]);
 
 		items.push_back(item);
 		row = InDBTLS->DB_Fetch_Row(mysql_res);
@@ -192,6 +145,135 @@ void CharacterSelectJob::Execute(DBTLS* InDBTLS)
 
 	// 데이터 가져온거 밀어버리기
 	InDBTLS->DB_Free_Result();
+
+
+	// 인스턴스 아이템 테이블 정보 가져오기(itemUID로 오름차순 정렬하여 100, 101, 100 UID일 때 뒤 100 UID의 장비 스탯이 저장 제대로 안되는 상황 막기)
+	success = InDBTLS->DB_Post_Query(result, "SELECT instanceitem.itemUID, instanceitem.itemID, instanceitem.slottype, instanceitem.slotindex, instanceitem_stat.randomStatType, instanceitem_stat.statValue FROM worlddb.instanceitem LEFT JOIN worlddb.instanceitem_stat ON instanceitem_stat.itemUID = instanceitem.itemUID WHERE characterUID = %llu ORDER BY instanceitem.itemUID ", characterUID);
+	if (!success)
+		__debugbreak();
+
+	mysql_res = InDBTLS->DB_GET_Result(0);
+	if (mysql_res == nullptr)
+		__debugbreak();
+
+	ITEM_UID lastUID = ItemUID::ITEM_UID_INVALID_ID;
+
+	row = InDBTLS->DB_Fetch_Row(mysql_res);
+	while (row != nullptr)
+	{
+		ItemLoadData item = {};
+		item.itemUID = (ITEM_UID)strtoull((*row)[0], nullptr, 10); //10 진법으로 8바이트 uid 추출
+		item.itemID = (ITEM_ID)atoi((*row)[1]);
+		item.slotType = (SLOT_TYPE)atoi((*row)[2]);
+		item.slotIndex = (int16)atoi((*row)[3]);
+		item.count = 1;
+
+		if ((*row)[4] != nullptr)
+		{
+			if ((RANDOM_STAT_TYPE)atoi((*row)[4]) == RANDOM_STAT_TYPE::ATK)
+			{
+				item.randomStat[item.randomStatCount].randomStatType = (RANDOM_STAT_TYPE)atoi((*row)[4]);
+				item.randomStat[item.randomStatCount].randomStatValue = (int16)atoi((*row)[5]);
+				item.randomStatCount++;
+			}
+
+			else if ((RANDOM_STAT_TYPE)atoi((*row)[4]) == RANDOM_STAT_TYPE::DEF)
+			{
+				item.randomStat[item.randomStatCount].randomStatType = (RANDOM_STAT_TYPE)atoi((*row)[4]);
+				item.randomStat[item.randomStatCount].randomStatValue = (int16)atoi((*row)[5]);
+				item.randomStatCount++;
+			}
+
+			else if ((RANDOM_STAT_TYPE)atoi((*row)[4]) == RANDOM_STAT_TYPE::MAX_HP)
+			{
+				item.randomStat[item.randomStatCount].randomStatType = (RANDOM_STAT_TYPE)atoi((*row)[4]);
+				item.randomStat[item.randomStatCount].randomStatValue = (int16)atoi((*row)[5]);
+				item.randomStatCount++;
+			}
+
+			else if ((RANDOM_STAT_TYPE)atoi((*row)[4]) == RANDOM_STAT_TYPE::MAX_MP)
+			{
+				item.randomStat[item.randomStatCount].randomStatType = (RANDOM_STAT_TYPE)atoi((*row)[4]);
+				item.randomStat[item.randomStatCount].randomStatValue = (int16)atoi((*row)[5]);
+				item.randomStatCount++;
+			}
+
+			else if ((RANDOM_STAT_TYPE)atoi((*row)[4]) == RANDOM_STAT_TYPE::HP_REGEN)
+			{
+				item.randomStat[item.randomStatCount].randomStatType = (RANDOM_STAT_TYPE)atoi((*row)[4]);
+				item.randomStat[item.randomStatCount].randomStatValue = (int16)atoi((*row)[5]);
+				item.randomStatCount++;
+			}
+
+			else if ((RANDOM_STAT_TYPE)atoi((*row)[4]) == RANDOM_STAT_TYPE::MP_REGEN)
+			{
+				item.randomStat[item.randomStatCount].randomStatType = (RANDOM_STAT_TYPE)atoi((*row)[4]);
+				item.randomStat[item.randomStatCount].randomStatValue = (int16)atoi((*row)[5]);
+				item.randomStatCount++;
+			}
+		}
+
+		lastUID = item.itemUID;
+
+		// 다음 row가 없거나 다음 row의 UID가 다르거나 stat 테이블에 스탯 없는 장비 나오면 (*row)[4]가 nullptr일때 루프 탈출 후 벡터에 넣기
+		while (1)
+		{
+			row = InDBTLS->DB_Fetch_Row(mysql_res);
+
+			if (row == nullptr || lastUID != (ITEM_UID)strtoull((*row)[0], nullptr, 10) || (*row)[4] == nullptr)
+				break;
+
+			// 아이템 UID가 이전과 같으면 랜덤 스탯 타입쪽만 확인해서 넣기
+			if ((RANDOM_STAT_TYPE)atoi((*row)[4]) == RANDOM_STAT_TYPE::ATK)
+			{
+				item.randomStat[item.randomStatCount].randomStatType = (RANDOM_STAT_TYPE)atoi((*row)[4]);
+				item.randomStat[item.randomStatCount].randomStatValue = (int16)atoi((*row)[5]);
+				item.randomStatCount++;
+			}
+
+			else if ((RANDOM_STAT_TYPE)atoi((*row)[4]) == RANDOM_STAT_TYPE::DEF)
+			{
+				item.randomStat[item.randomStatCount].randomStatType = (RANDOM_STAT_TYPE)atoi((*row)[4]);
+				item.randomStat[item.randomStatCount].randomStatValue = (int16)atoi((*row)[5]);
+				item.randomStatCount++;
+			}
+
+			else if ((RANDOM_STAT_TYPE)atoi((*row)[4]) == RANDOM_STAT_TYPE::MAX_HP)
+			{
+				item.randomStat[item.randomStatCount].randomStatType = (RANDOM_STAT_TYPE)atoi((*row)[4]);
+				item.randomStat[item.randomStatCount].randomStatValue = (int16)atoi((*row)[5]);
+				item.randomStatCount++;
+			}
+
+			else if ((RANDOM_STAT_TYPE)atoi((*row)[4]) == RANDOM_STAT_TYPE::MAX_MP)
+			{
+				item.randomStat[item.randomStatCount].randomStatType = (RANDOM_STAT_TYPE)atoi((*row)[4]);
+				item.randomStat[item.randomStatCount].randomStatValue = (int16)atoi((*row)[5]);
+				item.randomStatCount++;
+			}
+
+			else if ((RANDOM_STAT_TYPE)atoi((*row)[4]) == RANDOM_STAT_TYPE::HP_REGEN)
+			{
+				item.randomStat[item.randomStatCount].randomStatType = (RANDOM_STAT_TYPE)atoi((*row)[4]);
+				item.randomStat[item.randomStatCount].randomStatValue = (int16)atoi((*row)[5]);
+				item.randomStatCount++;
+			}
+
+			else if ((RANDOM_STAT_TYPE)atoi((*row)[4]) == RANDOM_STAT_TYPE::MP_REGEN)
+			{
+				item.randomStat[item.randomStatCount].randomStatType = (RANDOM_STAT_TYPE)atoi((*row)[4]);
+				item.randomStat[item.randomStatCount].randomStatValue = (int16)atoi((*row)[5]);
+				item.randomStatCount++;
+			}
+
+		}
+
+		items.push_back(item);
+	}
+
+	// 데이터 가져온거 밀어버리기
+	InDBTLS->DB_Free_Result();
+
 
 	auto end = std::chrono::steady_clock::now();
 
@@ -204,10 +286,50 @@ void InsertItemJob::Execute(DBTLS* InDBTLS)
 	auto start = std::chrono::steady_clock::now();
 
 	bool success = false;
-	success = InDBTLS->DB_Post_Query(result, "INSERT INTO worlddb.item VALUES (%llu, %llu, %u, %d, %d, %d, %d, %d, %d, %d, %d, %d)", 
-		itemUID, characterUID, itemID, count, slotType, slotIndex, itemStat.atk, itemStat.def, itemStat.maxHP, itemStat.maxMP, itemStat.hpRegenPerSec, itemStat.mpRegenPerSec);
-	if (!success)
-		__debugbreak();
+
+	if (itemType == ITEM_TYPE::CONSUMABLE)
+	{
+		success = InDBTLS->DB_Post_Query(result, "INSERT INTO worlddb.stackitem VALUES (%llu, %llu, %u, %d, %d, %d)",
+			itemUID, characterUID, itemID, slotType, slotIndex, count);
+		if (!success)
+			__debugbreak();
+	}
+	else if (itemType == ITEM_TYPE::EQUIPMENT)
+	{
+		success = InDBTLS->DB_Post_Query(result, "INSERT INTO worlddb.instanceitem VALUES (%llu, %llu, %u, %d, %d)",
+			itemUID, characterUID, itemID, slotType, slotIndex);
+		if (!success)
+			__debugbreak();
+
+		if (randomStatCount != 0)
+		{
+			std::string query;
+			query.reserve(60 + (int)RANDOM_STAT_TYPE::MAX * (sizeof(int16) + sizeof(RANDOM_STAT_TYPE)));
+
+			query = "INSERT INTO worlddb.instanceitem_stat VALUES ";
+
+			// 랜덤 스탯 갯수에 따라 stat 테이블에 넣을 쿼리 문자열 담을 버퍼 생성
+			for(int i = 0; i < randomStatCount; i++)
+			{
+				char buffer[250] = {};
+
+				if (i < randomStatCount - 1)
+				{
+					int n1 = snprintf(buffer, sizeof(buffer), "(%llu, %d, %d), ", itemUID, randomStat[i].randomStatType, randomStat[i].randomStatValue);
+				}
+				else
+				{
+					int n1 = snprintf(buffer, sizeof(buffer), "(%llu, %d, %d)", itemUID, randomStat[i].randomStatType, randomStat[i].randomStatValue);
+				}
+
+				query.append(buffer);
+			}
+
+			success = InDBTLS->DB_Post_Query(result, "%s", query.c_str());
+			if (!success)
+				__debugbreak();
+		}
+	}
 
 	auto end = std::chrono::steady_clock::now();
 
@@ -219,10 +341,23 @@ void DeleteItemJob::Execute(DBTLS* InDBTLS)
 	auto start = std::chrono::steady_clock::now();
 
 	bool success = false;
-	success = InDBTLS->DB_Post_Query(result, "DELETE FROM worlddb.item WHERE itemUID = %llu", itemUID);
-		
-	if (!success)
-		__debugbreak();
+	if (itemType == ITEM_TYPE::CONSUMABLE)
+	{
+		success = InDBTLS->DB_Post_Query(result, "DELETE FROM worlddb.stackitem WHERE itemUID = %llu", itemUID);
+		if (!success)
+			__debugbreak();
+	}
+	else if (itemType == ITEM_TYPE::EQUIPMENT)
+	{
+		success = InDBTLS->DB_Post_Query(result, "DELETE FROM worlddb.instanceitem WHERE itemUID = %llu", itemUID);
+		if (!success)
+			__debugbreak();
+
+		success = InDBTLS->DB_Post_Query(result, "DELETE FROM worlddb.instanceitem_stat WHERE itemUID = %llu", itemUID);
+		if (!success)
+			__debugbreak();
+	}
+
 
 	auto end = std::chrono::steady_clock::now();
 
@@ -234,7 +369,7 @@ void ItemCountUpdateJob::Execute(DBTLS* InDBTLS)
 	auto start = std::chrono::steady_clock::now();
 
 	bool success = false;
-	success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.item SET count = %u WHERE itemUID = %llu", newCount, itemUID);
+	success = InDBTLS->DB_Post_Query(result, "UPDATE worlddb.stackitem SET count = %u WHERE itemUID = %llu", newCount, itemUID);
 
 	if (!success)
 		__debugbreak();
@@ -246,62 +381,135 @@ void ItemCountUpdateJob::Execute(DBTLS* InDBTLS)
 
 void ItemSlotUpdateJob::Execute(DBTLS* InDBTLS)
 {
-	// 쿼리 문자열 생성
-	std::string lastquery;
-	lastquery.reserve(ITEMSLOTUPDATE_SQL_FIXED + updateitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);     // INSERT INTO  ... VALUES(62) + ON DUPLICATE KEY UPDATE ... (78) = 160 + 아이템 1개당 문자열 크기(40) * 갯수 
+	// 쿼리 문자열 생성 스택따로 인스턴스 따로 생성
 
-	lastquery = "UPDATE worlddb.item SET ";
+	// 스택 쿼리 문자열 생성
+	std::string stackQuery;
 
-	std::string slottypeQuery;
-	std::string slotindexQuery;
-	std::string whereQuery;
-
-	slottypeQuery.reserve(updateitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
-	slotindexQuery.reserve(updateitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
-	whereQuery.reserve(updateitems.size() * 20);
-
-
-	slottypeQuery = "slottype = CASE itemUID " ;
-	slotindexQuery = "slotindex = CASE itemUID ";
-	whereQuery = "WHERE itemUID IN (";
-
-	for (size_t i = 0; i < updateitems.size(); i++)
+	if (!updatestackitems.empty())
 	{
-		char type[50] = {};
-		char index[50] = {};
-		char uid[50] = {};
+		stackQuery.reserve(ITEMSLOTUPDATE_SQL_FIXED + updatestackitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
 
-		if (i != updateitems.size() - 1)
+		stackQuery = "UPDATE worlddb.stackitem SET ";
+
+		std::string slottypeStackQuery;
+		std::string slotindexStackQuery;
+		std::string whereStackQuery;
+
+		slottypeStackQuery.reserve(updatestackitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
+		slotindexStackQuery.reserve(updatestackitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
+		whereStackQuery.reserve(updatestackitems.size() * 20);
+
+
+		slottypeStackQuery = "slottype = CASE itemUID ";
+		slotindexStackQuery = "slotindex = CASE itemUID ";
+		whereStackQuery = "WHERE itemUID IN (";
+
+		for (size_t i = 0; i < updatestackitems.size(); i++)
 		{
-			int n1 = snprintf(type, sizeof(type), "WHEN %llu THEN %u ", updateitems[i].itemUID, updateitems[i].slotType);
-			int n2 = snprintf(index, sizeof(index), "WHEN %llu THEN %d ", updateitems[i].itemUID, updateitems[i].slotIndex);
-			int n3 = snprintf(uid, sizeof(uid), "%llu, ", updateitems[i].itemUID);
+			char type[50] = {};
+			char index[50] = {};
+			char uid[50] = {};
 
-		}
-		else
-		{
-			int n1 = snprintf(type, sizeof(type), "WHEN %llu THEN %u END, ", updateitems[i].itemUID, updateitems[i].slotType);
-			int n2 = snprintf(index, sizeof(index), "WHEN %llu THEN %d END ", updateitems[i].itemUID, updateitems[i].slotIndex);
-			int n3 = snprintf(uid, sizeof(uid), "%llu)", updateitems[i].itemUID);
+			if (i != updatestackitems.size() - 1)
+			{
+				int n1 = snprintf(type, sizeof(type), "WHEN %llu THEN %u ", updatestackitems[i].itemUID, updatestackitems[i].slotType);
+				int n2 = snprintf(index, sizeof(index), "WHEN %llu THEN %d ", updatestackitems[i].itemUID, updatestackitems[i].slotIndex);
+				int n3 = snprintf(uid, sizeof(uid), "%llu, ", updatestackitems[i].itemUID);
+
+			}
+			else
+			{
+				int n1 = snprintf(type, sizeof(type), "WHEN %llu THEN %u END, ", updatestackitems[i].itemUID, updatestackitems[i].slotType);
+				int n2 = snprintf(index, sizeof(index), "WHEN %llu THEN %d END ", updatestackitems[i].itemUID, updatestackitems[i].slotIndex);
+				int n3 = snprintf(uid, sizeof(uid), "%llu)", updatestackitems[i].itemUID);
+			}
+
+			slottypeStackQuery.append(type);
+			slotindexStackQuery.append(index);
+			whereStackQuery.append(uid);
 		}
 
-		slottypeQuery.append(type);
-		slotindexQuery.append(index);
-		whereQuery.append(uid);
+		// 스택 쿼리 완성
+		stackQuery += slottypeStackQuery;
+		stackQuery += slotindexStackQuery;
+		stackQuery += whereStackQuery;
+
 	}
 
-	lastquery += slottypeQuery;
-	lastquery += slotindexQuery;
-	lastquery += whereQuery;
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	// 인스턴스 아이템 쿼리 생성
+	std::string instanceQuery;
+
+	if (!updateinstanceitems.empty())
+	{
+		instanceQuery.reserve(ITEMSLOTUPDATE_SQL_FIXED + updateinstanceitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
+
+		instanceQuery = "UPDATE worlddb.instanceitem SET ";
+
+		std::string slottypeInstanceQuery;
+		std::string slotindexInstanceQuery;
+		std::string whereInstanceQuery;
+
+		slottypeInstanceQuery.reserve(updateinstanceitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
+		slotindexInstanceQuery.reserve(updateinstanceitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
+		whereInstanceQuery.reserve(updateinstanceitems.size() * 20);
+
+
+		slottypeInstanceQuery = "slottype = CASE itemUID ";
+		slotindexInstanceQuery = "slotindex = CASE itemUID ";
+		whereInstanceQuery = "WHERE itemUID IN (";
+
+		for (size_t i = 0; i < updateinstanceitems.size(); i++)
+		{
+			char type[50] = {};
+			char index[50] = {};
+			char uid[50] = {};
+
+			if (i != updateinstanceitems.size() - 1)
+			{
+				int n1 = snprintf(type, sizeof(type), "WHEN %llu THEN %u ", updateinstanceitems[i].itemUID, updateinstanceitems[i].slotType);
+				int n2 = snprintf(index, sizeof(index), "WHEN %llu THEN %d ", updateinstanceitems[i].itemUID, updateinstanceitems[i].slotIndex);
+				int n3 = snprintf(uid, sizeof(uid), "%llu, ", updateinstanceitems[i].itemUID);
+
+			}
+			else
+			{
+				int n1 = snprintf(type, sizeof(type), "WHEN %llu THEN %u END, ", updateinstanceitems[i].itemUID, updateinstanceitems[i].slotType);
+				int n2 = snprintf(index, sizeof(index), "WHEN %llu THEN %d END ", updateinstanceitems[i].itemUID, updateinstanceitems[i].slotIndex);
+				int n3 = snprintf(uid, sizeof(uid), "%llu)", updateinstanceitems[i].itemUID);
+			}
+
+			slottypeInstanceQuery.append(type);
+			slotindexInstanceQuery.append(index);
+			whereInstanceQuery.append(uid);
+		}
+
+		// 인스턴스 쿼리 완성
+		instanceQuery += slottypeInstanceQuery;
+		instanceQuery += slotindexInstanceQuery;
+		instanceQuery += whereInstanceQuery;
+	}
 
 	auto start = std::chrono::steady_clock::now();
 
 	// 아이템 UPDATE 쿼리 한방에 보내기
 	bool success = false;
-	success = InDBTLS->DB_Post_Query(result, lastquery.c_str());
-	if (!success)
-		__debugbreak();
+
+	if (!updatestackitems.empty())
+	{
+		success = InDBTLS->DB_Post_Query(result, "%s", stackQuery.c_str());
+		if (!success)
+			__debugbreak();
+	}
+	
+	if (!updateinstanceitems.empty())
+	{
+		success = InDBTLS->DB_Post_Query(result, "%s", instanceQuery.c_str());
+		if (!success)
+			__debugbreak();
+	}
 
 	auto end = std::chrono::steady_clock::now();
 
@@ -325,53 +533,116 @@ void CharacterProgressJob::Execute(DBTLS* InDBTLS)
 
 void LogOutJob::Execute(DBTLS* InDBTLS)
 {
-	// 쿼리 문자열 생성
-	std::string lastquery;
-	lastquery.reserve(ITEMSLOTUPDATE_SQL_FIXED + updateitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);     // INSERT INTO  ... VALUES(62) + ON DUPLICATE KEY UPDATE ... (78) = 160 + 아이템 1개당 문자열 크기(40) * 갯수 
+	// 쿼리 문자열 생성 스택따로 인스턴스 따로 생성
 
-	lastquery = "UPDATE worlddb.item SET ";
+    // 스택 쿼리 문자열 생성
+	std::string stackQuery;
 
-	std::string slottypeQuery;
-	std::string slotindexQuery;
-	std::string whereQuery;
-
-	slottypeQuery.reserve(updateitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
-	slotindexQuery.reserve(updateitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
-	whereQuery.reserve(updateitems.size() * 20);
-
-
-	slottypeQuery = "slottype = CASE itemUID ";
-	slotindexQuery = "slotindex = CASE itemUID ";
-	whereQuery = "WHERE itemUID IN (";
-
-	for (size_t i = 0; i < updateitems.size(); i++)
+	if (!updatestackitems.empty())
 	{
-		char type[50] = {};
-		char index[50] = {};
-		char uid[50] = {};
+		stackQuery.reserve(ITEMSLOTUPDATE_SQL_FIXED + updatestackitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
 
-		if (i != updateitems.size() - 1)
+		stackQuery = "UPDATE worlddb.stackitem SET ";
+
+		std::string slottypeStackQuery;
+		std::string slotindexStackQuery;
+		std::string whereStackQuery;
+
+		slottypeStackQuery.reserve(updatestackitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
+		slotindexStackQuery.reserve(updatestackitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
+		whereStackQuery.reserve(updatestackitems.size() * 20);
+
+
+		slottypeStackQuery = "slottype = CASE itemUID ";
+		slotindexStackQuery = "slotindex = CASE itemUID ";
+		whereStackQuery = "WHERE itemUID IN (";
+
+		for (size_t i = 0; i < updatestackitems.size(); i++)
 		{
-			int n1 = snprintf(type, sizeof(type), "WHEN %llu THEN %u ", updateitems[i].itemUID, updateitems[i].slotType);
-			int n2 = snprintf(index, sizeof(index), "WHEN %llu THEN %d ", updateitems[i].itemUID, updateitems[i].slotIndex);
-			int n3 = snprintf(uid, sizeof(uid), "%llu, ", updateitems[i].itemUID);
+			char type[50] = {};
+			char index[50] = {};
+			char uid[50] = {};
 
-		}
-		else
-		{
-			int n1 = snprintf(type, sizeof(type), "WHEN %llu THEN %u END, ", updateitems[i].itemUID, updateitems[i].slotType);
-			int n2 = snprintf(index, sizeof(index), "WHEN %llu THEN %d END ", updateitems[i].itemUID, updateitems[i].slotIndex);
-			int n3 = snprintf(uid, sizeof(uid), "%llu)", updateitems[i].itemUID);
+			if (i != updatestackitems.size() - 1)
+			{
+				int n1 = snprintf(type, sizeof(type), "WHEN %llu THEN %u ", updatestackitems[i].itemUID, updatestackitems[i].slotType);
+				int n2 = snprintf(index, sizeof(index), "WHEN %llu THEN %d ", updatestackitems[i].itemUID, updatestackitems[i].slotIndex);
+				int n3 = snprintf(uid, sizeof(uid), "%llu, ", updatestackitems[i].itemUID);
+
+			}
+			else
+			{
+				int n1 = snprintf(type, sizeof(type), "WHEN %llu THEN %u END, ", updatestackitems[i].itemUID, updatestackitems[i].slotType);
+				int n2 = snprintf(index, sizeof(index), "WHEN %llu THEN %d END ", updatestackitems[i].itemUID, updatestackitems[i].slotIndex);
+				int n3 = snprintf(uid, sizeof(uid), "%llu)", updatestackitems[i].itemUID);
+			}
+
+			slottypeStackQuery.append(type);
+			slotindexStackQuery.append(index);
+			whereStackQuery.append(uid);
 		}
 
-		slottypeQuery.append(type);
-		slotindexQuery.append(index);
-		whereQuery.append(uid);
+		// 스택 쿼리 완성
+		stackQuery += slottypeStackQuery;
+		stackQuery += slotindexStackQuery;
+		stackQuery += whereStackQuery;
+
 	}
 
-	lastquery += slottypeQuery;
-	lastquery += slotindexQuery;
-	lastquery += whereQuery;
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// 인스턴스 아이템 쿼리 생성
+	std::string instanceQuery;
+
+	if (!updateinstanceitems.empty())
+	{
+		instanceQuery.reserve(ITEMSLOTUPDATE_SQL_FIXED + updateinstanceitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
+
+		instanceQuery = "UPDATE worlddb.instanceitem SET ";
+
+		std::string slottypeInstanceQuery;
+		std::string slotindexInstanceQuery;
+		std::string whereInstanceQuery;
+
+		slottypeInstanceQuery.reserve(updateinstanceitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
+		slotindexInstanceQuery.reserve(updateinstanceitems.size() * ITEMSLOTUPDATE_SQL_PER_ITEM);
+		whereInstanceQuery.reserve(updateinstanceitems.size() * 20);
+
+
+		slottypeInstanceQuery = "slottype = CASE itemUID ";
+		slotindexInstanceQuery = "slotindex = CASE itemUID ";
+		whereInstanceQuery = "WHERE itemUID IN (";
+
+		for (size_t i = 0; i < updateinstanceitems.size(); i++)
+		{
+			char type[50] = {};
+			char index[50] = {};
+			char uid[50] = {};
+
+			if (i != updateinstanceitems.size() - 1)
+			{
+				int n1 = snprintf(type, sizeof(type), "WHEN %llu THEN %u ", updateinstanceitems[i].itemUID, updateinstanceitems[i].slotType);
+				int n2 = snprintf(index, sizeof(index), "WHEN %llu THEN %d ", updateinstanceitems[i].itemUID, updateinstanceitems[i].slotIndex);
+				int n3 = snprintf(uid, sizeof(uid), "%llu, ", updateinstanceitems[i].itemUID);
+
+			}
+			else
+			{
+				int n1 = snprintf(type, sizeof(type), "WHEN %llu THEN %u END, ", updateinstanceitems[i].itemUID, updateinstanceitems[i].slotType);
+				int n2 = snprintf(index, sizeof(index), "WHEN %llu THEN %d END ", updateinstanceitems[i].itemUID, updateinstanceitems[i].slotIndex);
+				int n3 = snprintf(uid, sizeof(uid), "%llu)", updateinstanceitems[i].itemUID);
+			}
+
+			slottypeInstanceQuery.append(type);
+			slotindexInstanceQuery.append(index);
+			whereInstanceQuery.append(uid);
+		}
+
+		// 인스턴스 쿼리 완성
+		instanceQuery += slottypeInstanceQuery;
+		instanceQuery += slotindexInstanceQuery;
+		instanceQuery += whereInstanceQuery;
+	}
 
 	/////////////////////////////////////////////////////////////////////////////////
 	// 쿼리 보내기
@@ -386,9 +657,16 @@ void LogOutJob::Execute(DBTLS* InDBTLS)
 		__debugbreak();
 
 	// 아이템 저장(바뀐거 있을 때)
-	if (updateitems.size() != 0)
+	if (!updatestackitems.empty())
 	{
-		success = InDBTLS->DB_Post_Query(result, lastquery.c_str());
+		success = InDBTLS->DB_Post_Query(result, "%s", stackQuery.c_str());
+		if (!success)
+			__debugbreak();
+	}
+
+	if (!updateinstanceitems.empty())
+	{
+		success = InDBTLS->DB_Post_Query(result, "%s", instanceQuery.c_str());
 		if (!success)
 			__debugbreak();
 	}

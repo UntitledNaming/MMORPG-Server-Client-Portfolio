@@ -49,9 +49,14 @@ public:
 
 	void Clear()
 	{
+		T temp;
+		while (Pop(temp))
+		{
+
+		}
+
 		m_pTopNode = nullptr;
 		m_size = 0;
-		m_topCnt = 0;
 	}
 
 	void Push(T InputData)
@@ -123,7 +128,7 @@ public:
 	}
 	bool IsEmpty()
 	{
-		if (m_pTopNode == nullptr)
+		if (m_size == 0)
 			return true;
 
 		return false;

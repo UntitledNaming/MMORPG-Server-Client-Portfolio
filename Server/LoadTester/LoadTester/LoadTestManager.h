@@ -64,7 +64,7 @@ public:
     ~LoadTestManager();
 
     bool Init();   // WSAStartup + IOCP 생성 + 워커 스레드 기동
-    void Run();    // 램프 → 시뮬레이션 → RST 웨이브 → 정리 → 리포트
+    void Run();    // 분할 접속 → 시뮬레이션 → RST 웨이브 → 정리 → 리포트
 
 private:
     // --- 접속 수명주기 ---
@@ -88,7 +88,7 @@ private:
     // --- 송신 ---
     void SendRaw(DummyClient& c, const PacketWriter& w);   // 완성된 패킷을 끝까지 send
     void SendLoginAndSelect(DummyClient& c);               // 로그인(토큰) + 캐릭터선택(UID)
-    void DoMove(DummyClient& c, uint32 now);               // 랜덤워크 한 스텝 + 이동 패킷
+    void DoMove(DummyClient& c, uint32 now);               // 무작위 이동 한 스텝 + 이동 패킷
     void DoAttack(DummyClient& c, uint32 now);             // swing 공격 패킷
     void DoRtt(DummyClient& c, uint32 now);                // RTT핑 패킷(+로컬 송신시각 기록)
     void DoRespawn(DummyClient& c);                        // CS_RESPAWN_REQ(죽었을 때만 서버가 허용)

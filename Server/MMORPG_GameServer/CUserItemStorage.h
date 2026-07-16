@@ -26,7 +26,7 @@ public:
 	bool            CreateItem(const BaseItemInfo& Info, ITEM_UID& OutItemUID);
 	bool            DeleteItem(ITEM_UID ItemUID);
 	bool            ChangeItemCount(ITEM_UID ItemUID, uint16 NewCount);
-	bool            CollectDirtyItems(std::vector<ItemSlotUpdateData>& OutItems);
+	bool            CollectDirtyItems(std::vector<ItemSlotUpdateData>& OutStackItems, std::vector<ItemSlotUpdateData>& OutInstanceItems);
 	bool            IsStorageEmpty() { return m_storage.empty(); }
 	const UserItem* FindItem(ITEM_UID ItemUID) const;
 	uint16          GetItemCount(ITEM_UID InItemUID);

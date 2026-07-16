@@ -78,20 +78,23 @@ struct InsertItemJob  : public DBJob
 	virtual void Execute(DBTLS* DBTLS) override;
 
 	// 데이터 삽입 시 필요한 정보 
-	ITEM_UID  itemUID;
-	ITEM_ID   itemID;
-	uint64    characterUID;           // 소유 캐릭터 UID
-	uint16    count;
-	SLOT_TYPE slotType;
-	int16     slotIndex;
-	ItemStat  itemStat;
+	ITEM_UID            itemUID = ItemUID::ITEM_UID_INVALID_ID;
+	ITEM_ID             itemID = -1;
+	ITEM_TYPE           itemType = ITEM_TYPE::NONE;               // stack인지 instance에 넣을지 결정 변수
+	uint64              characterUID;                             // 소유 캐릭터 UID
+	uint16              count = 0;
+	SLOT_TYPE           slotType = SLOT_TYPE::NONE;
+	int16               slotIndex = -1;
+	uint8               randomStatCount = 0;
+	RandomStatResult    randomStat[FieldDropItemConst::FIELD_DROP_ITEM_RANDOM_STAT_MAX];
 };
 
 struct DeleteItemJob : public DBJob
 {
 	virtual void Execute(DBTLS* DBTLS) override;
 
-	ITEM_UID itemUID;                 // 삭제할 아이템 UID
+	ITEM_UID itemUID = ItemUID::ITEM_UID_INVALID_ID;              // 삭제할 아이템 UID
+	ITEM_TYPE itemType = ITEM_TYPE::NONE;
 };
 
 struct ItemCountUpdateJob : public DBJob
@@ -106,7 +109,8 @@ struct ItemSlotUpdateJob : public DBJob
 {
 	virtual void Execute(DBTLS* DBTLS) override;
 
-	std::vector<ItemSlotUpdateData> updateitems;
+	std::vector<ItemSlotUpdateData> updatestackitems;
+	std::vector<ItemSlotUpdateData> updateinstanceitems;
 };
 
 struct CharacterProgressJob : public DBJob
@@ -126,6 +130,7 @@ struct LogOutJob : public DBJob
 	uint16                          level;
 	int32                           curEXP;
 	Location                        location;
-	std::vector<ItemSlotUpdateData> updateitems;
+	std::vector<ItemSlotUpdateData> updatestackitems;
+	std::vector<ItemSlotUpdateData> updateinstanceitems;
 };
 

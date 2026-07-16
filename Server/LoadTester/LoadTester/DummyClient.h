@@ -39,7 +39,7 @@ struct DummyClient
 
     // --- 월드/이동 (behavior 스레드가 소유) ---
     float  x = 0.f, y = 0.f, z = 0.f;     // 현재 위치
-    float  anchorX = 0.f, anchorY = 0.f;  // 랜덤워크의 "중심점"(고정된 원점)
+    float  anchorX = 0.f, anchorY = 0.f;  // 무작위 이동의 "중심점"(고정된 원점)
     float  headingRad = 0.f;              // 현재 진행 방향(라디안)
     bool   moving = false;                // 지금 이동 중인지(서버로 보낼 moveFlag)
     bool   spawnReceived = false;         // 이번 세션에 CREATE_MY 받았는지(재접속 시 리셋)

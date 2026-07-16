@@ -16,7 +16,7 @@ private:
 
 	//////////////////////////////////////////////////////////////////////////
 	// 메모리 풀에서 사용할 노드 구조체
-	// todo : s_guard  : 노드 앞에 메모리 침범 체크할 가드, Free할때 체크
+	// s_guard  : 노드 앞에 메모리 침범 체크할 가드, Free할때 체크
 	// s_data   : 노드에 객체 자체를 저장
 	// s_pNext  : 노드의 다음 주소
 	// s_poolID : 타입별 메모리 풀 마다 ID 부여할때 체크하기 위한 변수
@@ -27,6 +27,8 @@ private:
 		Node*    s_pNext;  
 		UINT64   s_poolD;
 	};
+
+private:
 
 private:
 	Node*                               m_pTopNode;
@@ -55,7 +57,7 @@ public:
 		m_pTopNode = nullptr;
 		m_iUseCnt = 0;
 		m_iTopCnt = 0;
-
+		m_iCapacity = 0;
 
 
 		for (int i = 0; i < iBlockNum; i++)
@@ -68,7 +70,9 @@ public:
 	~CMemoryPool()
 	{
 		// Free에서 소멸자 호출 안했으니 소멸자 호출해주고 메모리 풀 노드 지우기
-		Node* newTop = nullptr;
+
+		Node* tempTop;
+		Node* newTop;
 		Node* realTop = (Node*)((UINT64)m_pTopNode & BITMASK);
 
 		while (realTop != nullptr)
@@ -242,13 +246,16 @@ public:
 		//기존 Top노드 메모리 풀과 분리했으니 추가 작업하던지 바로 반환
 		if (m_bPlacementNew == true)
 		{
-			new(&(t->s_data)) T;
+			new(&(real->s_data)) T;
 		}
 
 		//어차피 노드 생성할 때 생성자 이미 1번 호출해서 false일때 생각할 필요 없음.
 
 		InterlockedIncrement(&m_iUseCnt);
 		
+		if (&real->s_data == nullptr)
+			__debugbreak();
+
 		return &(real->s_data);
 	}
 
@@ -299,8 +306,8 @@ public:
 	}
 
 
-
 };
 
 #endif
+
  

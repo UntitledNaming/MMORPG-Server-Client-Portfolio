@@ -166,7 +166,7 @@ bool LoadTestManager::Init()
         return false;
     }
 
-    srand(GetTickCount());   // 랜덤워크/공격 등에 쓰는 rand 시드
+    srand(GetTickCount());   // 무작위 이동/공격 등에 쓰는 rand 시드
 
     // 봇 배열 할당. 각 봇에 슬롯번호와 characterUID(uidStart..uidStart+N-1) 부여.
     m_clients.reset(new DummyClient[m_cfg.userCount]);
@@ -200,12 +200,12 @@ bool LoadTestManager::Init()
     return true;
 }
 
-// 테스트 본체: 램프 접속 → 시뮬레이션 루프(RST 웨이브/재접속) → 정리 → 리포트.
+// 테스트 본체: 분할 접속 → 시뮬레이션 루프(RST 웨이브/재접속) → 정리 → 리포트.
 void LoadTestManager::Run()
 {
     DWORD startTick = GetTickCount();
 
-    // ---- 램프업: 서버 accept()는 단일 직렬 루프라 한꺼번에 수천 개를 열면
+    // ---- 분할 접속: 서버 accept()는 단일 직렬 루프라 한꺼번에 수천 개를 열면
     // 서버 상태와 무관하게 적체된다. 그래서 초당 개수를 나눠서 천천히 연다.
     printf("[run] connecting %d users at %d/sec ...\n", m_cfg.userCount, m_cfg.rampPerSec);
     for (int i = 0; i < m_cfg.userCount; ++i)
@@ -220,7 +220,7 @@ void LoadTestManager::Run()
     bool singleWaveDone = false;                  // 1회성 웨이브를 이미 했는지
     DWORD nextChurnTick = startTick + (DWORD)m_cfg.rstAfterSec * 1000; // 첫 웨이브 시각
 
-    // 재접속도 초기 램프처럼 분산시켜, 큰 웨이브가 블로킹 connect() 폭주로
+    // 재접속도 초기 분할 접속처럼 분산시켜, 큰 웨이브가 블로킹 connect() 폭주로
     // 이 루프를 멈춰 세우지 않게 한다.
     int reconnPerPass = (m_cfg.rampPerSec > 0) ? (m_cfg.rampPerSec / 10 + 1) : 100000;
 
@@ -280,7 +280,7 @@ void LoadTestManager::Run()
     m_running.store(false);
 
     // 종료 끊기도 한꺼번에 하면 FIN/RST이 폭주해 일부 유실(서버 half-open/TIME_WAIT 적체) 우려 →
-    // 접속 램프와 같은 속도(rampPerSec)로 나눠 끊는다.
+    // 접속 분할과 같은 속도(rampPerSec)로 나눠 끊는다.
     for (int i = 0; i < m_cfg.userCount; ++i)
     {
         HandleDisconnect(m_clients[i], false); // 정상 종료(오류 카운트 안 함)
@@ -319,7 +319,7 @@ void LoadTestManager::ConnectOne(DummyClient& c)
     addr.sin_port = htons(m_cfg.port);
     inet_pton(AF_INET, m_cfg.ip.c_str(), &addr.sin_addr);
 
-    // 블로킹 connect(램프로 빈도를 조절하므로 블로킹이어도 OK).
+    // 블로킹 connect(분할 접속으로 빈도를 조절하므로 블로킹이어도 OK).
     if (connect(c.sock, (sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR)
     {
         int connErr = WSAGetLastError();   // closesocket 전에 에러코드 먼저 확보
@@ -561,7 +561,7 @@ void LoadTestManager::HandlePacket(DummyClient& c, uint16 type, PacketReader& r)
         ValidateInventoryTail(c, r);
         // 현재 위치는 항상 서버 스폰 지점을 따라간다...
         c.x = x; c.y = y; c.z = z;
-        // ...하지만 랜덤워크 anchor는 "첫 스폰"에만 고정하고 재접속해도 유지한다.
+        // ...하지만 무작위 이동 anchor는 "첫 스폰"에만 고정하고 재접속해도 유지한다.
         // 그래야 로그아웃-위치 드리프트가 누적되지 않고, 계속 끊겨도 봇이 자기 몬스터 섹터에 머문다.
         if (!c.originSet)
         {
@@ -1084,7 +1084,7 @@ void LoadTestManager::SendLoginAndSelect(DummyClient& c)
     }
 }
 
-// 랜덤워크 한 스텝을 계산해 이동 입력 패킷을 보낸다.
+// 무작위 이동 한 스텝을 계산해 이동 입력 패킷을 보낸다.
 void LoadTestManager::DoMove(DummyClient& c, uint32 now)
 {
     float step = WALK_SPEED * (m_cfg.moveIntervalMs / 1000.f);   // 이번 주기에 이동할 거리

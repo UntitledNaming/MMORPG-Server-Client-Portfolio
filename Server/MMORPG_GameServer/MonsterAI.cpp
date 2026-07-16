@@ -512,7 +512,7 @@ bool MonsterAI::IsAttackRange()
 
 bool MonsterAI::IsChaseRange()
 {
-	if (!CollisionCheck::IsInCircle(m_pOwner->GetLocation(), m_pTarget->GetLocation(), ATTACK_RANGE + CHASE_REENTER_RANGE))
+	if (!CollisionCheck::IsInCircle(m_pOwner->GetLocation(), m_pTarget->GetLocation(), ATTACK_RANGE))
 		return false;
 
 	return true;

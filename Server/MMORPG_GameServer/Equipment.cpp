@@ -155,20 +155,6 @@ bool Equipment::EquippedItem(EQUIP_SLOT slotNum, ITEM_UID InItemUID, ITEM_UID& O
 		}
 	}
 
-	if (m_currentATK < -3000 || m_currentATK > 3000)
-		__debugbreak();
-	if (m_currentDEF < -3000 || m_currentDEF > 3000)
-		__debugbreak();
-	if (m_currentMaxHP < -3000 || m_currentMaxHP > 3000)
-		__debugbreak();
-	if (m_currentMaxMP < -3000 || m_currentMaxMP > 3000)
-		__debugbreak();
-	if (m_currentHPRegenPerSec < -3000 || m_currentHPRegenPerSec > 3000)
-		__debugbreak();
-	if (m_currentMPRegenPerSec < -3000 || m_currentMPRegenPerSec > 3000)
-		__debugbreak();
-
-
 	m_useCount++;
 	return true;
 }
@@ -234,18 +220,6 @@ bool Equipment::UnEquippedItem(EQUIP_SLOT slotNum, ITEM_UID& OutItemUID)
 		}
 	}
 
-	if (m_currentATK < -3000 || m_currentATK > 3000)
-		__debugbreak();
-	if (m_currentDEF < -3000 || m_currentDEF > 3000)
-		__debugbreak();
-	if (m_currentMaxHP < -3000 || m_currentMaxHP > 3000)
-		__debugbreak();
-	if (m_currentMaxMP < -3000 || m_currentMaxMP > 3000)
-		__debugbreak();
-	if (m_currentHPRegenPerSec < -3000 || m_currentHPRegenPerSec > 3000)
-		__debugbreak();
-	if (m_currentMPRegenPerSec < -3000 || m_currentMPRegenPerSec > 3000)
-		__debugbreak();
 
 	m_equipment[(int)slotNum] = ItemUID::ITEM_UID_INVALID_ID;
 	m_useCount--;

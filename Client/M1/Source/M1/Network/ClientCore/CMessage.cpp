@@ -290,6 +290,12 @@ CMessage& CMessage::operator=(CMessage& clSrcMessage)
 
 CMessage& CMessage::operator<<(uint8 byValue)
 {
+	if (m_iWritePos + sizeof(uint8) > m_iAllocPtr + m_iBufferSize)
+	{
+		m_iError = true;
+		return *this;
+	}
+
 	*(uint8*)m_iWritePos = byValue;
 	m_iWritePos += sizeof(uint8);
 	m_iDataSize += sizeof(uint8);
@@ -300,6 +306,12 @@ CMessage& CMessage::operator<<(uint8 byValue)
 
 CMessage& CMessage::operator<<(bool bValue)
 {
+	if (m_iWritePos + sizeof(bool) > m_iAllocPtr + m_iBufferSize)
+	{
+		m_iError = true;
+		return *this;
+	}
+
 	*(bool*)m_iWritePos = bValue;
 	m_iWritePos += sizeof(bool);
 	m_iDataSize += sizeof(bool);
@@ -310,6 +322,12 @@ CMessage& CMessage::operator<<(bool bValue)
 
 CMessage& CMessage::operator<<(char chValue)
 {
+	if (m_iWritePos + sizeof(char) > m_iAllocPtr + m_iBufferSize)
+	{
+		m_iError = true;
+		return *this;
+	}
+
 	*(char*)m_iWritePos = chValue;
 	m_iWritePos += sizeof(char);
 	m_iDataSize += sizeof(char);
@@ -319,6 +337,12 @@ CMessage& CMessage::operator<<(char chValue)
 
 CMessage& CMessage::operator<<(short shValue)
 {
+	if (m_iWritePos + sizeof(short) > m_iAllocPtr + m_iBufferSize)
+	{
+		m_iError = true;
+		return *this;
+	}
+
 	*(short*)m_iWritePos = shValue;
 	m_iWritePos += sizeof(short);
 	m_iDataSize += sizeof(short);
@@ -328,6 +352,12 @@ CMessage& CMessage::operator<<(short shValue)
 
 CMessage& CMessage::operator<<(uint16 wValue)
 {
+	if (m_iWritePos + sizeof(uint16) > m_iAllocPtr + m_iBufferSize)
+	{
+		m_iError = true;
+		return *this;
+	}
+
 	*(uint16*)m_iWritePos = wValue;
 	m_iWritePos += sizeof(uint16);
 	m_iDataSize += sizeof(uint16);
@@ -337,6 +367,12 @@ CMessage& CMessage::operator<<(uint16 wValue)
 
 CMessage& CMessage::operator<<(int iValue)
 {
+	if (m_iWritePos + sizeof(int) > m_iAllocPtr + m_iBufferSize)
+	{
+		m_iError = true;
+		return *this;
+	}
+
 	*(int*)m_iWritePos = iValue;
 	m_iWritePos += sizeof(int);
 	m_iDataSize += sizeof(int);
@@ -346,6 +382,12 @@ CMessage& CMessage::operator<<(int iValue)
 
 CMessage& CMessage::operator<<(uint32 lValue)
 {
+	if (m_iWritePos + sizeof(uint32) > m_iAllocPtr + m_iBufferSize)
+	{
+		m_iError = true;
+		return *this;
+	}
+
 	*(uint32*)m_iWritePos = lValue;
 	m_iWritePos += sizeof(uint32);
 	m_iDataSize += sizeof(uint32);
@@ -355,6 +397,12 @@ CMessage& CMessage::operator<<(uint32 lValue)
 
 CMessage& CMessage::operator<<(float fValue)
 {
+	if (m_iWritePos + sizeof(float) > m_iAllocPtr + m_iBufferSize)
+	{
+		m_iError = true;
+		return *this;
+	}
+
 	*(float*)m_iWritePos = fValue;
 	m_iWritePos += sizeof(float);
 	m_iDataSize += sizeof(float);
@@ -364,6 +412,12 @@ CMessage& CMessage::operator<<(float fValue)
 
 CMessage& CMessage::operator<<(__int64 iValue)
 {
+	if (m_iWritePos + sizeof(__int64) > m_iAllocPtr + m_iBufferSize)
+	{
+		m_iError = true;
+		return *this;
+	}
+
 	*(__int64*)m_iWritePos = iValue;
 	m_iWritePos += sizeof(__int64);
 	m_iDataSize += sizeof(__int64);
@@ -373,6 +427,12 @@ CMessage& CMessage::operator<<(__int64 iValue)
 
 CMessage& CMessage::operator<<(uint64 iValue)
 {
+	if (m_iWritePos + sizeof(uint64) > m_iAllocPtr + m_iBufferSize)
+	{
+		m_iError = true;
+		return *this;
+	}
+
 	*(uint64*)m_iWritePos = iValue;
 	m_iWritePos += sizeof(uint64);
 	m_iDataSize += sizeof(uint64);
@@ -383,6 +443,12 @@ CMessage& CMessage::operator<<(uint64 iValue)
 
 CMessage& CMessage::operator<<(double iValue)
 {
+	if (m_iWritePos + sizeof(double) > m_iAllocPtr + m_iBufferSize)
+	{
+		m_iError = true;
+		return *this;
+	}
+
 	*(double*)m_iWritePos = iValue;
 	m_iWritePos += sizeof(double);
 	m_iDataSize += sizeof(double);

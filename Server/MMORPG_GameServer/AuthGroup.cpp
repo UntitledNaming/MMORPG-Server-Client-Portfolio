@@ -124,10 +124,8 @@ void AuthGroup::OnUpdate(long long LockEnterTime)
 	while (m_pDBJobQueue->GetUseSize() > 0)
 	{
 		DBJob* pJob = nullptr;
-		m_pDBJobQueue->Dequeue(pJob);
-
-		if (pJob == nullptr)
-			__debugbreak();
+		if (!m_pDBJobQueue->Dequeue(pJob))
+			break;
 
 		// Job에 적힌 세션ID가 현재 그룹에 있는지 체크
 		std::unordered_map<uint64, CUser*>::iterator it = m_userTable.find(pJob->sessionID);

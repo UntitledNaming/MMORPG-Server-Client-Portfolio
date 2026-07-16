@@ -57,6 +57,7 @@ public:
 		m_pTopNode = nullptr;
 		m_iUseCnt = 0;
 		m_iTopCnt = 0;
+		m_iCapacity = 0;
 
 
 
@@ -246,7 +247,7 @@ public:
 		//���� Top��� �޸� Ǯ�� �и������� �߰� �۾��ϴ��� �ٷ� ��ȯ
 		if (m_bPlacementNew == true)
 		{
-			new(&(t->s_data)) T;
+			new(&(real->s_data)) T;
 		}
 
 		//������ ��� ������ �� ������ �̹� 1�� ȣ���ؼ� false�϶� ������ �ʿ� ����.

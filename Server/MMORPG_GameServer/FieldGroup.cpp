@@ -1167,6 +1167,8 @@ void FieldGroup::HandleDeleteItem(uint64 sessionID, CMessage* pMessage)
 		return;
 
 	CUser* pUser = it->second;
+	if (!pUser->IsAlive())
+		return;
 
 	// 유저에 함수 호출
 	bool Success = false;

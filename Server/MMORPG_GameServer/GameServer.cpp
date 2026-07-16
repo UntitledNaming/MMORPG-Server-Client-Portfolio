@@ -38,8 +38,6 @@
 
 #pragma comment(lib,"Pdh.lib")
 
-CMPoolTLS<UserItem>* m_itemPool = nullptr;
-
 GameServer::GameServer()
 {
 	std::wstring auth = L"Auth";
@@ -85,7 +83,6 @@ void GameServer::Init()
 	CSizeClassMemoryPoolTLS::PoolInit();
 	ItemTable::Init();
 	FieldDropItemPool::Init();
-	ItemUIDAllocator::Init(1, 10000);
 
 	m_SnapShotPool = new CMemoryPool<MonitorSnapshot>;
 	m_pStoreQueue = new LFQueueMul<MonitorSnapshot*>;
@@ -103,6 +100,12 @@ void GameServer::Init()
 
 	// DB 매니저 초기화 후 ItemUID 할당하기 
 	ItemUIDAllocate();
+
+	// uidalloc 플래그 켜질 때까지 대기
+	while (!ItemUIDAllocator::m_itemUIDAlloc)
+	{
+
+	}
 
 	// 그룹에게 DBManager 포인터 전달
 	m_pAuthGroup->InitDBManager(m_pDBManager);
@@ -243,12 +246,9 @@ void GameServer::StoreThread()
 		{
 			// 파일 저장 하기
 			MonitorSnapshot* pSnap = nullptr;
-			while (m_pStoreQueue->GetUseSize() > 0)
-			{
-				m_pStoreQueue->Dequeue(pSnap);     
-				WriteSnapshot(pSnap);              // 백분위 계산 + 한 줄 기록
-				m_SnapShotPool->Free(pSnap);      
-			}
+			m_pStoreQueue->Dequeue(pSnap);     
+			WriteSnapshot(pSnap);              // 백분위 계산 + 한 줄 기록
+			m_SnapShotPool->Free(pSnap);      
 		}
 	}
 

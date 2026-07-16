@@ -1,26 +1,26 @@
-#pragma once
+﻿#pragma once
 
-struct BlockSize32
+struct alignas(std::max_align_t) BlockSize32
 {
 	char  array[32];
 };
 
-struct BlockSize64
+struct alignas(std::max_align_t) BlockSize64
 {
 	char  array[64];
 };
 
-struct BlockSize128
+struct alignas(std::max_align_t) BlockSize128
 {
 	char  array[128];
 };
 
-struct BlockSize256
+struct alignas(std::max_align_t) BlockSize256
 {
 	char  array[256];
 };
 
-struct BlockSize512
+struct alignas(std::max_align_t) BlockSize512
 {
 	char  array[512];
 };

@@ -137,10 +137,9 @@ namespace MonsterConst
 	constexpr uint32  IDLE_MIN_DURATION_MS = 2000;
 	constexpr uint32  IDLE_MAX_DURATION_MS = 6000;
 	constexpr float   CHASE_ANGLE_THRESHOLD = 15.0f;
-	constexpr float   CHASE_REENTER_RANGE = 100;
 	constexpr uint32  CHASE_UPDATE_MIN_MS = 200;
 	constexpr uint32  MOVE_SYNC_INTERVAL_MS = 1000;
-	constexpr uint32  COMBAT_EXIT_DELAY_MS = 400;
+	constexpr uint32  COMBAT_EXIT_DELAY_MS = 800;
 }
 
 namespace UserItemStorage

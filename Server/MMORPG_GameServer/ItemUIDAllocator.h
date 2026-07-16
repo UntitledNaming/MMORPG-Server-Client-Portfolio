@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "ContentsType.h"
 #include "ContentsDefine.h"
 #include "ContentsStruct.h"
@@ -14,7 +14,11 @@ public:
 
 	static ITEM_UID Alloc();
 
+
 private:
 	static UIDRange m_curRange;
+
+public:
+	static BOOL     m_itemUIDAlloc;
 };
 

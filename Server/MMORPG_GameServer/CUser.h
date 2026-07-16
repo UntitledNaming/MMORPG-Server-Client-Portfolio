@@ -21,7 +21,6 @@ struct UserStat
 
 struct SkillInfo
 {
-	bool   m_skillActivate;     // skill Activate Flag
 	uint32 m_skillLastRecvTime; // skill Coll Time
 	uint32 m_skillExpiredTime;  // skill Expired Time
 

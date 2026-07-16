@@ -15,19 +15,33 @@ CREATE TABLE IF NOT EXISTS worlddb.`character`(
 );
 
 -- 아이템 테이블 생성
-CREATE TABLE IF NOT EXISTS worlddb.`item`(
+CREATE TABLE IF NOT EXISTS worlddb.`instanceitem`(
  itemUID              BIGINT UNSIGNED NOT NULL,
  characterUID         BIGINT UNSIGNED NOT NULL,
  itemID               INT UNSIGNED NOT NULL,
- count                SMALLINT UNSIGNED NOT NULL,
  slottype             TINYINT UNSIGNED NOT NULL,
  slotindex            SMALLINT NOT NULL,
- atk                  SMALLINT NOT NULL,
- def                  SMALLINT NOT NULL,
- maxhp                SMALLINT NOT NULL,
- maxmp                SMALLINT NOT NULL,
- hpregen              SMALLINT NOT NULL,
- mpregen              SMALLINT NOT NULL,
+
+ PRIMARY KEY(itemUID),
+ INDEX   idx_character(characterUID)
+);
+
+CREATE TABLE IF NOT EXISTS worlddb.`instanceitem_stat`(
+itemUID               BIGINT UNSIGNED NOT NULL,
+randomStatType        TINYINT UNSIGNED NOT NULL,
+statValue             SMALLINT NOT NULL,
+
+PRIMARY KEY(itemUID, randomStatType)
+);
+
+CREATE TABLE IF NOT EXISTS worlddb.`stackitem`(
+itemUID               BIGINT UNSIGNED NOT NULL,
+characterUID          BIGINT UNSIGNED NOT NULL,
+itemID                INT UNSIGNED NOT NULL,
+slottype              TINYINT UNSIGNED NOT NULL,
+slotindex             SMALLINT NOT NULL,
+count                 SMALLINT UNSIGNED NOT NULL,
+
  PRIMARY KEY(itemUID),
  INDEX   idx_character(characterUID)
 );
@@ -190,19 +204,21 @@ JOIN sectors sec ON sec.sid = ((s.n - 1) % cnt.c) + 1;          -- 라운드로�
 
 -- 수정용 쿼리
 TRUNCATE TABLE worlddb.character;
-TRUNCATE TABLE worlddb.item;
+TRUNCATE TABLE worlddb.instanceitem;
+TRUNCATE TABLE worlddb.instanceitem_stat;
+TRUNCATE TABLE worlddb.stackitem;
 TRUNCATE TABLE worlddb.uid_sequence;
+
 DROP TABLE worlddb.character;
-DROP TABLE worlddb.item;
+DROP TABLE worlddb.stackitem;
+DROP TABLE worlddb.instanceitem;
+DROP TABLE worlddb.instanceitem_stat;
 
 -- 테스트 용 쿼리
 SELECT * FROM worlddb.character WHERE characterUID = 4500;
-SELECT * FROM worlddb.item;
+SELECT * FROM worlddb.stackitem;
+SELECT * FROM worlddb.instanceitem;
+SELECT * FROM worlddb.instanceitem_stat;
 SELECT * FROM worlddb.uid_sequence;
-INSERT INTO worlddb.item VALUES(1, 1, 10012, 1,1, 5, 10,5,0,0,0,0); -- Test SQL
-INSERT INTO worlddb.item VALUES(2,1,10001,2,3,0,0,0,0,0,0,0);
-INSERT INTO worlddb.item VALUES(3,1,10002,3,3,1,0,0,0,0,0,0);
-INSERT INTO worlddb.item VALUES(4,1,10003,1,2,1,1,0,0,0,0,0);
-INSERT INTO worlddb.item VALUES(5,1,10001,4,1,1,0,0,0,0,0,0);
-INSERT INTO worlddb.item VALUES(6,1,10008,1,1,15,1,0,0,0,0,0);
+
 SELECT * FROM worlddb.item WHERE characterUID = 441;

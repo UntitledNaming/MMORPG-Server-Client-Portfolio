@@ -92,9 +92,13 @@ public:
 
 	void Clear()
 	{
+		T temp;
+		while (Dequeue(temp))
+		{
+
+		}
+
 		m_size = 0;
-		m_HeadCnt = 0;
-		m_TailCnt = 0;
 	}
 
 	void Enqueue(T InputParam)
@@ -177,6 +181,7 @@ public:
 		Node*    localTail;
 		Node*    localTailNext;
 		int64   retCntHead;
+		T        temp;
 		int64   retCntTail;
 
 		retCntTail = FPlatformAtomics::InterlockedIncrement(&m_TailCnt);
@@ -211,11 +216,19 @@ public:
 			localHead = m_pHead;
 			realHead = (Node*)((int64)localHead & BITMASK);
 			realHeadNext = realHead->_next;
-			if (realHeadNext == nullptr)
+
+			// 내가 바라본 head와 다르면 다시 스냅샷 뜨기 (재활용된 노드를 head로 착각하는 상황 방지)
+			if (localHead != m_pHead)
+				continue;
+
+			// 재검증 통과 후의 nullptr/FFFF는 후속 노드 없음 = 빈 큐로 판정
+			if (realHeadNext == nullptr || realHeadNext == (Node*)0xFFFFFFFFFFFFFFFF)
 				return false;
 
 
 			localHeadNext = (Node*)((int64)realHeadNext | (retCntHead << 47));
+
+			temp = realHeadNext->_data;
 
 			if (FPlatformAtomics::InterlockedCompareExchange((int64*)&m_pHead, (int64)localHeadNext, (int64)localHead) != (int64)localHead)
 				continue;
@@ -225,9 +238,7 @@ public:
 
 
 		//������ ��ȯ
-		localHeadNext = (Node*)((int64)localHeadNext & BITMASK);
-
-		OutputParam = localHeadNext->_data;
+		OutputParam = temp;
 
 		//��� ����
 		if (!m_pMemoryPool->Free(realHead))

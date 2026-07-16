@@ -1250,10 +1250,12 @@ void CGameLibrary::GroupMoveProc(CMessage* pMessage)
 
 	FindSession(sessionID, &pSession);
 
-	m_GroupArray[groupid]->ExclusiveGroupLock();
 	pSession->m_GroupID = groupid;
+
+	m_GroupArray[groupid]->ExclusiveGroupLock();
 	m_GroupArray[groupid]->OnIUserMove(sessionID, pUser);
 	m_GroupArray[groupid]->ExclusiveGroupUnlock();
+
 
 	Release(pSession,  InterlockedDecrement64(&pSession->m_RefCnt));
 }

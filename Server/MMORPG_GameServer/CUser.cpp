@@ -39,9 +39,10 @@ void CUser::Destroy()
 	pJob->level = m_level;
 	pJob->curEXP = m_currentExp;
 	pJob->location = m_location;
-	pJob->updateitems.reserve(UserItemStorage::MAX_ITEM_STORAGE_COUNT);
+	pJob->updatestackitems.reserve(UserItemStorage::MAX_ITEM_STORAGE_COUNT);
+	pJob->updateinstanceitems.reserve(UserItemStorage::MAX_ITEM_STORAGE_COUNT);
 	
-	m_storage.CollectDirtyItems(pJob->updateitems);
+	m_storage.CollectDirtyItems(pJob->updatestackitems, pJob->updateinstanceitems);
 
 	m_pDBManager->EnqueueDBJob(pJob);
 
@@ -196,7 +197,6 @@ void CUser::UseSkill(uint32 curTime, uint8 skillIndex)
 
 	if (skillIndex < USER_BUFF_SKILL_SLOT_COUNT)
 	{
-		m_skillInfo[skillIndex].m_skillActivate = true;
 		m_skillInfo[skillIndex].m_skillLastRecvTime = curTime;
 		m_skillInfo[skillIndex].m_skillExpiredTime = curTime + g_skillData[skillIndex].Duration;
 		m_mp -= g_skillData[skillIndex].RequiredMana;
@@ -371,26 +371,19 @@ bool CUser::GetConsumableItem(FieldDropItem& dropItem, PickUpConsumableResult& O
 	pJob->itemUID = retUID;
 	pJob->itemID = dropItem.itemID;
 	pJob->count = dropItem.count;
+	pJob->itemType = ITEM_TYPE::CONSUMABLE;
 	pJob->slotType = SLOT_TYPE::INVENTORY;
 	pJob->slotIndex = emptyIndex;
-	pJob->itemStat = {};
+	pJob->randomStatCount = 0;
 
 	for (int i = 0; i < dropItem.randomStatCount; i++)
 	{
 		RandomStatResult& stat = dropItem.randomStat[i];
 
-		switch (stat.randomStatType)
-		{
-		case RANDOM_STAT_TYPE::ATK: pJob->itemStat.atk = stat.randomStatValue; break;
-		case RANDOM_STAT_TYPE::DEF: pJob->itemStat.def = stat.randomStatValue; break;
-		case RANDOM_STAT_TYPE::MAX_HP: pJob->itemStat.atk = stat.randomStatValue; break;
-		case RANDOM_STAT_TYPE::MAX_MP: pJob->itemStat.def = stat.randomStatValue; break;
-		case RANDOM_STAT_TYPE::HP_REGEN: pJob->itemStat.hpRegenPerSec = stat.randomStatValue; break;
-		case RANDOM_STAT_TYPE::MP_REGEN: pJob->itemStat.mpRegenPerSec = stat.randomStatValue; break;
-		default:
-			__debugbreak();
-		}
+		pJob->randomStat[i] = stat;
 	}
+
+	pJob->randomStatCount = dropItem.randomStatCount;
 
 	m_pDBManager->EnqueueDBJob(pJob);
 
@@ -443,32 +436,17 @@ bool CUser::GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResu
 	pJob->itemUID = ID;
 	pJob->itemID = dropItem.itemID;
 	pJob->count = dropItem.count;
+	pJob->itemType = ITEM_TYPE::EQUIPMENT;
 	pJob->slotType = SLOT_TYPE::INVENTORY;
 	pJob->slotIndex = ret;
-	pJob->itemStat = {};
 
 	for (int i = 0; i < dropItem.randomStatCount; i++)
 	{
 		RandomStatResult& stat = dropItem.randomStat[i];
 
-		switch (stat.randomStatType)
-		{
-		case RANDOM_STAT_TYPE::ATK: pJob->itemStat.atk = stat.randomStatValue; break;
-		case RANDOM_STAT_TYPE::DEF: pJob->itemStat.def = stat.randomStatValue; break;
-		case RANDOM_STAT_TYPE::MAX_HP: pJob->itemStat.maxHP = stat.randomStatValue; break;
-		case RANDOM_STAT_TYPE::MAX_MP: pJob->itemStat.maxMP = stat.randomStatValue; break;
-		case RANDOM_STAT_TYPE::HP_REGEN: pJob->itemStat.hpRegenPerSec = stat.randomStatValue; break;
-		case RANDOM_STAT_TYPE::MP_REGEN: pJob->itemStat.mpRegenPerSec = stat.randomStatValue; break;
-		default:
-			__debugbreak();
-		}
+		pJob->randomStat[i] = stat;
 	}
-
-	if (pJob->itemStat.atk > 4)
-		__debugbreak();
-
-	if (pJob->itemStat.def > 1)
-		__debugbreak();
+	pJob->randomStatCount = dropItem.randomStatCount;
 
 
 	m_pDBManager->EnqueueDBJob(pJob);
@@ -479,7 +457,7 @@ bool CUser::GetEquipmentItem(FieldDropItem& dropItem, PickUpEquipResult& OutResu
 // 아이템을 인벤토리 바깥으로 버릴 때 작동
 bool CUser::DeleteItem(int16 slotIndex, SLOT_TYPE slotType)
 {
-	ITEM_UID retID;
+	ITEM_UID retUID = ItemUID::ITEM_UID_INVALID_ID;
 
 	// 슬롯 타입에 따라 해당 위치에서 UID 제거
 	switch (slotType)
@@ -487,12 +465,8 @@ bool CUser::DeleteItem(int16 slotIndex, SLOT_TYPE slotType)
 	case SLOT_TYPE::INVENTORY:
 	{
 		// 이미 비워져 있거나 index 이상하면 false 리턴
-		if (!m_inventory.DeleteInventorySlot(slotIndex, retID))
+		if (!m_inventory.DeleteInventorySlot(slotIndex, retUID))
 			return false;
-
-		const UserItem* pItem = m_storage.FindItem(retID);
-		if (pItem == nullptr)
-			__debugbreak();
 
 		// 제거 성공하면 인벤토리에 해당 index 할당자에 반환
 		m_inventory.ReturnSlotIndex(slotIndex);
@@ -501,14 +475,15 @@ bool CUser::DeleteItem(int16 slotIndex, SLOT_TYPE slotType)
 
 	case SLOT_TYPE::EQUIPMENT:
 	{
-		if (!m_equipment.UnEquippedItem(static_cast<EQUIP_SLOT>(slotIndex), retID))
+		if (!m_equipment.UnEquippedItem(static_cast<EQUIP_SLOT>(slotIndex), retUID))
 			return false;
+
 		break;
 	}
 
 	case SLOT_TYPE::QUICKSLOT:
 	{
-		if (!m_quickSlot.ClearConsumable(slotIndex, retID))
+		if (!m_quickSlot.ClearConsumable(slotIndex, retUID))
 			return false;
 
 		break;
@@ -518,13 +493,26 @@ bool CUser::DeleteItem(int16 slotIndex, SLOT_TYPE slotType)
 		return false;
 	}
 
-	// Storage에서 제거(INVALID_ID면 fale 리턴됨)
-	if (!m_storage.DeleteItem(retID))
+	if (retUID == ItemUID::ITEM_UID_INVALID_ID)
 		return false;
 
+	const UserItem* pItem = m_storage.FindItem(retUID);
+	if (pItem == nullptr)
+		__debugbreak();
+
+	const ItemData* pItemData = ItemTable::GetItemData(pItem->itemID);
+	if (pItemData == nullptr)
+		__debugbreak();
+
 	DeleteItemJob* pJob = new DeleteItemJob;
-	pJob->itemUID = retID;
+	pJob->itemUID = retUID;
+	pJob->itemType = pItemData->itemType;
+
 	m_pDBManager->EnqueueDBJob(pJob);
+
+	// Storage에서 제거(INVALID_ID면 fale 리턴됨)
+	if (!m_storage.DeleteItem(retUID))
+		return false;
 
 	InterlockedIncrement(&DeleteItemJob::g_TPS[(int)DBJobCount::DeleteItem]);
 	return true;
@@ -582,6 +570,8 @@ bool CUser::UseInventoryItem(int16 slotIndex, UseItemResult& result)
 
 		DeleteItemJob* pJob = new DeleteItemJob;
 		pJob->itemUID = retID;
+		pJob->itemType = pItemData->itemType;
+
 		m_pDBManager->EnqueueDBJob(pJob);
 
 		InterlockedIncrement(&DeleteItemJob::g_TPS[(int)DBJobCount::DeleteItem]);
@@ -679,6 +669,8 @@ bool CUser::UseQuickSlotItem(int16 slotIndex, UseItemResult& result)
 
 	DeleteItemJob* pJob = new DeleteItemJob;
 	pJob->itemUID = retUID;
+	pJob->itemType = pItem->itemType;
+
 	m_pDBManager->EnqueueDBJob(pJob);
 
 	InterlockedIncrement(&DeleteItemJob::g_TPS[(int)DBJobCount::DeleteItem]);
@@ -873,9 +865,6 @@ uint32 CUser::CalBaseAttackDamage(CUser* target, uint32 curTime)
 
 	damage -= targetDef;
 
-	if (damage > 5000)
-		__debugbreak();
-
 	return damage;
 }
 
@@ -898,8 +887,6 @@ uint32 CUser::CalBaseAttackDamage(CMonster* target, uint32 curTime)
 
 	damage -= targetDef;
 
-	if (damage > 5000)
-		__debugbreak();
 
 	return damage;
 }
@@ -913,7 +900,7 @@ int16 CUser::GetDef(uint32 curTime)
 
 	for (int i = 0; i < USER_BUFF_SKILL_SLOT_COUNT; i++)
 	{
-		if (m_skillInfo[i].m_skillActivate && m_skillInfo[i].m_skillExpiredTime > curTime)
+		if (m_skillInfo[i].m_skillExpiredTime > curTime)
 			def += ClientAttack::BUFF_DEF_ADD_AMOUNT;
 	}
 
@@ -931,7 +918,7 @@ int16 CUser::GetAtk(uint32 curTime)
 
 	for (int i = 0; i < USER_BUFF_SKILL_SLOT_COUNT; i++)
 	{
-		if (m_skillInfo[i].m_skillActivate && m_skillInfo[i].m_skillExpiredTime > curTime)
+		if (m_skillInfo[i].m_skillExpiredTime > curTime)
 			atk += ClientAttack::BUFF_ATK_ADD_AMOUNT;
 	}
 
@@ -1018,12 +1005,13 @@ void CUser::ItemSlotUpdate()
 	}
 
 	ItemSlotUpdateJob* pJob = new ItemSlotUpdateJob;
-	pJob->updateitems.reserve(UserItemStorage::MAX_ITEM_STORAGE_COUNT);
+	pJob->updatestackitems.reserve(UserItemStorage::MAX_ITEM_STORAGE_COUNT);
+	pJob->updateinstanceitems.reserve(UserItemStorage::MAX_ITEM_STORAGE_COUNT);
 
 	// Storage 클래스 호출해서 update해야 할 아이템들 얻기
-	m_storage.CollectDirtyItems(pJob->updateitems);
+	m_storage.CollectDirtyItems(pJob->updatestackitems, pJob->updateinstanceitems);
 
-	if (pJob->updateitems.size() == 0)
+	if (pJob->updatestackitems.size() == 0 && pJob->updateinstanceitems.size() == 0)
 	{
 		delete pJob;
 		m_itemSlotUpdateTimeAccum = 0;
@@ -1063,7 +1051,6 @@ void CUser::SkillInfoInit()
 {
 	for (int i = 0; i < USER_SKILL_SLOT_COUNT; i++)
 	{
-		m_skillInfo[i].m_skillActivate = false;
 		m_skillInfo[i].m_skillExpiredTime = 0;
 		m_skillInfo[i].m_skillLastRecvTime = 0;
 	}

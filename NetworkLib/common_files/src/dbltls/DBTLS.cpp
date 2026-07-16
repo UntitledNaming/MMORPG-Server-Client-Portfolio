@@ -127,7 +127,7 @@ bool DBTLS::DB_Query::ReConnect()
 	m_Connection = mysql_real_connect(&m_Conn, m_Parent->m_DBIP.c_str(), "root", "1q2w3e4r", m_Parent->m_Schema.c_str(), m_Parent->m_DBPort, (char*)NULL, 0);
 	if (m_Connection == NULL)
 	{
-		LOG(L"DB", en_LOG_LEVEL::dfLOG_LEVEL_ERROR, L"DB Connect Error... / UniqID : %s ", mysql_error(&m_Conn));
+		LOG(L"DB", en_LOG_LEVEL::dfLOG_LEVEL_ERROR, L"DB Connect Error... %S ", mysql_error(&m_Conn));
 		return false;
 	}
 	return true;
@@ -154,7 +154,7 @@ bool DBTLS::DB_Query::DB_Post_Query(DB_QUERY_RESULT& Result, const CHAR* QuerySt
 	if (query_stat != 0)
 	{
 		int error_code = mysql_errno(m_Connection);
-		LOG(L"DB",en_LOG_LEVEL::dfLOG_LEVEL_ERROR,L"DB mysql_query Error : %s" ,mysql_error(&m_Conn));
+		LOG(L"DB",en_LOG_LEVEL::dfLOG_LEVEL_ERROR,L"DB mysql_query Error : %S" ,mysql_error(&m_Conn));
 
 		// 재연결 1번 시도 후 쿼리 날리기
 		if (error_code == CR_SERVER_GONE_ERROR || error_code == CR_SERVER_LOST)

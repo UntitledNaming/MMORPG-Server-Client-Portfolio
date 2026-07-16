@@ -90,7 +90,7 @@ public:
 	~CMPoolTLS()
 	{
 		// ���� Ǯ�� ��� �ݳ�
-		for (int i = 0; i < m_SubPoolIndex; i++)
+		for (int i = 0; i <= m_SubPoolIndex; i++)
 		{
 			if (m_SubPoolArray[i].s_ptr->m_iAlloc->s_Top != nullptr)
 			{

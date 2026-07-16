@@ -7,6 +7,7 @@
 #include "ItemUIDAllocator.h"
 #include "SectorPos.h"
 #include "FieldDropItemPool.h"
+#include "ItemTable.h"
 #include "CUserItemStorage.h"
 
 CMPoolTLS<UserItem>* CUserItemStorage::m_itemPool = nullptr;
@@ -99,7 +100,7 @@ bool CUserItemStorage::ChangeItemCount(ITEM_UID ItemUID, uint16 NewCount)
 	return true;
 }
 
-bool CUserItemStorage::CollectDirtyItems(std::vector<ItemSlotUpdateData>& OutItems)
+bool CUserItemStorage::CollectDirtyItems(std::vector<ItemSlotUpdateData>& OutStackItems, std::vector<ItemSlotUpdateData>& OutInstanceItems)
 {
 	if (m_storage.empty())
 		return false;
@@ -111,14 +112,25 @@ bool CUserItemStorage::CollectDirtyItems(std::vector<ItemSlotUpdateData>& OutIte
 		if (!pItem->dirtyFlag)
 			continue;
 
+		const ItemData* pItemData = ItemTable::GetItemData(pItem->itemID);
+		if (pItemData == nullptr)
+			__debugbreak();
+
 
 		// 플래그 켜져 있으면  Job에 넣기
 		ItemSlotUpdateData item = {};
 		item.itemUID = pItem->itemUID;
 		item.slotType = pItem->slotType;
 		item.slotIndex = pItem->slotIndex;
-
-		OutItems.push_back(item);
+		
+		if (pItemData->itemType == ITEM_TYPE::CONSUMABLE)
+		{
+			OutStackItems.push_back(item);
+		}
+		else if (pItemData->itemType == ITEM_TYPE::EQUIPMENT)
+		{
+			OutInstanceItems.push_back(item);
+		}
 
 		pItem->dirtyFlag = false;
 	}
