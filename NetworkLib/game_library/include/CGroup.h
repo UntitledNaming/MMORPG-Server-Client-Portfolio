@@ -12,9 +12,9 @@ protected:
 	// 그룹 객체 변수
 	//////////////////////////////////////////////
 	CGameLibrary*       m_pGameLib;                  // 게임 라이브러리 네트워크 및 그룹 등 함수 사용하기 위한 멤버
-	SRWLOCK             m_GroupLock;                 // 그룹을 상속 받는 컨텐츠 직렬 처리를 위한 Lock
+	SRWLOCK             m_GroupLock = SRWLOCK_INIT;  // 그룹을 상속 받는 컨텐츠 직렬 처리를 위한 Lock
 	DWORD               m_GroupID;                   // 그룹을 상속 받는 컨텐츠의 실제 타입 구분자(Attach 할때 게임 라이브러리가 부여)
-    DWORD               m_GroupFrameTime;            // 프레임 로직 돌릴때 프레임(ms 단위)
+    DWORD               m_GroupFrameTime = 1000;     // 프레임 로직 돌릴때 프레임(ms 단위)
 	DWORD               m_OldTime;                   // 프레임 스레드에서 체크할 시간
 	BOOL                m_Shared;                    // 그룹 수신 메세지 병렬 처리 제어 플래그
 

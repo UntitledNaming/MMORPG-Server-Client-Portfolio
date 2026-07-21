@@ -4,7 +4,7 @@
 
 이 프로젝트는 C++ IOCP 기반 MMORPG 월드 서버입니다. UE5 클라이언트와 연동되며, 서버는 AOI(관심 영역), 이동 동기화, 서버 권위 전투, 몬스터 AI, 아이템, 비동기 DB 저장을 구현했습니다.
 
-핵심은 이 서버가 처음부터 새로 만든 것이 아니라, 앞선 프로젝트(P1)에서 직접 구현하고 검증한 IOCP 네트워크·게임 라이브러리를 **기반으로 포함**하고, 그 위에 실제 게임 서버 기능을 올렸다는 점입니다. 즉 P1이 라이브러리의 구현과 검증이라면, P4는 그 기반을 실제 MMORPG 월드 서버에 적용한 결과물입니다.
+핵심은 이 서버가 처음부터 새로 만든 것이 아니라, 앞선 프로젝트(P1)에서 직접 구현하고 검증한 IOCP 네트워크·게임 라이브러리를 기반으로, 그 위에 실제 게임 서버 기능을 올렸습니다. P1이 라이브러리의 구현과 검증이고, P4는 그 기반을 실제 MMORPG 월드 서버에 적용한 결과물 입니다.
 
 ## 2. P1 네트워크/게임 라이브러리와의 관계
 
@@ -18,17 +18,17 @@ P1 Network/Game Library
 └─ NetworkLib
    ├─ network_library     # IOCP 네트워크 코어, 세션
    ├─ game_library        # 그룹(CGroup)/게임 세션/유저 인터페이스(IUser)
-   └─ common_files        # 버퍼, TLS 메모리 풀, Lock-Free 등
+   └─ common_files       # 버퍼, TLS 메모리 풀, Lock-Free 등
         ↓  (기반으로 사용)
 P4 MMORPG World Server
 ├─ FieldGroup             # 월드 컨텐츠 (CGroup 상속)
-├─ User / Monster         # 캐릭터 / 몬스터 + AI
+├─ User / Monster        # 캐릭터 / 몬스터 + AI
 ├─ Item / Inventory       # 아이템 시스템 (Storage/슬롯)
-├─ DB Job Queue           # 비동기 DB 저장 (CDBManager)
+├─ DB Job Queue         # 비동기 DB 저장 (CDBManager)
 └─ LoadTester             # 부하 생성 및 응답 검증 (별도)
 ```
 
-## 3. 서버 전체 구조
+## 3. 프로젝트 전체 구조
 
 ```
 UE5 Client
@@ -37,13 +37,13 @@ UE5 Client
 GameServer
 ├─ NetworkLib (P1)                 # IOCP 네트워크·게임 라이브러리
 ├─ AuthGroup                       # 접속 / 로그인 / 캐릭터 선택
-├─ FieldGroup                      # 월드 로직 (AOI/전투/스킬/아이템/몬스터)
+├─ FieldGroup                       # 월드 로직 (AOI/전투/스킬/아이템/몬스터)
 │    ├─ User (CUser : IUser)
 │    ├─ Monster (CMonster + MonsterAI)
 │    ├─ Item (Storage/Inventory/Equipment/QuickSlot)
 │    └─ FieldDropItem (FieldDropItemPool)
 ├─ CDBManager (DB Thread)          # 비동기 DB Job 처리 ──► MySQL(worlddb)
-├─ Monitoring / Store Thread       # 지표 수집 ──► monitor.csv
+├─ Monitoring / Store Thread        # 지표 수집 ──► monitor.csv
 └─ (별도) LoadTester               # 다수 봇 접속·행동·응답 검증
 ```
 
@@ -63,7 +63,7 @@ GameServer
 | Send Thread(선택) | 게임 라이브러리(P1) | Config로 켤 수 있는 송신 전용 스레드 |
 | LoadTester Worker/Behavior/Stats | LoadTester(별도) | 봇의 수신 처리·주기적 송신·통계 |
 
-> 선택적 Send 스레드의 실제 활성화 여부와 프레임 스레드 개수 등 세부는 게임 라이브러리 설정에 따릅니다. (일부 세부 TODO)
+> 선택적 Send 스레드의 실제 활성화 여부와 프레임 스레드 개수 등 세부는 게임 라이브러리 설정에 따릅니다. 
 
 ## 5. FieldGroup 구조
 
@@ -91,4 +91,4 @@ GameServer
   - **트랜잭션 배치**: 여러 쓰기 Job을 한 트랜잭션으로 묶어 커밋(최대 일정 건수 단위).
 - DB 큐 깊이(`dbQueue`)는 모니터링 지표로 관측합니다.
 
-> 코드 흐름의 상세는 `docs/Code_Flow.md`, 각 구조를 그렇게 잡은 이유는 `docs/Design_Rationale.md`, 프로토콜은 `docs/Protocol_Design.md`를 참고하세요.
+> 코드 흐름의 상세는 `docs/Code_Flow.md`, 프로토콜은 `docs/Protocol_Design.md`를 참고하세요.

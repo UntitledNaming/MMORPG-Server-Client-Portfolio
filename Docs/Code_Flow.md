@@ -22,7 +22,7 @@
 - 설계 의도: 네트워크·프레임은 P1 라이브러리에 위임하고, P4는 컨텐츠 그룹과 DB·모니터링만 구현해 관심사를 분리한다.
 - 관련 테스트: 부하 테스트 시작 시 초기화 안정성.
 - 관련 트러블슈팅: 없음.
-- 확인 필요: 선택적 Send 스레드 활성화 여부 등 라이브러리 설정 세부.
+
 
 ---
 
@@ -40,7 +40,7 @@
   5. `AuthGroup::OnUpdate`가 완료된 Job의 `OnComplete`를 호출 → 유저에 데이터를 적용하고 `GroupMove("Field")`로 필드로 이동시킨다.
 - 설계 의도: 인증/입장 로직을 `AuthGroup`으로 격리하고, DB 읽기를 비동기 Job으로 돌려 네트워크 스레드를 막지 않는다.
 - 관련 테스트: 부하 테스트의 접속·캐릭터 선택 경로.
-- 관련 트러블슈팅: BadValue(잘못된 DB 접속으로 인한 로드 이상).
+- 관련 트러블슈팅: 없음.
 - 확인 필요: 로그인 요청의 토큰 인증은 코드상 미구현(주석 처리) 상태다. 부하·기능 검증 목적의 임시 구현으로 두었으며, 실서비스라면 인증 검증이 추가되어야 한다.
 
 ---
@@ -57,10 +57,10 @@
   3. `GroupMove("Field")` → `FieldGroup::OnIUserMove`가 유저를 필드 조회 테이블과 현재 섹터에 등록한다.
   4. 본인에게 내 캐릭터 생성 패킷(`CreateMyCharacter`)을 보낸다.
   5. 주변 9섹터를 순회하며, 주변 유저들에게 내 캐릭터 생성을 뿌리고, 주변 섹터의 타 유저·몬스터·드랍 아이템 생성 패킷을 나에게 보낸다.
-- 설계 의도: DB 읽기(느림)와 필드 등장(빠름)을 분리하고, 등장 시점에 주변 9섹터 상태를 한 번에 만들어 클라이언트 화면을 채운다.
+- 설계 의도: 등장 시점에 주변 9섹터 상태를 한 번에 만들어 클라이언트 화면을 채운다.
 - 관련 테스트: 부하 테스트의 스폰 경로.
-- 관련 트러블슈팅: BadValue.
-- 확인 필요: `LoadDataFromDB`의 슬롯 로드·랜덤 스탯 적용 세부는 일부 grep 기준이며 본문 재확인 권장.
+- 관련 트러블슈팅: HP BadValue(공격·방어 스탯 미초기화).
+
 
 ---
 
@@ -72,7 +72,7 @@
 - 관련 함수: `HandleCharacterMovementUpdate`, `CUser::SetMoveYaw/SetMoveFlag/SetLocation`, `SectorUpdate`, `PacketBuilder::SyncMyCharacter/UpdateCharacterMovement`
 - 처리 순서:
   1. `OnRecv`에서 이동 입력 패킷이면 `HandleCharacterMovementUpdate`로 진입한다.
-  2. 좌표·yaw·moveFlag를 추출하고 유저를 찾는다(사망 시 리턴).
+  2. 좌표·yaw·moveFlag를 추출하고 유저를 찾는다(사망 후 오는 메세지면 리턴).
   3. yaw·moveFlag를 세팅한다.
   4. 서버가 아는 좌표와 클라 좌표의 차이가 싱크 임계를 벗어나면, 싱크 카운트를 올리고 서버 좌표로 강제 보정하는 싱크 패킷을 보낸다. 임계 안이면 클라 좌표를 신뢰해 위치를 갱신한다.
   5. 새 좌표로 섹터를 계산해 `SectorUpdate`(섹터가 바뀌면 AOI 갱신)를 호출한다.
@@ -80,7 +80,7 @@
 - 설계 의도: 정상 범위 안에서는 클라 좌표를 믿어 연산을 줄이고, 이상치만 싱크로 교정한다.
 - 관련 테스트: 3500/4000 동접 싱크 발생 지표.
 - 관련 트러블슈팅: 타 캐릭터 스냅샷 보간(클라 영역).
-- 확인 필요: 좌표·Z축의 정밀 검증 일부는 코드상 미구현(주석). 싱크 임계 상수와 끊기 로직 활성화 여부.
+- 확인 필요: 좌표·Z축의 정밀 검증 일부는 코드상 미구현(주석). 
 
 ---
 
@@ -99,28 +99,15 @@
 - 설계 의도: 전체 브로드캐스트 대신 섹터 기반 관심영역으로 트래픽을 제한하고, 이동 시 차집합만 갱신해 확산 전송 비용을 줄인다.
 - 관련 테스트: 부하 테스트의 브로드캐스트 지표.
 - 관련 트러블슈팅: 몬스터 생성/삭제 중복(섹터 경계 처리).
-- 확인 필요: `CalSectorTransitionMessageTargets`의 경계 처리 본문 재확인 권장.
+
 
 ---
 
-## 6. 타 캐릭터 스냅샷 보간 흐름
 
-- 목적: 다른 캐릭터·몬스터를 부드럽게 보여주기 위해 위치 스냅샷을 주고받는다.
-- 관련 파일(서버 측): `FieldGroup.cpp`(UpdateCharacterMovement/MoveMonster 전송), `PacketBuilder.cpp`, `CUser.cpp`(UserOnUpdate)
-- 관련 클래스: `FieldGroup`, `PacketBuilder`, `CUser`, `CMonster`
-- 관련 함수: `PacketBuilder::UpdateCharacterMovement/SyncMyCharacter/MoveMonster/StopMonster`, `FieldGroup::UserUpdate`
-- 처리 순서(서버 측):
-  1. 이동 입력 수신 시 위치+yaw+moveFlag를 주변에 전파하고, 이동 브로드캐스트에는 서버 타임스탬프를 함께 담는다.
-  2. 몬스터는 목적지 좌표 기반으로 이동 패킷/정지 패킷을 보내 클라이언트가 그 목적지까지 보간하도록 한다.
-  3. 렌더링 지연·보간·역행/외삽 처리는 **클라이언트(UE5) 영역**이다. 서버는 입력·목적지 스냅샷을 제공한다.
-- 설계 의도: 서버는 권위 위치와 목적지만 전달하고 표현(보간)은 클라에 위임해 서버 부하를 낮춘다.
-- 관련 테스트: 부하 테스트의 이동/브로드캐스트 지표.
-- 관련 트러블슈팅: 타 캐릭터 스냅샷 보간 문제(클라 렌더링 이슈).
-- 확인 필요: 보간/역행/외삽의 실제 구현은 이 레포의 서버 소스 범위 밖(UE5 클라이언트)이다.
 
 ---
 
-## 7. 기본 공격 / 서버 권위 전투 판정 흐름
+## 6. 기본 공격 / 서버 권위 전투 판정 흐름
 
 - 목적: 클라이언트 공격 입력을 서버가 검증·판정하고 데미지/드랍/경험치를 처리한 뒤 결과를 브로드캐스트한다.
 - 관련 파일: `FieldGroup.cpp`(HandleLeftAttackSwing, CollectHitTarget, SendPacket_HitSectors), `HitSearchBuilder.cpp`, `CollisionCheck.cpp`, `CUser.cpp`, `CMonster.cpp`
@@ -136,12 +123,11 @@
   7. 공격 스윙을 주변에, 피격 결과를 피격자/피격 몬스터 주변 섹터에 브로드캐스트한다. 죽은 몬스터는 삭제 패킷 후 섹터에서 제거한다.
 - 설계 의도: 명중·데미지를 전적으로 서버가 판정해 치팅을 막고, 섹터 1차 거르기 + 제곱근 회피로 광역 판정 비용을 낮춘다.
 - 관련 테스트: 부하 테스트의 공격 요청 지표.
-- 관련 트러블슈팅: Damage UnderFlow(장비 스탯 계산).
-- 확인 필요: `CalBaseAttackDamage`/`Damage`/`GainExp` 본문은 일부 grep 기준이며 재확인 권장.
+- 관련 트러블슈팅: 없음
 
 ---
 
-## 8. 스킬 처리 흐름
+## 7. 스킬 처리 흐름
 
 - 목적: 스킬 슬롯 사용을 MP/쿨다운으로 검증하고, 버프/광역 판정을 처리해 결과를 브로드캐스트한다.
 - 관련 파일: `FieldGroup.cpp`(HandleSkillUse), `CUser.cpp`(CanUseSkill/UseSkill/CalSkillDamage), `HitSearchBuilder.cpp`
@@ -155,11 +141,11 @@
 - 설계 의도: 버프/공격 스킬을 슬롯 구간으로 분기하고, 공격 스킬은 평타와 동일한 판정 처리 절차을 재사용해 일관성을 확보한다. MP·쿨다운은 서버가 관리한다.
 - 관련 테스트: 부하 테스트의 스킬 요청 지표.
 - 관련 트러블슈팅: 없음.
-- 확인 필요: 스킬별 도형/범위/데미지 계수(`SkillTable.h`) 세부.
+
 
 ---
 
-## 9. 몬스터 AI Update 흐름
+## 8. 몬스터 AI Update 흐름
 
 - 목적: 몬스터를 상태 기계로 구동해 순찰/추격/전투/복귀를 처리하고 관련 패킷을 뿌린다.
 - 관련 파일: `MonsterAI.cpp`, `CMonster.cpp`, `FieldGroup.cpp`(MonsterUpdate, 몬스터 전송)
@@ -179,7 +165,7 @@
 
 ---
 
-## 10. 필드 드랍 아이템 흐름
+## 9. 필드 드랍 아이템 흐름
 
 - 목적: 몬스터 사망 시 드랍을 생성해 섹터에 등록하고, 시야/만료/줍기를 처리한다.
 - 관련 파일: `FieldGroup.cpp`(CreateFieldDropItem, FieldDropItemExpired, HandlePickUpItems), `FieldDropItemPool.cpp`, `CUser.cpp`
@@ -192,12 +178,12 @@
   4. 줍기 요청 시 `HandlePickUpItems`가 DropID로 드랍을 찾아, 소모품/장비 타입에 따라 인벤에 넣고 성공 시 삭제 패킷·픽업 결과를 보낸 뒤 드랍을 제거한다.
 - 설계 의도: 드랍을 풀로 재사용해 할당 비용을 줄이고, 섹터 기반 생성/삭제로 필요한 클라에게만 노출한다.
 - 관련 테스트: 부하 테스트의 줍기/드랍 지표.
-- 관련 트러블슈팅: BadValue(드랍 초기화 누락).
-- 확인 필요: 드랍 확률·랜덤 스탯 규칙 본문 세부.
+- 관련 트러블슈팅: BadValue 
+
 
 ---
 
-## 11. 인벤토리 / 장비 / 퀵슬롯 / Storage 흐름
+## 10. 인벤토리 / 장비 / 퀵슬롯 / Storage 흐름
 
 - 목적: 아이템 소유를 단일 저장소로 관리하고 슬롯 배치와 사용을 처리한다.
 - 관련 파일: `CUserItemStorage.cpp`, `Inventory.cpp`, `Equipment.cpp`, `QuickSlot.cpp`, `ItemUIDAllocator.cpp`, `CUser.cpp`
@@ -215,7 +201,7 @@
 
 ---
 
-## 12. DB Job Queue 저장 흐름
+## 11. DB Job Queue 저장 흐름
 
 - 목적: 컨텐츠 변경을 비동기 Job으로 만들어 단일 DB 스레드가 트랜잭션 배치로 저장한다.
 - 관련 파일: `DBJob.cpp`, `CDBManager.cpp`, `CUser.cpp`(Job 생성부), `CUserItemStorage.cpp`
@@ -233,19 +219,3 @@
 
 ---
 
-## 13. 부하 테스트 / 모니터링 흐름
-
-- 목적: 다수 봇으로 실부하를 만들고 지표를 CSV로 남겨 병목·안정성을 검증한다.
-- 관련 파일: `Server/LoadTester/`(별도 프로젝트), `GameServer.cpp`(Monitoring/StoreThread), `MonitoringSnapShot.h`, `LatencyHistogram.h`
-- 관련 클래스: `LoadTestManager`, `DummyClient`, `GameServer`, `MonitorSnapshot`, `LatencyHistogram`, `ProcessMonitor`
-- 관련 함수: `LoadTestManager::Run/WorkerLoop/BehaviorLoop/ParseFrames/HandlePacket`, `GameServer::Monitoring/StoreProc`
-- 처리 순서:
-  1. `LoadTester`가 IOCP 기반으로 봇을 접속(분할 접속)시키고, 이동/공격/RTT/스킬/줍기/아이템 사용 등을 주기적으로 보내 실부하를 만든다.
-  2. 봇은 수신 프레임을 파싱해 서버 이상(값 범위 밖, 중복 생성/모르는 삭제 등)을 와이어 레벨에서 검출한다.
-  3. 서버는 프레임마다 지연 히스토그램·CPU·큐 깊이·네트워크 지표를 스냅샷으로 만들어 `monitor.csv`에 기록한다.
-- 설계 의도: 부하 도구가 서버 이상을 자동 검출하고, 서버는 지연을 백분위로 남겨 평균이 아니라 꼬리까지 병목을 정량화한다.
-- 관련 테스트: UserCount 100~4000 부하, 안정성 로그.
-- 관련 트러블슈팅: DB 저장 큐 폭증, 안정성 로그 3종.
-- 확인 필요: `LoadTester` 본문 세부와 CSV 실측 수치.
-
-> 각 흐름을 그렇게 설계한 이유는 `docs/Design_Rationale.md`, 프로토콜은 `docs/Protocol_Design.md`, 측정 결과는 `docs/Test_Report.md`, 문제 해결은 `docs/Troubleshooting.md`를 참고하세요.

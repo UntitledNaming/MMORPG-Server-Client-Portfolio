@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <windows.h>
 
 class CGameLibrary;
@@ -59,7 +59,7 @@ public:
 
 protected:
 	CGameLibrary* m_pGamelib;
-	SRWLOCK       m_lock;
+	SRWLOCK       m_lock = SRWLOCK_INIT;
 	UINT16        m_serviceID;
 	DWORD         m_serviceFrameTime;
 	DWORD         m_oldTime;

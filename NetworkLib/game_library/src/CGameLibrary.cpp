@@ -203,6 +203,7 @@ bool CGameLibrary::AttachService(CService* pContents)
 		return false;
 
 	m_serviceArray.push_back(pContents);
+	return true;
 }
 
 void CGameLibrary::Mem_Init(INT sessionmax, INT createiothread, INT activethread, INT sendframe, INT sendflag, INT nagle)
@@ -765,7 +766,6 @@ bool CGameLibrary::GroupMove(std::wstring& ToContents, UINT64 sessionID, IUser* 
 	// wstring에 해당되는 그룹 ID 찾기
 	AcquireSRWLockShared(&m_GroupIDMapLock);
 	std::unordered_map<std::wstring, UINT16>::iterator it = m_GroupIDMap.find(ToContents);
-	id = it->second;
 	if (it == m_GroupIDMap.end())
 	{
 		ReleaseSRWLockShared(&m_GroupIDMapLock);
@@ -774,6 +774,8 @@ bool CGameLibrary::GroupMove(std::wstring& ToContents, UINT64 sessionID, IUser* 
 		return false;
 	}
 	ReleaseSRWLockShared(&m_GroupIDMapLock);
+
+	id = it->second;
 
 	CMessage* pMessage = CMessage::Alloc();
 	pMessage->Clear();

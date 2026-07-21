@@ -635,12 +635,13 @@ void FieldGroup::CollectHitTarget(CUser* attacker, HitSearchInfo& hitInfo, HitRe
 						}
 						break;
 					}
-				}
 
-				if (hitInfo.MaxMonsterCount <= hitmonsterCount || hitmonsterCount >= ClientAttack::MaxMonsterCount)
-				{
-					hitstopmonster = true;
-					break;
+
+					if (hitInfo.MaxMonsterCount <= hitmonsterCount || hitmonsterCount >= ClientAttack::MaxMonsterCount)
+					{
+						hitstopmonster = true;
+						break;
+					}
 				}
 			}
 
@@ -677,7 +678,7 @@ void FieldGroup::HandleCharacterMovementUpdate(uint64 sessionID, CMessage* pMess
 	*pMessage >> moveflag;
 	
 	// todo : 추출한 데이터 검증
-	// 1) Z축 값에 대한 검증 필요. 섹터 하나가 100m이니 그 안에 Zone을 만드는데 Zone의 구역을 직육면체로 정의함.
+	// 1) Z축 값에 대한 검증 필요. 섹터 하나가 25m이니 그 안에 Zone을 만드는데 Zone의 구역을 직육면체로 정의함.
 	//    이 Zone들 마다 속성들이 있음. Z축이 허용되는 지역이 있을 것이고 그게 안되는 지역이 있을 것임.
 	//
 
@@ -1501,13 +1502,7 @@ void FieldGroup::CreateFieldDropItem(CMonster& monster)
 
 	// 섹터 및 관리 자료구조에 넣기
 	m_dropItemLookUpTable.insert(std::pair<uint64, FieldDropItem*>(pItem->dropUID, pItem));
-	if (!m_sectors[pItem->sectorPos.GetY()][pItem->sectorPos.GetX()].AddItem(pItem))
-	{
-		// 섹터에 못 넣으면 그냥 다 반납
-		m_dropItemLookUpTable.erase(pItem->dropUID);
-		FieldDropItemPool::FreeItem(pItem);
-		return;
-	}
+	m_sectors[pItem->sectorPos.GetY()][pItem->sectorPos.GetX()].AddItem(pItem);
 
 	SendCreateFieldDropItem(pItem);
 

@@ -660,11 +660,11 @@ bool CLanServer::SendPost(CSession* pSession)
 		pSession->m_SendFlag = 1;
 	}
 
-	WSABUF wsa[WSABUFSIZE];
+	WSABUF wsa[df_SERVER_WSABUFSIZE];
 
 	//송신 락프리큐에서 데이터 꺼내기(없으면 false 리턴)
 	int index;
-	for (index = 0; index < WSABUFSIZE; index++)
+	for (index = 0; index < df_SERVER_WSABUFSIZE; index++)
 	{
 		if (!pSession->m_SendQ.Dequeue(pSession->m_SendArray[index]))
 			break;
