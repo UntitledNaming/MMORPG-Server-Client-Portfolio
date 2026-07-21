@@ -1,3 +1,4 @@
+﻿#include <new>
 #include "MemoryPoolTLS.h"
 #include "CSizeClassMemoryPoolTLS.h"
 
@@ -28,7 +29,7 @@ void CSizeClassMemoryPoolTLS::PoolDestroy()
 void* CSizeClassMemoryPoolTLS::Alloc(size_t size)
 {
 	if (size > MAX_MEMORYPOOL_BLOCK_SIZE)
-		return nullptr;
+		throw std::bad_alloc();
 
 	if (size <= 32)
 		return (void*)(m_blockSize32Pool->Alloc());
