@@ -110,8 +110,9 @@ Thumbs.db
 
 # 서버쪽 파일 예외
 !Server/**/*.sln
-!Server/**/*.vcxpro.h
-!Sever/**/*.filters
+!Server/**/*.vcxproj
+!Server/**/*.vcxproj.filters
+!Server/**/*.filters
 
 # Mysql Third Party
 !Server/MMORPG_GameServer/ThirdParty/mysql/**/*.lib
