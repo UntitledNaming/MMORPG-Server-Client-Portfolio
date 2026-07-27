@@ -790,8 +790,6 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CUser* target, uint32 curTime)
 		break;
 	}
 
-	if (damage > 5000)
-		__debugbreak();
 
 	return damage;
 }
@@ -839,8 +837,6 @@ uint32 CUser::CalSkillDamage(uint16 skillIndex, CMonster* target, uint32 curTime
 		break;
 	}
 
-	if (damage > 5000)
-		__debugbreak();
 
 	return damage;
 }
