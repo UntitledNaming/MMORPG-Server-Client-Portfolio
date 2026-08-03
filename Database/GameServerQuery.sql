@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS worlddb.`character`(
   ypos                 FLOAT  NOT NULL,
   zpos                 FLOAT  NOT NULL,
   PRIMARY KEY (characterUID),
-  INDEX   idx_account(accountid) 
+  INDEX   idx_account(accountID) 
 );
 
 -- 아이템 테이블 생성
